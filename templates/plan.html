@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Карта</title>
+        <link href="/static/css/main.css" rel="stylesheet">
+        <link href="/static/css/header.css" rel="stylesheet">
+        <link href="/static/css/plan.css" rel="stylesheet">
+        <link rel="icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+        <link rel="shortcut icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.0.2.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="/static/js/jquery.ui.touch-punch.min.js"></script>
+    </head>
+    <body>
+        <input type="checkbox" class="open" id="nav-toggle" hidden>
+        <div class="header">
+            <div id="logo"><img src="/static/icons/switchmap_icon_black.svg"></div>
+            <div id="title">SwitchMap</div>
+            <label for="nav-toggle" class="btn" onclick="anim(this)">
+                <div class="bars">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>
+            </label>
+            <div id="userbar">
+                <span>{{ .User}}</span>
+                (<a href="/admin/logout">Выйти</a>)
+            </div>
+        </div>
+        <div class="content">
+            <ul class="navbar">
+                <li><a href="/map">Карта</a></li>
+                <li><a href="/list">Список</a></li>
+                <li><a href="/logs">Логи</a></li>
+                <li><a href="/planupdate/{{ .Build}}/{{ .Floor}}">Обновить план</a></li>
+                <li><a href="/map/{{ .Build}}">Назад</a></li>
+                <li>
+                    <form method="POST" action="{{ .Floor}}">
+                        <button class="button">Добавить свитч</button>
+                        <ul class="subnavbar">
+                            <li><input type="text" name="name" placeholder="Имя" required></li>
+                            <li>
+                                <select name="model">
+                                    <option disabled selected>Модель</option>
+                                    <option value="HP-ProCurve">HP-ProCurve</option>
+                                    <option value="Cisco">Cisco</option>
+                                    <option value="D-Link">D-Link</option>
+                                </select>
+                            </li>
+                        </ul>
+                    </form>
+                </li>
+            </ul>
+            <div class="map">
+                <div id="dragplan" class="plan ui-widget-content">
+                    <img src="/static/plans/{{ .Build}}{{ .Floor}}.png"; max-height:100%; max-weidth:100%>
+                    {{range .Swits }}
+                    <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
+                        <div id="{{ .Name}}" style="position: relative;; z-index: 1; width: 83px; height: 10px;"><img src="/static/images/{{ .Model}}.png"></div>
+                        <div id="{{ .Name}}" class="name">{{ .Name}}</div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="/static/js/chmenuico.js"></script>
+        <script type="text/javascript" src="/static/js/zoom.js"></script>
+        <script type="text/javascript" src="/static/js/dragplan.js"></script>
+        <script type="text/javascript" src="/static/js/draggable.js"></script>
+    </body>
+</html>

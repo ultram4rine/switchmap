@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Карта</title>
+        <link href="/static/css/main.css" rel="stylesheet">
+        <link href="/static/css/header.css" rel="stylesheet">
+        <link href="/static/css/build.css" rel="stylesheet">
+        <link rel="icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+        <link rel="shortcut icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+    </head>
+    <body>
+        <input type="checkbox" class="open" id="nav-toggle" hidden>
+        <div class="header">
+            <div id="logo"><img src="/static/icons/switchmap_icon_black.svg"></div>
+            <div id="title">SwitchMap</div>
+            <label for="nav-toggle" class="btn" onclick="anim(this)">
+                <div class="bars">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>
+            </label>
+            <div id="userbar">
+                <span>{{ .User}}</span>
+                (<a href="/admin/logout">Выйти</a>)
+            </div>
+        </div>
+        <div class="content">
+            <ul class="navbar">
+                <li><a href="/map">Карта</a></li>
+                <li><a href="/list">Список</a></li>
+                <li><a href="/logs">Логи</a></li>
+                <li>
+                    <form method="POST" action="{{ .Build}}">
+                        <button class="button">Добавить этаж</button>
+                        <ul class="subnavbar">
+                            <li><input type="text" placeholder="Номер" required name="number"></li>
+                        </ul>
+                    </form>
+                </li>
+            </ul>
+            <div class="map">
+                {{range .Floors}}
+                    <div class="floor">
+                        <a class="delete" href="/del/{{ .Build}}/f{{ .Floor}}">x</a>
+                        <a href="{{ .Build}}/f{{ .Floor}}">
+                            <div style="margin-top: 2px">
+                                <img src="/static/images/floor.svg"></svg>
+                            </div>
+                        <div style="text-align: center;">{{ .Floor}} этаж</div>
+                        </a>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        <script type="text/javascript" src="/static/js/chmenuico.js"></script>
+    </body>
+</html>

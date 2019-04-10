@@ -1,0 +1,63 @@
+#find{
+    float: right;
+    height: 30px;
+}
+#find form p{
+    margin-top: 5px; 
+    margin-right: 4px;
+}
+#find form input[type="search"]{
+    width: 297px;
+}
+#list{
+    float: left;
+    width: calc(100%);
+    height: calc(100vh - 40px - 35px);
+    margin-top: 0;
+}
+#list table{
+    overflow: hidden;
+    width: 100%; 
+    margin-top:0;
+    border-collapse: collapse;
+}
+#list thead{
+    background-color: #181616;
+    width: 100%;
+}
+#list thead tr{
+    height: 31px;
+}
+#list thead th{
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 14px;
+    color: #fff;
+    border: 1px solid rgb(235, 235, 235);
+}
+#list tbody{
+    background-color: rgb(255, 194, 119);
+}
+#list tbody tr{
+    transition: 0.2s;
+    height: 31px;
+}
+#list tbody tr:hover{
+    background-color: rgb(255, 140, 0);
+}
+#list tbody td{
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 14px;
+    border: 1px solid rgb(235, 235, 235);
+}
+@media screen and (max-width: 600px) {
+    #list{
+        height: auto;
+        overflow-x: scroll;
+    }
+    #list table {
+        overflow-x: auto;
+        display: block;
+    }
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Список</title>
+        <link href="/static/css/main.css" rel="stylesheet">
+        <link href="/static/css/header.css" rel="stylesheet">
+        <link href="/static/css/list.css" rel="stylesheet">
+        <link rel="icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+        <link rel="shortcut icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+    </head>
+    <body>
+        <input type="checkbox" class="open" id="nav-toggle" hidden>
+        <div class="header">
+            <div id="logo"><img src="/static/icons/switchmap_icon_black.svg"></div>
+            <div id="title">SwitchMap</div>
+            <label for="nav-toggle" class="btn" onclick="anim(this)">
+                <div class="bars">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>
+            </label>
+            <div id="userbar">
+                <span>{{ .User}}</span>
+                (<a href="/admin/logout">Выйти</a>)
+            </div>
+        </div>
+        <div class="content">
+            <ul class="navbar">
+                <li><a href="/map">Карта</a></li>
+                <li><a href="/list">Список</a></li>
+                <li><a href="/logs">Логи</a></li>
+            </ul>
+            <div class="map">
+                <div id="find">
+                    <form>
+                        <p>
+                            <input type="search" name="q" placeholder="Введите имя свитча"> 
+                            <input type="submit" value="Найти">
+                        </p>
+                    </form>
+                </div>
+                <div id="list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>IP</th>
+                                <th>MAC</th>
+                                <th>Модель</th>
+                                <th>Свитч</th>
+                                <th>Расположение</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Swits }}
+                            <tr>
+                                <td>{{ .Name}}</td>
+                                <td>{{ .IP}}</td>
+                                <td>{{ .MAC}}</td>
+                                <td>{{ .Model}}</td>
+                                <td>{{ .Upswitch}}</td>
+                                <td>{{ .Build}} {{ .Floor}}</td>
+                                <td>
+                                    <a href="">Удалить</a>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>   
+            </div>
+        </div>
+        <script type="text/javascript" src="/static/js/chmenuico.js"></script>
+    </body>
+</html>
