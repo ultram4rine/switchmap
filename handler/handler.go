@@ -62,6 +62,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error with making query to show builds: ", err)
 		}
+		defer dbbuilds.Close()
 
 		for dbbuilds.Next() {
 			b := helpers.Build{}
@@ -73,7 +74,6 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 			data.Builds = append(data.Builds, b)
 		}
-		tx.Commit()
 
 		sort.Slice(data.Builds, func(i, j int) bool {
 			k, _ := strconv.Atoi(data.Builds[i].Address[1:])
@@ -118,6 +118,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error with making query to show floors: ", err)
 		}
+		defer dbfloors.Close()
 
 		for dbfloors.Next() {
 			f := helpers.Floor{}
@@ -177,6 +178,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println("Error with making query to show list of switches: ", err)
 			}
+			defer dbswits.Close()
 
 			for dbswits.Next() {
 				swit := helpers.Switch{}
@@ -228,6 +230,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
+	defer dblist.Close()
 
 	for dblist.Next() {
 		swit := helpers.Switch{}
