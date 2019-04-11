@@ -61,11 +61,18 @@
                     <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
                         <div id="{{ .Name}}" style="position: relative;; z-index: 1; width: 83px; height: 10px;"><img src="/static/images/{{ .Model}}.png"></div>
                         <div id="{{ .Name}}" class="name">{{ .Name}}</div>
+                        <div id="{{ .Name}}" class="cir">
+                            <div id="q1" class="quarter"><div class="vertquartercont">IP</br>{{ .IP}}</div></div>
+                            <div id="q2" class="quarter"><div class="horquartercont"><div class="blink" style="font-family: Inconsolata; font-size: 16px;">>_</div></div></div>
+                            <div id="q3" class="quarter"><div class="horquartercont">UpSwitch</br>{{ .Upswitch}}</div></div>
+                            <div id="q4" class="quarter"><div class="vertquartercont">MAC</br>{{ .MAC}}</div></div>
+                        </div>
                     </div>
                     {{end}}
                 </div>
             </div>
         </div>
+        <script type="text/javascript" src="/static/js/blink.js"></script>
         <script type="text/javascript" src="/static/js/chmenuico.js"></script>
         <script type="text/javascript" src="/static/js/zoom.js"></script>
         <script type="text/javascript" src="/static/js/dragplan.js"></script>

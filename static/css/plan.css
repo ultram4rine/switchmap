@@ -48,6 +48,84 @@
     z-index: 1;
     cursor: default;
 }
+.cir {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    border: 1px solid #181616;
+    top: 50%; 
+    left: 50%;
+    z-index: 0;
+    overflow: hidden;
+    transform: translate(-50%,-50%) rotate(45deg);
+}
+.quarter {
+    display: inline-block;
+    float: left;
+    color: rgb(255, 140, 0);
+    font-family: sans-serif;
+    font-size: 10px;
+    text-align: center;
+    background-color: #181616;
+    margin: 0;
+    padding: 0;
+    width: 99px;
+    height: 99px;
+    opacity: 0.8;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+.quarter:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em;
+}
+.vertquartercont{
+    display: inline-block;
+    vertical-align: middle;
+    transform: rotate(-45deg);
+}
+.horquartercont{
+    display: inline-block;
+    vertical-align: middle;
+    transform: rotate(-45deg);
+}
+#q1 {
+    border-right: 1px solid rgb(255, 140, 0);
+    border-bottom: 1px solid rgb(255, 140, 0);
+}
+#q2 {
+    border-left: 1px solid rgb(255, 140, 0);
+    border-bottom: 1px solid rgb(255, 140, 0);
+}  
+#q3 {
+    border-right: 1px solid rgb(255, 140, 0);
+    border-top: 1px solid rgb(255, 140, 0);
+}  
+#q4 {
+    border-left: 1px solid rgb(255, 140, 0);
+    border-top: 1px solid rgb(255, 140, 0);
+} 
+#q1:hover {
+    background: rgb(255, 140, 0);
+    color: #000;
+}  
+#q2:hover {
+    background: rgb(255, 140, 0);
+    color: #000;
+}  
+#q3:hover {
+    background: rgb(255, 140, 0);
+    color: #000;
+}  
+#q4:hover {
+    background: rgb(255, 140, 0);
+    color: #000;
+} 
 .draggable {
     width: 40px;
     height: 40px;
