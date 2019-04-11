@@ -17,11 +17,9 @@ var scale = 0.3;
 addOnWheel(dragplan, function(e) {
     var delta = e.deltaY || e.detail || e.wheelDelta;
     var offset = $(this).offset();
-    var oldscale = dragplan.getBoundingClientRect().width / dragplan.offsetWidth;
-    console.log(oldscale);
-    var width = dragplan.getBoundingClientRect().width;
-    var height = dragplan.getBoundingClientRect().height;
-    console.log(width, " ", height);
+    //var oldscale = dragplan.getBoundingClientRect().width / dragplan.offsetWidth;
+    //var width = dragplan.getBoundingClientRect().width;
+    //var height = dragplan.getBoundingClientRect().height;
 
     var X = e.pageX - offset.left;
     var Y = e.pageY - offset.top;
@@ -29,13 +27,10 @@ addOnWheel(dragplan, function(e) {
     if (delta > 0) scale -= 0.05;
     else scale += 0.05;
 
-    var diffwidth = width * scale - width * oldscale;
-    var diffheight = height * scale - height * oldscale;
-    console.log(diffwidth, " ", diffheight);
-    var newtransX = -diffwidth / (width / X);
-    var newtransY = -diffheight / (height / Y);
-
-    console.log(newtransX, " ", newtransY);
+    //var diffwidth = width * scale - width * oldscale;
+    //var diffheight = height * scale - height * oldscale;
+    //var newtransX = -diffwidth / (width / X);
+    //var newtransY = -diffheight / (height / Y);
 
     dragplan.style.transformOrigin = dragplan.style.WebkitTransformOrigin = (X) + 'px ' + (Y) + 'px';
 
