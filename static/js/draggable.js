@@ -29,7 +29,9 @@ $(function(){
             Saver.Reorder($(this));
             Saver.Save();
         }
-    })
+    }).click(function(){
+        Clicker.Click($(this));
+    });
 });
 
 var Saver = {
@@ -53,5 +55,47 @@ var Saver = {
                 left: this.left
             }
         })
+    }
+}
+
+var Clicker = {
+    $element: null,
+
+    Click: function($element){
+        this.$element = $element;
+        
+        if ($element.draggable("option", "disabled")==false)
+        $element.draggable('disable')
+        else $element.draggable('enable')
+
+        this.name = this.$element.children('.name').text()
+        if ($('.switch #'+this.name+'.cir').css('width') == '1px') {
+            $('.switch #'+this.name+'.cir').animate({
+                width: '+=199px',
+                height: '+=199px'
+            }, 300);
+
+            $('.switch #'+this.name+' img').animate({
+                marginTop: '-95px'
+            }, 300)
+
+            $('.switch #'+this.name+'.name').animate({
+                marginTop: '100px'
+            }, 300)
+        }
+        else {
+            $('.switch #'+this.name+'.cir').animate({
+                width: "-=199px",
+                height: '-=199px'
+            }, 300);
+
+            $('.switch #'+this.name+' img').animate({
+                marginTop: '0'
+            }, 300)
+
+            $('.switch #'+this.name+'.name').animate({
+                marginTop: '0'
+            }, 300)
+        }
     }
 }
