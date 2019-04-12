@@ -6,6 +6,8 @@ create table host
     name varchar(30) not null,
     ip varchar(30) not null,
     mac varchar(30) not null,
+    revision varchar(200) null,
+    serial varchar(30) null,
     model varchar(30) null,
     build varchar(30) not null,
     floor varchar(30) null,
