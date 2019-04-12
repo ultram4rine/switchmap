@@ -49,6 +49,7 @@
                                 <th>Имя</th>
                                 <th>IP</th>
                                 <th>MAC</th>
+                                <th>Serial</th>
                                 <th>Модель</th>
                                 <th>Свитч</th>
                                 <th>Расположение</th>
@@ -66,7 +67,7 @@
                                 <td>{{ .Upswitch}}</td>
                                 <td>{{ .Build}} {{ .Floor}}</td>
                                 <td>
-                                    <a href="">Удалить</a>
+                                    <a href="/list/change/{{ .Name}}"><div style="width: 100%; height: 100%">Изменить</div></a>
                                 </td>
                             </tr>
                             {{end}}

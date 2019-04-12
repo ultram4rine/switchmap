@@ -261,6 +261,63 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
+//ChangePage shows change page
+func ChangePage(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", 301)
+		return
+	}
+	session, _ := server.Core.Store.Get(r, "switchmap_session")
+
+	vars := mux.Vars(r)
+	sw := vars["switch"]
+
+	data = helpers.ViewData{
+		User: session.Values["user"],
+	}
+
+	dbswits, err := server.Core.DB1.Query("SELECT `ip`, `mac`, `revision`, `serial`, `model`, `upswitch` from `host` WHERE name = ?", sw)
+	if err != nil {
+		log.Println("Error with making query to show list of switches: ", err)
+	}
+	defer dbswits.Close()
+
+	for dbswits.Next() {
+		err := dbswits.Scan(&data.Sw.IP, &data.Sw.MAC, &data.Sw.Revision, &data.Sw.Serial, &data.Sw.Model, &data.Sw.Upswitch)
+		if err != nil {
+			log.Println("Error with scanning switchmap database to get switch info: ", err)
+		}
+		data.Sw.Name = sw
+	}
+
+	tmpl, _ := template.ParseFiles("templates/change.html")
+	tmpl.Execute(w, data)
+}
+
+//ChangeHandler handle change page
+func ChangeHandler(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", 301)
+		return
+	}
+
+	vars := mux.Vars(r)
+	sw := vars["switch"]
+
+	err := r.ParseForm()
+	if err != nil {
+		log.Println("Error parsing form from change page: ", err)
+	}
+
+	ip := r.FormValue("IP")
+	mac := r.FormValue("MAC")
+	upswitch := r.FormValue("upswitch")
+
+	_, err = server.Core.DB1.Exec("UPDATE host set ip = ?, mac = ?, upswitch = ? WHERE name = ?", ip, mac, upswitch, sw)
+
+	http.Redirect(w, r, "/list", 301)
+}
+
 //LogsHandler handle logs page
 func LogsHandler(w http.ResponseWriter, r *http.Request) {
 	if !helpers.AlreadyLogin(r) {

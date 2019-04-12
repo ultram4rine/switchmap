@@ -81,6 +81,10 @@ func main() {
 
 	router.HandleFunc("/list", handler.ListHandler)
 
+	router.HandleFunc("/list/change/{switch}", handler.ChangePage).Methods("GET")
+
+	router.HandleFunc("/list/change/{switch}", handler.ChangeHandler).Methods("POST")
+
 	router.HandleFunc("/logs", handler.LogsHandler)
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
