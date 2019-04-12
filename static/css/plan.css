@@ -7,7 +7,7 @@
     top: 50%;
     left: 50%;
     transition: all 0.3s;
-    transform: translate(-50%, -50%) scale(0.3);
+    transform: translate(-50%, -50%) scale(1);
 }
 .plan img{
     position: relative;
@@ -25,6 +25,7 @@
     width: 96px;
     height: 26px;
     position: absolute;
+    z-index: 1;
 }
 .switch img{
     position: absolute;
@@ -48,6 +49,28 @@
     z-index: 1;
     cursor: default;
 }
+.blink{
+    font-family: Inconsolata;
+    font-size: 16px;
+    position: relative;
+    width: 75%;
+    height: 20px;
+    margin-top: -23px;
+    margin-left: 12.5%;
+    cursor: pointer;
+    border-radius: 0 0 4px 4px;
+    background-color: #181616;
+    color: rgb(255, 140, 0);
+    z-index: 0;
+    transition: 0.3s;
+}
+.blink span{
+    margin-left: 2px;
+}
+.blink:hover{
+    background: rgb(255, 140, 0);
+    color: #000;
+}
 .cir {
     display: block;
     position: absolute;
@@ -66,7 +89,7 @@
     float: left;
     color: rgb(255, 140, 0);
     font-family: sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     text-align: center;
     background-color: #181616;
     margin: 0;
@@ -84,12 +107,7 @@
     vertical-align: middle;
     margin-right: -0.25em;
 }
-.vertquartercont{
-    display: inline-block;
-    vertical-align: middle;
-    transform: rotate(-45deg);
-}
-.horquartercont{
+.quartercont{
     display: inline-block;
     vertical-align: middle;
     transform: rotate(-45deg);
@@ -125,19 +143,4 @@
 #q4:hover {
     background: rgb(255, 140, 0);
     color: #000;
-} 
-.draggable {
-    width: 40px;
-    height: 40px;
-    padding: 0.5em;
-    margin: 0 0 0 0;
-    border: 0px solid #000;
-}
-#draggable {
-    cursor: move;
-}
-#draggable img{
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
 }

@@ -82,6 +82,11 @@ var Clicker = {
             $('.switch #'+this.name+'.name').animate({
                 marginTop: '100px'
             }, 300)
+
+            $('.switch #'+this.name+'.blink').animate({
+                opacity: 0.8,
+                marginTop: '0'
+            }, 300)
         }
         else {
             $('.switch #'+this.name+'.cir').animate({
@@ -95,6 +100,11 @@ var Clicker = {
 
             $('.switch #'+this.name+'.name').animate({
                 marginTop: '0'
+            }, 300)
+
+            $('.switch #'+this.name+'.blink').animate({
+                opacity: 0,
+                marginTop: '-23px'
             }, 300)
         }
     }

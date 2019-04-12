@@ -1,5 +1,5 @@
 setInterval(function() {
-    elem = $('.blink');
+    elem = $('.blink span');
     var str = elem.text();
     if (str.search('_') != -1) {
         elem.html(elem.html().replace("_", ""));
