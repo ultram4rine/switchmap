@@ -19,11 +19,13 @@ create table buildings
 (
 	id int primary key auto_increment,
 	name varchar(30),
-    addr varchar(30)
+    addr varchar(30),
+    hidden int
 );
 create table floors
 (
 	id int primary key auto_increment,
 	build varchar(30),
-    floor varchar(30)
+    floor varchar(30),
+    hidden int
 );

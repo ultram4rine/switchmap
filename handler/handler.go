@@ -58,7 +58,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 			Builds: buildings,
 		}
 
-		dbbuilds, err := server.Core.DB1.Query("SELECT `name`, `addr` from `buildings`")
+		dbbuilds, err := server.Core.DB1.Query("SELECT `name`, `addr` from `buildings` WHERE `hidden` = ?", 0)
 		if err != nil {
 			log.Println("Error with making query to show builds: ", err)
 		}
@@ -114,7 +114,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		dbfloors, err := server.Core.DB1.Query("SELECT `build`, `floor` from `floors` WHERE `build`=?", build)
+		dbfloors, err := server.Core.DB1.Query("SELECT `build`, `floor` from `floors` WHERE `build` = ? AND `hidden` = ?", build, 0)
 		if err != nil {
 			log.Println("Error with making query to show floors: ", err)
 		}
@@ -174,7 +174,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 				Swits: switches,
 			}
 
-			dbswits, err := server.Core.DB1.Query("SELECT `name`, `ip`, `mac`, `model`, `upswitch`, `build`, `floor`, `postop`, `posleft` from `host` WHERE build = ? AND floor = ?", build, floor)
+			dbswits, err := server.Core.DB1.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor`, `postop`, `posleft` from `host` WHERE build = ? AND floor = ?", build, floor)
 			if err != nil {
 				log.Println("Error with making query to show list of switches: ", err)
 			}
@@ -183,7 +183,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 			for dbswits.Next() {
 				swit := helpers.Switch{}
 
-				err := dbswits.Scan(&swit.Name, &swit.IP, &swit.MAC, &swit.Model, &swit.Upswitch, &swit.Build, &swit.Floor, &swit.Postop, &swit.Posleft)
+				err := dbswits.Scan(&swit.Name, &swit.IP, &swit.MAC, &swit.Serial, &swit.Model, &swit.Upswitch, &swit.Build, &swit.Floor, &swit.Postop, &swit.Posleft)
 				if err != nil {
 					log.Println("Error with scanning database to show list of switches: ", err)
 				}
@@ -226,7 +226,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		Swits: switches,
 	}
 
-	dblist, err := server.Core.DB1.Query("SELECT `name`, `ip`, `mac`, `model`, `upswitch`, `build`, `floor` from `host`")
+	dblist, err := server.Core.DB1.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor` from `host`")
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -235,7 +235,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	for dblist.Next() {
 		swit := helpers.Switch{}
 
-		err := dblist.Scan(&swit.Name, &swit.IP, &swit.MAC, &swit.Model, &swit.Upswitch, &swit.Build, &swit.Floor)
+		err := dblist.Scan(&swit.Name, &swit.IP, &swit.MAC, &swit.Serial, &swit.Model, &swit.Upswitch, &swit.Build, &swit.Floor)
 		if err != nil {
 			log.Println("Error with scanning database to show list of switches: ", err)
 		}

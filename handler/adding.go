@@ -167,11 +167,11 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if buildname != "" {
-		_, err = server.Core.DB1.Exec("UPDATE `buildings` set addr = ? WHERE name = ?", build.Address, build.Name)
+		_, err = server.Core.DB1.Exec("UPDATE `buildings` set addr = ?, hidden = ? WHERE name = ?", build.Address, 0, build.Name)
 
 		log.Printf("Build %s updated successfully! His address: %s", build.Name, build.Address)
 	} else {
-		_, err = server.Core.DB1.Exec("INSERT into `buildings` (name, addr) values (?, ?)", build.Name, build.Address)
+		_, err = server.Core.DB1.Exec("INSERT into `buildings` (name, addr, hidden) values (?, ?, ?)", build.Name, build.Address, 0)
 
 		log.Printf("Build %s added successfully! His address: %s", build.Name, build.Address)
 	}
@@ -189,24 +189,31 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbsearch, err := server.Core.DB1.Query("SELECT `floor` from floors WHERE `build` = ? AND `floor` = ?", floor.Build, floor.Floor)
+	dbsearch, err := server.Core.DB1.Query("SELECT `floor`, `hidden` from floors WHERE `build` = ? AND `floor` = ?", floor.Build, floor.Floor)
 	if err != nil {
 		log.Println("Error with scanning database to check record of floor: ", err)
 	}
 	defer dbsearch.Close()
 
-	var floornum = ""
+	var (
+		floornum = ""
+		hidden   uint
+	)
 	for dbsearch.Next() {
-		err := dbsearch.Scan(&floornum)
+		err := dbsearch.Scan(&floornum, &hidden)
 		if err != nil {
-			log.Println("Error with searching floor in database: ", err)
+			log.Println("Error with searching floor in switchmap database: ", err)
 		}
 	}
 
 	if floornum != "" {
-		log.Printf("%s floor in build %s already exists", floor.Floor, floor.Build)
+		if hidden == 1 {
+			_, err = server.Core.DB1.Exec("UPDATE `floors` set hidden = ?", 0)
+		} else {
+			log.Printf("%s floor in build %s already exists", floor.Floor, floor.Build)
+		}
 	} else {
-		_, err = server.Core.DB1.Exec("INSERT into `floors` (build, floor) values (?, ?)", floor.Build, floor.Floor)
+		_, err = server.Core.DB1.Exec("INSERT into `floors` (build, floor, hidden) values (?, ?, ?)", floor.Build, floor.Floor, 0)
 
 		log.Printf("%s floor in build %s added successfully!", floor.Floor, floor.Build)
 	}

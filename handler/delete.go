@@ -19,14 +19,7 @@ func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	build := vars["build"]
 
-	_, err := server.Core.DB1.Exec("DELETE from `floors` WHERE `build` = ?", build)
-	if err != nil {
-		log.Printf("Error deleting floors of build %s: %s", build, err)
-	} else {
-		log.Printf("Floors of build %s deleted successfully!", build)
-	}
-
-	_, err = server.Core.DB1.Exec("DELETE from `buildings` WHERE `addr` = ?", build)
+	_, err := server.Core.DB1.Exec("UPDATE `buildings` set hidden = ? WHERE addr = ?", 1, build)
 	if err != nil {
 		log.Printf("Error deleting build %s: %s", build, err)
 	} else {
@@ -47,7 +40,7 @@ func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
 	build := vars["build"]
 	floor := vars["floor"]
 
-	_, err := server.Core.DB1.Exec("DELETE from `floors` WHERE `build` = ? AND `floor` = ?", build, floor[1:])
+	_, err := server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE `build` = ? AND `floor` = ?", 1, build, floor[1:])
 	if err != nil {
 		log.Printf("Error deleting floor %s in %s: %s", floor, build, err)
 	} else {
