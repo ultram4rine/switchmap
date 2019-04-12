@@ -40,7 +40,7 @@
           Например для этого этажа план должен называться {{ .Build}}{{ .Floor}}.png
         </div>
         <div style="margin-left: 5px;">
-          <form action="http://212.193.32.38:8080/planupdate/{{ .Build}}/{{ .Floor}}" id="load" enctype="multipart/form-data" method="post">
+          <form action="/planupdate/{{ .Build}}/{{ .Floor}}" id="load" enctype="multipart/form-data" method="post">
           <p>
             <input type="file" accept=".png" name="load">
             <input type="submit" value="Загрузить">
