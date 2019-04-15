@@ -30,7 +30,7 @@ $(function(){
             Saver.Save();
         }
     }).click(function(){
-        Clicker.Click($(this));
+        Clicker.Click($(this).children('.image, .name'));
     });
 });
 
@@ -63,12 +63,13 @@ var Clicker = {
 
     Click: function($element){
         this.$element = $element;
-        
-        if ($element.draggable("option", "disabled")==false)
-        $element.draggable('disable')
-        else $element.draggable('enable')
+        console.log($element)
 
-        this.name = this.$element.children('.name').text()
+        if ($element.parent().draggable("option", "disabled")==false)
+            $element.parent().draggable('disable')
+        else $element.parent().draggable('enable')
+
+        this.name = this.$element.attr('id')
         if ($('.switch #'+this.name+'.cir').css('width') == '1px') {
             $('.switch #'+this.name+'.cir').animate({
                 width: '+=199px',
@@ -83,12 +84,27 @@ var Clicker = {
                 marginTop: '100px'
             }, 300)
 
+            $('.switch #'+this.name+'.change').animate({
+                opacity: 0.8,
+                marginTop: '-112px'
+            }, 100)
+
             $('.switch #'+this.name+'.blink').animate({
                 opacity: 0.8,
-                marginTop: '0'
-            }, 300)
+                marginTop: '126px'
+            }, 100)
         }
         else {
+            $('.switch #'+this.name+'.blink').animate({
+                opacity: 0,
+                marginTop: '0'
+            }, 50)
+
+            $('.switch #'+this.name+'.change').animate({
+                opacity: 0,
+                marginTop: '0'
+            }, 50)
+
             $('.switch #'+this.name+'.cir').animate({
                 width: "-=199px",
                 height: '-=199px'
@@ -100,11 +116,6 @@ var Clicker = {
 
             $('.switch #'+this.name+'.name').animate({
                 marginTop: '0'
-            }, 300)
-
-            $('.switch #'+this.name+'.blink').animate({
-                opacity: 0,
-                marginTop: '-23px'
             }, 300)
         }
     }

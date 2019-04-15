@@ -59,9 +59,16 @@
                     <img src="/static/plans/{{ .Build}}{{ .Floor}}.png"; max-height:100%; max-weidth:100%>
                     {{range .Swits }}
                     <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
-                        <div id="{{ .Name}}" style="position: relative;; z-index: 1; width: 83px; height: 10px;"><img src="/static/images/{{ .Model}}.png"></div>
+                        <a href="/list/change/{{ .Name}}">
+                            <div id="{{ .Name}}" class="change">Изменить</div>
+                        </a>
+                        <div id="{{ .Name}}" class="blink">
+                            <span>>_</span>
+                        </div>
+                        <div id="{{ .Name}}" class="image">
+                            <img src="/static/images/{{ .Model}}.png">
+                        </div>
                         <div id="{{ .Name}}" class="name">{{ .Name}}</div>
-                        <div id="{{ .Name}}" class="blink"><span>>_</span></div>
                         <div id="{{ .Name}}" class="cir">
                             <div id="q1" class="quarter"><div class="quartercont"><div>IP</div><div style="font-size: 10px; font-family: sans-serif">{{ .IP}}</div></div></div>
                             <div id="q2" class="quarter"><div class="quartercont"><div>Serial</div><div style="font-size: 8px; font-family: sans-serif">{{ .Serial}}</div></div></div>
