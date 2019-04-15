@@ -6,6 +6,7 @@
     width: calc(100% - 5px);
     height: 35px;
     border-radius: 4px;
+    font-size: 14px;
     border: 2px solid rgb(255, 140, 0);
 }
 #list{
