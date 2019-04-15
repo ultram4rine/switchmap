@@ -37,8 +37,7 @@
                 <div id="find">
                     <form>
                         <p>
-                            <input type="search" name="q" placeholder="Введите имя свитча"> 
-                            <input type="submit" value="Найти">
+                            <input type="text" placeholder="Введите имя свитча">
                         </p>
                     </form>
                 </div>
@@ -58,7 +57,7 @@
                         </thead>
                         <tbody>
                             {{range .Swits }}
-                            <tr>
+                            <tr id="{{ .Name}}">
                                 <td>{{ .Name}}</td>
                                 <td>{{ .IP}}</td>
                                 <td>{{ .MAC}}</td>
