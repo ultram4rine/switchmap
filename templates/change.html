@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Список</title>
+        <title>{{ .Sw.Name}}</title>
         <link href="/static/css/main.css" rel="stylesheet">
         <link href="/static/css/header.css" rel="stylesheet">
         <link href="/static/css/change.css" rel="stylesheet">
@@ -51,6 +51,9 @@
                     <input type="text" name="upswitch" placeholder="UpSwitch" value="{{ .Sw.Upswitch}}">
                     <input type="submit" value="Отправить"/>
                 </form>
+                <a id="delete" href="/swdel/{{ .Sw.Name}}">
+                    <div class="danger">Удалить</div>
+                </a>
             </div>
         </div>
         <script type="text/javascript" src="/static/js/chmenuico.js"></script>
