@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"repos/switchmap/helpers"
@@ -8,6 +9,27 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+//SwitchDelHandler deletes switch
+func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", 302)
+		return
+	}
+
+	vars := mux.Vars(r)
+	sw := vars["switch"]
+	fmt.Println("name: ", sw)
+
+	_, err := server.Core.DBswitchmap.Exec("DELETE from host WHERE name = ?", sw)
+	if err != nil {
+		log.Printf("Error deleting switch %s: %s", sw, err)
+	} else {
+		log.Printf("Switch %s deleted successfully!", sw)
+	}
+
+	http.Redirect(w, r, "/list", 301)
+}
 
 //BuildDelHandler deletes build
 func BuildDelHandler(w http.ResponseWriter, r *http.Request) {

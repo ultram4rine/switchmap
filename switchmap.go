@@ -79,6 +79,8 @@ func main() {
 
 	router.HandleFunc("/del/{build}/{floor}", handler.FloorDelHandler)
 
+	router.HandleFunc("/swdel/{switch}", handler.SwitchDelHandler)
+
 	router.HandleFunc("/list", handler.ListHandler)
 
 	router.HandleFunc("/list/change/{switch}", handler.ChangePage).Methods("GET")
