@@ -93,6 +93,45 @@
     background: rgb(255, 140, 0);
     color: #000;
 }
+.reload{
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    position: absolute;
+    font-family: Lucida Sans Unicode;
+    font-size: 20px;
+    border-radius: 4px 4px 4px 4px;
+    background-color: #181616;
+    color: rgb(255, 140, 0);
+    transition: 0.3s;
+}
+.download{
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    position: absolute;
+    font-size: 20px;
+    border-radius: 4px 4px 4px 4px;
+    background-color: #181616;
+    color: rgb(255, 140, 0);
+    transition: 0.3s;
+}
+.reload:hover{
+    background: rgb(255, 140, 0);
+    color: #000;
+}
+.download:hover{
+    background: rgb(255, 140, 0);
+    color: #000;
+}
 .cir {
     display: block;
     position: absolute;

@@ -63,7 +63,6 @@ var Clicker = {
 
     Click: function($element){
         this.$element = $element;
-        console.log($element)
 
         if ($element.parent().draggable("option", "disabled")==false)
             $element.parent().draggable('disable')
@@ -93,8 +92,28 @@ var Clicker = {
                 opacity: 0.8,
                 marginTop: '126px'
             }, 100)
+
+            $('.switch #'+this.name+'.reload').animate({
+                opacity: 0.8,
+                marginLeft: '-82px'
+            }, 100)
+
+            $('.switch #'+this.name+'.download').animate({
+                opacity: 0.8,
+                marginLeft: '153px'
+            }, 100)
         }
         else {
+            $('.switch #'+this.name+'.download').animate({
+                opacity: 0,
+                marginLeft: '0'
+            }, 50)
+
+            $('.switch #'+this.name+'.reload').animate({
+                opacity: 0,
+                marginLeft: '0'
+            }, 50)
+
             $('.switch #'+this.name+'.blink').animate({
                 opacity: 0,
                 marginTop: '0'
