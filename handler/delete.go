@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"repos/switchmap/helpers"
@@ -19,9 +18,8 @@ func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	sw := vars["switch"]
-	fmt.Println("name: ", sw)
 
-	_, err := server.Core.DBswitchmap.Exec("DELETE from host WHERE name = ?", sw)
+	_, err := server.Core.DB1.Exec("DELETE from host WHERE name = ?", sw)
 	if err != nil {
 		log.Printf("Error deleting switch %s: %s", sw, err)
 	} else {
