@@ -9,6 +9,7 @@
         <link href="/static/css/build.css" rel="stylesheet">
         <link rel="icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
         <link rel="shortcut icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+        <script type="text/javascript" src="/static/js/plugins/jquery-2.0.2.min.js"></script>
     </head>
     <body>
         <input type="checkbox" class="open" id="nav-toggle" hidden>
@@ -44,17 +45,18 @@
             <div class="map">
                 {{range .Floors}}
                     <div class="floor">
-                        <a class="delete" href="/del/{{ .Build}}/f{{ .Floor}}">x</a>
+                        <a class="delete" onclick="fdel(this)">x</a>
                         <a href="{{ .Build}}/f{{ .Floor}}">
                             <div style="margin-top: 2px">
                                 <img src="/static/images/floor.svg"></svg>
                             </div>
-                        <div style="text-align: center;">{{ .Floor}} этаж</div>
+                        <div class="num" style="text-align: center;">{{ .Floor}} этаж</div>
                         </a>
                     </div>
                 {{end}}
             </div>
         </div>
+        <script type="text/javascript" src="/static/js/deleting.js"></script>
         <script type="text/javascript" src="/static/js/chmenuico.js"></script>
     </body>
 </html>

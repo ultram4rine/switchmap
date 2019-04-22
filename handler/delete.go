@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"repos/switchmap/helpers"
 	"repos/switchmap/server"
-
-	"github.com/gorilla/mux"
 )
 
 //SwitchDelHandler deletes switch
@@ -16,17 +14,16 @@ func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(r)
-	sw := vars["switch"]
+	name := r.FormValue("name")
 
-	_, err := server.Core.DB1.Exec("DELETE from host WHERE name = ?", sw)
+	_, err := server.Core.DB1.Exec("DELETE from host WHERE name = ?", name)
 	if err != nil {
-		log.Printf("Error deleting switch %s: %s", sw, err)
+		log.Printf("Error deleting switch %s: %s", name, err)
+		w.Write([]byte("error"))
 	} else {
-		log.Printf("Switch %s deleted successfully!", sw)
+		log.Printf("Switch %s deleted successfully!", name)
+		w.Write([]byte("success"))
 	}
-
-	http.Redirect(w, r, "/list", 301)
 }
 
 //BuildDelHandler deletes build
@@ -36,17 +33,16 @@ func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(r)
-	build := vars["build"]
+	name := r.FormValue("name")
 
-	_, err := server.Core.DB1.Exec("UPDATE `buildings` set hidden = ? WHERE addr = ?", 1, build)
+	_, err := server.Core.DB1.Exec("UPDATE `buildings` set hidden = ? WHERE name = ?", 1, name)
 	if err != nil {
-		log.Printf("Error deleting build %s: %s", build, err)
+		log.Printf("Error deleting build %s: %s", name, err)
+		w.Write([]byte("error"))
 	} else {
-		log.Printf("Build %s deleted successfully!", build)
+		log.Printf("Build %s deleted successfully!", name)
+		w.Write([]byte("success"))
 	}
-
-	http.Redirect(w, r, "/map", 301)
 }
 
 //FloorDelHandler deletes floor of build
@@ -56,16 +52,15 @@ func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(r)
-	build := vars["build"]
-	floor := vars["floor"]
+	build := r.FormValue("build")
+	num := r.FormValue("num")
 
-	_, err := server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE `build` = ? AND `floor` = ?", 1, build, floor[1:])
+	_, err := server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE `build` = ? AND `floor` = ?", 1, build, num)
 	if err != nil {
-		log.Printf("Error deleting floor %s in %s: %s", floor, build, err)
+		log.Printf("Error deleting floor %s in %s: %s", num, build, err)
+		w.Write([]byte("error"))
 	} else {
-		log.Printf("Floor %s in %s deleted successfully!", floor, build)
+		log.Printf("Floor %s in %s deleted successfully!", num, build)
+		w.Write([]byte("success"))
 	}
-
-	http.Redirect(w, r, "/map/"+build, 301)
 }

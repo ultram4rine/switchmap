@@ -48,9 +48,10 @@ var Saver = {
     Save: function(){
         this.name = this.$element.children('.name').text()
         $.ajax({
-            url: "/savepos/" + this.name,
+            url: "/savepos",
             method: "POST",
             data: {
+                name: this.name,
                 top: this.top,
                 left: this.left
             }

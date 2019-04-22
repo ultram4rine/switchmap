@@ -65,7 +65,7 @@ func main() {
 
 	router.HandleFunc("/map/{build}/{floor}", handler.FloorHandler)
 
-	router.HandleFunc("/savepos/{switch}", handler.SavePos)
+	router.HandleFunc("/savepos", handler.SavePos)
 
 	router.HandleFunc("/addswitch", handler.AddSwitchHandler)
 
@@ -75,11 +75,11 @@ func main() {
 
 	router.HandleFunc("/planupdate/{build}/{floor}", handler.PlanUpdateHandler)
 
-	router.HandleFunc("/del/{build}", handler.BuildDelHandler)
+	router.HandleFunc("/bdel", handler.BuildDelHandler)
 
-	router.HandleFunc("/del/{build}/{floor}", handler.FloorDelHandler)
+	router.HandleFunc("/fdel", handler.FloorDelHandler)
 
-	router.HandleFunc("/swdel/{switch}", handler.SwitchDelHandler)
+	router.HandleFunc("/swdel", handler.SwitchDelHandler)
 
 	router.HandleFunc("/list", handler.ListHandler)
 

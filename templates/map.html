@@ -9,6 +9,7 @@
         <link href="/static/css/map.css" rel="stylesheet">
         <link rel="icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
         <link rel="shortcut icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
+        <script type="text/javascript" src="/static/js/plugins/jquery-2.0.2.min.js"></script>
     </head>
     <body>
         <input type="checkbox" class="open" id="nav-toggle" hidden>
@@ -45,17 +46,18 @@
             <div class="map">
                 {{range .Builds}}
                     <div class="build">
-                        <a class="delete" href="/del/{{ .Address}}">X</a>
+                        <a class="delete" onclick="bdel(this)">X</a>
                         <a href="map/{{ .Address}}">
                             <div style="margin-top: 2px">
                                 <img src="/static/images/build.svg">
                             </div>
-                            <div style="text-align: center;">{{ .Name}}</div> 
+                            <div class="name" style="text-align: center;">{{ .Name}}</div> 
                         </a>
                     </div>
                 {{end}}
             </div>
         </div>
+        <script type="text/javascript" src="/static/js/deleting.js"></script>
         <script type="text/javascript" src="/static/js/chmenuico.js"></script>
     </body>
 </html>

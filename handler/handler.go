@@ -28,18 +28,15 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(r)
-	swit := vars["switch"]
-
+	name := r.FormValue("name")
 	top := r.FormValue("top")
 	left := r.FormValue("left")
 
-	_, err := server.Core.DB1.Exec("UPDATE `host` set postop = ?, posleft = ? WHERE name = ?", top, left, swit)
+	_, err := server.Core.DB1.Exec("UPDATE `host` set postop = ?, posleft = ? WHERE name = ?", top, left, name)
 	if err != nil {
-		log.Printf("Error updating position of switch %s: %s", swit, err)
+		log.Printf("Error updating position of switch %s: %s", name, err)
 	}
-
-	w.Write([]byte(top + left))
+	w.Write([]byte("success"))
 }
 
 //MapHandler handle main page map
