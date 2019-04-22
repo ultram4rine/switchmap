@@ -12,7 +12,6 @@
 #list{
     float: left;
     width: calc(100%);
-    height: calc(100vh - 40px - 35px);
     margin-top: 0;
 }
 #list table{
