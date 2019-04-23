@@ -47,8 +47,8 @@ type ViewData struct {
 
 //GetSerial helps to get serial number of switch
 func GetSerial(ip, model string) (rev, sernum string, err error) {
-	if model != "HP-ProCurve" {
-		return "", "", errors.New("Can't use snmp to cisco or d-link to get serial number")
+	if model == "D-Link" {
+		return "", "", errors.New("Can't use snmp on d-link to get serial number")
 	}
 
 	snmp.Default.Target = ip
