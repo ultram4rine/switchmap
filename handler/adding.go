@@ -208,7 +208,7 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 
 	if floornum != "" {
 		if hidden == 1 {
-			_, err = server.Core.DB1.Exec("UPDATE `floors` set hidden = ?", 0)
+			_, err = server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE floor = ?", 0, floor.Floor)
 		} else {
 			log.Printf("%s floor in build %s already exists", floor.Floor, floor.Build)
 		}
