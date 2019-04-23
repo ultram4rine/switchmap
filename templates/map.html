@@ -34,13 +34,11 @@
                 <li><a href="/list">Список</a></li>
                 <li><a href="/logs">Логи</a></li>
                 <li>
-                    <form method="POST" action="map">
-                        <button class="button">Добавить корпус</button>
-                        <ul class="subnavbar">
-                            <li><input type="text" placeholder="Имя" required name="name"></li>
-                            <li><input type="text" placeholder="Ссылка" required name="address"></li>
-                        </ul>
-                    </form>
+                    <button class="button" onclick="bAdd()">Добавить корпус</button>
+                    <ul class="subnavbar">
+                        <li><input id="name" type="text" placeholder="Имя" required name="name" autocomplete="off"></li>
+                        <li><input id="addr" type="text" placeholder="Ссылка" required name="address" autocomplete="off"></li>
+                    </ul>
                 </li>
             </ul>
             <div class="map">

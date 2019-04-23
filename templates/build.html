@@ -34,12 +34,10 @@
                 <li><a href="/list">Список</a></li>
                 <li><a href="/logs">Логи</a></li>
                 <li>
-                    <form method="POST" action="{{ .Build}}">
-                        <button class="button">Добавить этаж</button>
-                        <ul class="subnavbar">
-                            <li><input type="text" placeholder="Номер" required name="number"></li>
-                        </ul>
-                    </form>
+                    <button class="button" onclick="fAdd()">Добавить этаж</button>
+                    <ul class="subnavbar">
+                        <li><input id="num" type="text" placeholder="Номер" required name="number" autocomplete="off"></li>
+                    </ul>
                 </li>
             </ul>
             <div class="map">

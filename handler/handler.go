@@ -15,10 +15,8 @@ import (
 )
 
 var (
-	data  helpers.ViewData
-	build helpers.Build
-	floor helpers.Floor
-	sw    helpers.Switch
+	data helpers.ViewData
+	sw   helpers.Switch
 )
 
 //SavePos saves position of switch in db
@@ -80,16 +78,6 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 		tmpl, _ := template.ParseFiles("templates/map.html")
 		tmpl.Execute(w, data)
-	} else if r.Method == "POST" {
-		err := r.ParseForm()
-		if err != nil {
-			log.Println("Error with parsing data from map page to add build: ", err)
-		}
-
-		build.Name = r.FormValue("name")
-		build.Address = r.FormValue("address")
-
-		http.Redirect(w, r, "/addbuild", 301)
 	}
 }
 
@@ -134,16 +122,6 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 
 		tmpl, _ := template.ParseFiles("templates/build.html")
 		tmpl.Execute(w, data)
-	} else if r.Method == "POST" {
-		err := r.ParseForm()
-		if err != nil {
-			log.Println("Error with parsing data from build page to add floor: ", err)
-		}
-
-		floor.Build = build
-		floor.Floor = r.FormValue("number")
-
-		http.Redirect(w, r, "/addfloor", 301)
 	}
 }
 

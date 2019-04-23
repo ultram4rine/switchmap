@@ -152,7 +152,10 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbsearch, err := server.Core.DB1.Query("SELECT `name` from buildings WHERE `name` = ?", build.Name)
+	name := r.FormValue("name")
+	addr := r.FormValue("addr")
+
+	dbsearch, err := server.Core.DB1.Query("SELECT `name` from buildings WHERE `name` = ?", name)
 	if err != nil {
 		log.Println("Error with scanning database to check record of build: ", err)
 	}
@@ -167,19 +170,14 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if buildname != "" {
-		_, err = server.Core.DB1.Exec("UPDATE `buildings` set addr = ?, hidden = ? WHERE name = ?", build.Address, 0, build.Name)
+		_, err = server.Core.DB1.Exec("UPDATE `buildings` set addr = ?, hidden = ? WHERE name = ?", addr, 0, name)
 
-		log.Printf("Build %s updated successfully! His address: %s", build.Name, build.Address)
+		log.Printf("Build %s updated successfully! His address: %s", name, addr)
 	} else {
-		_, err = server.Core.DB1.Exec("INSERT into `buildings` (name, addr, hidden) values (?, ?, ?)", build.Name, build.Address, 0)
+		_, err = server.Core.DB1.Exec("INSERT into `buildings` (name, addr, hidden) values (?, ?, ?)", name, addr, 0)
 
-		log.Printf("Build %s added successfully! His address: %s", build.Name, build.Address)
+		log.Printf("Build %s added successfully! His address: %s", name, addr)
 	}
-
-	http.Redirect(w, r, "/map", 301)
-
-	build.Name = ""
-	build.Address = ""
 }
 
 //AddFloorHandler handle page to add floor
@@ -189,7 +187,10 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbsearch, err := server.Core.DB1.Query("SELECT `floor`, `hidden` from floors WHERE `build` = ? AND `floor` = ?", floor.Build, floor.Floor)
+	build := r.FormValue("build")
+	num := r.FormValue("num")
+
+	dbsearch, err := server.Core.DB1.Query("SELECT `floor`, `hidden` from floors WHERE `build` = ? AND `floor` = ?", build, num)
 	if err != nil {
 		log.Println("Error with scanning database to check record of floor: ", err)
 	}
@@ -208,20 +209,15 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 
 	if floornum != "" {
 		if hidden == 1 {
-			_, err = server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE floor = ?", 0, floor.Floor)
+			_, err = server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE `build` = ? AND `floor` = ?", 0, build, num)
 		} else {
-			log.Printf("%s floor in build %s already exists", floor.Floor, floor.Build)
+			log.Printf("%s floor in build %s already exists", num, build)
 		}
 	} else {
-		_, err = server.Core.DB1.Exec("INSERT into `floors` (build, floor, hidden) values (?, ?, ?)", floor.Build, floor.Floor, 0)
+		_, err = server.Core.DB1.Exec("INSERT into `floors` (build, floor, hidden) values (?, ?, ?)", build, num, 0)
 
-		log.Printf("%s floor in build %s added successfully!", floor.Floor, floor.Build)
+		log.Printf("%s floor in build %s added successfully!", num, build)
 	}
-
-	http.Redirect(w, r, "/map/"+floor.Build, 301)
-
-	floor.Build = ""
-	floor.Floor = ""
 }
 
 //PlanUpdateHandler to upload or update floor's plan

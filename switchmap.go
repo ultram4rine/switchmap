@@ -69,9 +69,9 @@ func main() {
 
 	router.HandleFunc("/addswitch", handler.AddSwitchHandler)
 
-	router.HandleFunc("/addbuild", handler.AddBuildHandler)
+	router.HandleFunc("/badd", handler.AddBuildHandler)
 
-	router.HandleFunc("/addfloor", handler.AddFloorHandler)
+	router.HandleFunc("/fadd", handler.AddFloorHandler)
 
 	router.HandleFunc("/planupdate/{build}/{floor}", handler.PlanUpdateHandler)
 
