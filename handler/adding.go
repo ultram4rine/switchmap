@@ -21,62 +21,11 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbsearch, err := server.Core.DB2.Query("SELECT `ip`, `mac`, `switch_id` FROM `host` WHERE `name` = ? AND ip IS NOT NULL", sw.Name)
+	var err error
+
+	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
 	if err != nil {
-		log.Println("Error with making database query to find IP and MAC of switch: ", err)
-	}
-	defer dbsearch.Close()
-
-	var (
-		IP       string
-		MAC      string
-		upswitch string
-	)
-
-	for dbsearch.Next() {
-		err := dbsearch.Scan(&IP, &MAC, &upswitch)
-		if err != nil {
-			log.Println("Error with scanning database for query: ", err)
-		}
-
-		if IP != "" && MAC != "" {
-			log.Printf("Switch %s founded!", sw.Name)
-
-			//Searching upswitch name
-			if upswitch != "" {
-				upswitchsearch, err := server.Core.DB2.Query("SELECT `name` FROM `host` WHERE ip IS NOT NULL AND `id` = ?", upswitch)
-				if err != nil {
-					log.Println("Error database query for searching upswitch: ", err)
-				}
-				defer upswitchsearch.Close()
-
-				var upswitchname string
-
-				for upswitchsearch.Next() {
-					err := upswitchsearch.Scan(&upswitchname)
-					if err != nil {
-						log.Println("Error with searching upswitch name: ", err)
-					}
-
-					sw.Upswitch = upswitchname
-				}
-
-				err = upswitchsearch.Err()
-				if err != nil {
-					log.Println("Upswitch searching error: ", err)
-				}
-			} else {
-				log.Printf("Is no upswitch for %s in database", sw.Name)
-			}
-			//End searching upswitch name
-
-			sw.IP = IP
-			sw.MAC = MAC
-		}
-	}
-	err = dbsearch.Err()
-	if err != nil {
-		log.Println("Error searching IP and MAC: ", err)
+		log.Println("Error getting switch data: ", err)
 	}
 
 	if sw.IP != "" && sw.MAC != "" {

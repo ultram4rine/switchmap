@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"repos/switchmap/server"
 
@@ -43,6 +44,68 @@ type ViewData struct {
 	Swits  []Switch    //Swits to show information of switch on plan
 	Builds []Build     //Builds to show build on map
 	Floors []Floor     //Floors to show floors in build
+}
+
+//GetSwData gets switch data
+func GetSwData(name string) (ip, mac, upswitch string, err error) {
+	dbsearch, err := server.Core.DB2.Query("SELECT `ip`, `mac`, `switch_id` FROM `host` WHERE `name` = ? AND ip IS NOT NULL", name)
+	if err != nil {
+		log.Println("Error with making database query to find IP and MAC of switch: ", err)
+		return "", "", "", err
+	}
+	defer dbsearch.Close()
+
+	var (
+		IP       string
+		MAC      string
+		UpSwitch string
+	)
+
+	for dbsearch.Next() {
+		err := dbsearch.Scan(&IP, &MAC, &UpSwitch)
+		if err != nil {
+			log.Println("Error with scanning database for query: ", err)
+			return "", "", "", err
+		}
+
+		if IP != "" && MAC != "" {
+			//Searching upswitch name
+			if UpSwitch != "" {
+				upswitchsearch, err := server.Core.DB2.Query("SELECT `name` FROM `host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
+				if err != nil {
+					log.Println("Error database query for searching upswitch: ", err)
+					return "", "", "", err
+				}
+				defer upswitchsearch.Close()
+
+				var upswitchname string
+
+				for upswitchsearch.Next() {
+					err := upswitchsearch.Scan(&upswitchname)
+					if err != nil {
+						log.Println("Error with searching upswitch name: ", err)
+						return "", "", "", err
+					}
+				}
+
+				err = upswitchsearch.Err()
+				if err != nil {
+					log.Println("Upswitch searching error: ", err)
+					return "", "", "", err
+				}
+			} else {
+				log.Printf("Is no upswitch for %s in netmap database", name)
+			}
+			//End searching upswitch name
+		}
+	}
+	err = dbsearch.Err()
+	if err != nil {
+		log.Println("Error searching IP and MAC: ", err)
+		return "", "", "", err
+	}
+
+	return IP, MAC, UpSwitch, nil
 }
 
 //GetSerial helps to get serial number of switch
