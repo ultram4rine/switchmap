@@ -56,7 +56,7 @@
             </ul>
             <div class="map">
                 <div id="dragplan" class="plan ui-widget-content">
-                    <img src="/static/plans/{{ .Build}}{{ .Floor}}.png"; max-height:100%; max-weidth:100%>
+                    <img id="image" src="/static/plans/{{ .Build}}{{ .Floor}}.png"; max-height:100%; max-weidth:100%>
                     {{range .Swits }}
                     <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
                         <a href="/list/change/{{ .Name}}">

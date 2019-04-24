@@ -13,11 +13,10 @@ function addOnWheel(elem, handler) {
 }
 
 var elem = document.getElementById("dragplan")
-var style = window.getComputedStyle(elem);
-var matrix = new WebKitCSSMatrix(style.webkitTransform);
+var img = document.getElementById('image');
 var scale = 0.3;
-var xLast = matrix.m41;
-var yLast = matrix.m42;
+var xLast = -(img.naturalWidth * scale) / 2;
+var yLast = -(img.naturalHeight * scale) / 2;
 var xImage = 0;
 var yImage = 0;
 
