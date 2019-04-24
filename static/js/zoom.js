@@ -12,29 +12,36 @@ function addOnWheel(elem, handler) {
     }
 }
 
+var elem = document.getElementById("dragplan")
+var style = window.getComputedStyle(elem);
+var matrix = new WebKitCSSMatrix(style.webkitTransform);
 var scale = 0.3;
+var xLast = matrix.m41;
+var yLast = matrix.m42;
+var xImage = 0;
+var yImage = 0;
 
 addOnWheel(dragplan, function(e) {
     var delta = e.deltaY || e.detail || e.wheelDelta;
-    var offset = $(this).offset();
-    //var oldscale = dragplan.getBoundingClientRect().width / dragplan.offsetWidth;
-    //var width = dragplan.getBoundingClientRect().width;
-    //var height = dragplan.getBoundingClientRect().height;
 
-    var X = e.pageX - offset.left;
-    var Y = e.pageY - offset.top;
+    var xScreen = e.pageX - $(this).offset().left;
+    var yScreen = e.pageY - $(this).offset().top;
+
+    xImage = xImage + ((xScreen - xLast) / scale);
+    yImage = yImage + ((yScreen - yLast) / scale);
 
     if (delta > 0) scale -= 0.05;
     else scale += 0.05;
 
-    //var diffwidth = width * scale - width * oldscale;
-    //var diffheight = height * scale - height * oldscale;
-    //var newtransX = -diffwidth / (width / X);
-    //var newtransY = -diffheight / (height / Y);
+    scale = scale < 0.3 ? 0.3 : (scale > 1.8 ? 1.8 : scale);
 
-    dragplan.style.transformOrigin = dragplan.style.WebkitTransformOrigin = (X) + 'px ' + (Y) + 'px';
+    var xNew = (xScreen - xImage) / scale;
+    var yNew = (yScreen - yImage) / scale;
 
-    dragplan.style.transform = dragplan.style.WebkitTransform = dragplan.style.MsTransform = 'scale(' + scale + ') translate(-50%, -50%)';
+    xLast = xScreen;
+    yLast = yScreen;
+
+    $(this).css('-moz-transform', 'scale(' + scale + ') translate(' + xNew + 'px, ' + yNew + 'px)').css('-moz-transform-origin', xImage + 'px ' + yImage + 'px');
 
     e.preventDefault();
 });
