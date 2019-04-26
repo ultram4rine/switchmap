@@ -38,3 +38,28 @@ function fAdd(){
         });
     }
 };
+
+function swAdd(){
+    var href = location.href.split('/');
+    var build = href[4];
+    var floor = href[5];
+    var name = document.getElementById("name").value;
+    var model = document.getElementById("model").value;
+    if (name.length == 0 || model.length == 0) {
+        alert("Пустое значение")
+    } else {
+        $.ajax({
+            url: "/swadd",
+            method: "POST",
+            data: {
+                name: name,
+                model: model,
+                build: build,
+                floor: floor
+            },
+            success: function(){
+                location.reload();
+            }
+        })
+    }
+};

@@ -21,6 +21,11 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sw.Name = r.FormValue("name")
+	sw.Model = r.FormValue("model")
+	sw.Build = r.FormValue("build")
+	sw.Floor = r.FormValue("floor")
+
 	var err error
 
 	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
@@ -44,7 +49,12 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if switchname != "" {
-			_, err = server.Core.DB1.Exec("UPDATE `host` set ip = ?, mac = ?, model = ?, build = ?, floor = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
+			sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
+			if err != nil {
+				log.Println("Error getting serial number: ", err)
+			}
+
+			_, err = server.Core.DB1.Exec("UPDATE `host` set ip = ?, mac = ?, revision = ?, serial = ?, model = ?, build = ?, floor = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
 			if err != nil {
 				log.Println("Error updating switch in database: ", err)
 			} else {
@@ -80,18 +90,6 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Printf("Can't find switch with that name %s in netmap database", sw.Name)
 	}
-
-	http.Redirect(w, r, "/map/"+sw.Build+"/"+sw.Floor, 301)
-
-	sw.Name = ""
-	sw.Model = ""
-	sw.IP = ""
-	sw.MAC = ""
-	sw.Revision = ""
-	sw.Serial = ""
-	sw.Build = ""
-	sw.Floor = ""
-	sw.Upswitch = ""
 }
 
 //AddBuildHandler handle page to add build

@@ -168,18 +168,6 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 
 			tmpl, _ := template.ParseFiles("templates/plan.html")
 			tmpl.Execute(w, data)
-		} else if r.Method == "POST" {
-			err := r.ParseForm()
-			if err != nil {
-				log.Println("Error with parsing data to add switch on map: ", err)
-			}
-
-			sw.Model = r.FormValue("model")
-			sw.Name = r.FormValue("name")
-			sw.Build = build
-			sw.Floor = floor
-
-			http.Redirect(w, r, "/addswitch", 301)
 		}
 	} else if os.IsNotExist(err) {
 		http.Redirect(w, r, "/planupdate/"+build+"/"+floor, 301)

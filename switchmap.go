@@ -67,7 +67,7 @@ func main() {
 
 	router.HandleFunc("/savepos", handler.SavePos)
 
-	router.HandleFunc("/addswitch", handler.AddSwitchHandler)
+	router.HandleFunc("/swadd", handler.AddSwitchHandler)
 
 	router.HandleFunc("/badd", handler.AddBuildHandler)
 
