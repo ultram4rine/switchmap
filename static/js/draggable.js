@@ -70,6 +70,8 @@ var Clicker = {
         else $element.parent().draggable('enable')
 
         this.name = this.$element.attr('id')
+        var nameheight = parseInt($('.switch #'+this.name+'.name').css('height')) + 109;
+
         if ($('.switch #'+this.name+'.cir').css('width') == '1px') {
             $('.switch #'+this.name+'.cir').animate({
                 width: '+=199px',
@@ -91,7 +93,7 @@ var Clicker = {
 
             $('.switch #'+this.name+'.blink').animate({
                 opacity: 0.8,
-                marginTop: '126px'
+                marginTop: nameheight + 'px'
             }, 100)
 
             $('.switch #'+this.name+'.reload').animate({
