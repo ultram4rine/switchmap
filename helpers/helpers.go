@@ -56,9 +56,10 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 	defer dbsearch.Close()
 
 	var (
-		IP       string
-		MAC      string
-		UpSwitch string
+		IP           string
+		MAC          string
+		UpSwitch     string
+		upswitchname string
 	)
 
 	for dbsearch.Next() {
@@ -77,8 +78,6 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 					return "", "", "", err
 				}
 				defer upswitchsearch.Close()
-
-				var upswitchname string
 
 				for upswitchsearch.Next() {
 					err := upswitchsearch.Scan(&upswitchname)
@@ -105,7 +104,7 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 		return "", "", "", err
 	}
 
-	return IP, MAC, UpSwitch, nil
+	return IP, MAC, upswitchname, nil
 }
 
 //GetSerial helps to get serial number of switch
