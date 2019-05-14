@@ -73,6 +73,8 @@ func main() {
 
 	router.HandleFunc("/fadd", handler.AddFloorHandler)
 
+	router.HandleFunc("/reload", handler.ReloadHandler)
+
 	router.HandleFunc("/planupdate/{build}/{floor}", handler.PlanUpdateHandler)
 
 	router.HandleFunc("/bdel", handler.BuildDelHandler)

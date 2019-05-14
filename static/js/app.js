@@ -1,3 +1,19 @@
+function reload($element){
+    this.$element = $element;
+    this.name = $(this.$element).attr('id');
+
+    $.ajax({
+        url: "/reload",
+        method: "POST",
+        data: {
+            name: this.name
+        },
+        success: function(){
+            location.reload();
+        }
+    })
+}
+
 var click = {
     x: 0,
     y: 0

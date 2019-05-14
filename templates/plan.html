@@ -63,7 +63,7 @@
                         <div id="{{ .Name}}" class="blink">
                             <span>>_</span>
                         </div>
-                        <div id="{{ .Name}}" class="reload">
+                        <div id="{{ .Name}}" class="reload" onclick="reload(this)">
                             <span>&#x21bb</span>
                         </div>
                         <div id="{{ .Name}}" class="download">
@@ -84,11 +84,11 @@
                 </div>
             </div>
         </div>
+        <script type="text/javascript" src="/static/js/app.js"></script>
         <script type="text/javascript" src="/static/js/adding.js"></script>
         <script type="text/javascript" src="/static/js/blink.js"></script>
         <script type="text/javascript" src="/static/js/chmenuico.js"></script>
         <script type="text/javascript" src="/static/js/zoom.js"></script>
         <script type="text/javascript" src="/static/js/dragplan.js"></script>
-        <script type="text/javascript" src="/static/js/draggable.js"></script>
     </body>
 </html>

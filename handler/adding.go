@@ -167,6 +167,57 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//ReloadHandler to update data of switch
+func ReloadHandler(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", 302)
+		return
+	}
+
+	sw.Name = r.FormValue("name")
+
+	var err error
+
+	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
+	if err != nil {
+		log.Println("Error getting switch data: ", err)
+	}
+
+	if sw.IP != "" && sw.MAC != "" {
+		dbwrite, err := server.Core.DB1.Query("SELECT `name` FROM `host` WHERE `name` = ?", sw.Name)
+		if err != nil {
+			log.Println("Error with scanning database to check record of switch: ", err)
+		}
+		defer dbwrite.Close()
+
+		var switchname = ""
+		for dbwrite.Next() {
+			err := dbwrite.Scan(&switchname)
+			if err != nil {
+				log.Println("Error with searching switch name in database: ", err)
+			}
+		}
+
+		if switchname != "" {
+			sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
+			if err != nil {
+				log.Println("Error getting serial number: ", err)
+			}
+
+			_, err = server.Core.DB1.Exec("UPDATE `host` set ip = ?, mac = ?, revision = ?, serial = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
+			if err != nil {
+				log.Println("Error updating switch in database: ", err)
+			} else {
+				log.Printf("Switch %s in %s %s updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.Build, sw.Floor, sw.IP, sw.MAC, sw.Serial)
+			}
+		} else {
+			log.Println("No switch with that name in database", err)
+		}
+	} else {
+		log.Printf("Can't find switch with that name %s in netmap database", sw.Name)
+	}
+}
+
 //PlanUpdateHandler to upload or update floor's plan
 func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if !helpers.AlreadyLogin(r) {
