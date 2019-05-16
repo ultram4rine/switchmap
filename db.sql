@@ -1,5 +1,6 @@
 create database db;
 use db;
+ALTER DATABASE db CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 create table host
 (
 	id INT PRIMARY KEY auto_increment,
@@ -29,3 +30,6 @@ create table floors
     floor varchar(30),
     hidden int
 );
+ALTER TABLE host CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE buildings CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE floors CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
