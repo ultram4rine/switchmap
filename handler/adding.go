@@ -208,7 +208,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println("Error updating switch in database: ", err)
 			} else {
-				log.Printf("Switch %s in %s %s updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.Build, sw.Floor, sw.IP, sw.MAC, sw.Serial)
+				log.Printf("Switch %s updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.IP, sw.MAC, sw.Serial)
 			}
 		} else {
 			log.Println("No switch with that name in database", err)
