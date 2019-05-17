@@ -17,8 +17,9 @@ import (
 
 func main() {
 	var (
-		logFile = "static/log/logs.log"
-		port    = ":8080"
+		confFile = "conf.json"
+		logFile  = "static/log/logs.log"
+		port     = ":8080"
 	)
 
 	if _, err := os.Stat(logFile); err != nil {
@@ -37,7 +38,7 @@ func main() {
 	}
 	defer l.Close()
 
-	err = server.MakeConfig("conf.json")
+	err = server.MakeConfig(confFile)
 	if err != nil {
 		log.Fatal("Error with making config file to connect to databases: ", err)
 	} else {
