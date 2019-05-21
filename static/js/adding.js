@@ -1,9 +1,10 @@
 function bAdd(){
     var name = document.getElementById("name").value;
     var addr = document.getElementById("addr").value;
+    var reg = /^b[1-9]?[0-9]$/;
     if (name.length == 0 || addr.length == 0) {
         alert("Пустое значение")
-    } else {
+    } else if (reg.test(addr)) {
         $.ajax({
             url: "/badd",
             method: "POST",
@@ -22,9 +23,10 @@ function fAdd(){
     var href = location.href.split('/');
     var build = href[4];
     var num = document.getElementById("num").value;
+    var reg = /^[1-9]?[0-9]$/;
     if (num.length == 0) {
         alert("Пустое значение")
-    } else {
+    } else if (reg.test(num)) {
         $.ajax({
             url: "/fadd",
             method: "POST",
