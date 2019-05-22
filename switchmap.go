@@ -66,6 +66,10 @@ func main() {
 
 	router.HandleFunc("/map/{build}/{floor}", handler.FloorHandler)
 
+	router.HandleFunc("/getmap", handler.GetMap)
+
+	router.HandleFunc("/vis", handler.VisHandler)
+
 	router.HandleFunc("/savepos", handler.SavePos)
 
 	router.HandleFunc("/swadd", handler.AddSwitchHandler)

@@ -1,6 +1,7 @@
 ﻿package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,6 +36,77 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error updating position of switch %s: %s", name, err)
 	}
 	w.Write([]byte("success"))
+}
+
+//GetMap make and send map of switches
+func GetMap(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", 302)
+		return
+	}
+
+	vis := make(map[string][]string)
+
+	dbvis, err := server.Core.DB1.Query("SELECT name from host")
+	if err != nil {
+		log.Println("Error with making query to show visualization")
+	}
+	defer dbvis.Close()
+
+	for dbvis.Next() {
+		var s string
+
+		err := dbvis.Scan(&s)
+		if err != nil {
+			log.Println("Error with scanning database to show visualization: ", err)
+		}
+
+		dbvisup, err := server.Core.DB1.Query("SELECT name from host WHERE upswitch = ?", s)
+		if err != nil {
+			log.Println("Error with making query to find upswitches to show visualization")
+		}
+		defer dbvisup.Close()
+
+		var ups []string
+
+		for dbvisup.Next() {
+			var up string
+
+			err := dbvisup.Scan(&up)
+			if err != nil {
+				log.Println("Error with scanning database to find upswitches to show visualization: ", err)
+			}
+
+			ups = append(ups, up)
+		}
+
+		vis[s] = ups
+	}
+
+	if r.Method == "GET" {
+		m, err := json.MarshalIndent(vis, "", "  ")
+		if err != nil {
+			log.Println("Error marshalling data to send: ", err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(m)
+	}
+}
+
+//VisHandler handle page with visualization
+func VisHandler(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", 302)
+		return
+	}
+	session, _ := server.Core.Store.Get(r, "session")
+
+	data = helpers.ViewData{
+		User: session.Values["user"],
+	}
+
+	tmpl, _ := template.ParseFiles("templates/vis.html")
+	tmpl.Execute(w, data)
 }
 
 //MapHandler handle main page map
