@@ -19,10 +19,12 @@ $.get("/getmap", function(data){
     };
     var options = {
         physics: {enabled: false},
-        nodes: {physics: false}
+        nodes: {physics: false},
+        edges: {arrows: {middle: {enabled: true}}, color: {color: '#181616'}}
     };
     options.nodes = {
-        color: 'rgb(255, 140, 0)'
+        color: 'rgb(255, 140, 0)',
+        font: {color: '#181616', face: 'sans-serif'}
     }
     var network = new vis.Network(container, data, options);
 })
