@@ -24,7 +24,8 @@ $.get("/getmap", function(data){
     };
     options.nodes = {
         color: 'rgb(255, 140, 0)',
-        font: {color: '#181616', face: 'sans-serif'}
+        font: {color: '#181616', face: 'sans-serif'},
+        shape: 'box'
     }
     var network = new vis.Network(container, data, options);
 })
