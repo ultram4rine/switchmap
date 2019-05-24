@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"net/http"
@@ -58,7 +59,7 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 	var (
 		IP           string
 		MAC          string
-		UpSwitch     string
+		UpSwitch     sql.NullString
 		upswitchname string
 	)
 
@@ -71,7 +72,7 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 
 		if IP != "" && MAC != "" {
 			//Searching upswitch name
-			if UpSwitch != "" {
+			if UpSwitch.Valid {
 				upswitchsearch, err := server.Core.DB2.Query("SELECT `name` FROM `host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
 				if err != nil {
 					log.Println("Error database query for searching upswitch: ", err)
@@ -93,7 +94,8 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 					return "", "", "", err
 				}
 			} else {
-				log.Printf("Is no upswitch for %s in netmap database", name)
+				log.Printf("Is no upswitch for %s in database", name)
+				return IP, MAC, "", nil
 			}
 			//End searching upswitch name
 		}
