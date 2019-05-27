@@ -42,6 +42,7 @@ type ViewData struct {
 	Build  string      //Build to go back from build page
 	Floor  string      //Floor to go back from plan page
 	User   interface{} //User to show username of user
+	Sw     Switch      //Sw to show switch information on change page
 	Swits  []Switch    //Swits to show information of switch on plan
 	Builds []Build     //Builds to show build on map
 	Floors []Floor     //Floors to show floors in build
