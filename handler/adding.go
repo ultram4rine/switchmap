@@ -246,7 +246,7 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		f, err := os.OpenFile("static/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
+		f, err := os.OpenFile("public/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			log.Println("Error with creating file: ", err)
 		}

@@ -4,19 +4,19 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Карта</title>
-        <link href="/static/css/main.css" rel="stylesheet">
-        <link href="/static/css/header.css" rel="stylesheet">
-        <link href="/static/css/plan.css" rel="stylesheet">
-        <link rel="icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
-        <link rel="shortcut icon" href="/static/icons/switchmap_icon_orange.png" type="image/png">
-        <script type="text/javascript" src="/static/js/plugins/jquery-2.0.2.min.js"></script>
-        <script type="text/javascript" src="/static/js/plugins/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="/static/js/plugins/jquery.ui.touch-punch.min.js"></script>
+        <link href="/public/css/main.css" rel="stylesheet">
+        <link href="/public/css/header.css" rel="stylesheet">
+        <link href="/public/css/plan.css" rel="stylesheet">
+        <link rel="icon" href="/public/icons/switchmap_icon_orange.png" type="image/png">
+        <link rel="shortcut icon" href="/public/icons/switchmap_icon_orange.png" type="image/png">
+        <script type="text/javascript" src="/public/js/plugins/jquery-2.0.2.min.js"></script>
+        <script type="text/javascript" src="/public/js/plugins/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="/public/js/plugins/jquery.ui.touch-punch.min.js"></script>
     </head>
     <body>
         <input type="checkbox" class="open" id="nav-toggle" hidden>
         <div class="header">
-            <div id="logo"><img src="/static/icons/switchmap_icon_black.svg"></div>
+            <div id="logo"><img src="/public/icons/switchmap_icon_black.svg"></div>
             <div id="title">SwitchMap</div>
             <label for="nav-toggle" class="btn" onclick="anim(this)">
                 <div class="bars">
@@ -55,7 +55,7 @@
             </ul>
             <div class="map">
                 <div id="dragplan" class="plan ui-widget-content">
-                    <img id="image" src="/static/plans/{{ .Build}}{{ .Floor}}.png"; max-height:100%; max-weidth:100%>
+                    <img id="image" src="/public/plans/{{ .Build}}{{ .Floor}}.png"; max-height:100%; max-weidth:100%>
                     {{range .Swits }}
                     <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
                         <a href="/list/change/{{ .Name}}">
@@ -71,7 +71,7 @@
                             <span>&#x2B73</span>
                         </div>
                         <div id="{{ .Name}}" class="image">
-                            <img src="/static/images/{{ .Model}}.png">
+                            <img src="/public/images/{{ .Model}}.png">
                         </div>
                         <div id="{{ .Name}}" class="name">{{ .Name}}</div>
                         <div id="{{ .Name}}" class="cir">
@@ -85,11 +85,11 @@
                 </div>
             </div>
         </div>
-        <script type="text/javascript" src="/static/js/app.js"></script>
-        <script type="text/javascript" src="/static/js/adding.js"></script>
-        <script type="text/javascript" src="/static/js/blink.js"></script>
-        <script type="text/javascript" src="/static/js/chmenuico.js"></script>
-        <script type="text/javascript" src="/static/js/zoom.js"></script>
-        <script type="text/javascript" src="/static/js/dragplan.js"></script>
+        <script type="text/javascript" src="/public/js/app.js"></script>
+        <script type="text/javascript" src="/public/js/adding.js"></script>
+        <script type="text/javascript" src="/public/js/blink.js"></script>
+        <script type="text/javascript" src="/public/js/chmenuico.js"></script>
+        <script type="text/javascript" src="/public/js/zoom.js"></script>
+        <script type="text/javascript" src="/public/js/dragplan.js"></script>
     </body>
 </html>

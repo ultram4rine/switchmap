@@ -18,7 +18,7 @@ import (
 func main() {
 	var (
 		confFile = "conf.json"
-		logFile  = "static/log/logs.log"
+		logFile  = "public/log/logs.log"
 		port     = ":8080"
 	)
 
@@ -55,8 +55,8 @@ func main() {
 
 	router := mux.NewRouter()
 
-	fs := http.FileServer(http.Dir("./static/"))
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("./public/"))
+	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
 
 	router.HandleFunc("/admin/{type}", auth.Handler)
 
