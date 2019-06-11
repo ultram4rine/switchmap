@@ -61,7 +61,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Switch %s in %s %s updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.Build, sw.Floor, sw.IP, sw.MAC, sw.Serial)
 			}
 		} else {
-			reader, err := os.Open("static/plans/" + sw.Build + sw.Floor + ".png")
+			reader, err := os.Open("public/plans/" + sw.Build + sw.Floor + ".png")
 			if err != nil {
 				log.Println("Error opening plan image to count size: ", err)
 			}

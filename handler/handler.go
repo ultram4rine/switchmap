@@ -208,7 +208,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	build := vars["build"]
 	floor := vars["floor"]
-	planpath := fmt.Sprintf("static/plans/%s%s.png", build, floor)
+	planpath := fmt.Sprintf("public/plans/%s%s.png", build, floor)
 
 	if _, err := os.Stat(planpath); err == nil {
 		if r.Method == "GET" {
