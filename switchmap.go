@@ -18,7 +18,7 @@ import (
 func main() {
 	var (
 		confFile = "conf.json"
-		logFile  = "public/log/logs.log"
+		logFile  = "private/log/logs.log"
 		port     = ":8080"
 	)
 
@@ -55,8 +55,17 @@ func main() {
 
 	router := mux.NewRouter()
 
-	fs := http.FileServer(http.Dir("./public/"))
-	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
+	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public/"))))
+
+	router.PathPrefix("/private/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !helpers.AlreadyLogin(r) {
+			http.Redirect(w, r, "/admin/login", 302)
+			return
+		}
+
+		realHandler := http.StripPrefix("/private/", http.FileServer(http.Dir("./private/"))).ServeHTTP
+		realHandler(w, r)
+	})
 
 	router.HandleFunc("/admin/{type}", auth.Handler)
 

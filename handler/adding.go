@@ -61,7 +61,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Switch %s in %s %s updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.Build, sw.Floor, sw.IP, sw.MAC, sw.Serial)
 			}
 		} else {
-			reader, err := os.Open("public/plans/" + sw.Build + sw.Floor + ".png")
+			reader, err := os.Open("private/plans/" + sw.Build + sw.Floor + ".png")
 			if err != nil {
 				log.Println("Error opening plan image to count size: ", err)
 			}
@@ -246,7 +246,7 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		f, err := os.OpenFile("public/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
+		f, err := os.OpenFile("private/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			log.Println("Error with creating file: ", err)
 		}
