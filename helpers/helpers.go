@@ -5,7 +5,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"repos/switchmap/server"
+
+	"github.com/ultram4rine/switchmap/server"
 
 	snmp "github.com/soniah/gosnmp"
 )

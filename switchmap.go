@@ -5,10 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"repos/switchmap/auth"
-	"repos/switchmap/handler"
-	"repos/switchmap/helpers"
-	"repos/switchmap/server"
+
+	"github.com/ultram4rine/switchmap/auth"
+	"github.com/ultram4rine/switchmap/handler"
+	"github.com/ultram4rine/switchmap/helpers"
+	"github.com/ultram4rine/switchmap/server"
 
 	_ "github.com/go-sql-driver/mysql"
 

@@ -6,11 +6,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"repos/switchmap/helpers"
-	"repos/switchmap/server"
 	"sort"
 	"strconv"
 	"text/template"
+
+	"github.com/ultram4rine/switchmap/helpers"
+	"github.com/ultram4rine/switchmap/server"
 
 	"github.com/gorilla/mux"
 )

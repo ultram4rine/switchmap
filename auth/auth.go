@@ -3,9 +3,10 @@ package auth
 import (
 	"errors"
 	"net/http"
-	"repos/switchmap/helpers"
-	"repos/switchmap/server"
 	"text/template"
+
+	"github.com/ultram4rine/switchmap/helpers"
+	"github.com/ultram4rine/switchmap/server"
 
 	"github.com/gorilla/mux"
 
