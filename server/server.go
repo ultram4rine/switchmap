@@ -71,7 +71,7 @@ func Connect2DB() {
 		log.Println("Connected to switchmap database")
 	}
 
-	Core.DBnetmap, err = sqlx.Connect("mysql", Conf.MysqlLogin+":"+Conf.MysqlPassword+"@tcp("+Conf.MysqlHost+"/"+Conf.MysqlDb+"?charset=utf8)")
+	Core.DBnetmap, err = sqlx.Connect("mysql", Conf.MysqlLogin+":"+Conf.MysqlPassword+"@tcp("+Conf.MysqlHost+")/"+Conf.MysqlDb+"?charset=utf8")
 	if err != nil {
 		log.Println("Error connecting to netmap database: ", err)
 	} else {
