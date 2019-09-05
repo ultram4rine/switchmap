@@ -32,7 +32,7 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 	top := r.FormValue("top")
 	left := r.FormValue("left")
 
-	_, err := server.Core.DB1.Exec("UPDATE `host` set postop = ?, posleft = ? WHERE name = ?", top, left, name)
+	_, err := server.Core.DBswitchmap.Exec("UPDATE `switches` set postop = ?, posleft = ? WHERE name = ?", top, left, name)
 	if err != nil {
 		log.Printf("Error updating position of switch %s: %s", name, err)
 	}
@@ -48,7 +48,7 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 
 	vis := make(map[string][]string)
 
-	dbvis, err := server.Core.DB1.Query("SELECT name from host")
+	dbvis, err := server.Core.DBswitchmap.Query("SELECT name from switches")
 	if err != nil {
 		log.Println("Error with making query to show visualization")
 	}
@@ -62,7 +62,7 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error with scanning database to show visualization: ", err)
 		}
 
-		dbvisup, err := server.Core.DB1.Query("SELECT name from host WHERE upswitch = ?", s)
+		dbvisup, err := server.Core.DBswitchmap.Query("SELECT name from host WHERE upswitch = ?", s)
 		if err != nil {
 			log.Println("Error with making query to find upswitches to show visualization")
 		}
@@ -126,7 +126,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 			Builds: buildings,
 		}
 
-		dbbuilds, err := server.Core.DB1.Query("SELECT `name`, `addr` from `buildings` WHERE `hidden` = ?", 0)
+		dbbuilds, err := server.Core.DBswitchmap.Query("SELECT `name`, `addr` from `buildings` WHERE `hidden` = ?", 0)
 		if err != nil {
 			log.Println("Error with making query to show builds: ", err)
 		}
@@ -172,7 +172,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		dbfloors, err := server.Core.DB1.Query("SELECT `build`, `floor` from `floors` WHERE `build` = ? AND `hidden` = ?", build, 0)
+		dbfloors, err := server.Core.DBswitchmap.Query("SELECT `build`, `floor` from `floors` WHERE `build` = ? AND `hidden` = ?", build, 0)
 		if err != nil {
 			log.Println("Error with making query to show floors: ", err)
 		}
@@ -222,7 +222,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 				Swits: switches,
 			}
 
-			dbswits, err := server.Core.DB1.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor`, `postop`, `posleft` from `host` WHERE build = ? AND floor = ?", build, floor)
+			dbswits, err := server.Core.DBswitchmap.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor`, `postop`, `posleft` from `host` WHERE build = ? AND floor = ?", build, floor)
 			if err != nil {
 				log.Println("Error with making query to show list of switches: ", err)
 			}
@@ -262,7 +262,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		Swits: switches,
 	}
 
-	dblist, err := server.Core.DB1.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor` from `host`")
+	dblist, err := server.Core.DBswitchmap.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor` from `host`")
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -312,7 +312,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		User: session.Values["user"],
 	}
 
-	dbswits, err := server.Core.DB1.Query("SELECT `ip`, `mac`, `revision`, `serial`, `model`, `upswitch` from `host` WHERE name = ?", sw)
+	dbswits, err := server.Core.DBswitchmap.Query("SELECT `ip`, `mac`, `revision`, `serial`, `model`, `upswitch` from `host` WHERE name = ?", sw)
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -349,7 +349,7 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	mac := r.FormValue("MAC")
 	upswitch := r.FormValue("upswitch")
 
-	_, err = server.Core.DB1.Exec("UPDATE host set ip = ?, mac = ?, upswitch = ? WHERE name = ?", ip, mac, upswitch, sw)
+	_, err = server.Core.DBswitchmap.Exec("UPDATE host set ip = ?, mac = ?, upswitch = ? WHERE name = ?", ip, mac, upswitch, sw)
 
 	http.Redirect(w, r, "/list", 301)
 }

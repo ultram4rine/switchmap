@@ -1,33 +1,42 @@
 package server
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"log"
 
 	"github.com/gorilla/sessions"
+	"github.com/jmoiron/sqlx"
 )
 
 //Core is a struct to store important things
 var Core struct {
-	DB1   *sql.DB
-	DB2   *sql.DB
-	Store *sessions.CookieStore
+	DBswitchmap *sqlx.DB
+	DBnetmap    *sqlx.DB
+	Store       *sessions.CookieStore
 }
 
-//Config is a configuration file
-var Config struct {
+//Conf is a configuration file
+var Conf struct {
+	DBHost  string `json:"dbHost"`
+	DBPort  string `json:"dbPort"`
+	DBName  string `json:"dbName"`
+	DBLogin string `json:"dbUser"`
+	DBPass  string `json:"dbPass"`
+
 	MysqlLogin    string `json:"mysqlLogin"`
 	MysqlPassword string `json:"mysqlPassword"`
 	MysqlHost     string `json:"mysqlHost"`
 	MysqlDb       string `json:"mysqlDb"`
-	LdapUser      string `json:"ldapUser"`
-	LdapPassword  string `json:"ldapPassword"`
-	LdapServer    string `json:"ldapServer"`
-	LdapBaseDN    string `json:"ldapBaseDN"`
-	SessionKey    string `json:"sessionKey"`
+
+	LdapUser     string `json:"ldapUser"`
+	LdapPassword string `json:"ldapPassword"`
+	LdapServer   string `json:"ldapServer"`
+	LdapBaseDN   string `json:"ldapBaseDN"`
+
+	SessionKey string `json:"sessionKey"`
+	EncryptKey string `json:"encryptKey"`
 }
 
 //MakeConfig unmarhsal data from JSON Config file
@@ -37,15 +46,15 @@ func MakeConfig(filepath string) error {
 		return err
 	}
 
-	err = json.Unmarshal(confdata, &Config)
+	err = json.Unmarshal(confdata, &Conf)
 	if err != nil {
 		return err
 	}
 
-	if Config.SessionKey == "" {
+	if Conf.SessionKey == "" {
 		return errors.New("Empty session key")
 	}
-	Core.Store = sessions.NewCookieStore([]byte(Config.SessionKey))
+	Core.Store = sessions.NewCookieStore([]byte(Conf.SessionKey), []byte(Conf.EncryptKey))
 
 	return nil
 }
@@ -54,17 +63,17 @@ func MakeConfig(filepath string) error {
 func Connect2DB() {
 	var err error
 
-	Core.DB1, err = sql.Open("mysql", "login:password@tcp(address:port)/db?charset=utf8")
+	Core.DBswitchmap, err = sqlx.Connect("postgres", "user="+Conf.DBLogin+" password="+Conf.DBPass+" host="+Conf.DBHost+" port="+Conf.DBPort+" dbname="+Conf.DBName)
 	if err != nil {
-		log.Println("Error connecting to database: ", err)
+		log.Println("Error connecting to switchmap database: ", err)
 	} else {
-		log.Println("Connected to database")
+		log.Println("Connected to switchmap database")
 	}
 
-	Core.DB2, err = sql.Open("mysql", "login:password@tcp(address:port)/db?charset=utf8")
+	Core.DBnetmap, err = sqlx.Connect("mysql", Conf.MysqlLogin+":"+Conf.MysqlPassword+"@tcp("+Conf.MysqlHost+"/"+Conf.MysqlDb+"?charset=utf8")
 	if err != nil {
-		log.Println("Error connecting to second database: ", err)
+		log.Println("Error connecting to netmap database: ", err)
 	} else {
-		log.Println("Connected to second database")
+		log.Println("Connected to netmap database")
 	}
 }

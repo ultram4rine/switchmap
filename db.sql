@@ -1,35 +1,29 @@
-create database db;
-use db;
-ALTER DATABASE db CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
-create table host
-(
-	id INT PRIMARY KEY auto_increment,
-    name varchar(30) not null,
-    ip varchar(30) not null,
-    mac varchar(30) not null,
-    revision varchar(200) null,
-    serial varchar(30) null,
-    model varchar(30) null,
-    build varchar(30) not null,
-    floor varchar(30) null,
-    upswitch varchar(30) null,
-    postop varchar(20) null,
-    posleft varchar(20) null
+CREATE DATABASE IF NOT EXISTS switchmap;
+use switchmap;
+
+CREATE TABLE IF NOT EXISTS switches (
+	id SERIAL PRIMARY KEY,
+    name STRING NOT NULL,
+    ip INET NOT NULL,
+    mac STRING NOT NULL,
+    revision STRING NULL,
+    serial STRING NULL,
+    model STRING NULL,
+    build STRING NOT NULL,
+    floor STRING NOT NULL,
+    upswitch STRING NULL,
+    postop STRING NULL,
+    posleft STRING NULL
 );
-create table buildings
-(
-	id int primary key auto_increment,
-	name varchar(30),
-    addr varchar(30),
-    hidden int
+
+create table buildings (
+	id SERIAL PRIMARY KEY,
+	name STRING NOT NULL,
+    addr STRING NOT NULL
 );
-create table floors
-(
-	id int primary key auto_increment,
-	build varchar(30),
-    floor varchar(30),
-    hidden int
+
+create table floors (
+	id SERIAL PRIMARY KEY,
+	build STRING NOT NULL,
+    floor STRING NOT NULL
 );
-ALTER TABLE host CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
-ALTER TABLE buildings CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
-ALTER TABLE floors CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;

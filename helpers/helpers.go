@@ -51,7 +51,7 @@ type ViewData struct {
 
 //GetSwData gets switch data
 func GetSwData(name string) (ip, mac, upswitch string, err error) {
-	dbsearch, err := server.Core.DB2.Query("SELECT `ip`, `mac`, `switch_id` FROM `host` WHERE `name` = ? AND ip IS NOT NULL", name)
+	dbsearch, err := server.Core.DBnetmap.Query("SELECT `ip`, `mac`, `switch_id` FROM `host` WHERE `name` = ? AND ip IS NOT NULL", name)
 	if err != nil {
 		log.Println("Error with making database query to find IP and MAC of switch: ", err)
 		return "", "", "", err
@@ -75,7 +75,7 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 		if IP != "" && MAC != "" {
 			//Searching upswitch name
 			if UpSwitch.Valid {
-				upswitchsearch, err := server.Core.DB2.Query("SELECT `name` FROM `host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
+				upswitchsearch, err := server.Core.DBnetmap.Query("SELECT `name` FROM `host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
 				if err != nil {
 					log.Println("Error database query for searching upswitch: ", err)
 					return "", "", "", err

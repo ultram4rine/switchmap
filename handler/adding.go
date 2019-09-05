@@ -35,7 +35,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if sw.IP != "" && sw.MAC != "" {
-		dbwrite, err := server.Core.DB1.Query("SELECT `name` FROM `host` WHERE `name` = ?", sw.Name)
+		dbwrite, err := server.Core.DBswitchmap.Query("SELECT `name` FROM `host` WHERE `name` = ?", sw.Name)
 		if err != nil {
 			log.Println("Error with scanning database to check record of switch: ", err)
 		}
@@ -55,7 +55,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error getting serial number: ", err)
 			}
 
-			_, err = server.Core.DB1.Exec("UPDATE `host` set ip = ?, mac = ?, revision = ?, serial = ?, model = ?, build = ?, floor = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
+			_, err = server.Core.DBswitchmap.Exec("UPDATE `host` set ip = ?, mac = ?, revision = ?, serial = ?, model = ?, build = ?, floor = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
 			if err != nil {
 				log.Println("Error updating switch in database: ", err)
 			} else {
@@ -81,7 +81,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error getting serial number: ", err)
 			}
 
-			_, err = server.Core.DB1.Exec("INSERT into `host` (name, ip, mac, revision, serial, model, build, floor, upswitch, postop, posleft) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, postop, posleft)
+			_, err = server.Core.DBswitchmap.Exec("INSERT into `host` (name, ip, mac, revision, serial, model, build, floor, upswitch, postop, posleft) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, postop, posleft)
 			if err != nil {
 				log.Println("Error adding switch into database: ", err)
 			} else {
@@ -103,7 +103,7 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	addr := r.FormValue("addr")
 
-	dbsearch, err := server.Core.DB1.Query("SELECT `name` from buildings WHERE `name` = ?", name)
+	dbsearch, err := server.Core.DBswitchmap.Query("SELECT `name` from buildings WHERE `name` = ?", name)
 	if err != nil {
 		log.Println("Error with scanning database to check record of build: ", err)
 	}
@@ -118,11 +118,11 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if buildname != "" {
-		_, err = server.Core.DB1.Exec("UPDATE `buildings` set addr = ?, hidden = ? WHERE name = ?", addr, 0, name)
+		_, err = server.Core.DBswitchmap.Exec("UPDATE `buildings` set addr = ?, hidden = ? WHERE name = ?", addr, 0, name)
 
 		log.Printf("Build %s updated successfully! His address: %s", name, addr)
 	} else {
-		_, err = server.Core.DB1.Exec("INSERT into `buildings` (name, addr, hidden) values (?, ?, ?)", name, addr, 0)
+		_, err = server.Core.DBswitchmap.Exec("INSERT into `buildings` (name, addr, hidden) values (?, ?, ?)", name, addr, 0)
 
 		log.Printf("Build %s added successfully! His address: %s", name, addr)
 	}
@@ -138,7 +138,7 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
-	dbsearch, err := server.Core.DB1.Query("SELECT `floor`, `hidden` from floors WHERE `build` = ? AND `floor` = ?", build, num)
+	dbsearch, err := server.Core.DBswitchmap.Query("SELECT `floor`, `hidden` from floors WHERE `build` = ? AND `floor` = ?", build, num)
 	if err != nil {
 		log.Println("Error with scanning database to check record of floor: ", err)
 	}
@@ -157,12 +157,12 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 
 	if floornum != "" {
 		if hidden == 1 {
-			_, err = server.Core.DB1.Exec("UPDATE `floors` set hidden = ? WHERE `build` = ? AND `floor` = ?", 0, build, num)
+			_, err = server.Core.DBswitchmap.Exec("UPDATE `floors` set hidden = ? WHERE `build` = ? AND `floor` = ?", 0, build, num)
 		} else {
 			log.Printf("%s floor in build %s already exists", num, build)
 		}
 	} else {
-		_, err = server.Core.DB1.Exec("INSERT into `floors` (build, floor, hidden) values (?, ?, ?)", build, num, 0)
+		_, err = server.Core.DBswitchmap.Exec("INSERT into `floors` (build, floor, hidden) values (?, ?, ?)", build, num, 0)
 
 		log.Printf("%s floor in build %s added successfully!", num, build)
 	}
@@ -185,7 +185,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if sw.IP != "" && sw.MAC != "" {
-		dbwrite, err := server.Core.DB1.Query("SELECT `name` FROM `host` WHERE `name` = ?", sw.Name)
+		dbwrite, err := server.Core.DBswitchmap.Query("SELECT `name` FROM `host` WHERE `name` = ?", sw.Name)
 		if err != nil {
 			log.Println("Error with scanning database to check record of switch: ", err)
 		}
@@ -205,7 +205,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error getting serial number: ", err)
 			}
 
-			_, err = server.Core.DB1.Exec("UPDATE `host` set ip = ?, mac = ?, revision = ?, serial = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
+			_, err = server.Core.DBswitchmap.Exec("UPDATE `host` set ip = ?, mac = ?, revision = ?, serial = ?, upswitch = ? where name = ?", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
 			if err != nil {
 				log.Println("Error updating switch in database: ", err)
 			} else {
