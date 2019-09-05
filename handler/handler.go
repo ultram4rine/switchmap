@@ -276,7 +276,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error with scanning database to show list of switches: ", err)
 		}
 
-		dbbuild, err := server.Core.DB1.Query("SELECT `name` from `buildings` WHERE addr = ?", swit.Build)
+		dbbuild, err := server.Core.DBswitchmap.Query("SELECT `name` from `buildings` WHERE addr = ?", swit.Build)
 		if err != nil {
 			log.Println("Error with making query to find build name: ", err)
 		}
