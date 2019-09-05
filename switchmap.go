@@ -11,6 +11,7 @@ import (
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
 
+	_ "github.com/cockroachdb/cockroach-go/crdb"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/gorilla/mux"
