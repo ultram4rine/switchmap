@@ -22,18 +22,18 @@ func auth(login, password string) (string, error) {
 
 	username := ""
 
-	l, err := ldap.Dial("tcp", server.Config.LdapServer)
+	l, err := ldap.Dial("tcp", server.Conf.LdapServer)
 	if err != nil {
 		return username, err
 	}
 	defer l.Close()
 
-	if l.Bind(server.Config.LdapUser, server.Config.LdapPassword); err != nil {
+	if l.Bind(server.Conf.LdapUser, server.Conf.LdapPassword); err != nil {
 		return username, err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		server.Config.LdapBaseDN,
+		server.Conf.LdapBaseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(sAMAccountName="+login+"))",
 		[]string{"cn"},

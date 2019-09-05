@@ -51,8 +51,8 @@ func main() {
 	log.SetOutput(l)
 
 	server.Connect2DB()
-	defer server.Core.DB1.Close()
-	defer server.Core.DB2.Close()
+	defer server.Core.DBswitchmap.Close()
+	defer server.Core.DBnetmap.Close()
 
 	router := mux.NewRouter()
 
