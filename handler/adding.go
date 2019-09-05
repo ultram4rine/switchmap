@@ -17,11 +17,6 @@ import (
 
 //AddSwitchHandler handle page with host add
 func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	sw.Name = r.FormValue("name")
 	sw.Model = r.FormValue("model")
 	sw.Build = r.FormValue("build")
@@ -95,11 +90,6 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 
 //AddBuildHandler handle page to add build
 func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	name := r.FormValue("name")
 	addr := r.FormValue("addr")
 
@@ -130,11 +120,6 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 
 //AddFloorHandler handle page to add floor
 func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
@@ -170,11 +155,6 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 
 //ReloadHandler to update data of switch
 func ReloadHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	sw.Name = r.FormValue("name")
 
 	var err error
@@ -221,10 +201,6 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 
 //PlanUpdateHandler to upload or update floor's plan
 func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	vars := mux.Vars(r)

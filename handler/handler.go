@@ -23,11 +23,6 @@ var (
 
 //SavePos saves position of switch in db
 func SavePos(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	name := r.FormValue("name")
 	top := r.FormValue("top")
 	left := r.FormValue("left")
@@ -41,11 +36,6 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 
 //GetMap make and send map of switches
 func GetMap(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	vis := make(map[string][]string)
 
 	dbvis, err := server.Core.DBswitchmap.Query("SELECT name from switches")
@@ -96,10 +86,6 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 
 //VisHandler handle page with visualization
 func VisHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	data = helpers.ViewData{
@@ -112,10 +98,6 @@ func VisHandler(w http.ResponseWriter, r *http.Request) {
 
 //MapHandler handle main page map
 func MapHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	if r.Method == "GET" {
@@ -156,10 +138,6 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 //BuildHandler handle map/build pages
 func BuildHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	floors := []helpers.Floor{}
@@ -200,10 +178,6 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 
 //FloorHandler handle map/build/floor pages
 func FloorHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	vars := mux.Vars(r)
@@ -249,10 +223,6 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 
 //ListHandler handle page with list of hosts
 func ListHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	switches := []helpers.Switch{}
@@ -299,10 +269,6 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 //ChangePage shows change page
 func ChangePage(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 301)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "switchmap_session")
 
 	vars := mux.Vars(r)
@@ -332,11 +298,6 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 
 //ChangeHandler handle change page
 func ChangeHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 301)
-		return
-	}
-
 	vars := mux.Vars(r)
 	sw := vars["switch"]
 
@@ -356,10 +317,6 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 
 //LogsHandler handle logs page
 func LogsHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 301)
-		return
-	}
 	session, _ := server.Core.Store.Get(r, "session")
 
 	data = helpers.ViewData{

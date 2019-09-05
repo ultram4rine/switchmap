@@ -68,43 +68,43 @@ func main() {
 		realHandler(w, r)
 	})
 
-	router.HandleFunc("/admin/{type}", auth.Handler)
+	router.HandleFunc("/admin/{type}", helpers.AuthCheck(auth.Handler))
 
-	router.HandleFunc("/map", handler.MapHandler)
+	router.HandleFunc("/map", helpers.AuthCheck(handler.MapHandler))
 
-	router.HandleFunc("/map/{build}", handler.BuildHandler)
+	router.HandleFunc("/map/{build}", helpers.AuthCheck(handler.BuildHandler))
 
-	router.HandleFunc("/map/{build}/{floor}", handler.FloorHandler)
+	router.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handler.FloorHandler))
 
-	router.HandleFunc("/getmap", handler.GetMap)
+	router.HandleFunc("/getmap", helpers.AuthCheck(handler.GetMap))
 
-	router.HandleFunc("/vis", handler.VisHandler)
+	router.HandleFunc("/vis", helpers.AuthCheck(handler.VisHandler))
 
-	router.HandleFunc("/savepos", handler.SavePos)
+	router.HandleFunc("/savepos", helpers.AuthCheck(handler.SavePos))
 
-	router.HandleFunc("/swadd", handler.AddSwitchHandler)
+	router.HandleFunc("/swadd", helpers.AuthCheck(handler.AddSwitchHandler))
 
-	router.HandleFunc("/badd", handler.AddBuildHandler)
+	router.HandleFunc("/badd", helpers.AuthCheck(handler.AddBuildHandler))
 
-	router.HandleFunc("/fadd", handler.AddFloorHandler)
+	router.HandleFunc("/fadd", helpers.AuthCheck(handler.AddFloorHandler))
 
-	router.HandleFunc("/reload", handler.ReloadHandler)
+	router.HandleFunc("/reload", helpers.AuthCheck(handler.ReloadHandler))
 
-	router.HandleFunc("/planupdate/{build}/{floor}", handler.PlanUpdateHandler)
+	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handler.PlanUpdateHandler))
 
-	router.HandleFunc("/bdel", handler.BuildDelHandler)
+	router.HandleFunc("/bdel", helpers.AuthCheck(handler.BuildDelHandler))
 
-	router.HandleFunc("/fdel", handler.FloorDelHandler)
+	router.HandleFunc("/fdel", helpers.AuthCheck(handler.FloorDelHandler))
 
-	router.HandleFunc("/swdel", handler.SwitchDelHandler)
+	router.HandleFunc("/swdel", helpers.AuthCheck(handler.SwitchDelHandler))
 
-	router.HandleFunc("/list", handler.ListHandler)
+	router.HandleFunc("/list", helpers.AuthCheck(handler.ListHandler))
 
-	router.HandleFunc("/list/change/{switch}", handler.ChangePage).Methods("GET")
+	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handler.ChangePage)).Methods("GET")
 
-	router.HandleFunc("/list/change/{switch}", handler.ChangeHandler).Methods("POST")
+	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handler.ChangeHandler)).Methods("POST")
 
-	router.HandleFunc("/logs", handler.LogsHandler)
+	router.HandleFunc("/logs", helpers.AuthCheck(handler.LogsHandler))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if !helpers.AlreadyLogin(r) {

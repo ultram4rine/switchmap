@@ -4,17 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
 )
 
 //SwitchDelHandler deletes switch
 func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	name := r.FormValue("name")
 
 	_, err := server.Core.DBswitchmap.Exec("DELETE from host WHERE name = ?", name)
@@ -29,11 +23,6 @@ func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 
 //BuildDelHandler deletes build
 func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	name := r.FormValue("name")
 
 	_, err := server.Core.DBswitchmap.Exec("UPDATE `buildings` set hidden = ? WHERE name = ?", 1, name)
@@ -48,11 +37,6 @@ func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 
 //FloorDelHandler deletes floor of build
 func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
-	if !helpers.AlreadyLogin(r) {
-		http.Redirect(w, r, "/admin/login", 302)
-		return
-	}
-
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 

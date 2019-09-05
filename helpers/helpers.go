@@ -154,3 +154,15 @@ func AlreadyLogin(r *http.Request) bool {
 	session, _ := server.Core.Store.Get(r, "session")
 	return session.Values["userName"] != nil
 }
+
+//AuthCheck is a middleware for handlers
+func AuthCheck(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !AlreadyLogin(r) {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		handler(w, r)
+	}
+}
