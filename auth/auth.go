@@ -68,18 +68,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			r.ParseForm()
 
 			if helpers.AlreadyLogin(r) {
-				http.Redirect(w, r, "/map", 301)
+				http.Redirect(w, r, "/map", http.StatusFound)
 				return
 			}
 
 			if userName, err := auth(r.FormValue("uname"), r.FormValue("psw")); err != nil {
-				http.Redirect(w, r, "/admin/login", 301)
+				http.Redirect(w, r, "/admin/login", http.StatusFound)
 				return
 			} else {
 				session.Values["userName"] = userName
 				session.Values["user"] = r.FormValue("uname")
 				session.Save(r, w)
-				http.Redirect(w, r, "/map", 301)
+				http.Redirect(w, r, "/map", http.StatusFound)
 			}
 		}
 	case "logout":

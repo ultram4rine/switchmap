@@ -60,7 +60,7 @@ func main() {
 
 	router.PathPrefix("/private/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !helpers.AlreadyLogin(r) {
-			http.Redirect(w, r, "/admin/login", 302)
+			http.Redirect(w, r, "/admin/login", http.StatusFound)
 			return
 		}
 
@@ -108,9 +108,9 @@ func main() {
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if !helpers.AlreadyLogin(r) {
-			http.Redirect(w, r, "/admin/login", 301)
+			http.Redirect(w, r, "/admin/login", http.StatusFound)
 		} else {
-			http.Redirect(w, r, "/map", 301)
+			http.Redirect(w, r, "/map", http.StatusFound)
 		}
 	})
 
