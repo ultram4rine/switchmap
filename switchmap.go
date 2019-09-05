@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/ultram4rine/switchmap/auth"
-	"github.com/ultram4rine/switchmap/handler"
+	"github.com/ultram4rine/switchmap/handlers"
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
 
@@ -70,41 +70,41 @@ func main() {
 
 	router.HandleFunc("/admin/{type}", helpers.AuthCheck(auth.Handler))
 
-	router.HandleFunc("/map", helpers.AuthCheck(handler.MapHandler))
+	router.HandleFunc("/map", helpers.AuthCheck(handlers.MapHandler))
 
-	router.HandleFunc("/map/{build}", helpers.AuthCheck(handler.BuildHandler))
+	router.HandleFunc("/map/{build}", helpers.AuthCheck(handlers.BuildHandler))
 
-	router.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handler.FloorHandler))
+	router.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handlers.FloorHandler))
 
-	router.HandleFunc("/getmap", helpers.AuthCheck(handler.GetMap))
+	router.HandleFunc("/getmap", helpers.AuthCheck(handlers.GetMap))
 
-	router.HandleFunc("/vis", helpers.AuthCheck(handler.VisHandler))
+	router.HandleFunc("/vis", helpers.AuthCheck(handlers.VisHandler))
 
-	router.HandleFunc("/savepos", helpers.AuthCheck(handler.SavePos))
+	router.HandleFunc("/savepos", helpers.AuthCheck(handlers.SavePos))
 
-	router.HandleFunc("/swadd", helpers.AuthCheck(handler.AddSwitchHandler))
+	router.HandleFunc("/swadd", helpers.AuthCheck(handlers.AddSwitchHandler))
 
-	router.HandleFunc("/badd", helpers.AuthCheck(handler.AddBuildHandler))
+	router.HandleFunc("/badd", helpers.AuthCheck(handlers.AddBuildHandler))
 
-	router.HandleFunc("/fadd", helpers.AuthCheck(handler.AddFloorHandler))
+	router.HandleFunc("/fadd", helpers.AuthCheck(handlers.AddFloorHandler))
 
-	router.HandleFunc("/reload", helpers.AuthCheck(handler.ReloadHandler))
+	router.HandleFunc("/reload", helpers.AuthCheck(handlers.ReloadHandler))
 
-	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handler.PlanUpdateHandler))
+	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handlers.PlanUpdateHandler))
 
-	router.HandleFunc("/bdel", helpers.AuthCheck(handler.BuildDelHandler))
+	router.HandleFunc("/bdel", helpers.AuthCheck(handlers.BuildDelHandler))
 
-	router.HandleFunc("/fdel", helpers.AuthCheck(handler.FloorDelHandler))
+	router.HandleFunc("/fdel", helpers.AuthCheck(handlers.FloorDelHandler))
 
-	router.HandleFunc("/swdel", helpers.AuthCheck(handler.SwitchDelHandler))
+	router.HandleFunc("/swdel", helpers.AuthCheck(handlers.SwitchDelHandler))
 
-	router.HandleFunc("/list", helpers.AuthCheck(handler.ListHandler))
+	router.HandleFunc("/list", helpers.AuthCheck(handlers.ListHandler))
 
-	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handler.ChangePage)).Methods("GET")
+	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangePage)).Methods("GET")
 
-	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handler.ChangeHandler)).Methods("POST")
+	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangeHandler)).Methods("POST")
 
-	router.HandleFunc("/logs", helpers.AuthCheck(handler.LogsHandler))
+	router.HandleFunc("/logs", helpers.AuthCheck(handlers.LogsHandler))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if !helpers.AlreadyLogin(r) {
