@@ -24,7 +24,7 @@ func main() {
 
 	if _, err := os.Stat(logFile); err != nil {
 		if os.IsNotExist(err) {
-			fo, err := os.Create(logFile)
+			fo, err := os.OpenFile("private/log/logs.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 			if err != nil {
 				log.Println("Error creating log file: ", err)
 			}
