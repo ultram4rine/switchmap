@@ -35,6 +35,7 @@ var Conf struct {
 	LdapServer   string `json:"ldapServer"`
 	LdapBaseDN   string `json:"ldapBaseDN"`
 
+	ListenPort string `json:"listenPort"`
 	SessionKey string `json:"sessionKey"`
 	EncryptKey string `json:"encryptKey"`
 }

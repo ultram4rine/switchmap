@@ -20,7 +20,6 @@ func main() {
 	var (
 		confFile = "conf.json"
 		logFile  = "private/log/logs.log"
-		port     = ":8080"
 	)
 
 	if _, err := os.Stat(logFile); err != nil {
@@ -47,7 +46,7 @@ func main() {
 	}
 
 	log.Println("Getting started...")
-	log.Println("Server listening on " + port + " port")
+	log.Println("Server listening on " + server.Conf.ListenPort + " port")
 	log.SetOutput(l)
 
 	server.Connect2DB()
@@ -114,9 +113,7 @@ func main() {
 		}
 	})
 
-	http.Handle("/", router)
-
-	err = http.ListenAndServe(port, router)
+	err = http.ListenAndServe(":"+server.Conf.ListenPort, router)
 	if err != nil {
 		log.SetOutput(os.Stdout)
 		log.Fatal("Error starting server: ", err)
