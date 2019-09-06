@@ -27,7 +27,7 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 	top := r.FormValue("top")
 	left := r.FormValue("left")
 
-	_, err := server.Core.DBswitchmap.Exec("UPDATE `switches` set postop = ?, posleft = ? WHERE name = ?", top, left, name)
+	_, err := server.Core.DBswitchmap.Exec("UPDATE switches SET (postop, posleft) = ($1, $2) WHERE name = $3", top, left, name)
 	if err != nil {
 		log.Printf("Error updating position of switch %s: %s", name, err)
 	}
@@ -52,7 +52,7 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error with scanning database to show visualization: ", err)
 		}
 
-		dbvisup, err := server.Core.DBswitchmap.Query("SELECT name from host WHERE upswitch = ?", s)
+		dbvisup, err := server.Core.DBswitchmap.Query("SELECT name FROM switches WHERE upswitch = $1", s)
 		if err != nil {
 			log.Println("Error with making query to find upswitches to show visualization")
 		}
@@ -108,7 +108,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 			Builds: buildings,
 		}
 
-		dbbuilds, err := server.Core.DBswitchmap.Query("SELECT `name`, `addr` from `buildings` WHERE `hidden` = ?", 0)
+		dbbuilds, err := server.Core.DBswitchmap.Query("SELECT name, addr FROM buildings")
 		if err != nil {
 			log.Println("Error with making query to show builds: ", err)
 		}
@@ -150,7 +150,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		dbfloors, err := server.Core.DBswitchmap.Query("SELECT `build`, `floor` from `floors` WHERE `build` = ? AND `hidden` = ?", build, 0)
+		dbfloors, err := server.Core.DBswitchmap.Query("SELECT build, floor FROM floors WHERE build = $1", build)
 		if err != nil {
 			log.Println("Error with making query to show floors: ", err)
 		}
@@ -196,7 +196,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 				Swits: switches,
 			}
 
-			dbswits, err := server.Core.DBswitchmap.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor`, `postop`, `posleft` from `host` WHERE build = ? AND floor = ?", build, floor)
+			dbswits, err := server.Core.DBswitchmap.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
 			if err != nil {
 				log.Println("Error with making query to show list of switches: ", err)
 			}
@@ -232,7 +232,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		Swits: switches,
 	}
 
-	dblist, err := server.Core.DBswitchmap.Query("SELECT `name`, `ip`, `mac`, `serial`, `model`, `upswitch`, `build`, `floor` from `host`")
+	dblist, err := server.Core.DBswitchmap.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -246,7 +246,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error with scanning database to show list of switches: ", err)
 		}
 
-		dbbuild, err := server.Core.DBswitchmap.Query("SELECT `name` from `buildings` WHERE addr = ?", swit.Build)
+		dbbuild, err := server.Core.DBswitchmap.Query("SELECT name FROM buildings WHERE addr = $1", swit.Build)
 		if err != nil {
 			log.Println("Error with making query to find build name: ", err)
 		}
@@ -278,7 +278,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		User: session.Values["user"],
 	}
 
-	dbswits, err := server.Core.DBswitchmap.Query("SELECT `ip`, `mac`, `revision`, `serial`, `model`, `upswitch` from `host` WHERE name = ?", sw)
+	dbswits, err := server.Core.DBswitchmap.Query("SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", sw)
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -310,7 +310,7 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	mac := r.FormValue("MAC")
 	upswitch := r.FormValue("upswitch")
 
-	_, err = server.Core.DBswitchmap.Exec("UPDATE host set ip = ?, mac = ?, upswitch = ? WHERE name = ?", ip, mac, upswitch, sw)
+	_, err = server.Core.DBswitchmap.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upswitch, sw)
 
 	http.Redirect(w, r, "/list", 301)
 }
