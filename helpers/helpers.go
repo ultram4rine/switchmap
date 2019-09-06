@@ -159,7 +159,7 @@ func AlreadyLogin(r *http.Request) bool {
 func AuthCheck(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !AlreadyLogin(r) {
-			http.Redirect(w, r, "/login", http.StatusFound)
+			http.Redirect(w, r, "/admin/login", http.StatusFound)
 			return
 		}
 
