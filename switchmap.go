@@ -68,7 +68,7 @@ func main() {
 		realHandler(w, r)
 	})
 
-	router.HandleFunc("/admin/{type}", helpers.AuthCheck(auth.Handler))
+	router.HandleFunc("/admin/{type}", auth.Handler)
 
 	router.HandleFunc("/map", helpers.AuthCheck(handler.MapHandler))
 
