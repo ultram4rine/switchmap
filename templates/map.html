@@ -1,62 +1,93 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Карта</title>
-        <link href="/public/css/main.css" rel="stylesheet">
-        <link href="/public/css/header.css" rel="stylesheet">
-        <link href="/public/css/map.css" rel="stylesheet">
-        <link rel="icon" href="/public/icons/switchmap_icon_orange.png" type="image/png">
-        <link rel="shortcut icon" href="/public/icons/switchmap_icon_orange.png" type="image/png">
-        <script type="text/javascript" src="/public/js/plugins/jquery-2.0.2.min.js"></script>
-    </head>
-    <body>
-        <input type="checkbox" class="open" id="nav-toggle" hidden>
-        <div class="header">
-            <div id="logo"><img src="/public/icons/switchmap_icon_black.svg"></div>
-            <div id="title">SwitchMap</div>
-            <label for="nav-toggle" class="btn" onclick="anim(this)">
-                <div class="bars">
-                    <div class="bar1"></div>
-                    <div class="bar2"></div>
-                    <div class="bar3"></div>
-                </div>
-            </label>
-            <div id="userbar">
-                <span>{{ .User}}</span>
-                (<a href="/admin/logout">Выйти</a>)
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Карта</title>
+    <link href="/public/css/main.css" rel="stylesheet" />
+    <link href="/public/css/header.css" rel="stylesheet" />
+    <link href="/public/css/map.css" rel="stylesheet" />
+    <link
+      rel="icon"
+      href="/public/icons/switchmap_icon_orange.png"
+      type="image/png"
+    />
+    <link
+      rel="shortcut icon"
+      href="/public/icons/switchmap_icon_orange.png"
+      type="image/png"
+    />
+    <script
+      type="text/javascript"
+      src="/public/js/plugins/jquery-2.0.2.min.js"
+    ></script>
+  </head>
+  <body>
+    <input type="checkbox" class="open" id="nav-toggle" hidden />
+    <div class="header">
+      <div id="logo"><img src="/public/icons/switchmap_icon_black.svg" /></div>
+      <div id="title">SwitchMap</div>
+      <label for="nav-toggle" class="btn" onclick="anim(this)">
+        <div class="bars">
+          <div class="bar1"></div>
+          <div class="bar2"></div>
+          <div class="bar3"></div>
         </div>
-        <div class="content">
-            <ul class="navbar">
-                <li><a href="/map">Карта</a></li>
-                <li><a href="/vis">Визуализация</a></li>
-                <li><a href="/list">Список</a></li>
-                <li><a href="/logs">Логи</a></li>
-                <li>
-                    <button class="button" onclick="bAdd()">Добавить корпус</button>
-                    <ul class="subnavbar">
-                        <li><input id="name" type="text" placeholder="Имя" required name="name" autocomplete="off"></li>
-                        <li><input id="addr" type="text" placeholder="Ссылка" required name="address" autocomplete="off" pattern="b[1-9]?[0-9]"></li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="map">
-                {{range .Builds}}
-                    <div class="build">
-                        <a class="delete" onclick="bdel(this)">X</a>
-                        <a href="map/{{ .Address}}">
-                            <div style="margin-top: 2px">
-                                <img src="/public/images/build.svg">
-                            </div>
-                            <div class="name" style="text-align: center;">{{ .Name}}</div> 
-                        </a>
-                    </div>
-                {{end}}
+      </label>
+      <div id="userbar">
+        <span>{{ .User}}</span>
+        (<a href="/admin/logout">Выйти</a>)
+      </div>
+    </div>
+    <div class="content">
+      <ul class="navbar">
+        <li><a href="/map">Карта</a></li>
+        <li><a href="/vis">Визуализация</a></li>
+        <li><a href="/list">Список</a></li>
+        <li><a href="/logs">Логи</a></li>
+        <li>
+          <button class="button" onclick="bAdd()">Добавить корпус</button>
+          <ul class="subnavbar">
+            <li>
+              <input
+                id="name"
+                type="text"
+                placeholder="Имя"
+                required
+                name="name"
+                autocomplete="off"
+              />
+            </li>
+            <li>
+              <input
+                id="addr"
+                type="text"
+                placeholder="Ссылка"
+                required
+                name="address"
+                autocomplete="off"
+                pattern="b[1-9]?[0-9]"
+              />
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <div class="map">
+        {{ range.Builds }}
+        <div class="build">
+          <a class="delete" onclick="bdel(this)">X</a>
+          <a href="map/{{ .Address}}">
+            <div style="margin-top: 2px">
+              <img src="/public/images/build.svg" />
             </div>
+            <div class="name" style="text-align: center;">{{ .Name}}</div>
+          </a>
         </div>
-        <script type="text/javascript" src="/public/js/deleting.js"></script>
-        <script type="text/javascript" src="/public/js/chmenuico.js"></script>
-    </body>
+        {{ end }}
+      </div>
+    </div>
+    <script type="text/javascript" src="/public/js/adding.js"></script>
+    <script type="text/javascript" src="/public/js/deleting.js"></script>
+    <script type="text/javascript" src="/public/js/chmenuico.js"></script>
+  </body>
 </html>
