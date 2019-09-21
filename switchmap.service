@@ -1,0 +1,11 @@
+[Unit]
+Description=SwitchMap WEB Application
+
+[Service]
+WorkingDirectory=/var/www/switchmap/
+ExecStart=/var/www/switchmap/switchmap
+User=root
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
