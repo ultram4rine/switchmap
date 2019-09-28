@@ -1,5 +1,6 @@
 #!/bin/bash
 
 go build switchmap.go
-rm /var/www/switchmap/switchmap
-cp -r switchmap conf.json public/ private/ /var/www/switchmap/
+mv -f switchmap /var/www/switchmap/
+cp -r conf.json public/ private/ /var/www/switchmap/
+systemctl restart switchmap
