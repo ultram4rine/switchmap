@@ -37,8 +37,7 @@
       </ul>
       <div class="map">
         <div class="hint">
-          План для этого этажа не найден, пожалуйста, загрузите его в формате (адрес корпуса)f(этаж).png<br/>
-          Например для этого этажа план должен называться {{ .Build}}{{ .Floor}}.png
+          План для этого этажа не найден, пожалуйста, загрузите его
         </div>
         <div style="margin-left: 5px;">
           <form action="/planupdate/{{ .Build}}/{{ .Floor}}" id="load" enctype="multipart/form-data" method="post">
