@@ -40,8 +40,7 @@ var Conf struct {
 	EncryptKey string `json:"encryptKey"`
 }
 
-//MakeConfig unmarhsal data from JSON Config file
-func MakeConfig(filepath string) error {
+func makeConfig(filepath string) error {
 	confdata, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return err
@@ -55,7 +54,7 @@ func MakeConfig(filepath string) error {
 	return nil
 }
 
-func CreateCookieStore() error {
+func createCookieStore() error {
 	if Conf.SessionKey == "" {
 		return errors.New("Empty session key")
 	}
@@ -65,21 +64,44 @@ func CreateCookieStore() error {
 	return nil
 }
 
-//Connect2DB to connect to databases
-func Connect2DB() {
+func connect2DB() error {
 	var err error
 
 	Core.DBswitchmap, err = sqlx.Connect("postgres", "user="+Conf.DBLogin+" password="+Conf.DBPass+" host="+Conf.DBHost+" port="+Conf.DBPort+" dbname="+Conf.DBName)
 	if err != nil {
 		log.Println("Error connecting to switchmap database: ", err)
-	} else {
-		log.Println("Connected to switchmap database")
+		return err
 	}
+	log.Println("Connected to switchmap database")
 
 	Core.DBnetmap, err = sqlx.Connect("mysql", Conf.MysqlLogin+":"+Conf.MysqlPassword+"@tcp("+Conf.MysqlHost+")/"+Conf.MysqlDb+"?charset=utf8")
 	if err != nil {
 		log.Println("Error connecting to netmap database: ", err)
-	} else {
-		log.Println("Connected to netmap database")
+		return err
 	}
+	log.Println("Connected to netmap database")
+
+	return nil
+}
+
+//Init function initialize server
+func Init(confPath string) error {
+	err := makeConfig(confPath)
+	if err != nil {
+		return err
+	}
+	log.Println("Config maked")
+
+	err = createCookieStore()
+	if err != nil {
+		return err
+	}
+	log.Println("Cookie store created")
+
+	err = connect2DB()
+	if err != nil {
+		return err
+	}
+
+	retunr nil
 }

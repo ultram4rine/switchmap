@@ -13,13 +13,12 @@ import (
 
 	_ "github.com/cockroachdb/cockroach-go/crdb"
 	_ "github.com/go-sql-driver/mysql"
-
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	var (
-		confFile = "conf.json"
+		confPath = "conf.json"
 		logFile  = "private/log/logs.log"
 	)
 
@@ -39,18 +38,15 @@ func main() {
 	}
 	defer l.Close()
 
-	err = server.MakeConfig(confFile)
+	err = server.Init(confPath)
 	if err != nil {
-		log.Fatal("Error with making config file to connect to databases: ", err)
-	} else {
-		log.Println("Config maked!")
+		log.Printf("Error initializing server: %s", err)
 	}
 
 	log.Println("Getting started...")
-	log.Println("Server listening on " + server.Conf.ListenPort + " port")
+	log.Println("Server must listen on " + server.Conf.ListenPort + " port")
 	log.SetOutput(l)
 
-	server.Connect2DB()
 	defer server.Core.DBswitchmap.Close()
 	defer server.Core.DBnetmap.Close()
 
