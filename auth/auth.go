@@ -2,18 +2,16 @@ package auth
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"text/template"
 
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
 
-	"github.com/gorilla/mux"
-
 	"github.com/go-ldap/ldap"
+	"github.com/gorilla/mux"
 )
-
-var data helpers.ViewData
 
 func auth(login, password string) (string, error) {
 	if password == "" {
@@ -55,18 +53,29 @@ func auth(login, password string) (string, error) {
 
 //Handler handle login page
 func Handler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
+
 	vars := mux.Vars(r)
 	pagetype := vars["type"]
 
 	switch pagetype {
 	case "login":
 		if r.Method == "GET" {
-			tmpl, _ := template.ParseFiles("templates/login.html")
-			tmpl.Execute(w, data)
-		} else if r.Method == "POST" {
-			r.ParseForm()
+			tmpl, err := template.ParseFiles("templates/login.html")
+			if err != nil {
+				log.Printf("Error parsing template files for login page: %s", err)
+			}
 
+			var data helpers.ViewData
+
+			err = tmpl.Execute(w, data)
+			if err != nil {
+				log.Printf("Error executing template for login page: %s", err)
+			}
+		} else if r.Method == "POST" {
 			if helpers.AlreadyLogin(r) {
 				http.Redirect(w, r, "/map", http.StatusFound)
 				return
@@ -78,14 +87,24 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				session.Values["userName"] = userName
 				session.Values["user"] = r.FormValue("uname")
-				session.Save(r, w)
+
+				err = session.Save(r, w)
+				if err != nil {
+					log.Printf("Error saving cookies on login: %s", err)
+				}
+
 				http.Redirect(w, r, "/map", http.StatusFound)
 			}
 		}
 	case "logout":
 		session.Values["userName"] = nil
 		session.Values["user"] = nil
-		session.Save(r, w)
-		http.Redirect(w, r, "/admin/login", 301)
+
+		err = session.Save(r, w)
+		if err != nil {
+			log.Printf("Error saving cookies on logout: %s", err)
+		}
+
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 }
