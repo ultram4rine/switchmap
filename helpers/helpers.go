@@ -151,7 +151,12 @@ func GetSerial(ip, model string) (rev, sernum string, err error) {
 
 //AlreadyLogin checks is user already logged in
 func AlreadyLogin(r *http.Request) bool {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+		return false
+	}
+
 	return session.Values["userName"] != nil
 }
 
