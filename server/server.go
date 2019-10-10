@@ -103,5 +103,5 @@ func Init(confPath string) error {
 		return err
 	}
 
-	retunr nil
+	return nil
 }
