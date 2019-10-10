@@ -52,9 +52,14 @@ func MakeConfig(filepath string) error {
 		return err
 	}
 
+	return nil
+}
+
+func CreateCookieStore() error {
 	if Conf.SessionKey == "" {
 		return errors.New("Empty session key")
 	}
+
 	Core.Store = sessions.NewCookieStore([]byte(Conf.SessionKey), []byte(Conf.EncryptKey))
 
 	return nil
