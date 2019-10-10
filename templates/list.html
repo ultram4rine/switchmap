@@ -58,9 +58,7 @@
             </tr>
           </thead>
           <tbody>
-            {{
-                range.Swits
-              }}
+            {{ range.Swits }}
             <tr id="{{ .Name}}">
               <td>{{ .Name}}</td>
               <td>{{ .IP}}</td>
@@ -75,9 +73,7 @@
                 </a>
               </td>
             </tr>
-            {{
-                end
-              }}
+            {{ end }}
           </tbody>
         </table>
       </div>
