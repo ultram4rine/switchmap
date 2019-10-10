@@ -40,7 +40,7 @@ func main() {
 
 	err = server.Init(confPath)
 	if err != nil {
-		log.Printf("Error initializing server: %s", err)
+		log.Fatalf("Error initializing server: %s", err)
 	}
 
 	log.Println("Getting started...")
