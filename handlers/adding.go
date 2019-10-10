@@ -102,7 +102,6 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Build %s added successfully! His address: %s", name, addr)
-
 }
 
 //AddFloorHandler handle page to add floor
@@ -116,7 +115,6 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("%s floor in build %s added successfully!", num, build)
-
 }
 
 //ReloadHandler to update data of switch
@@ -218,6 +216,6 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error writing plan image file for %s floor in %s build: %s", floor, build, err)
 		}
 
-		http.Redirect(w, r, "/map/"+build+"/"+floor, 301)
+		http.Redirect(w, r, "/map/"+build+"/"+floor, http.StatusFound)
 	}
 }

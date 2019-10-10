@@ -175,6 +175,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	floors := []helpers.Floor{}
 	vars := mux.Vars(r)
 	build := vars["build"]
+
 	data = helpers.ViewData{
 		Build:  build,
 		Floors: floors,
@@ -266,7 +267,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else if os.IsNotExist(err) {
-		http.Redirect(w, r, "/planupdate/"+build+"/"+floor, 301)
+		http.Redirect(w, r, "/planupdate/"+build+"/"+floor, http.StatusFound)
 	}
 }
 
@@ -384,7 +385,7 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error changing %s switch data: %s", sw, err)
 	}
 
-	http.Redirect(w, r, "/list", 301)
+	http.Redirect(w, r, "/list", http.StatusFound)
 }
 
 //LogsHandler handle logs page
