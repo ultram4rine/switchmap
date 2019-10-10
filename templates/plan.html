@@ -13,6 +13,7 @@
     <script type="text/javascript" src="/public/js/plugins/jquery-3.4.1.min.js"></script>
     <script type="text/javascript" src="/public/js/plugins/jquery-ui.min.js"></script>
     <script type="text/javascript" src="/public/js/plugins/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src='https://unpkg.com/panzoom@8.4.0/dist/panzoom.min.js'></script>
 </head>
 
 <body>
@@ -43,7 +44,7 @@
             <li>
                 <button class="button" onclick="swAdd()">Добавить свитч</button>
                 <ul class="subnavbar">
-                    <li><input type="text" name="name" placeholder="Имя" required autocomplete="off"></li>
+                    <li><input type="text" id="name" name="name" placeholder="Имя" required autocomplete="off"></li>
                     <li>
                         <select id="model" name="model" autocomplete="off">
                             <option disabled selected>Модель</option>
@@ -56,7 +57,7 @@
             </li>
         </ul>
         <div class="map">
-            <div id="dragplan" class="plan ui-widget-content">
+            <div id="dragplan" class="plan">
                 <img id="image" src="/private/plans/{{ .Build}}{{ .Floor}}.png" ; max-height:100%; max-weidth:100%>
                 {{range .Swits }}
                 <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">

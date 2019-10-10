@@ -3,8 +3,10 @@ package helpers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/ultram4rine/switchmap/server"
 
@@ -51,7 +53,7 @@ type ViewData struct {
 
 //GetSwData gets switch data
 func GetSwData(name string) (ip, mac, upswitch string, err error) {
-	dbsearch, err := server.Core.DBnetmap.Query("SELECT `ip`, `mac`, `switch_id` FROM `host` WHERE `name` = ? AND ip IS NOT NULL", name)
+	dbsearch, err := server.Core.DBnetmap.Query("SELECT `ip`, `mac`, `switch_id` FROM `unetmap_host` WHERE `name` = ? AND ip IS NOT NULL", name)
 	if err != nil {
 		log.Println("Error with making database query to find IP and MAC of switch: ", err)
 		return "", "", "", err
@@ -75,7 +77,7 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 		if IP != "" && MAC != "" {
 			//Searching upswitch name
 			if UpSwitch.Valid {
-				upswitchsearch, err := server.Core.DBnetmap.Query("SELECT `name` FROM `host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
+				upswitchsearch, err := server.Core.DBnetmap.Query("SELECT `name` FROM `unetmap_host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
 				if err != nil {
 					log.Println("Error database query for searching upswitch: ", err)
 					return "", "", "", err
@@ -97,7 +99,6 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 				}
 			} else {
 				log.Printf("Is no upswitch for %s in database", name)
-				return IP, MAC, "", nil
 			}
 			//End searching upswitch name
 		}
@@ -108,7 +109,14 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 		return "", "", "", err
 	}
 
-	return IP, MAC, upswitchname, nil
+	intIP, err := strconv.Atoi(IP)
+	if err != nil {
+		log.Printf("Error converting string IP to int IP: %s", err)
+	}
+
+	realIP := fmt.Sprintf("%d.%d.%d.%d", byte(intIP>>24), byte(intIP>>16), byte(intIP>>8), byte(intIP))
+
+	return realIP, MAC, upswitchname, nil
 }
 
 //GetSerial helps to get serial number of switch

@@ -1,4 +1,4 @@
-function addOnWheel(elem, handler) {
+/*function addOnWheel(elem, handler) {
     if (elem.addEventListener) {
         if ('onwheel' in document) {
             elem.addEventListener("wheel", handler);
@@ -43,4 +43,8 @@ addOnWheel(dragplan, function(e) {
     $(this).css('-moz-transform', 'scale(' + scale + ') translate(' + xNew + 'px, ' + yNew + 'px)').css('-moz-transform-origin', xImage + 'px ' + yImage + 'px');
 
     e.preventDefault();
-});
+});*/
+
+var element = document.querySelector("#dragplan");
+
+panzoom(element);
