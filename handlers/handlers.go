@@ -31,7 +31,11 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error updating position of switch %s: %s", name, err)
 	}
-	w.Write([]byte("success"))
+
+	_, err = w.Write([]byte("success"))
+	if err != nil {
+		log.Printf("Error writing answer for switch position update: %s", err)
+	}
 }
 
 //GetMap make and send map of switches
@@ -79,26 +83,44 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error marshalling data to send: ", err)
 		}
+
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(m)
+
+		_, err = w.Write(m)
+		if err != nil {
+			log.Printf("Error writing map of switches for visualization: %s", err)
+		}
 	}
 }
 
 //VisHandler handle page with visualization
 func VisHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	data = helpers.ViewData{
 		User: session.Values["user"],
 	}
 
-	tmpl, _ := template.ParseFiles("templates/vis.html")
-	tmpl.Execute(w, data)
+	tmpl, err := template.ParseFiles("templates/vis.html")
+	if err != nil {
+		log.Printf("Error parsing template files for visualization page: %s", err)
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template for visualization page: %s", err)
+	}
 }
 
 //MapHandler handle main page map
 func MapHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	if r.Method == "GET" {
 		buildings := []helpers.Build{}
@@ -131,14 +153,24 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 			return k < l
 		})
 
-		tmpl, _ := template.ParseFiles("templates/map.html")
-		tmpl.Execute(w, data)
+		tmpl, err := template.ParseFiles("templates/map.html")
+		if err != nil {
+			log.Printf("Error parsing template files for map page: %s", err)
+		}
+
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			log.Printf("Error executing template for map page: %s", err)
+		}
 	}
 }
 
 //BuildHandler handle map/build pages
 func BuildHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	floors := []helpers.Floor{}
 	vars := mux.Vars(r)
@@ -171,14 +203,24 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 			return data.Floors[i].Floor < data.Floors[j].Floor
 		})
 
-		tmpl, _ := template.ParseFiles("templates/build.html")
-		tmpl.Execute(w, data)
+		tmpl, err := template.ParseFiles("templates/build.html")
+		if err != nil {
+			log.Printf("Error parsing template files for %s build page: %s", build, err)
+		}
+
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			log.Printf("Error executing template for %s build page: %s", build, err)
+		}
 	}
 }
 
 //FloorHandler handle map/build/floor pages
 func FloorHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	vars := mux.Vars(r)
 	build := vars["build"]
@@ -213,8 +255,15 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 				data.Swits = append(data.Swits, swit)
 			}
 
-			tmpl, _ := template.ParseFiles("templates/plan.html")
-			tmpl.Execute(w, data)
+			tmpl, err := template.ParseFiles("templates/plan.html")
+			if err != nil {
+				log.Printf("Error parsing template files for plan page: %s", err)
+			}
+
+			err = tmpl.Execute(w, data)
+			if err != nil {
+				log.Printf("Error executing template for plan page: %s", err)
+			}
 		}
 	} else if os.IsNotExist(err) {
 		http.Redirect(w, r, "/planupdate/"+build+"/"+floor, 301)
@@ -223,7 +272,10 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 
 //ListHandler handle page with list of hosts
 func ListHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	switches := []helpers.Switch{}
 
@@ -263,13 +315,23 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		data.Swits = append(data.Swits, swit)
 	}
 
-	tmpl, _ := template.ParseFiles("templates/list.html")
-	tmpl.Execute(w, data)
+	tmpl, err := template.ParseFiles("templates/list.html")
+	if err != nil {
+		log.Printf("Error parsing template files for list of switches page: %s", err)
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template for list of switches page: %s", err)
+	}
 }
 
 //ChangePage shows change page
 func ChangePage(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "switchmap_session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	vars := mux.Vars(r)
 	sw := vars["switch"]
@@ -292,8 +354,15 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		data.Sw.Name = sw
 	}
 
-	tmpl, _ := template.ParseFiles("templates/change.html")
-	tmpl.Execute(w, data)
+	tmpl, err := template.ParseFiles("templates/change.html")
+	if err != nil {
+		log.Printf("Error parsing template files for change switch page: %s", err)
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template for change switch page: %s", err)
+	}
 }
 
 //ChangeHandler handle change page
@@ -311,17 +380,31 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	upswitch := r.FormValue("upswitch")
 
 	_, err = server.Core.DBswitchmap.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upswitch, sw)
+	if err != nil {
+		log.Printf("Error changing %s switch data: %s", sw, err)
+	}
 
 	http.Redirect(w, r, "/list", 301)
 }
 
 //LogsHandler handle logs page
 func LogsHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	data = helpers.ViewData{
 		User: session.Values["user"],
 	}
-	tmpl, _ := template.ParseFiles("templates/logs.html")
-	tmpl.Execute(w, data)
+
+	tmpl, err := template.ParseFiles("templates/logs.html")
+	if err != nil {
+		log.Printf("Error parsing template files for logs page: %s", err)
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template for logs page: %s", err)
+	}
 }

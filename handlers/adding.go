@@ -17,12 +17,15 @@ import (
 
 //AddSwitchHandler handle page with host add
 func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
+	var (
+		sw  helpers.Switch
+		err error
+	)
+
 	sw.Name = r.FormValue("name")
 	sw.Model = r.FormValue("model")
 	sw.Build = r.FormValue("build")
 	sw.Floor = r.FormValue("floor")
-
-	var err error
 
 	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
 	if err != nil {
@@ -63,13 +66,13 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			defer reader.Close()
 
-			im, _, err := image.DecodeConfig(reader)
+			planImage, _, err := image.DecodeConfig(reader)
 			if err != nil {
 				log.Println("Error decoding plan image to count size: ", err)
 			}
 
-			postop := strconv.Itoa(im.Height / 2)
-			posleft := strconv.Itoa(im.Width / 2)
+			postop := strconv.Itoa(planImage.Height / 2)
+			posleft := strconv.Itoa(planImage.Width / 2)
 
 			sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
 			if err != nil {
@@ -118,9 +121,12 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 
 //ReloadHandler to update data of switch
 func ReloadHandler(w http.ResponseWriter, r *http.Request) {
-	sw.Name = r.FormValue("name")
+	var (
+		sw  helpers.Switch
+		err error
+	)
 
-	var err error
+	sw.Name = r.FormValue("name")
 
 	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
 	if err != nil {
@@ -164,7 +170,10 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 
 //PlanUpdateHandler to upload or update floor's plan
 func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Error getting session: %s", err)
+	}
 
 	vars := mux.Vars(r)
 	build := vars["build"]
@@ -175,26 +184,38 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		Floor: floor,
 		User:  session.Values["user"],
 	}
+
 	if r.Method == "GET" {
-		tmpl, _ := template.ParseFiles("templates/upload.html")
-		tmpl.Execute(w, data)
+		tmpl, err := template.ParseFiles("templates/upload.html")
+		if err != nil {
+			log.Printf("Error parsing template files for upload plan page for %s floor in %s build: %s", floor, build, err)
+		}
+
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			log.Printf("Error executing template for upload plan page for %s floor in %s build: %s", floor, build, err)
+		}
 	} else if r.Method == "POST" {
-		r.ParseMultipartForm(32 << 20)
+		err = r.ParseMultipartForm(32 << 20)
+		if err != nil {
+			log.Printf("Error parsing plan image for %s floor in %s build: %s", floor, build, err)
+		}
+
 		file, _, err := r.FormFile("load")
 		if err != nil {
-			log.Println("Error with forming file: ", err)
+			log.Printf("Error getting file from form for %s floor in %s build: %s", floor, build, err)
 		}
 		defer file.Close()
 
 		f, err := os.OpenFile("private/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
-			log.Println("Error with creating file: ", err)
+			log.Printf("Error creating plan image file for %s floor in %s build: %s", floor, build, err)
 		}
 		defer f.Close()
 
 		_, err = io.Copy(f, file)
 		if err != nil {
-			log.Println("Error with writing file: ", err)
+			log.Println("Error writing plan image file for %s floor in %s build: %s", floor, build, err)
 		}
 
 		http.Redirect(w, r, "/map/"+build+"/"+floor, 301)
