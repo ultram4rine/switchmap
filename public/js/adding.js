@@ -59,6 +59,9 @@ function swAdd(){
                 build: build,
                 floor: floor
             },
+            error: function(jqXHR) {
+                alert(jqXHR.responseText);
+            },
             success: function(){
                 location.reload();
             }
