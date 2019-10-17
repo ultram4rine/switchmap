@@ -52,75 +52,46 @@ type ViewData struct {
 }
 
 //GetSwData gets switch data
-func GetSwData(name string) (ip, mac, upswitch string, err error) {
-	dbsearch, err := server.Core.DBnetmap.Query("SELECT `ip`, `mac`, `switch_id` FROM `unetmap_host` WHERE `name` = ? AND ip IS NOT NULL", name)
-	if err != nil {
-		log.Println("Error with making database query to find IP and MAC of switch: ", err)
-		return "", "", "", err
+func GetSwData(name string) (ip, mac, upswitchname string, err error) {
+	type netmapSwitch struct {
+		Name         string         `db:"name"`
+		IP           string         `db:"ip"`
+		MAC          string         `db:"mac"`
+		UpSwitchID   sql.NullString `db:"switch_id"`
+		UpSwitchName string
 	}
-	defer dbsearch.Close()
 
-	var (
-		IP           string
-		MAC          string
-		UpSwitch     sql.NullString
-		upswitchname string
-	)
+	var sw netmapSwitch
 
-	for dbsearch.Next() {
-		err := dbsearch.Scan(&IP, &MAC, &UpSwitch)
-		if err != nil {
-			log.Println("Error with scanning database for query: ", err)
-			return "", "", "", err
-		}
-
-		if IP != "" && MAC != "" {
-			//Searching upswitch name
-			if UpSwitch.Valid {
-				upswitchsearch, err := server.Core.DBnetmap.Query("SELECT `name` FROM `unetmap_host` WHERE ip IS NOT NULL AND `id` = ?", UpSwitch)
-				if err != nil {
-					log.Println("Error database query for searching upswitch: ", err)
-					return "", "", "", err
-				}
-
-				for upswitchsearch.Next() {
-					err := upswitchsearch.Scan(&upswitchname)
-					if err != nil {
-						log.Println("Error with searching upswitch name: ", err)
-						return "", "", "", err
-					}
-				}
-
-				err = upswitchsearch.Err()
-				if err != nil {
-					log.Println("Upswitch searching error: ", err)
-					return "", "", "", err
-				}
-
-				err = upswitchsearch.Close()
-				if err != nil {
-					log.Printf("Error closing upswitchsearch: %s", err)
-				}
-			} else {
-				log.Printf("Is no upswitch for %s in database", name)
-			}
-			//End searching upswitch name
-		}
+	err = server.Core.DBnetmap.Get(sw, "SELECT ip, mac, switch_id FROM unetmap_host WHERE name = ? AND ip IS NOT NULL", name)
+	if err == sql.ErrNoRows {
+		return "", "", "", fmt.Errorf("can't find switch with %s name", name)
 	}
-	err = dbsearch.Err()
 	if err != nil {
-		log.Println("Error searching IP and MAC: ", err)
+		log.Printf("Error getting IP, MAC and UpSwitchID for %s switch from netmap database: %s", name, err)
 		return "", "", "", err
 	}
 
-	intIP, err := strconv.Atoi(IP)
+	if sw.UpSwitchID.Valid {
+		var upswitch netmapSwitch
+
+		err = server.Core.DBnetmap.Get(upswitch, "SELECT name FROM unetmap_host WHERE ip IS NOT NULL AND id = ?", sw.UpSwitchID)
+		if err == sql.ErrNoRows {
+			log.Printf("Can't find UpSwitchName for %s switch by %s UpSwitchID in netmap database", name, sw.UpSwitchID)
+		} else if err != nil {
+			log.Printf("Error getting UpSwitchName for %s switch from netmap database: %s", name, err)
+		}
+	}
+
+	intIP, err := strconv.Atoi(sw.IP)
 	if err != nil {
 		log.Printf("Error converting string IP to int IP: %s", err)
+		return "", "", "", err
 	}
 
 	realIP := fmt.Sprintf("%d.%d.%d.%d", byte(intIP>>24), byte(intIP>>16), byte(intIP>>8), byte(intIP))
 
-	return realIP, MAC, upswitchname, nil
+	return realIP, sw.MAC, sw.UpSwitchName, nil
 }
 
 //GetSerial helps to get serial number of switch
