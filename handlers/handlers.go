@@ -42,40 +42,54 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 func GetMap(w http.ResponseWriter, r *http.Request) {
 	vis := make(map[string][]string)
 
-	dbvis, err := server.Core.DBswitchmap.Query("SELECT name from switches")
+	rows, err := server.Core.DBswitchmap.Query("SELECT name from switches")
 	if err != nil {
 		log.Println("Error with making query to show visualization")
+		http.NotFound(w, r)
+		return
 	}
-	defer dbvis.Close()
+	defer rows.Close()
 
-	for dbvis.Next() {
+	for rows.Next() {
 		var s string
 
-		err := dbvis.Scan(&s)
+		err := rows.Scan(&s)
 		if err != nil {
 			log.Println("Error with scanning database to show visualization: ", err)
 		}
 
-		dbvisup, err := server.Core.DBswitchmap.Query("SELECT name FROM switches WHERE upswitch = $1", s)
+		subrows, err := server.Core.DBswitchmap.Query("SELECT name FROM switches WHERE upswitch = $1", s)
 		if err != nil {
 			log.Println("Error with making query to find upswitches to show visualization")
+			http.NotFound(w, r)
+			return
 		}
-		defer dbvisup.Close()
 
-		var ups []string
+		var downSwitches []string
 
-		for dbvisup.Next() {
-			var up string
+		for subrows.Next() {
+			var downSwitch string
 
-			err := dbvisup.Scan(&up)
+			err := subrows.Scan(&downSwitch)
 			if err != nil {
 				log.Println("Error with scanning database to find upswitches to show visualization: ", err)
 			}
 
-			ups = append(ups, up)
+			downSwitches = append(downSwitches, downSwitch)
+		}
+		if err = subrows.Err(); err != nil {
+			log.Println("Error searching switch names for visualization: ", err)
 		}
 
-		vis[s] = ups
+		err = subrows.Close()
+		if err != nil {
+			log.Printf("Error closing subrows for %s switch: %s", s, err)
+		}
+
+		vis[s] = downSwitches
+	}
+	if err = rows.Err(); err != nil {
+		log.Println("Error searching switch names for visualization: ", err)
 	}
 
 	if r.Method == "GET" {
