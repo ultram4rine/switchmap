@@ -15,7 +15,7 @@ import (
 
 func auth(login, password string) (string, error) {
 	if password == "" {
-		return "", errors.New("Empty password")
+		return "", errors.New("empty password")
 	}
 
 	username := ""
@@ -39,7 +39,7 @@ func auth(login, password string) (string, error) {
 	)
 
 	if sr, err := l.Search(searchRequest); err != nil || len(sr.Entries) != 1 {
-		return username, errors.New("User not found")
+		return username, errors.New("user not found")
 	} else {
 		username = sr.Entries[0].GetAttributeValue("cn")
 	}

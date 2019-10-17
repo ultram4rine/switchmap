@@ -56,7 +56,7 @@ func makeConfig(filepath string) error {
 
 func createCookieStore() error {
 	if Conf.SessionKey == "" {
-		return errors.New("Empty session key")
+		return errors.New("empty session key")
 	}
 
 	Core.Store = sessions.NewCookieStore([]byte(Conf.SessionKey), []byte(Conf.EncryptKey))

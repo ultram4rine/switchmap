@@ -122,7 +122,7 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 //GetSerial helps to get serial number of switch
 func GetSerial(ip, model string) (rev, sernum string, err error) {
 	if model == "D-Link" {
-		return "", "", errors.New("Can't use snmp on d-link to get serial number")
+		return "", "", errors.New("can't use snmp on d-link to get serial number")
 	}
 
 	snmp.Default.Target = ip
@@ -150,7 +150,7 @@ func GetSerial(ip, model string) (rev, sernum string, err error) {
 				sernum = string(bytes)
 			}
 		default:
-			return "", "", errors.New("Can't get serial number")
+			return "", "", errors.New("can't get serial number")
 		}
 	}
 
