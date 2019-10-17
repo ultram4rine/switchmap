@@ -77,7 +77,7 @@ func GetSwData(name string) (ip, mac, upswitchname string, err error) {
 
 		err = server.Core.DBnetmap.Get(upswitch, "SELECT name FROM unetmap_host WHERE ip IS NOT NULL AND id = ?", sw.UpSwitchID)
 		if err == sql.ErrNoRows {
-			log.Printf("Can't find UpSwitchName for %s switch by %s UpSwitchID in netmap database", name, sw.UpSwitchID)
+			log.Printf("Can't find UpSwitchName for %s switch by %s UpSwitchID in netmap database", name, sw.UpSwitchID.String)
 		} else if err != nil {
 			log.Printf("Error getting UpSwitchName for %s switch from netmap database: %s", name, err)
 		}
