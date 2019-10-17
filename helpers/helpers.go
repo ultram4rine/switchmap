@@ -82,7 +82,6 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 					log.Println("Error database query for searching upswitch: ", err)
 					return "", "", "", err
 				}
-				defer upswitchsearch.Close()
 
 				for upswitchsearch.Next() {
 					err := upswitchsearch.Scan(&upswitchname)
@@ -96,6 +95,11 @@ func GetSwData(name string) (ip, mac, upswitch string, err error) {
 				if err != nil {
 					log.Println("Upswitch searching error: ", err)
 					return "", "", "", err
+				}
+
+				err = upswitchsearch.Close()
+				if err != nil {
+					log.Printf("Error closing upswitchsearch: %s", err)
 				}
 			} else {
 				log.Printf("Is no upswitch for %s in database", name)
