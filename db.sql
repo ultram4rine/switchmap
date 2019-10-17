@@ -8,12 +8,12 @@ CREATE TABLE IF NOT EXISTS switches (
     mac STRING NOT NULL,
     revision STRING NULL,
     serial STRING NULL,
-    model STRING NULL,
+    model STRING NOT NULL,
     build STRING NOT NULL,
     floor STRING NOT NULL,
     upswitch STRING NULL,
-    postop STRING NULL,
-    posleft STRING NULL
+    postop STRING NOT NULL,
+    posleft STRING NOT NULL
 );
 
 create table buildings (
