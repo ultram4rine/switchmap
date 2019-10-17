@@ -36,11 +36,6 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = server.Core.DBswitchmap.Get(&sw, "SELECT name FROM switches WHERE name = $1", sw.Name)
-	if err != nil {
-		log.Printf("Error with scanning database to check record of switch: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	if err == sql.ErrNoRows {
 		reader, err := os.Open("private/plans/" + sw.Build + sw.Floor + ".png")
 		if err != nil {
@@ -73,6 +68,11 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Printf("Switch %s in %s %s added successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.Build, sw.Floor, sw.IP, sw.MAC, sw.Serial)
+		return
+	}
+	if err != nil {
+		log.Printf("Error with scanning database to check record of switch: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
