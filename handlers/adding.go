@@ -213,7 +213,7 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 		_, err = io.Copy(f, file)
 		if err != nil {
-			log.Println("Error writing plan image file for %s floor in %s build: %s", floor, build, err)
+			log.Printf("Error writing plan image file for %s floor in %s build: %s", floor, build, err)
 		}
 
 		http.Redirect(w, r, "/map/"+build+"/"+floor, http.StatusFound)
