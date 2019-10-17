@@ -27,17 +27,17 @@ type Floor struct {
 
 //Switch is a type describing switch
 type Switch struct {
-	Model    string
-	Name     string
-	IP       string
-	MAC      string
-	Upswitch string
-	Revision string
-	Serial   string
-	Build    string
-	Floor    string
-	Postop   string
-	Posleft  string
+	Name     string `db:"name"`
+	IP       string `db:"ip"`
+	MAC      string `db:"mac"`
+	Revision string `db:"revision"`
+	Serial   string `db:"serial"`
+	Model    string `db:"model"`
+	Build    string `db:"build"`
+	Floor    string `db:"floor"`
+	Upswitch string `db:"upswitch"`
+	Postop   string `db:"postop"`
+	Posleft  string `db:"posleft"`
 }
 
 //ViewData is a struct describing data that inserts into HTML files
@@ -63,7 +63,7 @@ func GetSwData(name string) (ip, mac, upswitchname string, err error) {
 
 	var sw netmapSwitch
 
-	err = server.Core.DBnetmap.Get(sw, "SELECT ip, mac, switch_id FROM unetmap_host WHERE name = ? AND ip IS NOT NULL", name)
+	err = server.Core.DBnetmap.Get(&sw, "SELECT ip, mac, switch_id FROM unetmap_host WHERE name = ? AND ip IS NOT NULL", name)
 	if err == sql.ErrNoRows {
 		return "", "", "", fmt.Errorf("can't find switch with %s name", name)
 	}
@@ -75,7 +75,7 @@ func GetSwData(name string) (ip, mac, upswitchname string, err error) {
 	if sw.UpSwitchID.Valid {
 		var upswitch netmapSwitch
 
-		err = server.Core.DBnetmap.Get(upswitch, "SELECT name FROM unetmap_host WHERE ip IS NOT NULL AND id = ?", sw.UpSwitchID)
+		err = server.Core.DBnetmap.Get(&upswitch, "SELECT name FROM unetmap_host WHERE ip IS NOT NULL AND id = ?", sw.UpSwitchID)
 		if err == sql.ErrNoRows {
 			log.Printf("Can't find UpSwitchName for %s switch by %s UpSwitchID in netmap database", name, sw.UpSwitchID.String)
 		} else if err != nil {
