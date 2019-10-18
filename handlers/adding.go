@@ -28,14 +28,14 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	sw.Build = r.FormValue("build")
 	sw.Floor = r.FormValue("floor")
 
-	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
+	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetMainSwData(sw.Name)
 	if err != nil {
 		log.Printf("Error getting switch data: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
+	sw.Revision, sw.Serial, err = helpers.GetAdditionalSwData(sw.IP, sw.Model)
 	if err != nil {
 		log.Printf("Error getting serial number and revision of %s switch: %s", sw.Name, err)
 	}

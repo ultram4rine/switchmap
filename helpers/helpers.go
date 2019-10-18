@@ -51,8 +51,8 @@ type ViewData struct {
 	Floors []Floor     //Floors to show floors in build
 }
 
-//GetSwData gets switch data
-func GetSwData(name string) (ip, mac, upswitchname string, err error) {
+//GetMainSwData gets IP, MAC and UpSwitchName of switch from netmap database
+func GetMainSwData(name string) (ip, mac, upswitchname string, err error) {
 	type netmapSwitch struct {
 		Name         string         `db:"name"`
 		IP           string         `db:"ip"`
@@ -98,8 +98,8 @@ func GetSwData(name string) (ip, mac, upswitchname string, err error) {
 	return realIP, sw.MAC, sw.UpSwitchName, nil
 }
 
-//GetSerial helps to get serial number of switch
-func GetSerial(ip, model string) (rev, sernum string, err error) {
+//GetAdditionalSwData trying to get serial number and revision of switch by SNMP
+func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	if model == "D-Link" {
 		return "", "", errors.New("can't use snmp on d-link to get serial number")
 	}
