@@ -15,14 +15,14 @@ import (
 
 //Build is a type describing build
 type Build struct {
-	Name    string
-	Address string
+	Name    string `db:"name"`
+	Address string `db:"addr"`
 }
 
 //Floor is a type describing floor
 type Floor struct {
-	Build string
-	Floor string
+	Build string `db:"build"`
+	Floor string `db:"floor"`
 }
 
 //Switch is a type describing switch
