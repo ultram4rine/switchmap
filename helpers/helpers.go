@@ -81,8 +81,10 @@ func GetSwData(name string) (ip, mac, upswitchname string, err error) {
 		} else if err != nil {
 			log.Printf("Error getting UpSwitchName for %s switch from netmap database: %s", name, err)
 		}
+
+		sw.UpSwitchName = upswitch.Name
 	} else {
-		log.Printf("Here no upswitch for %s switch: %s", name, err)
+		log.Printf("Here no upswitch for %s switch", name)
 	}
 
 	intIP, err := strconv.Atoi(sw.IP)
