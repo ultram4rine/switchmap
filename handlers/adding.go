@@ -35,6 +35,11 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
+	if err != nil {
+		log.Printf("Error getting serial number and revision of %s switch: %s", sw.Name, err)
+	}
+
 	err = server.Core.DBswitchmap.Get(&sw, "SELECT name FROM switches WHERE name = $1", sw.Name)
 	if err == sql.ErrNoRows {
 		reader, err := os.Open("private/plans/" + sw.Build + sw.Floor + ".png")
@@ -55,11 +60,6 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		sw.Postop = strconv.Itoa(planImage.Height / 2)
 		sw.Posleft = strconv.Itoa(planImage.Width / 2)
 
-		sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
-		if err != nil {
-			log.Printf("Error getting serial number and revision of %s switch: %s", sw.Name, err)
-		}
-
 		_, err = server.Core.DBswitchmap.Exec("INSERT INTO switches (name, ip, mac, revision, serial, model, build, floor, upswitch, postop, posleft) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Postop, sw.Posleft)
 		if err != nil {
 			log.Printf("Error adding %s switch into database: %s", sw.Name, err)
@@ -74,11 +74,6 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error with scanning database to check record of switch: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
-	if err != nil {
-		log.Printf("Error getting serial number and revision of %s switch: %s", sw.Name, err)
 	}
 
 	_, err = server.Core.DBswitchmap.Exec("UPDATE switches SET (ip, mac, revision, serial, model, build, floor, upswitch) = ($1, $2, $3, $4, $5, $6, $7, $8) WHERE name = $9", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
