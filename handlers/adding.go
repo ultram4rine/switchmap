@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"text/template"
 
@@ -89,28 +90,68 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 
 //AddBuildHandler handle page to add build
 func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
+	var b helpers.Build
+
 	name := r.FormValue("name")
 	addr := r.FormValue("addr")
 
-	_, err := server.Core.DBswitchmap.Exec("INSERT INTO buildings (name, addr) VALUES ($1, $2)", name, addr)
+	err := server.Core.DBswitchmap.Get(&b, "SELECT * from buildings WHERE name = $1 AND addr = $2", name, addr)
+	if err == sql.ErrNoRows {
+		_, err = server.Core.DBswitchmap.Exec("INSERT INTO buildings (name, addr) VALUES ($1, $2)", name, addr)
+		if err != nil {
+			log.Printf("Error adding build %s to database: %s", name, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		log.Printf("Build %s successfully added! His address: %s", name, addr)
+		return
+	}
 	if err != nil {
-		log.Printf("Error adding build %s to database: %s", name, err)
+		log.Printf("Error checking record of %s build with %s address: %s", name, addr, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	log.Printf("Build %s added successfully! His address: %s", name, addr)
+	_, err = server.Core.DBswitchmap.Exec("UPDATE buildings SET (name, addr) = ($1, $2) WHERE name = $3 AND addr = $4", name, addr, name, addr)
+	if err != nil {
+		log.Printf("Error updating %s build: %s", name, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 //AddFloorHandler handle page to add floor
 func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
+	var f helpers.Floor
+
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
-	_, err := server.Core.DBswitchmap.Exec("INSERT INTO floors (build, floor) VALUES ($1, $2)", build, num)
+	err := server.Core.DBswitchmap.Get(&f, "SELECT * from floors WHERE build = $1 AND floor = $2", build, num)
+	if err == sql.ErrNoRows {
+		_, err = server.Core.DBswitchmap.Exec("INSERT INTO floors (build, floor) VALUES ($1, $2)", build, num)
+		if err != nil {
+			log.Printf("Error adding %s floor in %s build to database: %s", num, build, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		log.Printf("Floor %s in %s build successfully added!", num, build)
+		return
+	}
 	if err != nil {
-		log.Printf("Error adding floor %s in %s build to database: %s", num, build, err)
+		log.Printf("Error checking record of %s floor in %s build: %s", num, build, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	log.Printf("%s floor in build %s added successfully!", num, build)
+	_, err = server.Core.DBswitchmap.Exec("UPDATE floors SET (build, floor) = ($1, $2) WHERE build = $3 AND floor = $4", build, num, build, num,)
+	if err != nil {
+		log.Printf("Error updating %s floor in %s build: %s", num, build, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 //ReloadHandler to update data of switch
