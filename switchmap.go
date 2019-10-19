@@ -47,8 +47,8 @@ func main() {
 	log.Println("Server must listen on " + server.Conf.ListenPort + " port")
 	log.SetOutput(l)
 
-	defer server.Core.DBswitchmap.Close()
-	defer server.Core.DBnetmap.Close()
+	defer server.Core.DBdst.Close()
+	defer server.Core.DBsrc.Close()
 
 	router := mux.NewRouter()
 

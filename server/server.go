@@ -12,23 +12,23 @@ import (
 
 //Core is a struct to store important things
 var Core struct {
-	DBswitchmap *sqlx.DB
-	DBnetmap    *sqlx.DB
+	DBdst *sqlx.DB
+	DBsrc    *sqlx.DB
 	Store       *sessions.CookieStore
 }
 
 //Conf is a configuration file
 var Conf struct {
-	DBHost  string `json:"dbHost"`
-	DBPort  string `json:"dbPort"`
-	DBName  string `json:"dbName"`
-	DBLogin string `json:"dbUser"`
-	DBPass  string `json:"dbPass"`
+	DBDstHost  string `json:"dbDstHost"`
+	DBDstPort  string `json:"dbDstPort"`
+	DBDstName  string `json:"dbDstName"`
+	DBDstUser string `json:"dbDstUser"`
+	DBDstPass  string `json:"dbDstPass"`
 
-	MysqlLogin    string `json:"mysqlLogin"`
-	MysqlPassword string `json:"mysqlPassword"`
-	MysqlHost     string `json:"mysqlHost"`
-	MysqlDb       string `json:"mysqlDb"`
+	DBSrcHost     string `json:"dbSrcHost"`
+	DBSrcName       string `json:"dbSrcName"`
+	DBSrcUser    string `json:"dbSrcUser"`
+	DBSrcPass string `json:"dbSrcPass"`
 
 	LdapUser     string `json:"ldapUser"`
 	LdapPassword string `json:"ldapPassword"`
@@ -67,14 +67,14 @@ func createCookieStore() error {
 func connect2DB() error {
 	var err error
 
-	Core.DBswitchmap, err = sqlx.Connect("postgres", "user="+Conf.DBLogin+" password="+Conf.DBPass+" host="+Conf.DBHost+" port="+Conf.DBPort+" dbname="+Conf.DBName)
+	Core.DBdst, err = sqlx.Connect("postgres", "user="+Conf.DBDstUser+" password="+Conf.DBDstPass+" host="+Conf.DBDstHost+" port="+Conf.DBDstPort+" dbname="+Conf.DBDstName)
 	if err != nil {
 		log.Println("Error connecting to switchmap database: ", err)
 		return err
 	}
 	log.Println("Connected to switchmap database")
 
-	Core.DBnetmap, err = sqlx.Connect("mysql", Conf.MysqlLogin+":"+Conf.MysqlPassword+"@tcp("+Conf.MysqlHost+")/"+Conf.MysqlDb+"?charset=utf8")
+	Core.DBsrc, err = sqlx.Connect("mysql", Conf.DBSrcUser+":"+Conf.DBSrcPass+"@tcp("+Conf.DBSrcHost+")/"+Conf.DBSrcName+"?charset=utf8")
 	if err != nil {
 		log.Println("Error connecting to netmap database: ", err)
 		return err

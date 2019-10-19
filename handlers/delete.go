@@ -11,7 +11,7 @@ import (
 func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 
-	_, err := server.Core.DBswitchmap.Exec("DELETE FROM switches WHERE name = $1", name)
+	_, err := server.Core.DBdst.Exec("DELETE FROM switches WHERE name = $1", name)
 	if err != nil {
 		log.Printf("Error deleting switch %s: %s", name, err)
 
@@ -33,7 +33,7 @@ func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 
-	_, err := server.Core.DBswitchmap.Exec("DELETE FROM buildings WHERE name = $1", name)
+	_, err := server.Core.DBdst.Exec("DELETE FROM buildings WHERE name = $1", name)
 	if err != nil {
 		log.Printf("Error deleting build %s: %s", name, err)
 
@@ -56,7 +56,7 @@ func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
-	_, err := server.Core.DBswitchmap.Exec("DELETE FROM floors WHERE build = $1 AND floor = $2", 1, build, num)
+	_, err := server.Core.DBdst.Exec("DELETE FROM floors WHERE build = $1 AND floor = $2", 1, build, num)
 	if err != nil {
 		log.Printf("Error deleting floor %s in %s: %s", num, build, err)
 

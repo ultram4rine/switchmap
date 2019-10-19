@@ -41,7 +41,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting serial number and revision of %s switch: %s", sw.Name, err)
 	}
 
-	err = server.Core.DBswitchmap.Get(&sw, "SELECT name FROM switches WHERE name = $1", sw.Name)
+	err = server.Core.DBdst.Get(&sw, "SELECT name FROM switches WHERE name = $1", sw.Name)
 	if err == sql.ErrNoRows {
 		reader, err := os.Open("private/plans/" + sw.Build + sw.Floor + ".png")
 		if err != nil {
@@ -61,7 +61,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		sw.Postop = strconv.Itoa(planImage.Height / 2)
 		sw.Posleft = strconv.Itoa(planImage.Width / 2)
 
-		_, err = server.Core.DBswitchmap.Exec("INSERT INTO switches (name, ip, mac, revision, serial, model, build, floor, upswitch, postop, posleft) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Postop, sw.Posleft)
+		_, err = server.Core.DBdst.Exec("INSERT INTO switches (name, ip, mac, revision, serial, model, build, floor, upswitch, postop, posleft) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Postop, sw.Posleft)
 		if err != nil {
 			log.Printf("Error adding %s switch into database: %s", sw.Name, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -77,7 +77,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = server.Core.DBswitchmap.Exec("UPDATE switches SET (ip, mac, revision, serial, model, build, floor, upswitch) = ($1, $2, $3, $4, $5, $6, $7, $8) WHERE name = $9", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, model, build, floor, upswitch) = ($1, $2, $3, $4, $5, $6, $7, $8) WHERE name = $9", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
 	if err != nil {
 		log.Printf("Error updating %s switch into database: %s", sw.Name, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -95,9 +95,9 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	addr := r.FormValue("addr")
 
-	err := server.Core.DBswitchmap.Get(&b, "SELECT * from buildings WHERE name = $1 AND addr = $2", name, addr)
+	err := server.Core.DBdst.Get(&b, "SELECT * from buildings WHERE name = $1 AND addr = $2", name, addr)
 	if err == sql.ErrNoRows {
-		_, err = server.Core.DBswitchmap.Exec("INSERT INTO buildings (name, addr) VALUES ($1, $2)", name, addr)
+		_, err = server.Core.DBdst.Exec("INSERT INTO buildings (name, addr) VALUES ($1, $2)", name, addr)
 		if err != nil {
 			log.Printf("Error adding build %s to database: %s", name, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -123,9 +123,9 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
-	err := server.Core.DBswitchmap.Get(&f, "SELECT * from floors WHERE build = $1 AND floor = $2", build, num)
+	err := server.Core.DBdst.Get(&f, "SELECT * from floors WHERE build = $1 AND floor = $2", build, num)
 	if err == sql.ErrNoRows {
-		_, err = server.Core.DBswitchmap.Exec("INSERT INTO floors (build, floor) VALUES ($1, $2)", build, num)
+		_, err = server.Core.DBdst.Exec("INSERT INTO floors (build, floor) VALUES ($1, $2)", build, num)
 		if err != nil {
 			log.Printf("Error adding %s floor in %s build to database: %s", num, build, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -159,7 +159,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if sw.IP != "" && sw.MAC != "" {
-		dbwrite, err := server.Core.DBswitchmap.Query("SELECT name FROM switches WHERE name = $1", sw.Name)
+		dbwrite, err := server.Core.DBdst.Query("SELECT name FROM switches WHERE name = $1", sw.Name)
 		if err != nil {
 			log.Println("Error with scanning database to check record of switch: ", err)
 		}
@@ -179,7 +179,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error getting serial number: ", err)
 			}
 
-			_, err = server.Core.DBswitchmap.Exec("UPDATE switches SET (ip, mac, revision, serial, upswitch) = ($1, $2, $3, $4, $5) where name = $6", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
+			_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, upswitch) = ($1, $2, $3, $4, $5) where name = $6", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
 			if err != nil {
 				log.Println("Error updating switch in database: ", err)
 			} else {

@@ -27,7 +27,7 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 	top := r.FormValue("top")
 	left := r.FormValue("left")
 
-	_, err := server.Core.DBswitchmap.Exec("UPDATE switches SET (postop, posleft) = ($1, $2) WHERE name = $3", top, left, name)
+	_, err := server.Core.DBdst.Exec("UPDATE switches SET (postop, posleft) = ($1, $2) WHERE name = $3", top, left, name)
 	if err != nil {
 		log.Printf("Error updating position of switch %s: %s", name, err)
 	}
@@ -42,7 +42,7 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 func GetMap(w http.ResponseWriter, r *http.Request) {
 	vis := make(map[string][]string)
 
-	rows, err := server.Core.DBswitchmap.Query("SELECT name from switches")
+	rows, err := server.Core.DBdst.Query("SELECT name from switches")
 	if err != nil {
 		log.Println("Error with making query to show visualization")
 		http.NotFound(w, r)
@@ -58,7 +58,7 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error with scanning database to show visualization: ", err)
 		}
 
-		subrows, err := server.Core.DBswitchmap.Query("SELECT name FROM switches WHERE upswitch = $1", s)
+		subrows, err := server.Core.DBdst.Query("SELECT name FROM switches WHERE upswitch = $1", s)
 		if err != nil {
 			log.Println("Error with making query to find upswitches to show visualization")
 			http.NotFound(w, r)
@@ -144,7 +144,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 			Builds: buildings,
 		}
 
-		dbbuilds, err := server.Core.DBswitchmap.Query("SELECT name, addr FROM buildings")
+		dbbuilds, err := server.Core.DBdst.Query("SELECT name, addr FROM buildings")
 		if err != nil {
 			log.Println("Error with making query to show builds: ", err)
 		}
@@ -197,7 +197,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		dbfloors, err := server.Core.DBswitchmap.Query("SELECT build, floor FROM floors WHERE build = $1", build)
+		dbfloors, err := server.Core.DBdst.Query("SELECT build, floor FROM floors WHERE build = $1", build)
 		if err != nil {
 			log.Println("Error with making query to show floors: ", err)
 		}
@@ -253,7 +253,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 				Swits: switches,
 			}
 
-			dbswits, err := server.Core.DBswitchmap.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
+			dbswits, err := server.Core.DBdst.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
 			if err != nil {
 				log.Println("Error with making query to show list of switches: ", err)
 			}
@@ -299,7 +299,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		Swits: switches,
 	}
 
-	dblist, err := server.Core.DBswitchmap.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
+	dblist, err := server.Core.DBdst.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -313,7 +313,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error with scanning database to show list of switches: ", err)
 		}
 
-		dbbuild, err := server.Core.DBswitchmap.Query("SELECT name FROM buildings WHERE addr = $1", swit.Build)
+		dbbuild, err := server.Core.DBdst.Query("SELECT name FROM buildings WHERE addr = $1", swit.Build)
 		if err != nil {
 			log.Println("Error with making query to find build name: ", err)
 		}
@@ -355,7 +355,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		User: session.Values["user"],
 	}
 
-	dbswits, err := server.Core.DBswitchmap.Query("SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", sw)
+	dbswits, err := server.Core.DBdst.Query("SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", sw)
 	if err != nil {
 		log.Println("Error with making query to show list of switches: ", err)
 	}
@@ -394,7 +394,7 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	mac := r.FormValue("MAC")
 	upswitch := r.FormValue("upswitch")
 
-	_, err = server.Core.DBswitchmap.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upswitch, sw)
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upswitch, sw)
 	if err != nil {
 		log.Printf("Error changing %s switch data: %s", sw, err)
 	}
