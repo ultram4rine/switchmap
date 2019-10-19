@@ -12,6 +12,9 @@ function bAdd(){
                 name: name,
                 addr: addr
             },
+            error: function(jqXHR) {
+                alert(jqXHR.responseText);
+            },
             success: function(){
                 location.reload();
             }
@@ -33,6 +36,9 @@ function fAdd(){
             data: {
                 build: build,
                 num: num
+            },
+            error: function(jqXHR) {
+                alert(jqXHR.responseText);
             },
             success: function(){
                 location.reload();

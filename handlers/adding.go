@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"image"
 	"io"
 	"log"
@@ -113,12 +114,7 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = server.Core.DBswitchmap.Exec("UPDATE buildings SET (name, addr) = ($1, $2) WHERE name = $3 AND addr = $4", name, addr, name, addr)
-	if err != nil {
-		log.Printf("Error updating %s build: %s", name, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	http.Error(w, fmt.Sprintf("Build %s with address %s already exists", name, addr), http.StatusInternalServerError)
 }
 
 //AddFloorHandler handle page to add floor
@@ -146,12 +142,7 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = server.Core.DBswitchmap.Exec("UPDATE floors SET (build, floor) = ($1, $2) WHERE build = $3 AND floor = $4", build, num, build, num,)
-	if err != nil {
-		log.Printf("Error updating %s floor in %s build: %s", num, build, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	http.Error(w, fmt.Sprintf("Floor %s in %s build already exists", num, build), http.StatusInternalServerError)
 }
 
 //ReloadHandler to update data of switch
