@@ -153,7 +153,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	sw.Name = r.FormValue("name")
 
-	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetSwData(sw.Name)
+	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetMainSwData(sw.Name)
 	if err != nil {
 		log.Println("Error getting switch data: ", err)
 	}
@@ -174,7 +174,7 @@ func ReloadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if switchname != "" {
-			sw.Revision, sw.Serial, err = helpers.GetSerial(sw.IP, sw.Model)
+			sw.Revision, sw.Serial, err = helpers.GetAdditionalSwData(sw.IP, sw.Model)
 			if err != nil {
 				log.Println("Error getting serial number: ", err)
 			}
