@@ -13,21 +13,21 @@ import (
 //Core is a struct to store important things
 var Core struct {
 	DBdst *sqlx.DB
-	DBsrc    *sqlx.DB
-	Store       *sessions.CookieStore
+	DBsrc *sqlx.DB
+	Store *sessions.CookieStore
 }
 
 //Conf is a configuration file
 var Conf struct {
-	DBDstHost  string `json:"dbDstHost"`
-	DBDstPort  string `json:"dbDstPort"`
-	DBDstName  string `json:"dbDstName"`
+	DBDstHost string `json:"dbDstHost"`
+	DBDstPort string `json:"dbDstPort"`
+	DBDstName string `json:"dbDstName"`
 	DBDstUser string `json:"dbDstUser"`
-	DBDstPass  string `json:"dbDstPass"`
+	DBDstPass string `json:"dbDstPass"`
 
-	DBSrcHost     string `json:"dbSrcHost"`
-	DBSrcName       string `json:"dbSrcName"`
-	DBSrcUser    string `json:"dbSrcUser"`
+	DBSrcHost string `json:"dbSrcHost"`
+	DBSrcName string `json:"dbSrcName"`
+	DBSrcUser string `json:"dbSrcUser"`
 	DBSrcPass string `json:"dbSrcPass"`
 
 	LdapUser     string `json:"ldapUser"`
