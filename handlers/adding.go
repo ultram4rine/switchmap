@@ -144,53 +144,47 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, fmt.Sprintf("Floor %s in %s build already exists", num, build), http.StatusInternalServerError)
 }
 
-//ReloadHandler to update data of switch
-func ReloadHandler(w http.ResponseWriter, r *http.Request) {
+//UpdateSwitchHandler to update data of switch
+func UpdateSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		sw  helpers.Switch
 		err error
 	)
 
-	sw.Name = r.FormValue("name")
+	name := r.FormValue("name")
 
-	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetMainSwData(sw.Name)
+	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetMainSwData(name)
 	if err != nil {
-		log.Println("Error getting switch data: ", err)
+		log.Printf("Error getting %s switch data to update: %s", name, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	if sw.IP != "" && sw.MAC != "" {
-		dbwrite, err := server.Core.DBdst.Query("SELECT name FROM switches WHERE name = $1", sw.Name)
-		if err != nil {
-			log.Println("Error with scanning database to check record of switch: ", err)
-		}
-		defer dbwrite.Close()
-
-		var switchname = ""
-		for dbwrite.Next() {
-			err := dbwrite.Scan(&switchname)
-			if err != nil {
-				log.Println("Error with searching switch name in database: ", err)
-			}
-		}
-
-		if switchname != "" {
-			sw.Revision, sw.Serial, err = helpers.GetAdditionalSwData(sw.IP, sw.Model)
-			if err != nil {
-				log.Println("Error getting serial number: ", err)
-			}
-
-			_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, upswitch) = ($1, $2, $3, $4, $5) where name = $6", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
-			if err != nil {
-				log.Println("Error updating switch in database: ", err)
-			} else {
-				log.Printf("Switch %s updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.IP, sw.MAC, sw.Serial)
-			}
-		} else {
-			log.Println("No switch with that name in database", err)
-		}
-	} else {
-		log.Printf("Can't find switch with that name %s in netmap database", sw.Name)
+	err = server.Core.DBdst.Get(&sw, "SELECT name FROM switches WHERE name = $1", name)
+	if err == sql.ErrNoRows {
+		http.Error(w, fmt.Sprintf("Here no %s switch to update", name), http.StatusInternalServerError)
+		return
 	}
+	if err != nil {
+		log.Printf("Error with scanning database to check record of %s switch to update: %s", name, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sw.Revision, sw.Serial, err = helpers.GetAdditionalSwData(sw.IP, sw.Model)
+	if err != nil {
+		log.Printf("Error getting serial number and revision of %s switch to update: %s", sw.Name, err)
+	}
+
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, upswitch) = ($1, $2, $3, $4, $5) where name = $6", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
+	if err != nil {
+		log.Printf("Error updating %s switch data: %s", sw.Name, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Switch %s data updated successfully! IP: %s, MAC: %s, Serial number: %s", sw.Name, sw.IP, sw.MAC, sw.Serial)
+	return
 }
 
 //PlanUpdateHandler to upload or update floor's plan
