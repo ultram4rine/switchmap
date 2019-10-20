@@ -3,10 +3,13 @@ function reload($element){
     this.name = $(this.$element).attr('id');
 
     $.ajax({
-        url: "/reload",
+        url: "/swupdate",
         method: "POST",
         data: {
             name: this.name
+        },
+        error: function(jqXHR) {
+            alert(jqXHR.responseText);
         },
         success: function(){
             location.reload();

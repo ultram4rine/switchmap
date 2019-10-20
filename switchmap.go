@@ -79,7 +79,7 @@ func main() {
 
 	router.HandleFunc("/savepos", helpers.AuthCheck(handlers.SavePos))
 
-	router.HandleFunc("/reload", helpers.AuthCheck(handlers.UpdateSwitchHandler))
+	router.HandleFunc("/swupdate", helpers.AuthCheck(handlers.UpdateSwitchHandler))
 
 	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handlers.PlanUpdateHandler))
 
