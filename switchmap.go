@@ -71,7 +71,7 @@ func main() {
 	router.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handlers.FloorHandler))
 
 	router.HandleFunc("/vis", helpers.AuthCheck(handlers.VisHandler))
-	router.HandleFunc("/getmap", helpers.AuthCheck(handlers.GetMap))
+	router.HandleFunc("/getmap", helpers.AuthCheck(handlers.GetMap)).Methods("GET")
 
 	router.HandleFunc("/swadd", helpers.AuthCheck(handlers.AddSwitchHandler))
 	router.HandleFunc("/badd", helpers.AuthCheck(handlers.AddBuildHandler))

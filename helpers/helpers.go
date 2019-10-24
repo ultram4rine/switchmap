@@ -136,6 +136,38 @@ func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	return rev, sernum, nil
 }
 
+func MakeVisMap() (map[string][]string, error) {
+	var (
+		switches []Switch
+		vis      = make(map[string][]string)
+	)
+
+	err := server.Core.DBdst.Select(&switches, "SELECT name from switches")
+	if err != nil {
+		log.Println("Error with making query to show visualization")
+		return nil, err
+	}
+
+	for _, sw := range switches {
+		var downSwitches []helpers.Switch
+
+		err = server.Core.DBdst.Select(&downSwitches, "SELECT name FROM switches WHERE upswitch = $1", sw.Name)
+		if err != nil {
+			log.Printf("Error finding downSwitches of %s switch: %s", sw.Name, err)
+		}
+
+		var downSwitchesNames []string
+
+		for _, dSw := range downSwitches {
+			downSwitchesNames = append(downSwitchesNames, dSw.Name)
+		}
+
+		vis[sw.Name] = downSwitchesNames
+	}
+
+	return vis, nil
+}
+
 //AlreadyLogin checks is user already logged in
 func AlreadyLogin(r *http.Request) bool {
 	session, err := server.Core.Store.Get(r, "session")

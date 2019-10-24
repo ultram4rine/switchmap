@@ -30,80 +30,34 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 	_, err := server.Core.DBdst.Exec("UPDATE switches SET (postop, posleft) = ($1, $2) WHERE name = $3", top, left, name)
 	if err != nil {
 		log.Printf("Error updating position of switch %s: %s", name, err)
-	}
-
-	_, err = w.Write([]byte("success"))
-	if err != nil {
-		log.Printf("Error writing answer for switch position update: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
 //GetMap make and send map of switches
 func GetMap(w http.ResponseWriter, r *http.Request) {
-	vis := make(map[string][]string)
-
-	rows, err := server.Core.DBdst.Query("SELECT name from switches")
+	visMap, err := helpers.MakeVisMap()
 	if err != nil {
-		log.Println("Error with making query to show visualization")
-		http.NotFound(w, r)
+		log.Printf("Error making map for visualization: %s", err)
+		http.Redirect(w, r, "/map", http.StatusFound)
 		return
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var s string
-
-		err := rows.Scan(&s)
-		if err != nil {
-			log.Println("Error with scanning database to show visualization: ", err)
-		}
-
-		subrows, err := server.Core.DBdst.Query("SELECT name FROM switches WHERE upswitch = $1", s)
-		if err != nil {
-			log.Println("Error with making query to find upswitches to show visualization")
-			http.NotFound(w, r)
-			return
-		}
-
-		var downSwitches []string
-
-		for subrows.Next() {
-			var downSwitch string
-
-			err := subrows.Scan(&downSwitch)
-			if err != nil {
-				log.Println("Error with scanning database to find upswitches to show visualization: ", err)
-			}
-
-			downSwitches = append(downSwitches, downSwitch)
-		}
-		if err = subrows.Err(); err != nil {
-			log.Println("Error searching switch names for visualization: ", err)
-		}
-
-		err = subrows.Close()
-		if err != nil {
-			log.Printf("Error closing subrows for %s switch: %s", s, err)
-		}
-
-		vis[s] = downSwitches
-	}
-	if err = rows.Err(); err != nil {
-		log.Println("Error searching switch names for visualization: ", err)
+	visMapJSON, err := json.Marshal(visMap)
+	if err != nil {
+		log.Printf("Error marshalling map for sending: %s", err)
+		http.Redirect(w, r, "/map", http.StatusFound)
+		return
 	}
 
-	if r.Method == "GET" {
-		m, err := json.MarshalIndent(vis, "", "  ")
-		if err != nil {
-			log.Println("Error marshalling data to send: ", err)
-		}
+	w.Header().Set("Content-Type", "application/json")
 
-		w.Header().Set("Content-Type", "application/json")
-
-		_, err = w.Write(m)
-		if err != nil {
-			log.Printf("Error writing map of switches for visualization: %s", err)
-		}
+	_, err = w.Write(visMapJSON)
+	if err != nil {
+		log.Printf("Error writing map of switches for visualization: %s", err)
+		http.Redirect(w, r, "/map", http.StatusFound)
+		return
 	}
 }
 
@@ -121,11 +75,15 @@ func VisHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/vis.html")
 	if err != nil {
 		log.Printf("Error parsing template files for visualization page: %s", err)
+		http.Redirect(w, r, "/map", http.StatusFound)
+		return
 	}
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Printf("Error executing template for visualization page: %s", err)
+		http.Redirect(w, r, "/map", http.StatusFound)
+		return
 	}
 }
 
