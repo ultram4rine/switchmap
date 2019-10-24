@@ -6,6 +6,9 @@ function bdel(element){
         data: {
             name: name
         },
+        error: function(jqXHR) {
+            alert(jqXHR.responseText);
+        },
         success: function(){
             location.reload();
         }
@@ -23,6 +26,9 @@ function fdel(element){
         data: {
             build: build,
             num: num[0]
+        },
+        error: function(jqXHR) {
+            alert(jqXHR.responseText);
         },
         success: function(){
             location.reload();
@@ -42,6 +48,9 @@ function swdel(){
         method: "POST",
         data: {
             name: name
+        },
+        error: function(jqXHR) {
+            alert(jqXHR.responseText);
         },
         success: function(){
             location.replace(newloc)
