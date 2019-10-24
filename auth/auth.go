@@ -13,21 +13,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func auth(login, password string) (string, error) {
+func auth(login, password string) error {
 	if password == "" {
-		return "", errors.New("empty password")
+		return errors.New("empty password")
 	}
-
-	username := ""
 
 	l, err := ldap.Dial("tcp", server.Conf.LdapServer)
 	if err != nil {
-		return username, err
+		return err
 	}
 	defer l.Close()
 
-	if l.Bind(server.Conf.LdapUser, server.Conf.LdapPassword); err != nil {
-		return username, err
+	if err = l.Bind(server.Conf.LdapUser, server.Conf.LdapPassword); err != nil {
+		return err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
@@ -38,17 +36,18 @@ func auth(login, password string) (string, error) {
 		nil,
 	)
 
-	if sr, err := l.Search(searchRequest); err != nil || len(sr.Entries) != 1 {
-		return username, errors.New("user not found")
-	} else {
-		username = sr.Entries[0].GetAttributeValue("cn")
+	sr, err := l.Search(searchRequest)
+	if err != nil || len(sr.Entries) != 1 {
+		return errors.New("user not found")
 	}
+
+	username := sr.Entries[0].GetAttributeValue("cn")
 
 	if err = l.Bind(username, password); err != nil {
-		return "", err
+		return err
 	}
 
-	return username, err
+	return nil
 }
 
 //Handler handle login page
@@ -82,23 +81,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if userName, err := auth(r.FormValue("uname"), r.FormValue("psw")); err != nil {
+			if err := auth(r.FormValue("uname"), r.FormValue("psw")); err != nil {
 				http.Redirect(w, r, "/admin/login", http.StatusFound)
 				return
-			} else {
-				session.Values["userName"] = userName
-				session.Values["user"] = r.FormValue("uname")
-
-				err = session.Save(r, w)
-				if err != nil {
-					log.Printf("Error saving cookies on login: %s", err)
-				}
-
-				http.Redirect(w, r, "/map", http.StatusFound)
 			}
+
+			session.Values["user"] = r.FormValue("uname")
+
+			err = session.Save(r, w)
+			if err != nil {
+				log.Printf("Error saving cookies on login: %s", err)
+			}
+
+			http.Redirect(w, r, "/map", http.StatusFound)
 		}
 	case "logout":
-		session.Values["userName"] = nil
 		session.Values["user"] = nil
 
 		err = session.Save(r, w)
