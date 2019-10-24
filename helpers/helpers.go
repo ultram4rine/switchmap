@@ -149,7 +149,7 @@ func MakeVisMap() (map[string][]string, error) {
 	}
 
 	for _, sw := range switches {
-		var downSwitches []helpers.Switch
+		var downSwitches []Switch
 
 		err = server.Core.DBdst.Select(&downSwitches, "SELECT name FROM switches WHERE upswitch = $1", sw.Name)
 		if err != nil {
