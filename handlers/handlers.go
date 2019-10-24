@@ -73,7 +73,7 @@ func VisHandler(w http.ResponseWriter, r *http.Request) {
 		User: session.Values["user"],
 	}
 
-	tmpl, err := template.ParseFiles("templates/vis.html")
+	tmpl, err := template.ParseFiles("templates/layout.html", "templates/vis.html")
 	if err != nil {
 		log.Printf("Error parsing template files for visualization page: %s", err)
 		http.Redirect(w, r, "/map", http.StatusFound)
@@ -117,7 +117,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 			return k < l
 		})
 
-		tmpl, err := template.ParseFiles("templates/map.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "templates/map.html")
 		if err != nil {
 			log.Printf("Error parsing template files for map page: %s", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -164,7 +164,7 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 			return data.Floors[i].Floor < data.Floors[j].Floor
 		})
 
-		tmpl, err := template.ParseFiles("templates/build.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "templates/build.html")
 		if err != nil {
 			log.Printf("Error parsing template files for %s build page: %s", build, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -210,7 +210,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tmpl, err := template.ParseFiles("templates/plan.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "templates/plan.html")
 		if err != nil {
 			log.Printf("Error parsing template files for plan page: %s", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -261,7 +261,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		sw.Build = build.Name
 	}
 
-	tmpl, err := template.ParseFiles("templates/list.html")
+	tmpl, err := template.ParseFiles("templates/layout.html", "templates/list.html")
 	if err != nil {
 		log.Printf("Error parsing template files for list of switches page: %s", err)
 	}
@@ -296,7 +296,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/change.html")
+	tmpl, err := template.ParseFiles("templates/layout.html", "templates/change.html")
 	if err != nil {
 		log.Printf("Error parsing template files for change switch page: %s", err)
 	}
@@ -341,7 +341,7 @@ func LogsHandler(w http.ResponseWriter, r *http.Request) {
 		User: session.Values["user"],
 	}
 
-	tmpl, err := template.ParseFiles("templates/logs.html")
+	tmpl, err := template.ParseFiles("templates/layout.html", "templates/logs.html")
 	if err != nil {
 		log.Printf("Error parsing template files for logs page: %s", err)
 	}

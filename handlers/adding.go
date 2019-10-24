@@ -206,7 +206,7 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("templates/upload.html")
+		tmpl, err := template.ParseFiles("templates/layout.html", "templates/upload.html")
 		if err != nil {
 			log.Printf("Error parsing template files for upload plan page for %s floor in %s build: %s", floor, build, err)
 			http.Redirect(w, r, "/map/"+build, http.StatusFound)

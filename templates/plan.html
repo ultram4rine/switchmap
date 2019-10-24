@@ -1,119 +1,129 @@
-<!DOCTYPE HTML>
-<html>
+{{ define "title" }}
+<title>Карта</title>
+{{ end }}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карта</title>
-    <link href="/public/css/main.css" rel="stylesheet">
-    <link href="/public/css/header.css" rel="stylesheet">
-    <link href="/public/css/plan.css" rel="stylesheet">
-    <link rel="icon" href="/public/icons/switchmap_icon_orange.png" type="image/png">
-    <link rel="shortcut icon" href="/public/icons/switchmap_icon_orange.png" type="image/png">
-    <script type="text/javascript" src="/public/js/plugins/jquery-3.4.1.min.js"></script>
-    <script type="text/javascript" src="/public/js/plugins/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="/public/js/plugins/jquery.ui.touch-punch.min.js"></script>
-    <script type="text/javascript" src='https://unpkg.com/panzoom@8.4.0/dist/panzoom.min.js'></script>
-</head>
+{{ define "styles" }}
+<link href="/public/css/plan.css" rel="stylesheet" />
+{{ end }}
 
-<body>
-    <input type="checkbox" class="open" id="nav-toggle" hidden>
-    <div class="header">
-        <div id="logo"><img src="/public/icons/switchmap_icon_black.svg"></div>
-        <div id="title">SwitchMap</div>
-        <label for="nav-toggle" class="btn" onclick="anim(this)">
-            <div class="bars">
-                <div class="bar1"></div>
-                <div class="bar2"></div>
-                <div class="bar3"></div>
-            </div>
-        </label>
-        <div id="userbar">
-            <span>{{ .User}}</span>
-            (<a href="/admin/logout">Выйти</a>)
+{{ define "topScripts" }}
+<script
+  type="text/javascript"
+  src="/public/js/plugins/jquery-3.4.1.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="/public/js/plugins/jquery-ui.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="/public/js/plugins/jquery.ui.touch-punch.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="https://unpkg.com/panzoom@8.4.0/dist/panzoom.min.js"
+></script>
+{{ end }}
+
+{{ define "navLinks" }}
+<li><a href="/planupdate/{{ .Build}}/{{ .Floor}}">Обновить план</a></li>
+<li><a href="/map/{{ .Build}}">Назад</a></li>
+<li>
+  <button class="button" onclick="swAdd()">Добавить свитч</button>
+  <ul class="subnavbar">
+    <li>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Имя"
+        required
+        autocomplete="off"
+      />
+    </li>
+    <li>
+      <select id="model" name="model" autocomplete="off">
+        <option disabled selected>Модель</option>
+        <option value="HP-ProCurve">HP-ProCurve</option>
+        <option value="Cisco">Cisco</option>
+        <option value="D-Link">D-Link</option>
+      </select>
+    </li>
+  </ul>
+</li>
+{{ end }}
+
+{{ define "content" }}
+<div class="map">
+  <div id="dragplan" class="plan">
+    <img
+      id="image"
+      src="/private/plans/{{ .Build}}{{ .Floor}}.png"
+      ;
+      max-height:100%;
+      max-weidth:100%
+    />
+    {{ range.Swits }}
+    <div
+      class="switch ui-widget-content"
+      style="top: {{ .Postop}}px; left: {{ .Posleft}}px;"
+    >
+      <a href="/list/change/{{ .Name}}">
+        <div id="{{ .Name}}" class="change">Изменить</div>
+      </a>
+      <div id="{{ .Name}}" class="blink">
+        <span>>_</span>
+      </div>
+      <div id="{{ .Name}}" class="reload" onclick="reload(this)">
+        <span>&#x21bb</span>
+      </div>
+      <div id="{{ .Name}}" class="download">
+        <span>&#x2B73</span>
+      </div>
+      <div id="{{ .Name}}" class="image">
+        <img src="/public/images/{{ .Model}}.png" />
+      </div>
+      <div id="{{ .Name}}" class="name">{{ .Name}}</div>
+      <div id="{{ .Name}}" class="cir">
+        <div id="q1" class="quarter">
+          <div class="quartercont">
+            <div>IP</div>
+            <div style="font-size: 10px; font-family: sans-serif">{{ .IP}}</div>
+          </div>
         </div>
-    </div>
-    <div class="content">
-        <ul class="navbar">
-            <li><a href="/map">Карта</a></li>
-            <li><a href="/vis">Визуализация</a></li>
-            <li><a href="/list">Список</a></li>
-            <li><a href="/logs">Логи</a></li>
-            <li><a href="/planupdate/{{ .Build}}/{{ .Floor}}">Обновить план</a></li>
-            <li><a href="/map/{{ .Build}}">Назад</a></li>
-            <li>
-                <button class="button" onclick="swAdd()">Добавить свитч</button>
-                <ul class="subnavbar">
-                    <li><input type="text" id="name" name="name" placeholder="Имя" required autocomplete="off"></li>
-                    <li>
-                        <select id="model" name="model" autocomplete="off">
-                            <option disabled selected>Модель</option>
-                            <option value="HP-ProCurve">HP-ProCurve</option>
-                            <option value="Cisco">Cisco</option>
-                            <option value="D-Link">D-Link</option>
-                        </select>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <div class="map">
-            <div id="dragplan" class="plan">
-                <img id="image" src="/private/plans/{{ .Build}}{{ .Floor}}.png" ; max-height:100%; max-weidth:100%>
-                {{range .Swits }}
-                <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
-                    <a href="/list/change/{{ .Name}}">
-                        <div id="{{ .Name}}" class="change">Изменить</div>
-                    </a>
-                    <div id="{{ .Name}}" class="blink">
-                        <span>>_</span>
-                    </div>
-                    <div id="{{ .Name}}" class="reload" onclick="reload(this)">
-                        <span>&#x21bb</span>
-                    </div>
-                    <div id="{{ .Name}}" class="download">
-                        <span>&#x2B73</span>
-                    </div>
-                    <div id="{{ .Name}}" class="image">
-                        <img src="/public/images/{{ .Model}}.png">
-                    </div>
-                    <div id="{{ .Name}}" class="name">{{ .Name}}</div>
-                    <div id="{{ .Name}}" class="cir">
-                        <div id="q1" class="quarter">
-                            <div class="quartercont">
-                                <div>IP</div>
-                                <div style="font-size: 10px; font-family: sans-serif">{{ .IP}}</div>
-                            </div>
-                        </div>
-                        <div id="q2" class="quarter">
-                            <div class="quartercont">
-                                <div>Serial</div>
-                                <div style="font-size: 8px; font-family: sans-serif">{{ .Serial}}</div>
-                            </div>
-                        </div>
-                        <div id="q3" class="quarter">
-                            <div class="quartercont">
-                                <div>UpSwitch</div>
-                                <div>{{ .Upswitch}}</div>
-                            </div>
-                        </div>
-                        <div id="q4" class="quarter">
-                            <div class="quartercont">
-                                <div>MAC</div>
-                                <div style="font-size: 10px; font-family: sans-serif">{{ .MAC}}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {{end}}
+        <div id="q2" class="quarter">
+          <div class="quartercont">
+            <div>Serial</div>
+            <div style="font-size: 8px; font-family: sans-serif">
+              {{ .Serial}}
             </div>
+          </div>
         </div>
+        <div id="q3" class="quarter">
+          <div class="quartercont">
+            <div>UpSwitch</div>
+            <div>{{ .Upswitch}}</div>
+          </div>
+        </div>
+        <div id="q4" class="quarter">
+          <div class="quartercont">
+            <div>MAC</div>
+            <div style="font-size: 10px; font-family: sans-serif">
+              {{ .MAC}}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <script type="text/javascript" src="/public/js/app.js"></script>
-    <script type="text/javascript" src="/public/js/adding.js"></script>
-    <script type="text/javascript" src="/public/js/blink.js"></script>
-    <script type="text/javascript" src="/public/js/chmenuico.js"></script>
-    <script type="text/javascript" src="/public/js/zoom.js"></script>
-    <script type="text/javascript" src="/public/js/dragplan.js"></script>
-</body>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
 
-</html>
+{{ define "bottomScripts" }}
+<script type="text/javascript" src="/public/js/app.js"></script>
+<script type="text/javascript" src="/public/js/adding.js"></script>
+<script type="text/javascript" src="/public/js/blink.js"></script>
+<script type="text/javascript" src="/public/js/zoom.js"></script>
+<script type="text/javascript" src="/public/js/dragplan.js"></script>
+{{ end }}
