@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"text/template"
 
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
@@ -64,17 +63,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch pagetype {
 	case "login":
 		if r.Method == "GET" {
-			tmpl, err := template.ParseFiles("templates/login.html")
-			if err != nil {
-				log.Printf("Error parsing template files for login page: %s", err)
-			}
-
-			var data helpers.ViewData
-
-			err = tmpl.Execute(w, data)
-			if err != nil {
-				log.Printf("Error executing template for login page: %s", err)
-			}
+			http.ServeFile(w, r, "public/html/login.html")
 		} else if r.Method == "POST" {
 			if helpers.AlreadyLogin(r) {
 				http.Redirect(w, r, "/map", http.StatusFound)
