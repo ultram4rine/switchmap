@@ -14,6 +14,8 @@ github.com/gorilla/securecookie v1.1.1 h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyC
 github.com/gorilla/securecookie v1.1.1/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
 github.com/gorilla/sessions v1.2.0 h1:S7P+1Hm5V/AT9cjEcUD5uDaQSX0OE577aCXgoaKpYbQ=
 github.com/gorilla/sessions v1.2.0/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/zI+bUmuGM=
+github.com/iamdiogo/DarkCloud v0.0.0-20191011231909-95ad9397c079 h1:DspcLhQMC4++XHXkA87PMRl7ULB9QkxU9aKgsD1gCrk=
+github.com/iamdiogo/DarkCloud v0.0.0-20191011231909-95ad9397c079/go.mod h1:lzLZb8OSYKlefb2uNrZn2kiz9RdqrKtEhgZMcVXAxx8=
 github.com/jackc/pgx v3.5.0+incompatible h1:BRJ4G3UPtvml5R1ey0biqqGuYUGayMYekm3woO75orY=
 github.com/jackc/pgx v3.5.0+incompatible/go.mod h1:0ZGrqGqkRlliWnWB4zKnWtjbSWbGkVEFm4TeybAXq+I=
 github.com/jmoiron/sqlx v1.2.0 h1:41Ip0zITnmWNR/vHV+S4m+VoUivnWY5E4OJfLZjCJMA=
