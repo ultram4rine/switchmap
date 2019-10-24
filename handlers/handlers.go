@@ -97,28 +97,18 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		buildings := []helpers.Build{}
+		var buildings []helpers.Build
 
 		data = helpers.ViewData{
 			User:   session.Values["user"],
 			Builds: buildings,
 		}
 
-		dbbuilds, err := server.Core.DBdst.Query("SELECT name, addr FROM buildings")
+		err := server.Core.DBdst.Select(&buildings, "SELECT name, addr FROM buildings")
 		if err != nil {
-			log.Println("Error with making query to show builds: ", err)
-		}
-		defer dbbuilds.Close()
-
-		for dbbuilds.Next() {
-			b := helpers.Build{}
-
-			err := dbbuilds.Scan(&b.Name, &b.Address)
-			if err != nil {
-				log.Println("Error with scanning database to show builds: ", err)
-			}
-
-			data.Builds = append(data.Builds, b)
+			log.Printf("Error getting builds to show it on map: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		sort.Slice(data.Builds, func(i, j int) bool {
@@ -130,11 +120,15 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles("templates/map.html")
 		if err != nil {
 			log.Printf("Error parsing template files for map page: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			log.Printf("Error executing template for map page: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
 }
@@ -147,7 +141,8 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	floors := []helpers.Floor{}
+	var floors []helpers.Floor
+
 	vars := mux.Vars(r)
 	build := vars["build"]
 
@@ -158,21 +153,11 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		dbfloors, err := server.Core.DBdst.Query("SELECT build, floor FROM floors WHERE build = $1", build)
+		err := server.Core.DBdst.Select(&floors, "SELECT build, floor FROM floors WHERE build = $1", build)
 		if err != nil {
-			log.Println("Error with making query to show floors: ", err)
-		}
-		defer dbfloors.Close()
-
-		for dbfloors.Next() {
-			f := helpers.Floor{}
-
-			err := dbfloors.Scan(&f.Build, &f.Floor)
-			if err != nil {
-				log.Println("Error with scanning database to show floors: ", err)
-			}
-
-			data.Floors = append(data.Floors, f)
+			log.Printf("Error getting floors to show it on build: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		sort.Slice(data.Floors, func(i, j int) bool {
@@ -182,11 +167,15 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles("templates/build.html")
 		if err != nil {
 			log.Printf("Error parsing template files for %s build page: %s", build, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			log.Printf("Error executing template for %s build page: %s", build, err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
 }
@@ -202,45 +191,37 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	build := vars["build"]
 	floor := vars["floor"]
-	planpath := fmt.Sprintf("private/plans/%s%s.png", build, floor)
+	planPath := fmt.Sprintf("private/plans/%s%s.png", build, floor)
 
-	if _, err := os.Stat(planpath); err == nil {
-		if r.Method == "GET" {
-			var switches []helpers.Switch
+	if _, err := os.Stat(planPath); err == nil {
+		var switches []helpers.Switch
 
-			data = helpers.ViewData{
-				Build: build,
-				Floor: floor,
-				User:  session.Values["user"],
-				Swits: switches,
-			}
+		data = helpers.ViewData{
+			Build: build,
+			Floor: floor,
+			User:  session.Values["user"],
+			Swits: switches,
+		}
 
-			dbswits, err := server.Core.DBdst.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
-			if err != nil {
-				log.Println("Error with making query to show list of switches: ", err)
-			}
-			defer dbswits.Close()
+		err := server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
+		if err != nil {
+			log.Printf("Error getting switches for show it on floor: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-			for dbswits.Next() {
-				swit := helpers.Switch{}
+		tmpl, err := template.ParseFiles("templates/plan.html")
+		if err != nil {
+			log.Printf("Error parsing template files for plan page: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-				err := dbswits.Scan(&swit.Name, &swit.IP, &swit.MAC, &swit.Serial, &swit.Model, &swit.Upswitch, &swit.Build, &swit.Floor, &swit.Postop, &swit.Posleft)
-				if err != nil {
-					log.Println("Error with scanning database to show list of switches: ", err)
-				}
-
-				data.Swits = append(data.Swits, swit)
-			}
-
-			tmpl, err := template.ParseFiles("templates/plan.html")
-			if err != nil {
-				log.Printf("Error parsing template files for plan page: %s", err)
-			}
-
-			err = tmpl.Execute(w, data)
-			if err != nil {
-				log.Printf("Error executing template for plan page: %s", err)
-			}
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			log.Printf("Error executing template for plan page: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	} else if os.IsNotExist(err) {
 		http.Redirect(w, r, "/planupdate/"+build+"/"+floor, http.StatusFound)
@@ -255,42 +236,29 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switches := []helpers.Switch{}
+	var switches []helpers.Switch
 
 	data = helpers.ViewData{
 		User:  session.Values["user"],
 		Swits: switches,
 	}
 
-	dblist, err := server.Core.DBdst.Query("SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
+	err = server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
 	if err != nil {
-		log.Println("Error with making query to show list of switches: ", err)
+		log.Printf("Error getting switches to show list: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	defer dblist.Close()
 
-	for dblist.Next() {
-		swit := helpers.Switch{}
+	for _, sw := range switches {
+		var build helpers.Build
 
-		err := dblist.Scan(&swit.Name, &swit.IP, &swit.MAC, &swit.Serial, &swit.Model, &swit.Upswitch, &swit.Build, &swit.Floor)
+		err = server.Core.DBdst.Get(&build, "SELECT name FROM buildings WHERE addr = $1", sw.Build)
 		if err != nil {
-			log.Println("Error with scanning database to show list of switches: ", err)
+			log.Printf("Error getting build name for %s switch: %s", sw.Name, err)
 		}
 
-		dbbuild, err := server.Core.DBdst.Query("SELECT name FROM buildings WHERE addr = $1", swit.Build)
-		if err != nil {
-			log.Println("Error with making query to find build name: ", err)
-		}
-		defer dbbuild.Close()
-
-		for dbbuild.Next() {
-			err := dbbuild.Scan(&swit.Build)
-			if err != nil {
-				log.Println("Error with scanning database to show list of switches: ", err)
-			}
-		}
-
-		swit.Floor = swit.Floor[1:] + " этаж"
-		data.Swits = append(data.Swits, swit)
+		sw.Build = build.Name
 	}
 
 	tmpl, err := template.ParseFiles("templates/list.html")
@@ -312,25 +280,20 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var sw helpers.Switch
+
 	vars := mux.Vars(r)
-	sw := vars["switch"]
+	swName := vars["switch"]
 
 	data = helpers.ViewData{
 		User: session.Values["user"],
 	}
 
-	dbswits, err := server.Core.DBdst.Query("SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", sw)
+	err = server.Core.DBdst.Get(&sw, "SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", swName)
 	if err != nil {
-		log.Println("Error with making query to show list of switches: ", err)
-	}
-	defer dbswits.Close()
-
-	for dbswits.Next() {
-		err := dbswits.Scan(&data.Sw.IP, &data.Sw.MAC, &data.Sw.Revision, &data.Sw.Serial, &data.Sw.Model, &data.Sw.Upswitch)
-		if err != nil {
-			log.Println("Error with scanning switchmap database to get switch info: ", err)
-		}
-		data.Sw.Name = sw
+		log.Printf("Error getting info about %s switch: %s", swName, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	tmpl, err := template.ParseFiles("templates/change.html")
@@ -356,9 +319,9 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 
 	ip := r.FormValue("IP")
 	mac := r.FormValue("MAC")
-	upswitch := r.FormValue("upswitch")
+	upSwitch := r.FormValue("upswitch")
 
-	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upswitch, sw)
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upSwitch, sw)
 	if err != nil {
 		log.Printf("Error changing %s switch data: %s", sw, err)
 	}
