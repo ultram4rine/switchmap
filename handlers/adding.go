@@ -192,6 +192,8 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "session")
 	if err != nil {
 		log.Printf("Error getting session: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	vars := mux.Vars(r)
@@ -208,33 +210,45 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles("templates/upload.html")
 		if err != nil {
 			log.Printf("Error parsing template files for upload plan page for %s floor in %s build: %s", floor, build, err)
+			http.Redirect(w, r, "/map/"+build, http.StatusFound)
+			return
 		}
 
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			log.Printf("Error executing template for upload plan page for %s floor in %s build: %s", floor, build, err)
+			http.Redirect(w, r, "/map/"+build, http.StatusFound)
+			return
 		}
 	} else if r.Method == "POST" {
 		err = r.ParseMultipartForm(32 << 20)
 		if err != nil {
 			log.Printf("Error parsing plan image for %s floor in %s build: %s", floor, build, err)
+			http.Redirect(w, r, "/map/"+build, http.StatusFound)
+			return
 		}
 
 		file, _, err := r.FormFile("load")
 		if err != nil {
 			log.Printf("Error getting file from form for %s floor in %s build: %s", floor, build, err)
+			http.Redirect(w, r, "/map/"+build, http.StatusFound)
+			return
 		}
 		defer file.Close()
 
 		f, err := os.OpenFile("private/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			log.Printf("Error creating plan image file for %s floor in %s build: %s", floor, build, err)
+			http.Redirect(w, r, "/map/"+build, http.StatusFound)
+			return
 		}
 		defer f.Close()
 
 		_, err = io.Copy(f, file)
 		if err != nil {
 			log.Printf("Error writing plan image file for %s floor in %s build: %s", floor, build, err)
+			http.Redirect(w, r, "/map/"+build, http.StatusFound)
+			return
 		}
 
 		http.Redirect(w, r, "/map/"+build+"/"+floor, http.StatusFound)
