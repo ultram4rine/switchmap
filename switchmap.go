@@ -18,7 +18,7 @@ import (
 
 func main() {
 	var (
-		confPath = "conf.json"
+		confPath = "switchmap.conf.json"
 		logFile  = "private/log/logs.log"
 	)
 
