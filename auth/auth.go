@@ -53,9 +53,10 @@ func auth(login, password string) (string, error) {
 
 //Handler handle login page
 func Handler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for login page: %s", err)
+		return
 	}
 
 	vars := mux.Vars(r)

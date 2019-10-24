@@ -189,10 +189,9 @@ func UpdateSwitchHandler(w http.ResponseWriter, r *http.Request) {
 
 //PlanUpdateHandler to upload or update floor's plan
 func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error getting session for plan update page: %s", err)
 		return
 	}
 

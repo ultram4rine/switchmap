@@ -63,9 +63,10 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 
 //VisHandler handle page with visualization
 func VisHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for visualization page: %s", err)
+		return
 	}
 
 	data = helpers.ViewData{
@@ -89,9 +90,10 @@ func VisHandler(w http.ResponseWriter, r *http.Request) {
 
 //MapHandler handle main page map
 func MapHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for map page: %s", err)
+		return
 	}
 
 	if r.Method == "GET" {
@@ -139,9 +141,10 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 //BuildHandler handle map/build pages
 func BuildHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for build page: %s", err)
+		return
 	}
 
 	floors := []helpers.Floor{}
@@ -190,9 +193,10 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 
 //FloorHandler handle map/build/floor pages
 func FloorHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for floor page: %s", err)
+		return
 	}
 
 	vars := mux.Vars(r)
@@ -245,9 +249,10 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 
 //ListHandler handle page with list of hosts
 func ListHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for list of switches page: %s", err)
+		return
 	}
 
 	switches := []helpers.Switch{}
@@ -301,9 +306,10 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 //ChangePage shows change page
 func ChangePage(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for change switch page: %s", err)
+		return
 	}
 
 	vars := mux.Vars(r)
@@ -362,9 +368,10 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 
 //LogsHandler handle logs page
 func LogsHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
-		log.Printf("Error getting session: %s", err)
+		log.Printf("Error getting session for logs page: %s", err)
+		return
 	}
 
 	data = helpers.ViewData{
