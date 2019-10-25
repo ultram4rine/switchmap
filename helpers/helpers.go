@@ -190,3 +190,15 @@ func AuthCheck(handler http.HandlerFunc) http.HandlerFunc {
 		handler(w, r)
 	}
 }
+
+//AsyncCheck is a middleware for async requests
+func AsyncCheck(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !AlreadyLogin(r) {
+			http.Error(w, "You're not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		handler(w, r)
+	}
+}

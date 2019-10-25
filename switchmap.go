@@ -63,25 +63,25 @@ func main() {
 	router.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handlers.FloorHandler))
 
 	router.HandleFunc("/vis", helpers.AuthCheck(handlers.VisHandler))
-	router.HandleFunc("/getmap", helpers.AuthCheck(handlers.GetMap)).Methods("GET")
+	router.HandleFunc("/getmap", helpers.AsyncCheck(handlers.GetMap)).Methods("GET")
 
-	router.HandleFunc("/swadd", helpers.AuthCheck(handlers.AddSwitchHandler))
-	router.HandleFunc("/badd", helpers.AuthCheck(handlers.AddBuildHandler))
-	router.HandleFunc("/fadd", helpers.AuthCheck(handlers.AddFloorHandler))
+	router.HandleFunc("/swadd", helpers.AsyncCheck(handlers.AddSwitchHandler))
+	router.HandleFunc("/badd", helpers.AsyncCheck(handlers.AddBuildHandler))
+	router.HandleFunc("/fadd", helpers.AsyncCheck(handlers.AddFloorHandler))
 
-	router.HandleFunc("/savepos", helpers.AuthCheck(handlers.SavePos))
+	router.HandleFunc("/savepos", helpers.AsyncCheck(handlers.SavePos))
 
-	router.HandleFunc("/swupdate", helpers.AuthCheck(handlers.UpdateSwitchHandler))
+	router.HandleFunc("/swupdate", helpers.AsyncCheck(handlers.UpdateSwitchHandler))
 
 	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handlers.PlanUpdateHandler))
 
-	router.HandleFunc("/bdel", helpers.AuthCheck(handlers.BuildDelHandler))
-	router.HandleFunc("/fdel", helpers.AuthCheck(handlers.FloorDelHandler))
-	router.HandleFunc("/swdel", helpers.AuthCheck(handlers.SwitchDelHandler))
+	router.HandleFunc("/bdel", helpers.AsyncCheck(handlers.BuildDelHandler))
+	router.HandleFunc("/fdel", helpers.AsyncCheck(handlers.FloorDelHandler))
+	router.HandleFunc("/swdel", helpers.AsyncCheck(handlers.SwitchDelHandler))
 
 	router.HandleFunc("/list", helpers.AuthCheck(handlers.ListHandler))
 	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangePage)).Methods("GET")
-	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangeHandler)).Methods("POST")
+	router.HandleFunc("/list/change/{switch}", helpers.AsyncCheck(handlers.ChangeHandler)).Methods("POST")
 
 	router.HandleFunc("/logs", helpers.AuthCheck(handlers.LogsHandler))
 
