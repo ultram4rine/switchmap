@@ -71,6 +71,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if err := auth(r.FormValue("uname"), r.FormValue("psw")); err != nil {
+				log.Printf("Error checking %s user in LDAP: %s", r.FormValue("uname"), err)
 				http.Redirect(w, r, "/admin/login", http.StatusFound)
 				return
 			}
