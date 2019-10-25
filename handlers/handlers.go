@@ -64,15 +64,15 @@ func VisHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data = helpers.ViewData{
-		User: session.Values["user"],
-	}
-
 	tmpl, err := template.ParseFiles("templates/layout.html", "templates/vis.html")
 	if err != nil {
 		log.Printf("Error parsing template files for visualization page: %s", err)
 		http.Redirect(w, r, "/map", http.StatusFound)
 		return
+	}
+
+	data := helpers.ViewData{
+		User: session.Values["user"],
 	}
 
 	err = tmpl.Execute(w, data)
@@ -91,40 +91,38 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method == "GET" {
-		var buildings []helpers.Build
+	var buildings []helpers.Build
 
-		data = helpers.ViewData{
-			User:   session.Values["user"],
-			Builds: buildings,
-		}
+	err = server.Core.DBdst.Select(&buildings, "SELECT name, addr FROM buildings")
+	if err != nil {
+		log.Printf("Error getting builds to show it on map: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-		err := server.Core.DBdst.Select(&buildings, "SELECT name, addr FROM buildings")
-		if err != nil {
-			log.Printf("Error getting builds to show it on map: %s", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	sort.Slice(buildings, func(i, j int) bool {
+		k, _ := strconv.Atoi(buildings[i].Address[1:])
+		l, _ := strconv.Atoi(buildings[j].Address[1:])
+		return k < l
+	})
 
-		sort.Slice(data.Builds, func(i, j int) bool {
-			k, _ := strconv.Atoi(data.Builds[i].Address[1:])
-			l, _ := strconv.Atoi(data.Builds[j].Address[1:])
-			return k < l
-		})
+	tmpl, err := template.ParseFiles("templates/layout.html", "templates/map.html")
+	if err != nil {
+		log.Printf("Error parsing template files for map page: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "templates/map.html")
-		if err != nil {
-			log.Printf("Error parsing template files for map page: %s", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	data := helpers.ViewData{
+		User:   session.Values["user"],
+		Builds: buildings,
+	}
 
-		err = tmpl.Execute(w, data)
-		if err != nil {
-			log.Printf("Error executing template for map page: %s", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template for map page: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -136,42 +134,40 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var floors []helpers.Floor
-
 	vars := mux.Vars(r)
 	build := vars["build"]
 
-	data = helpers.ViewData{
-		Build:  build,
-		Floors: floors,
-		User:   session.Values["user"],
+	var floors []helpers.Floor
+
+	err = server.Core.DBdst.Select(&floors, "SELECT build, floor FROM floors WHERE build = $1", build)
+	if err != nil {
+		log.Printf("Error getting floors to show it on build: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	if r.Method == "GET" {
-		err := server.Core.DBdst.Select(&floors, "SELECT build, floor FROM floors WHERE build = $1", build)
-		if err != nil {
-			log.Printf("Error getting floors to show it on build: %s", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	sort.Slice(floors, func(i, j int) bool {
+		return floors[i].Floor < floors[j].Floor
+	})
 
-		sort.Slice(data.Floors, func(i, j int) bool {
-			return data.Floors[i].Floor < data.Floors[j].Floor
-		})
+	tmpl, err := template.ParseFiles("templates/layout.html", "templates/build.html")
+	if err != nil {
+		log.Printf("Error parsing template files for %s build page: %s", build, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-		tmpl, err := template.ParseFiles("templates/layout.html", "templates/build.html")
-		if err != nil {
-			log.Printf("Error parsing template files for %s build page: %s", build, err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	data := helpers.ViewData{
+		User:   session.Values["user"],
+		Build:  build,
+		Floors: floors,
+	}
 
-		err = tmpl.Execute(w, data)
-		if err != nil {
-			log.Printf("Error executing template for %s build page: %s", build, err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("Error executing template for %s build page: %s", build, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -186,17 +182,11 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	build := vars["build"]
 	floor := vars["floor"]
+
 	planPath := fmt.Sprintf("private/plans/%s%s.png", build, floor)
 
 	if _, err := os.Stat(planPath); err == nil {
 		var switches []helpers.Switch
-
-		data = helpers.ViewData{
-			Build: build,
-			Floor: floor,
-			User:  session.Values["user"],
-			Swits: switches,
-		}
 
 		err := server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
 		if err != nil {
@@ -210,6 +200,13 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error parsing template files for plan page: %s", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		data := helpers.ViewData{
+			User:  session.Values["user"],
+			Build: build,
+			Floor: floor,
+			Swits: switches,
 		}
 
 		err = tmpl.Execute(w, data)
@@ -232,11 +229,6 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var switches []helpers.Switch
-
-	data = helpers.ViewData{
-		User:  session.Values["user"],
-		Swits: switches,
-	}
 
 	err = server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
 	if err != nil {
@@ -261,6 +253,11 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error parsing template files for list of switches page: %s", err)
 	}
 
+	data := helpers.ViewData{
+		User:  session.Values["user"],
+		Swits: switches,
+	}
+
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Printf("Error executing template for list of switches page: %s", err)
@@ -275,14 +272,10 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sw helpers.Switch
-
 	vars := mux.Vars(r)
 	swName := vars["switch"]
 
-	data = helpers.ViewData{
-		User: session.Values["user"],
-	}
+	var sw helpers.Switch
 
 	err = server.Core.DBdst.Get(&sw, "SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", swName)
 	if err != nil {
@@ -294,6 +287,10 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/layout.html", "templates/change.html")
 	if err != nil {
 		log.Printf("Error parsing template files for change switch page: %s", err)
+	}
+
+	data := helpers.ViewData{
+		User: session.Values["user"],
 	}
 
 	err = tmpl.Execute(w, data)
@@ -332,13 +329,13 @@ func LogsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data = helpers.ViewData{
-		User: session.Values["user"],
-	}
-
 	tmpl, err := template.ParseFiles("templates/layout.html", "templates/logs.html")
 	if err != nil {
 		log.Printf("Error parsing template files for logs page: %s", err)
+	}
+
+	data := helpers.ViewData{
+		User: session.Values["user"],
 	}
 
 	err = tmpl.Execute(w, data)

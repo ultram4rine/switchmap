@@ -199,18 +199,18 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	build := vars["build"]
 	floor := vars["floor"]
 
-	data = helpers.ViewData{
-		Build: build,
-		Floor: floor,
-		User:  session.Values["user"],
-	}
-
 	if r.Method == "GET" {
 		tmpl, err := template.ParseFiles("templates/layout.html", "templates/upload.html")
 		if err != nil {
 			log.Printf("Error parsing template files for upload plan page for %s floor in %s build: %s", floor, build, err)
 			http.Redirect(w, r, "/map/"+build, http.StatusFound)
 			return
+		}
+
+		data := helpers.ViewData{
+			User:  session.Values["user"],
+			Build: build,
+			Floor: floor,
 		}
 
 		err = tmpl.Execute(w, data)
@@ -235,7 +235,7 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		f, err := os.OpenFile("private/plans/"+data.Build+data.Floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
+		f, err := os.OpenFile("private/plans/"+build+floor+".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			log.Printf("Error creating plan image file for %s floor in %s build: %s", floor, build, err)
 			http.Redirect(w, r, "/map/"+build, http.StatusFound)
