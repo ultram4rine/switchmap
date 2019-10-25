@@ -170,13 +170,13 @@ func MakeVisMap() (map[string][]string, error) {
 
 //AlreadyLogin checks is user already logged in
 func AlreadyLogin(r *http.Request) bool {
-	session, err := server.Core.Store.Get(r, "session")
+	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
 		log.Printf("Error getting session: %s", err)
 		return false
 	}
 
-	return session.Values["userName"] != nil
+	return session.Values["user"] != nil
 }
 
 //AuthCheck is a middleware for handlers
