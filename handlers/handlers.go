@@ -16,6 +16,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//RootHandler handle / path
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	} else {
+		http.Redirect(w, r, "/map", http.StatusFound)
+	}
+}
+
+//PrivateHandler handle private files
+func PrivateHandler(w http.ResponseWriter, r *http.Request) {
+	if !helpers.AlreadyLogin(r) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		return
+	}
+
+	realHandler := http.StripPrefix("/private/", http.FileServer(http.Dir("./private/"))).ServeHTTP
+	realHandler(w, r)
+}
+
 //SavePos saves position of switch in db
 func SavePos(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")

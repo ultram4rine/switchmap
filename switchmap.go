@@ -54,15 +54,7 @@ func main() {
 
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public/"))))
 
-	router.PathPrefix("/private/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !helpers.AlreadyLogin(r) {
-			http.Redirect(w, r, "/admin/login", http.StatusFound)
-			return
-		}
-
-		realHandler := http.StripPrefix("/private/", http.FileServer(http.Dir("./private/"))).ServeHTTP
-		realHandler(w, r)
-	})
+	router.PathPrefix("/private/").HandlerFunc(handlers.PrivateHandler)
 
 	router.HandleFunc("/admin/{type}", auth.Handler)
 
@@ -93,13 +85,7 @@ func main() {
 
 	router.HandleFunc("/logs", helpers.AuthCheck(handlers.LogsHandler))
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if !helpers.AlreadyLogin(r) {
-			http.Redirect(w, r, "/admin/login", http.StatusFound)
-		} else {
-			http.Redirect(w, r, "/map", http.StatusFound)
-		}
-	})
+	router.HandleFunc("/", handlers.RootHandler)
 
 	err = http.ListenAndServe(":"+server.Conf.ListenPort, router)
 	if err != nil {
