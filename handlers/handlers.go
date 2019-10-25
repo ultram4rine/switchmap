@@ -16,11 +16,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var (
-	data helpers.ViewData
-	sw   helpers.Switch
-)
-
 //SavePos saves position of switch in db
 func SavePos(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
