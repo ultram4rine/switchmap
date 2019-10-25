@@ -95,7 +95,7 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	addr := r.FormValue("addr")
 
-	err := server.Core.DBdst.Get(&b, "SELECT * from buildings WHERE name = $1 AND addr = $2", name, addr)
+	err := server.Core.DBdst.Get(&b, "SELECT name from buildings WHERE name = $1 AND addr = $2", name, addr)
 	if err == sql.ErrNoRows {
 		_, err = server.Core.DBdst.Exec("INSERT INTO buildings (name, addr) VALUES ($1, $2)", name, addr)
 		if err != nil {
@@ -123,7 +123,7 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
-	err := server.Core.DBdst.Get(&f, "SELECT * from floors WHERE build = $1 AND floor = $2", build, num)
+	err := server.Core.DBdst.Get(&f, "SELECT build, floor from floors WHERE build = $1 AND floor = $2", build, num)
 	if err == sql.ErrNoRows {
 		_, err = server.Core.DBdst.Exec("INSERT INTO floors (build, floor) VALUES ($1, $2)", build, num)
 		if err != nil {

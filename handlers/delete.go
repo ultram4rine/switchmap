@@ -41,7 +41,7 @@ func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 
-	_, err := server.Core.DBdst.Exec("DELETE FROM floors WHERE build = $1 AND floor = $2", 1, build, num)
+	_, err := server.Core.DBdst.Exec("DELETE FROM floors WHERE build = $1 AND floor = $2", build, num)
 	if err != nil {
 		log.Printf("Error deleting floor %s in %s: %s", num, build, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
