@@ -3,12 +3,18 @@
 {{ end }}
 
 {{ define "styles" }}
-<link href="/public/css/plugins/vis.min.css" rel="stylesheet" type="text/css" />
+<link href="/public/js/node_modules/vis-network/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
 {{ end }}
 
 {{ define "topScripts" }}
-<script type="text/javascript" src="/public/js/plugins/jquery-3.4.1.min.js"></script>
-<script src="/public/js/plugins/vis.min.js"></script>
+<script
+  type="text/javascript"
+  src="/public/js/node_modules/jquery/dist/jquery.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="/public/js/node_modules/vis-network/dist/vis-network.min.js"
+></script>
 {{ end }}
 
 {{ define "navLinks" }}
