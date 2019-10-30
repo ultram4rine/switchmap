@@ -1,211 +1,211 @@
-.plan{
-    min-width: 250px;
-    min-height: 250px;
-    display: inline-block;
-    position: relative;
-    z-index: 1;
-    top: 50%;
-    left: 50%;
-    transition: all 0.3s;
-    transform: translate(-50%, -50%) scale(1);
+.plan {
+  min-width: 250px;
+  min-height: 250px;
+  display: inline-block;
+  position: relative;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transition: all 0.3s;
+  transform: translate(-50%, -50%) scale(0.3);
 }
-.plan img{
-    position: relative;
+.plan img {
+  position: relative;
 }
-.rack{
-    width: 90px;
-    height: 200px;
+.rack {
+  width: 90px;
+  height: 200px;
 }
-.rack img{
-    width: 90px;
-    height: 200px;
-    position: absolute;
+.rack img {
+  width: 90px;
+  height: 200px;
+  position: absolute;
 }
-.switch{
-    width: 96px;
-    height: 26px;
-    position: absolute;
-    z-index: 1;
+.switch {
+  width: 96px;
+  height: 26px;
+  position: absolute;
+  z-index: 1;
 }
-.switch img{
-    position: absolute;
-    float: left;
-    padding: 0;
-    width: 96px;
-    height: 10px;
+.switch img {
+  position: absolute;
+  float: left;
+  padding: 0;
+  width: 96px;
+  height: 10px;
 }
-.switch .image{
-    position: relative;
-    z-index: 1;
-    width: 96px;
-    height: 10px;
+.switch .image {
+  position: relative;
+  z-index: 1;
+  width: 96px;
+  height: 10px;
 }
-.switch .name{
-    clear: both;
-    color: rgb(255, 140, 0);
-    position: absolute;
-    width: 100%;
-    min-height: 16px;
-    border-radius: 0 0 4px 4px;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 14px;
-    background-color: #181616;
-    padding: 0;
-    z-index: 1;
-    cursor: default;
+.switch .name {
+  clear: both;
+  color: rgb(255, 140, 0);
+  position: absolute;
+  width: 100%;
+  min-height: 16px;
+  border-radius: 0 0 4px 4px;
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 14px;
+  background-color: #181616;
+  padding: 0;
+  z-index: 1;
+  cursor: default;
 }
-.change{
-    width: 100%;
-    min-height: 16px;
-    cursor: pointer;
-    position: absolute;
-    border-radius: 4px 4px 0 0;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 14px;
-    background-color: #181616;
-    color: rgb(255, 140, 0);
-    opacity: 0;
-    transition: 0.3s;
+.change {
+  width: 100%;
+  min-height: 16px;
+  cursor: pointer;
+  position: absolute;
+  border-radius: 4px 4px 0 0;
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 14px;
+  background-color: #181616;
+  color: rgb(255, 140, 0);
+  opacity: 0;
+  transition: 0.3s;
 }
-.change:hover{
-    background: rgb(255, 140, 0);
-    color: #000;
+.change:hover {
+  background: rgb(255, 140, 0);
+  color: #000;
 }
-.blink{
-    font-family: Inconsolata;
-    font-size: 16px;
-    cursor: pointer;
-    position: absolute;
-    width: 75%;
-    height: 20px;
-    margin-left: 12.5%;
-    border-radius: 0 0 4px 4px;
-    background-color: #181616;
-    color: rgb(255, 140, 0);
-    z-index: 0;
-    opacity: 0;
-    transition: 0.3s;
+.blink {
+  font-family: Inconsolata;
+  font-size: 16px;
+  cursor: pointer;
+  position: absolute;
+  width: 75%;
+  height: 20px;
+  margin-left: 12.5%;
+  border-radius: 0 0 4px 4px;
+  background-color: #181616;
+  color: rgb(255, 140, 0);
+  z-index: 0;
+  opacity: 0;
+  transition: 0.3s;
 }
-.blink span{
-    margin-left: 2px;
+.blink span {
+  margin-left: 2px;
 }
-.blink:hover{
-    background: rgb(255, 140, 0);
-    color: #000;
+.blink:hover {
+  background: rgb(255, 140, 0);
+  color: #000;
 }
-.reload{
-    width: 25px;
-    height: 25px;
-    line-height: 25px;
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    position: absolute;
-    font-family: Lucida Sans Unicode;
-    font-size: 20px;
-    border-radius: 4px 4px 4px 4px;
-    background-color: #181616;
-    color: rgb(255, 140, 0);
-    opacity: 0;
-    transition: 0.3s;
+.reload {
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  position: absolute;
+  font-family: Lucida Sans Unicode;
+  font-size: 20px;
+  border-radius: 4px 4px 4px 4px;
+  background-color: #181616;
+  color: rgb(255, 140, 0);
+  opacity: 0;
+  transition: 0.3s;
 }
-.download{
-    width: 25px;
-    height: 25px;
-    line-height: 25px;
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    position: absolute;
-    font-size: 20px;
-    border-radius: 4px 4px 4px 4px;
-    background-color: #181616;
-    color: rgb(255, 140, 0);
-    opacity: 0;
-    transition: 0.3s;
+.download {
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  position: absolute;
+  font-size: 20px;
+  border-radius: 4px 4px 4px 4px;
+  background-color: #181616;
+  color: rgb(255, 140, 0);
+  opacity: 0;
+  transition: 0.3s;
 }
-.reload:hover{
-    background: rgb(255, 140, 0);
-    color: #000;
+.reload:hover {
+  background: rgb(255, 140, 0);
+  color: #000;
 }
-.download:hover{
-    background: rgb(255, 140, 0);
-    color: #000;
+.download:hover {
+  background: rgb(255, 140, 0);
+  color: #000;
 }
 .cir {
-    display: block;
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    border-radius: 50%;
-    border: 1px solid #181616;
-    top: 50%; 
-    left: 50%;
-    z-index: 0;
-    overflow: hidden;
-    transform: translate(-50%,-50%) rotate(45deg);
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  border: 1px solid #181616;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  overflow: hidden;
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 .quarter {
-    display: inline-block;
-    float: left;
-    color: rgb(255, 140, 0);
-    font-family: sans-serif;
-    font-size: 12px;
-    text-align: center;
-    background-color: #181616;
-    margin: 0;
-    padding: 0;
-    width: 99px;
-    height: 99px;
-    opacity: 0.8;
-    transition: 0.3s;
-    white-space: nowrap;
+  display: inline-block;
+  float: left;
+  color: rgb(255, 140, 0);
+  font-family: sans-serif;
+  font-size: 12px;
+  text-align: center;
+  background-color: #181616;
+  margin: 0;
+  padding: 0;
+  width: 99px;
+  height: 99px;
+  opacity: 0.8;
+  transition: 0.3s;
+  white-space: nowrap;
 }
 .quarter:before {
-    content: '';
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-    margin-right: -0.25em;
+  content: "";
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -0.25em;
 }
-.quartercont{
-    display: inline-block;
-    vertical-align: middle;
-    transform: rotate(-45deg);
+.quartercont {
+  display: inline-block;
+  vertical-align: middle;
+  transform: rotate(-45deg);
 }
 #q1 {
-    border-right: 1px solid rgb(255, 140, 0);
-    border-bottom: 1px solid rgb(255, 140, 0);
+  border-right: 1px solid rgb(255, 140, 0);
+  border-bottom: 1px solid rgb(255, 140, 0);
 }
 #q2 {
-    border-left: 1px solid rgb(255, 140, 0);
-    border-bottom: 1px solid rgb(255, 140, 0);
-}  
+  border-left: 1px solid rgb(255, 140, 0);
+  border-bottom: 1px solid rgb(255, 140, 0);
+}
 #q3 {
-    border-right: 1px solid rgb(255, 140, 0);
-    border-top: 1px solid rgb(255, 140, 0);
-}  
+  border-right: 1px solid rgb(255, 140, 0);
+  border-top: 1px solid rgb(255, 140, 0);
+}
 #q4 {
-    border-left: 1px solid rgb(255, 140, 0);
-    border-top: 1px solid rgb(255, 140, 0);
-} 
+  border-left: 1px solid rgb(255, 140, 0);
+  border-top: 1px solid rgb(255, 140, 0);
+}
 #q1:hover {
-    background: rgb(255, 140, 0);
-    color: #000;
-}  
+  background: rgb(255, 140, 0);
+  color: #000;
+}
 #q2:hover {
-    background: rgb(255, 140, 0);
-    color: #000;
-}  
+  background: rgb(255, 140, 0);
+  color: #000;
+}
 #q3:hover {
-    background: rgb(255, 140, 0);
-    color: #000;
-}  
+  background: rgb(255, 140, 0);
+  color: #000;
+}
 #q4:hover {
-    background: rgb(255, 140, 0);
-    color: #000;
+  background: rgb(255, 140, 0);
+  color: #000;
 }
