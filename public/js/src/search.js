@@ -1,9 +1,27 @@
-$(document).on("form input", function(ev){
-    if ($(ev.target).val().length > 0){
-        var regexp = $(ev.target).val();
-        $('tr[id]').hide();
-        $('[id^=' + regexp + ']').show();
-    } else {
-        $('tr[id]').show();
-    }
+$("form input").keyup(function() {
+  let data = this.value.split(" ");
+
+  let rows = $("tbody").find("tr");
+  if (this.value === "") {
+    rows.show();
+    return;
+  }
+
+  rows.hide();
+
+  rows
+    .filter(function(_i, _v) {
+      for (let j in data) {
+        if (
+          $(this)
+            .find("td#name")
+            .is(":contains('" + data[j] + "')")
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    })
+    .show();
 });
