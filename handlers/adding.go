@@ -250,6 +250,8 @@ func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		log.Printf("Plan of %s floor in %s build updated successfully", floor, build)
+
 		http.Redirect(w, r, "/map/"+build+"/"+floor, http.StatusFound)
 	}
 }
