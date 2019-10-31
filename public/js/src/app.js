@@ -1,12 +1,11 @@
-function reload($element) {
-  this.$element = $element;
-  this.name = $(this.$element).attr("id");
+function reload(elem) {
+  sw_name = $(elem).attr("id");
 
   $.ajax({
     url: "/swupdate",
     method: "POST",
     data: {
-      name: this.name
+      name: sw_name
     },
     error: function(jqXHR) {
       alert(jqXHR.responseText);
@@ -17,7 +16,7 @@ function reload($element) {
   });
 }
 
-var click = {
+let click = {
   x: 0,
   y: 0
 };
@@ -29,21 +28,21 @@ $(function() {
 
   $draggable
     .draggable({
+      containment: "#dragplan", //not working cause drag
+
       start: function(event) {
         click.x = event.clientX;
         click.y = event.clientY;
       },
 
       drag: function(event, ui) {
-        var zoom = element.getBoundingClientRect().width / element.offsetWidth;
-        var original = ui.originalPosition;
+        let zoom = element.getBoundingClientRect().width / element.offsetWidth;
+        let original = ui.originalPosition;
         ui.position = {
           left: (event.clientX - click.x + original.left) / zoom,
           top: (event.clientY - click.y + original.top) / zoom
         };
       },
-
-      containment: "#dragplan",
 
       stop: function() {
         Saver.Reorder($(this));
@@ -55,7 +54,7 @@ $(function() {
     });
 });
 
-var Saver = {
+let Saver = {
   $element: null,
   top: 0,
   left: 0,
@@ -80,7 +79,7 @@ var Saver = {
   }
 };
 
-var Clicker = {
+let Clicker = {
   $element: null,
 
   Click: function($element) {

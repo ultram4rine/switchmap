@@ -35,11 +35,11 @@
 {{ end }}
 
 {{ define "content" }}
-<div class="map">
+<div class="background">
   <div id="dragplan" class="plan">
     <img id="image" src="/private/plans/{{ .Build}}{{ .Floor}}.png" ; max-height:100%; max-weidth:100% />
     {{ range.Swits }}
-    <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
+    <div class="switch" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
       <a href="/list/change/{{ .Name}}">
         <div id="{{ .Name}}" class="change">Изменить</div>
       </a>
