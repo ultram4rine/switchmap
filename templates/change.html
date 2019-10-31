@@ -7,10 +7,7 @@
 {{ end }}
 
 {{ define "topScripts" }}
-<script
-  type="text/javascript"
-  src="/public/js/node_modules/jquery/dist/jquery.min.js"
-></script>
+<script type="text/javascript" src="/public/js/node_modules/jquery/dist/jquery.min.js"></script>
 {{ end }}
 
 {{ define "navLinks" }}
@@ -32,12 +29,7 @@
     <label>MAC: </label>
     <input type="text" name="MAC" placeholder="MAC" value="{{ .Sw.MAC}}" />
     <label>UpSwitch: </label>
-    <input
-      type="text"
-      name="upswitch"
-      placeholder="UpSwitch"
-      value="{{ .Sw.Upswitch}}"
-    />
+    <input type="text" name="upswitch" placeholder="UpSwitch" value="{{ .Sw.Upswitch}}" />
     <input type="submit" value="Отправить" />
   </form>
   <a id="delete" onclick="swdel()">

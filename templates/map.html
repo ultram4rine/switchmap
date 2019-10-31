@@ -7,10 +7,7 @@
 {{ end }}
 
 {{ define "topScripts" }}
-<script
-  type="text/javascript"
-  src="/public/js/node_modules/jquery/dist/jquery.min.js"
-></script>
+<script type="text/javascript" src="/public/js/node_modules/jquery/dist/jquery.min.js"></script>
 {{ end }}
 
 {{ define "navLinks" }}
@@ -18,25 +15,11 @@
   <button class="button" onclick="bAdd()">Добавить корпус</button>
   <ul class="subnavbar">
     <li>
-      <input
-        id="name"
-        type="text"
-        placeholder="Имя"
-        required
-        name="name"
-        autocomplete="off"
-      />
+      <input id="name" type="text" placeholder="Имя" required name="name" autocomplete="off" />
     </li>
     <li>
-      <input
-        id="addr"
-        type="text"
-        placeholder="Ссылка"
-        required
-        name="address"
-        autocomplete="off"
-        pattern="b[1-9]?[0-9]"
-      />
+      <input id="addr" type="text" placeholder="Ссылка" required name="address" autocomplete="off"
+        pattern="b[1-9]?[0-9]" />
     </li>
   </ul>
 </li>

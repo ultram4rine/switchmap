@@ -7,22 +7,10 @@
 {{ end }}
 
 {{ define "topScripts" }}
-<script
-  type="text/javascript"
-  src="/public/js/node_modules/jquery/dist/jquery.min.js"
-></script>
-<script
-  type="text/javascript"
-  src="/public/js/node_modules/jquery-ui/ui/widget.js"
-></script>
-<script
-  type="text/javascript"
-  src="/public/js/node_modules/jquery-ui-touch-punch/jquery-ui-touch-punch.min.js"
-></script>
-<script
-  type="text/javascript"
-  src="https://unpkg.com/panzoom@8.4.0/dist/panzoom.min.js"
-></script>
+<script type="text/javascript" src="/public/js/node_modules/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/public/js/node_modules/jquery-ui/ui/widget.js"></script>
+<script type="text/javascript" src="/public/js/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js">
+</script>
 {{ end }}
 
 {{ define "navLinks" }}
@@ -32,14 +20,7 @@
   <button class="button" onclick="swAdd()">Добавить свитч</button>
   <ul class="subnavbar">
     <li>
-      <input
-        type="text"
-        id="name"
-        name="name"
-        placeholder="Имя"
-        required
-        autocomplete="off"
-      />
+      <input type="text" id="name" name="name" placeholder="Имя" required autocomplete="off" />
     </li>
     <li>
       <select id="model" name="model" autocomplete="off">
@@ -56,18 +37,9 @@
 {{ define "content" }}
 <div class="map">
   <div id="dragplan" class="plan">
-    <img
-      id="image"
-      src="/private/plans/{{ .Build}}{{ .Floor}}.png"
-      ;
-      max-height:100%;
-      max-weidth:100%
-    />
+    <img id="image" src="/private/plans/{{ .Build}}{{ .Floor}}.png" ; max-height:100%; max-weidth:100% />
     {{ range.Swits }}
-    <div
-      class="switch ui-widget-content"
-      style="top: {{ .Postop}}px; left: {{ .Posleft}}px;"
-    >
+    <div class="switch ui-widget-content" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
       <a href="/list/change/{{ .Name}}">
         <div id="{{ .Name}}" class="change">Изменить</div>
       </a>

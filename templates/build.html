@@ -7,10 +7,7 @@
 {{ end }}
 
 {{ define "topScripts" }}
-<script
-  type="text/javascript"
-  src="/public/js/node_modules/jquery/dist/jquery.min.js"
-></script>
+<script type="text/javascript" src="/public/js/node_modules/jquery/dist/jquery.min.js"></script>
 {{ end }}
 
 {{ define "navLinks" }}
@@ -18,15 +15,7 @@
   <button class="button" onclick="fAdd()">Добавить этаж</button>
   <ul class="subnavbar">
     <li>
-      <input
-        id="num"
-        type="text"
-        placeholder="Номер"
-        required
-        name="number"
-        autocomplete="off"
-        pattern="[1-9]?[0-9]"
-      />
+      <input id="num" type="text" placeholder="Номер" required name="number" autocomplete="off" pattern="[1-9]?[0-9]" />
     </li>
   </ul>
 </li>
