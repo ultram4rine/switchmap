@@ -1,3 +1,3 @@
 function anim(x) {
-    x.classList.toggle("change");
+  x.classList.toggle("changed");
 }

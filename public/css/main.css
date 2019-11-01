@@ -152,15 +152,15 @@ body {
     margin: 3px 6px;
     transition: 0.4s;
   }
-  .change .bar1 {
+  .changed .bar1 {
     background-color: rgb(255, 140, 0);
     -webkit-transform: rotate(-45deg) translate(-5px, 5px);
     transform: rotate(-45deg) translate(-5px, 5px);
   }
-  .change .bar2 {
+  .changed .bar2 {
     opacity: 0;
   }
-  .change .bar3 {
+  .changed .bar3 {
     background-color: rgb(255, 140, 0);
     -webkit-transform: rotate(45deg) translate(-5px, -3px);
     transform: rotate(45deg) translate(-5px, -5px);
