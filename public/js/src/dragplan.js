@@ -1,4 +1,5 @@
 let memo;
+
 $("#dragplan").draggable({
   start: function() {
     memo = $(this).css("transition");

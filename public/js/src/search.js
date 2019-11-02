@@ -1,7 +1,7 @@
 $("form input").keyup(function() {
   let data = this.value.split(" ");
-
   let rows = $("tbody").find("tr");
+
   if (this.value === "") {
     rows.show();
     return;

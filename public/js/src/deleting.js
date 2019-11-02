@@ -1,59 +1,66 @@
-function bdel(element){
-    var name = $(element).parent().children('a').children('.name').text();
-    $.ajax({
-        url: "/bdel",
-        method: "POST",
-        data: {
-            name: name
-        },
-        error: function(jqXHR) {
-            alert(jqXHR.responseText);
-        },
-        success: function(){
-            location.reload();
-        }
-    });
-};
+function bdel(element) {
+  let name = $(element)
+    .parent()
+    .children("a")
+    .children(".name")
+    .text();
 
-function fdel(element){
-    var href = location.href.split('/');
-    var build = href[4];
-    var name = $(element).parent().children('a').children('.num').text();
-    var num = name.split(' ');
-    $.ajax({
-        url: "/fdel",
-        method: "POST",
-        data: {
-            build: build,
-            num: num[0]
-        },
-        error: function(jqXHR) {
-            alert(jqXHR.responseText);
-        },
-        success: function(){
-            location.reload();
-        }
-    });
-};
+  $.ajax({
+    url: "/bdel",
+    method: "POST",
+    data: {
+      name: name
+    },
+    error: function(jqXHR) {
+      alert(jqXHR.responseText);
+    },
+    success: function() {
+      location.reload();
+    }
+  });
+}
 
-function swdel(){
-    var href = location.href.split('/');
-    var i = location.href.lastIndexOf('/');
-    var temploc = location.href.substr(0, i);
-    var j = temploc.lastIndexOf('/');
-    var newloc = location.href.substr(0, j);
-    var name = href[5];
-    $.ajax({
-        url: "/swdel",
-        method: "POST",
-        data: {
-            name: name
-        },
-        error: function(jqXHR) {
-            alert(jqXHR.responseText);
-        },
-        success: function(){
-            location.replace(newloc)
-        }
-    });
-};
+function fdel(element) {
+  let href = location.href.split("/");
+  let build = href[4];
+  let name = $(element)
+    .parent()
+    .children("a")
+    .children(".num")
+    .text();
+  let num = name.split(" ");
+
+  $.ajax({
+    url: "/fdel",
+    method: "POST",
+    data: {
+      build: build,
+      num: num[0]
+    },
+    error: function(jqXHR) {
+      alert(jqXHR.responseText);
+    },
+    success: function() {
+      location.reload();
+    }
+  });
+}
+
+function swdel() {
+  let href = location.href.split("/");
+  let name = href[5];
+
+  $.ajax({
+    url: "/swdel",
+    method: "POST",
+    data: {
+      name: name
+    },
+    error: function(jqXHR) {
+      alert(jqXHR.responseText);
+    },
+    success: function() {
+      location.replace(newloc);
+    }
+  });
+}
