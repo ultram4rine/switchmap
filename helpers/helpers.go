@@ -98,6 +98,11 @@ func GetMainSwData(name string) (ip, mac, upswitchname string, err error) {
 	return realIP, sw.MAC, sw.UpSwitchName, nil
 }
 
+const (
+	entPhysicalDescr     = ".1.3.6.1.2.1.47.1.1.1.1.2.1"
+	entPhysicalSerialNum = ".1.3.6.1.2.1.47.1.1.1.1.11.1"
+)
+
 //GetAdditionalSwData trying to get serial number and revision of switch by SNMP
 func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	if model == "D-Link" {
@@ -111,22 +116,21 @@ func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	}
 	defer snmp.Default.Conn.Close()
 
-	oid := []string{"1.3.6.1.2.1.47.1.1.1.1.2.1", "1.3.6.1.2.1.47.1.1.1.1.11.1"}
+	oids := []string{entPhysicalDescr, entPhysicalSerialNum}
 
-	result, err := snmp.Default.Get(oid)
+	result, err := snmp.Default.Get(oids)
 	if err != nil {
 		return "", "", err
 	}
 
-	for i, variable := range result.Variables {
-		switch variable.Type {
+	for _, v := range result.Variables {
+		switch v.Type {
 		case snmp.OctetString:
-			bytes := variable.Value.([]byte)
-			switch i {
-			case 0:
-				rev = string(bytes)
-			case 1:
-				sernum = string(bytes)
+			switch v.Name {
+			case entPhysicalDescr:
+				rev = string(v.Value.([]byte))
+			case entPhysicalSerialNum:
+				sernum = string(v.Value.([]byte))
 			}
 		default:
 			return "", "", errors.New("can't get serial number")
