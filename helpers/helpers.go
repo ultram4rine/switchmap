@@ -51,7 +51,7 @@ type ViewData struct {
 	Floors []Floor     //Floors to show floors in build
 }
 
-//GetMainSwData gets IP, MAC and UpSwitchName of switch from netmap database
+//GetMainSwData gets IP, MAC and UpSwitchName of switch from source database
 func GetMainSwData(name string) (ip, mac, upswitchname string, err error) {
 	type netmapSwitch struct {
 		Name         string         `db:"name"`
@@ -136,6 +136,7 @@ func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	return rev, sernum, nil
 }
 
+//MakeVisMap makes map of switch and his downswitches
 func MakeVisMap() (map[string][]string, error) {
 	var (
 		switches []Switch
