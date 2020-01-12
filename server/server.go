@@ -76,10 +76,10 @@ func connect2DB() error {
 
 	Core.DBsrc, err = sqlx.Connect("mysql", Conf.DBSrcUser+":"+Conf.DBSrcPass+"@tcp("+Conf.DBSrcHost+")/"+Conf.DBSrcName+"?charset=utf8")
 	if err != nil {
-		log.Println("Error connecting to netmap database: ", err)
+		log.Println("Error connecting to source database: ", err)
 		return err
 	}
-	log.Println("Connected to netmap database")
+	log.Println("Connected to source database")
 
 	return nil
 }
@@ -99,6 +99,11 @@ func Init(confPath string) error {
 	log.Println("Cookie store created")
 
 	err = connect2DB()
+	if err != nil {
+		return err
+	}
+
+	_, err = sqlx.LoadFile(Core.DBdst, "/schema.sql")
 	if err != nil {
 		return err
 	}
