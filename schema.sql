@@ -16,13 +16,13 @@ CREATE TABLE IF NOT EXISTS switches (
     posleft STRING NOT NULL
 );
 
-create table buildings (
+CREATE TABLE IF NOT EXISTS buildings (
 	id SERIAL PRIMARY KEY,
 	name STRING NOT NULL,
     addr STRING NOT NULL
 );
 
-create table floors (
+CREATE TABLE IF NOT EXISTS floors (
 	id SERIAL PRIMARY KEY,
 	build STRING NOT NULL,
     floor STRING NOT NULL
