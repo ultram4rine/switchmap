@@ -103,7 +103,7 @@ func Init(confPath string) error {
 		return err
 	}
 
-	_, err = sqlx.LoadFile(Core.DBdst, "/schema.sql")
+	_, err = sqlx.LoadFile(Core.DBdst, "schema.sql")
 	if err != nil {
 		return err
 	}
