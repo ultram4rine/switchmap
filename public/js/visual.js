@@ -10,7 +10,7 @@ $.get("/getmap", function(resp) {
   });
 
   map.forEach(function(value, key) {
-    if (value != null) {
+    if (value !== null) {
       value.forEach(function(val) {
         edges.add([{ from: key, to: val }]);
       });
