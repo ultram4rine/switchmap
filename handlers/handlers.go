@@ -304,13 +304,14 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data := helpers.ViewData{
+		User: session.Values["user"],
+		Sw:   sw,
+	}
+
 	tmpl, err := template.ParseFiles("templates/layout.html", "templates/change.html")
 	if err != nil {
 		log.Printf("Error parsing template files for change switch page: %s", err)
-	}
-
-	data := helpers.ViewData{
-		User: session.Values["user"],
 	}
 
 	err = tmpl.Execute(w, data)
