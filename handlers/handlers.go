@@ -304,6 +304,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sw.Name = swName
 	data := helpers.ViewData{
 		User: session.Values["user"],
 		Sw:   sw,
