@@ -1,4 +1,3 @@
-CREATE DATABASE IF NOT EXISTS switchmap;
 use switchmap;
 
 CREATE TABLE IF NOT EXISTS switches (
