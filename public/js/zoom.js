@@ -1,3 +1,11 @@
+let elem = $("#dragplan");
+let img = $("image");
+let scale = 0.3;
+let xLast = -(img.naturalWidth * scale) / 2;
+let yLast = -(img.naturalHeight * scale) / 2;
+let xImage = 0;
+let yImage = 0;
+
 function addOnWheel(elem, handler) {
   if (elem.addEventListener) {
     if ("onwheel" in document) {
@@ -12,30 +20,25 @@ function addOnWheel(elem, handler) {
   }
 }
 
-var elem = document.getElementById("dragplan");
-var img = document.getElementById("image");
-var scale = 0.3;
-var xLast = -(img.naturalWidth * scale) / 2;
-var yLast = -(img.naturalHeight * scale) / 2;
-var xImage = 0;
-var yImage = 0;
+addOnWheel(element, function(e) {
+  e.preventDefault();
 
-addOnWheel(dragplan, function(e) {
-  var delta = e.deltaY || e.detail || e.wheelDelta;
+  let delta = e.deltaY || e.detail || e.wheelDelta;
 
-  var xScreen = e.pageX - $(this).offset().left;
-  var yScreen = e.pageY - $(this).offset().top;
+  let xScreen = e.pageX - $(this).offset().left;
+  let yScreen = e.pageY - $(this).offset().top;
 
   xImage = xImage + (xScreen - xLast) / scale;
   yImage = yImage + (yScreen - yLast) / scale;
 
-  if (delta > 0) scale -= 0.05;
-  else scale += 0.05;
+  if (delta > 0) {
+    scale = scale <= 0.305 ? 0.3 : (scale -= 0.05);
+  } else {
+    scale = scale >= 1.795 ? 1.8 : (scale += 0.05);
+  }
 
-  scale = scale < 0.3 ? 0.3 : scale > 1.8 ? 1.8 : scale;
-
-  var xNew = (xScreen - xImage) / scale;
-  var yNew = (yScreen - yImage) / scale;
+  let xNew = (xScreen - xImage) / scale;
+  let yNew = (yScreen - yImage) / scale;
 
   xLast = xScreen;
   yLast = yScreen;
@@ -46,6 +49,4 @@ addOnWheel(dragplan, function(e) {
       "scale(" + scale + ") translate(" + xNew + "px, " + yNew + "px)"
     )
     .css("-moz-transform-origin", xImage + "px " + yImage + "px");
-
-  e.preventDefault();
 });
