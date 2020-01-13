@@ -1,4 +1,6 @@
 {
+  "description": "Front dependencies for SwitchMap WEB Application",
+  "license": "MIT",
   "dependencies": {
     "@panzoom/panzoom": "^4.0.0",
     "jquery": "^3.4.1",
