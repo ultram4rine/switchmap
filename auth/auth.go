@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -24,7 +25,7 @@ func auth(login, password string) error {
 	defer l.Close()
 
 	if err = l.Bind(server.Conf.LDAP.User, server.Conf.LDAP.Pass); err != nil {
-		return err
+		return fmt.Errorf("error authenticating admin user in LDAP: %s", err)
 	}
 
 	searchRequest := ldap.NewSearchRequest(
@@ -36,14 +37,17 @@ func auth(login, password string) error {
 	)
 
 	sr, err := l.Search(searchRequest)
-	if err != nil || len(sr.Entries) != 1 {
-		return errors.New("user not found")
+	if err != nil {
+		return fmt.Errorf("error searching user in LDAP: %s", err)
+	}
+	if len(sr.Entries) != 1 {
+		return errors.New("user not found in LDAP")
 	}
 
 	username := sr.Entries[0].GetAttributeValue("cn")
 
 	if err = l.Bind(username, password); err != nil {
-		return err
+		return fmt.Errorf("error authenticating user in LDAP: %s", err)
 	}
 
 	return nil
@@ -70,13 +74,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if err := auth(r.FormValue("uname"), r.FormValue("psw")); err != nil {
-				log.Printf("Error checking %s user in LDAP: %s", r.FormValue("uname"), err)
+			username := r.FormValue("uname")
+
+			if err := auth(username, r.FormValue("psw")); err != nil {
+				log.Printf("Error authenticating %s user: %s", username, err)
 				http.Redirect(w, r, "/admin/login", http.StatusFound)
 				return
 			}
 
-			session.Values["user"] = r.FormValue("uname")
+			session.Values["user"] = username
 
 			err = session.Save(r, w)
 			if err != nil {

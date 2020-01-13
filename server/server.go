@@ -70,8 +70,7 @@ func connect2DB() error {
 
 	Core.DBdst, err = sqlx.Connect("postgres", "user="+Conf.DBdst.User+" password="+Conf.DBdst.Pass+" host="+Conf.DBdst.Host+" port="+Conf.DBdst.Port+" dbname="+Conf.DBdst.Name)
 	if err != nil {
-		log.Println("Error connecting to switchmap database: ", err)
-		return err
+		return fmt.Errorf("error connecting to switchmap database: %s", err)
 	}
 	log.Println("Connected to switchmap database")
 
@@ -86,8 +85,7 @@ func connect2DB() error {
 
 	Core.DBsrc, err = sqlx.Connect("mysql", dbSrcConf.FormatDSN())
 	if err != nil {
-		log.Println("Error connecting to source database: ", err)
-		return err
+		return fmt.Errorf("error connecting to source database: %s", err)
 	}
 	log.Println("Connected to source database")
 
