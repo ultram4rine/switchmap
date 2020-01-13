@@ -10,16 +10,21 @@ import (
 	"github.com/ultram4rine/switchmap/handlers"
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
+	"gopkg.in/alecthomas/kingpin.v2"
 
-	_ "github.com/lib/pq"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+)
+
+var (
+	confPath = kingpin.Flag("config", "Path to config file").Short('c').Default("switchmap.conf.toml").String()
+	prod     = kingpin.Flag("prod", "Run in production mode").Short('p').Bool()
 )
 
 func main() {
-	var (
-		confPath = "switchmap.conf.toml"
-		logFile  = "private/log/logs.log"
-	)
+	kingpin.Parse()
+
+	var logFile = "private/log/logs.log"
 
 	if _, err := os.Stat(logFile); err != nil {
 		if os.IsNotExist(err) {
@@ -37,7 +42,7 @@ func main() {
 	}
 	defer l.Close()
 
-	err = server.Init(confPath)
+	err = server.Init(*confPath)
 	if err != nil {
 		log.Fatalf("Error initializing server: %s", err)
 	}
