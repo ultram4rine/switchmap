@@ -3,12 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"sort"
 	"strconv"
-	"text/template"
 
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"

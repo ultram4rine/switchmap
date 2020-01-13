@@ -3,13 +3,13 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"image"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"text/template"
 
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
