@@ -3,6 +3,7 @@ module github.com/ultram4rine/switchmap
 go 1.13
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c
 	github.com/go-ldap/ldap v3.0.3+incompatible
 	github.com/go-sql-driver/mysql v1.4.1

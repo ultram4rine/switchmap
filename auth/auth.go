@@ -17,18 +17,18 @@ func auth(login, password string) error {
 		return errors.New("empty password")
 	}
 
-	l, err := ldap.Dial("tcp", server.Conf.LdapServer)
+	l, err := ldap.Dial("tcp", server.Conf.LDAP.Server)
 	if err != nil {
 		return err
 	}
 	defer l.Close()
 
-	if err = l.Bind(server.Conf.LdapUser, server.Conf.LdapPassword); err != nil {
+	if err = l.Bind(server.Conf.LDAP.User, server.Conf.LDAP.Pass); err != nil {
 		return err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		server.Conf.LdapBaseDN,
+		server.Conf.LDAP.BaseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(sAMAccountName="+login+"))",
 		[]string{"cn"},

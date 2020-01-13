@@ -1,11 +1,12 @@
 package server
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"fmt"
 	"log"
 
+	"github.com/BurntSushi/toml"
+	"github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 )
@@ -19,62 +20,71 @@ var Core struct {
 
 //Conf is a configuration file
 var Conf struct {
-	DBDstHost string `json:"dbDstHost"`
-	DBDstPort string `json:"dbDstPort"`
-	DBDstName string `json:"dbDstName"`
-	DBDstUser string `json:"dbDstUser"`
-	DBDstPass string `json:"dbDstPass"`
+	DBdst  dbConfig     `toml:"db_dst"`
+	DBsrc  dbConfig     `toml:"db_src"`
+	LDAP   ldapConfig   `toml:"ldap"`
+	Server serverConfig `toml:"server"`
+}
 
-	DBSrcHost string `json:"dbSrcHost"`
-	DBSrcName string `json:"dbSrcName"`
-	DBSrcUser string `json:"dbSrcUser"`
-	DBSrcPass string `json:"dbSrcPass"`
+type dbConfig struct {
+	Host string `toml:"host"`
+	Port string `toml:"port"`
+	Name string `toml:"name"`
+	User string `toml:"user"`
+	Pass string `toml:"pass"`
+}
 
-	LdapUser     string `json:"ldapUser"`
-	LdapPassword string `json:"ldapPassword"`
-	LdapServer   string `json:"ldapServer"`
-	LdapBaseDN   string `json:"ldapBaseDN"`
+type ldapConfig struct {
+	Server string `toml:"server"`
+	User   string `toml:"user"`
+	Pass   string `toml:"pass"`
+	BaseDN string `toml:"base_dn"`
+}
 
-	ListenPort string `json:"listenPort"`
-	SessionKey string `json:"sessionKey"`
-	EncryptKey string `json:"encryptKey"`
+type serverConfig struct {
+	Port       string `toml:"port"`
+	SessionKey string `toml:"session_key"`
+	EncryptKey string `toml:"encrypt_key"`
 }
 
 func makeConfig(filepath string) error {
-	confdata, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return err
+	if _, err := toml.DecodeFile(filepath, &Conf); err != nil {
+		return fmt.Errorf("error decoding config: %s", err)
 	}
-
-	err = json.Unmarshal(confdata, &Conf)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func createCookieStore() error {
-	if Conf.SessionKey == "" {
+	if Conf.Server.SessionKey == "" {
 		return errors.New("empty session key")
 	}
-
-	Core.Store = sessions.NewCookieStore([]byte(Conf.SessionKey), []byte(Conf.EncryptKey))
-
+	if Conf.Server.EncryptKey == "" {
+		return errors.New("empty encryption key")
+	}
+	Core.Store = sessions.NewCookieStore([]byte(Conf.Server.SessionKey), []byte(Conf.Server.EncryptKey))
 	return nil
 }
 
 func connect2DB() error {
 	var err error
 
-	Core.DBdst, err = sqlx.Connect("postgres", "user="+Conf.DBDstUser+" password="+Conf.DBDstPass+" host="+Conf.DBDstHost+" port="+Conf.DBDstPort+" dbname="+Conf.DBDstName)
+	Core.DBdst, err = sqlx.Connect("postgres", "user="+Conf.DBdst.User+" password="+Conf.DBdst.Pass+" host="+Conf.DBdst.Host+" port="+Conf.DBdst.Port+" dbname="+Conf.DBdst.Name)
 	if err != nil {
 		log.Println("Error connecting to switchmap database: ", err)
 		return err
 	}
 	log.Println("Connected to switchmap database")
 
-	Core.DBsrc, err = sqlx.Connect("mysql", Conf.DBSrcUser+":"+Conf.DBSrcPass+"@tcp("+Conf.DBSrcHost+")/"+Conf.DBSrcName+"?charset=utf8")
+	dbSrcConf := mysql.NewConfig()
+	dbSrcConf.Net = "tcp"
+	dbSrcConf.Addr = Conf.DBsrc.Host + Conf.DBsrc.Port
+	dbSrcConf.DBName = Conf.DBsrc.Name
+	dbSrcConf.User = Conf.DBsrc.User
+	dbSrcConf.Passwd = Conf.DBsrc.Pass
+	dbSrcConf.ParseTime = true
+	dbSrcConf.MultiStatements = true
+
+	Core.DBsrc, err = sqlx.Connect("mysql", dbSrcConf.FormatDSN())
 	if err != nil {
 		log.Println("Error connecting to source database: ", err)
 		return err

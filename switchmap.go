@@ -18,7 +18,7 @@ import (
 
 func main() {
 	var (
-		confPath = "switchmap.conf.json"
+		confPath = "switchmap.conf.toml"
 		logFile  = "private/log/logs.log"
 	)
 
@@ -44,7 +44,7 @@ func main() {
 	}
 
 	log.Println("Getting started...")
-	log.Println("Server must listen on " + server.Conf.ListenPort + " port")
+	log.Println("Server must listen on " + server.Conf.Server.Port + " port")
 	log.SetOutput(l)
 
 	defer server.Core.DBdst.Close()
@@ -87,7 +87,7 @@ func main() {
 
 	router.HandleFunc("/", handlers.RootHandler)
 
-	err = http.ListenAndServe(":"+server.Conf.ListenPort, router)
+	err = http.ListenAndServe(":"+server.Conf.Server.Port, router)
 	if err != nil {
 		log.SetOutput(os.Stdout)
 		log.Fatal("Error starting server: ", err)
