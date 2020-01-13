@@ -4,16 +4,12 @@ go 1.13
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c
-	github.com/go-ldap/ldap v3.0.3+incompatible
-	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-ldap/ldap/v3 v3.1.5
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/sessions v1.2.0
-	github.com/jackc/pgx v3.5.0+incompatible // indirect
+	github.com/jackc/pgconn v1.2.1 // indirect
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/lib/pq v1.2.0
 	github.com/soniah/gosnmp v1.22.0
-	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
-	google.golang.org/appengine v1.6.5 // indirect
-	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 )
