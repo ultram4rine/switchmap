@@ -11,14 +11,14 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-//Core is a struct to store important things
+// Core struct stores DB connections and cookie store.
 var Core struct {
 	DBdst *sqlx.DB
 	DBsrc *sqlx.DB
 	Store *sessions.CookieStore
 }
 
-//Conf is a configuration file
+// Conf struct contains parameters of app.
 var Conf struct {
 	DBdst  dbConfig     `toml:"db_dst"`
 	DBsrc  dbConfig     `toml:"db_src"`
@@ -76,6 +76,9 @@ func connect2DB() error {
 
 	dbSrcConf := mysql.NewConfig()
 	dbSrcConf.Net = "tcp"
+	if Conf.DBsrc.Host == "localhost" || Conf.DBsrc.Host == "127.0.0.1" {
+		dbSrcConf.Net = "unixgram"
+	}
 	dbSrcConf.Addr = Conf.DBsrc.Host + Conf.DBsrc.Port
 	dbSrcConf.DBName = Conf.DBsrc.Name
 	dbSrcConf.User = Conf.DBsrc.User
@@ -92,7 +95,7 @@ func connect2DB() error {
 	return nil
 }
 
-//Init function initialize server
+// Init function initializes server.
 func Init(confPath string) error {
 	err := makeConfig(confPath)
 	if err != nil {
