@@ -13,19 +13,19 @@ import (
 	snmp "github.com/soniah/gosnmp"
 )
 
-//Build is a type describing build
+// Build struct describing build.
 type Build struct {
 	Name    string `db:"name"`
 	Address string `db:"addr"`
 }
 
-//Floor is a type describing floor
+// Floor struct describing floor.
 type Floor struct {
 	Build string `db:"build"`
 	Floor string `db:"floor"`
 }
 
-//Switch is a type describing switch
+// Switch struct describing switch.
 type Switch struct {
 	Name     string `db:"name"`
 	IP       string `db:"ip"`
@@ -40,18 +40,18 @@ type Switch struct {
 	Posleft  string `db:"posleft"`
 }
 
-//ViewData is a struct describing data that inserts into HTML files
+// ViewData struct for data that inserts into HTML templates.
 type ViewData struct {
-	Build  string      //Build to go back from build page
-	Floor  string      //Floor to go back from plan page
-	User   interface{} //User to show username of user
-	Sw     Switch      //Sw to show switch information on change page
-	Swits  []Switch    //Swits to show information of switch on plan
-	Builds []Build     //Builds to show build on map
-	Floors []Floor     //Floors to show floors in build
+	Build  string      // Build to go back from build page.
+	Floor  string      // Floor to go back from plan page.
+	User   interface{} // User to show username of user.
+	Sw     Switch      // Sw to show switch information on change page.
+	Swits  []Switch    // Swits to show information of switch on plan.
+	Builds []Build     // Builds to show build on map.
+	Floors []Floor     // Floors to show floors in build.
 }
 
-//GetMainSwData gets IP, MAC and UpSwitchName of switch from source database
+// GetMainSwData gets IP, MAC and UpSwitchName of switch from source database.
 func GetMainSwData(name string) (ip, mac, upswitchname string, err error) {
 	type netmapSwitch struct {
 		Name         string         `db:"name"`
@@ -103,7 +103,7 @@ const (
 	entPhysicalSerialNum = ".1.3.6.1.2.1.47.1.1.1.1.11.1"
 )
 
-//GetAdditionalSwData trying to get serial number and revision of switch by SNMP
+// GetAdditionalSwData trying to get serial number and revision of switch by SNMP.
 func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	if model == "D-Link" {
 		return "", "", errors.New("can't use snmp on d-link to get serial number")
@@ -140,7 +140,7 @@ func GetAdditionalSwData(ip, model string) (rev, sernum string, err error) {
 	return rev, sernum, nil
 }
 
-//MakeVisMap makes map of switch and his downswitches
+// MakeVisMap makes map of switchs and their downswitches.
 func MakeVisMap() (map[string][]string, error) {
 	var (
 		switches []Switch
@@ -173,7 +173,7 @@ func MakeVisMap() (map[string][]string, error) {
 	return vis, nil
 }
 
-//AlreadyLogin checks is user already logged in
+// AlreadyLogin checks is user already logged in.
 func AlreadyLogin(r *http.Request) bool {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -184,7 +184,7 @@ func AlreadyLogin(r *http.Request) bool {
 	return session.Values["user"] != nil
 }
 
-//AuthCheck is a middleware for handlers
+// AuthCheck is a middleware for handlers.
 func AuthCheck(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !AlreadyLogin(r) {
@@ -196,7 +196,7 @@ func AuthCheck(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-//AsyncCheck is a middleware for async requests
+// AsyncCheck is a middleware for async requests.
 func AsyncCheck(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !AlreadyLogin(r) {

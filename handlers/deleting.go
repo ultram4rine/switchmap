@@ -7,7 +7,7 @@ import (
 	"github.com/ultram4rine/switchmap/server"
 )
 
-//SwitchDelHandler deletes switch
+// SwitchDelHandler handles switch deleting.
 func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 
@@ -21,7 +21,7 @@ func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Switch %s deleted successfully!", name)
 }
 
-//BuildDelHandler deletes build
+// BuildDelHandler handles build deleting.
 func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 
@@ -36,7 +36,7 @@ func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//FloorDelHandler deletes floor of build
+// FloorDelHandler handles floor deleting.
 func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")

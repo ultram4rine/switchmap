@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//RootHandler handle / path
+// RootHandler handles / path.
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 	if !helpers.AlreadyLogin(r) {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
@@ -25,7 +25,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//PrivateHandler handle private files
+// PrivateHandler handles private files like plans and logs.
 func PrivateHandler(w http.ResponseWriter, r *http.Request) {
 	if !helpers.AlreadyLogin(r) {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
@@ -36,7 +36,7 @@ func PrivateHandler(w http.ResponseWriter, r *http.Request) {
 	realHandler(w, r)
 }
 
-//SavePos saves position of switch in db
+// SavePos handles saving position of switch.
 func SavePos(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	top := r.FormValue("top")
@@ -50,7 +50,7 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//GetMap make and send map of switches
+// GetMap handles getting map of switches and their downswitches.
 func GetMap(w http.ResponseWriter, r *http.Request) {
 	visMap, err := helpers.MakeVisMap()
 	if err != nil {
@@ -76,7 +76,7 @@ func GetMap(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//VisHandler handle page with visualization
+// VisHandler handles page with visualization of switches network.
 func VisHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -103,7 +103,7 @@ func VisHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//MapHandler handle main page map
+// MapHandler handles main page with builds.
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -146,7 +146,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//BuildHandler handle map/build pages
+// BuildHandler handles build page with floors.
 func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -191,7 +191,8 @@ func BuildHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//FloorHandler handle map/build/floor pages
+// FloorHandler handles floor page with plan or redirects on plan uploading page
+// if plan for with floor doesn't exisis.
 func FloorHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -240,7 +241,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//ListHandler handle page with list of hosts
+// ListHandler handles page with list of switches.
 func ListHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -284,7 +285,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//ChangePage shows change page
+// ChangePage handles switch change page.
 func ChangePage(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
@@ -321,7 +322,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//ChangeHandler handle change page
+// ChangeHandler handles switch changing.
 func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sw := vars["switch"]
@@ -343,7 +344,7 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/list", http.StatusFound)
 }
 
-//LogsHandler handle logs page
+// LogsHandler handles logs page.
 func LogsHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {

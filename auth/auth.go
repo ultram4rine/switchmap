@@ -53,7 +53,7 @@ func auth(login, password string) error {
 	return nil
 }
 
-//Handler handle login page
+// Handler handles login/logout.
 func Handler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {

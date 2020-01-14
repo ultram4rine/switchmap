@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//AddSwitchHandler handle page with host add
+// AddSwitchHandler handles switch adding.
 func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		sw  helpers.Switch
@@ -88,7 +88,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//AddBuildHandler handle page to add build
+// AddBuildHandler handles build adding.
 func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	var b helpers.Build
 
@@ -116,7 +116,7 @@ func AddBuildHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, fmt.Sprintf("Build %s with address %s already exists", name, addr), http.StatusInternalServerError)
 }
 
-//AddFloorHandler handle page to add floor
+// AddFloorHandler handles floor adding.
 func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	var f helpers.Floor
 
@@ -144,7 +144,7 @@ func AddFloorHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, fmt.Sprintf("Floor %s in %s build already exists", num, build), http.StatusInternalServerError)
 }
 
-//UpdateSwitchHandler to update data of switch
+// UpdateSwitchHandler handles switch info update.
 func UpdateSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		sw  helpers.Switch
@@ -187,7 +187,7 @@ func UpdateSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//PlanUpdateHandler to upload or update floor's plan
+// PlanUpdateHandler handles plan updating.
 func PlanUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := server.Core.Store.Get(r, "switchmap_session")
 	if err != nil {
