@@ -20,10 +20,10 @@ var Core struct {
 
 // Conf struct contains parameters of app.
 var Conf struct {
-	DBdst  dbConfig     `toml:"db_dst"`
-	DBsrc  dbConfig     `toml:"db_src"`
-	LDAP   ldapConfig   `toml:"ldap"`
-	Server serverConfig `toml:"server"`
+	DBdst  dbConfig   `toml:"db_dst"`
+	DBsrc  dbConfig   `toml:"db_src"`
+	LDAP   ldapConfig `toml:"ldap"`
+	Server appConfig  `toml:"app"`
 }
 
 type dbConfig struct {
@@ -41,7 +41,7 @@ type ldapConfig struct {
 	BaseDN string `toml:"base_dn"`
 }
 
-type serverConfig struct {
+type appConfig struct {
 	Port       string `toml:"port"`
 	SessionKey string `toml:"session_key"`
 	EncryptKey string `toml:"encrypt_key"`
