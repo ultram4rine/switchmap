@@ -6,7 +6,7 @@ function bdel(element) {
     .text();
 
   $.ajax({
-    url: "/bdel",
+    url: "/delete/build",
     method: "POST",
     data: {
       name: name
@@ -31,7 +31,7 @@ function fdel(element) {
   let num = name.split(" ");
 
   $.ajax({
-    url: "/fdel",
+    url: "/delete/floor",
     method: "POST",
     data: {
       build: build,
@@ -51,7 +51,7 @@ function swdel() {
   let name = href[5];
 
   $.ajax({
-    url: "/swdel",
+    url: "/delete/switch",
     method: "POST",
     data: {
       name: name

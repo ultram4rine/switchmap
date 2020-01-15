@@ -7,8 +7,8 @@ import (
 	"github.com/ultram4rine/switchmap/server"
 )
 
-// SwitchDelHandler handles switch deleting.
-func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
+// DeleteSwitchHandler handles switch deleting.
+func DeleteSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 
 	_, err := server.Core.DBdst.Exec("DELETE FROM switches WHERE name = $1", name)
@@ -21,8 +21,8 @@ func SwitchDelHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Switch %s deleted successfully!", name)
 }
 
-// BuildDelHandler handles build deleting.
-func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
+// DeleteBuildHandler handles build deleting.
+func DeleteBuildHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 
 	_, err := server.Core.DBdst.Exec("DELETE FROM buildings WHERE name = $1", name)
@@ -36,8 +36,8 @@ func BuildDelHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// FloorDelHandler handles floor deleting.
-func FloorDelHandler(w http.ResponseWriter, r *http.Request) {
+// DeleteFloorHandler handles floor deleting.
+func DeleteFloorHandler(w http.ResponseWriter, r *http.Request) {
 	build := r.FormValue("build")
 	num := r.FormValue("num")
 

@@ -2,7 +2,7 @@ function reload(elem) {
   sw_name = $(elem).attr("id");
 
   $.ajax({
-    url: "/swupdate",
+    url: "/update/switch",
     method: "POST",
     data: {
       name: sw_name

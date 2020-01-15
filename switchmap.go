@@ -10,10 +10,10 @@ import (
 	"github.com/ultram4rine/switchmap/handlers"
 	"github.com/ultram4rine/switchmap/helpers"
 	"github.com/ultram4rine/switchmap/server"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -69,19 +69,19 @@ func main() {
 	router.HandleFunc("/vis", helpers.AuthCheck(handlers.VisHandler))
 	router.HandleFunc("/getmap", helpers.AsyncCheck(handlers.GetMap)).Methods("GET")
 
-	router.HandleFunc("/swadd", helpers.AsyncCheck(handlers.AddSwitchHandler))
-	router.HandleFunc("/badd", helpers.AsyncCheck(handlers.AddBuildHandler))
-	router.HandleFunc("/fadd", helpers.AsyncCheck(handlers.AddFloorHandler))
+	router.HandleFunc("/add/build", helpers.AsyncCheck(handlers.AddBuildHandler))
+	router.HandleFunc("/add/floor", helpers.AsyncCheck(handlers.AddFloorHandler))
+	router.HandleFunc("/add/switch", helpers.AsyncCheck(handlers.AddSwitchHandler))
 
 	router.HandleFunc("/savepos", helpers.AsyncCheck(handlers.SavePos))
 
-	router.HandleFunc("/swupdate", helpers.AsyncCheck(handlers.UpdateSwitchHandler))
+	router.HandleFunc("/update/switch", helpers.AsyncCheck(handlers.UpdateSwitchHandler))
 
 	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handlers.PlanUpdateHandler))
 
-	router.HandleFunc("/bdel", helpers.AsyncCheck(handlers.BuildDelHandler))
-	router.HandleFunc("/fdel", helpers.AsyncCheck(handlers.FloorDelHandler))
-	router.HandleFunc("/swdel", helpers.AsyncCheck(handlers.SwitchDelHandler))
+	router.HandleFunc("/delete/build", helpers.AsyncCheck(handlers.DeleteBuildHandler))
+	router.HandleFunc("/delete/floor", helpers.AsyncCheck(handlers.DeleteFloorHandler))
+	router.HandleFunc("/delete/switch", helpers.AsyncCheck(handlers.DeleteSwitchHandler))
 
 	router.HandleFunc("/list", helpers.AuthCheck(handlers.ListHandler))
 	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangePage)).Methods("GET")

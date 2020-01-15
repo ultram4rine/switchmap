@@ -7,7 +7,7 @@ function bAdd() {
     alert("Пустое значение");
   } else if (reg.test(addr)) {
     $.ajax({
-      url: "/badd",
+      url: "/add/build",
       method: "POST",
       data: {
         name: name,
@@ -33,7 +33,7 @@ function fAdd() {
     alert("Пустое значение");
   } else if (reg.test(num)) {
     $.ajax({
-      url: "/fadd",
+      url: "/add/floor",
       method: "POST",
       data: {
         build: build,
@@ -60,7 +60,7 @@ function swAdd() {
     alert("Пустое значение");
   } else {
     $.ajax({
-      url: "/swadd",
+      url: "/add/switch",
       method: "POST",
       data: {
         name: name,
