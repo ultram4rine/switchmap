@@ -55,45 +55,48 @@ func main() {
 	defer server.Core.DBsrc.Close()
 
 	router := mux.NewRouter()
-
-	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public/"))))
-
-	router.PathPrefix("/private/").HandlerFunc(handlers.PrivateHandler)
-
-	router.HandleFunc("/admin/{type}", auth.Handler)
-
-	router.HandleFunc("/map", helpers.AuthCheck(handlers.MapHandler))
-	router.HandleFunc("/map/{build}", helpers.AuthCheck(handlers.BuildHandler))
-	router.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handlers.FloorHandler))
-
-	router.HandleFunc("/vis", helpers.AuthCheck(handlers.VisHandler))
-	router.HandleFunc("/getmap", helpers.AsyncCheck(handlers.GetMap)).Methods("GET")
-
-	router.HandleFunc("/add/build", helpers.AsyncCheck(handlers.AddBuildHandler))
-	router.HandleFunc("/add/floor", helpers.AsyncCheck(handlers.AddFloorHandler))
-	router.HandleFunc("/add/switch", helpers.AsyncCheck(handlers.AddSwitchHandler))
-
-	router.HandleFunc("/savepos", helpers.AsyncCheck(handlers.SavePos))
-
-	router.HandleFunc("/update/switch", helpers.AsyncCheck(handlers.UpdateSwitchHandler))
-
-	router.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handlers.PlanUpdateHandler))
-
-	router.HandleFunc("/delete/build", helpers.AsyncCheck(handlers.DeleteBuildHandler))
-	router.HandleFunc("/delete/floor", helpers.AsyncCheck(handlers.DeleteFloorHandler))
-	router.HandleFunc("/delete/switch", helpers.AsyncCheck(handlers.DeleteSwitchHandler))
-
-	router.HandleFunc("/list", helpers.AuthCheck(handlers.ListHandler))
-	router.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangePage)).Methods("GET")
-	router.HandleFunc("/list/change/{switch}", helpers.AsyncCheck(handlers.ChangeHandler)).Methods("POST")
-
-	router.HandleFunc("/logs", helpers.AuthCheck(handlers.LogsHandler))
-
-	router.HandleFunc("/", handlers.RootHandler)
+	setRoutes(router)
 
 	err = http.ListenAndServe(":"+server.Conf.Server.Port, router)
 	if err != nil {
 		log.SetOutput(os.Stdout)
 		log.Fatal("Error starting server: ", err)
 	}
+}
+
+func setRoutes(r *mux.Router) {
+	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public/"))))
+
+	r.PathPrefix("/private/").HandlerFunc(handlers.PrivateHandler)
+
+	r.HandleFunc("/admin/{type}", auth.Handler)
+
+	r.HandleFunc("/map", helpers.AuthCheck(handlers.MapHandler))
+	r.HandleFunc("/map/{build}", helpers.AuthCheck(handlers.BuildHandler))
+	r.HandleFunc("/map/{build}/{floor}", helpers.AuthCheck(handlers.FloorHandler))
+
+	r.HandleFunc("/vis", helpers.AuthCheck(handlers.VisHandler))
+	r.HandleFunc("/getmap", helpers.AsyncCheck(handlers.GetMap)).Methods("GET")
+
+	r.HandleFunc("/add/build", helpers.AsyncCheck(handlers.AddBuildHandler))
+	r.HandleFunc("/add/floor", helpers.AsyncCheck(handlers.AddFloorHandler))
+	r.HandleFunc("/add/switch", helpers.AsyncCheck(handlers.AddSwitchHandler))
+
+	r.HandleFunc("/savepos", helpers.AsyncCheck(handlers.SavePos))
+
+	r.HandleFunc("/update/switch", helpers.AsyncCheck(handlers.UpdateSwitchHandler))
+
+	r.HandleFunc("/planupdate/{build}/{floor}", helpers.AuthCheck(handlers.PlanUpdateHandler))
+
+	r.HandleFunc("/delete/build", helpers.AsyncCheck(handlers.DeleteBuildHandler))
+	r.HandleFunc("/delete/floor", helpers.AsyncCheck(handlers.DeleteFloorHandler))
+	r.HandleFunc("/delete/switch", helpers.AsyncCheck(handlers.DeleteSwitchHandler))
+
+	r.HandleFunc("/list", helpers.AuthCheck(handlers.ListHandler))
+	r.HandleFunc("/list/change/{switch}", helpers.AuthCheck(handlers.ChangePage)).Methods("GET")
+	r.HandleFunc("/list/change/{switch}", helpers.AsyncCheck(handlers.ChangeHandler)).Methods("POST")
+
+	r.HandleFunc("/logs", helpers.AuthCheck(handlers.LogsHandler))
+
+	r.HandleFunc("/", handlers.RootHandler)
 }
