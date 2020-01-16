@@ -29,7 +29,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 	sw.Build = r.FormValue("build")
 	sw.Floor = r.FormValue("floor")
 
-	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetMainSwData(sw.Name)
+	sw.IP, sw.MAC, sw.Upswitch, sw.Port, err = helpers.GetMainSwData(sw.Name)
 	if err != nil {
 		log.Printf("Error getting switch data: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -61,7 +61,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		sw.Postop = strconv.Itoa(planImage.Height / 2)
 		sw.Posleft = strconv.Itoa(planImage.Width / 2)
 
-		_, err = server.Core.DBdst.Exec("INSERT INTO switches (name, ip, mac, revision, serial, model, build, floor, upswitch, postop, posleft) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Postop, sw.Posleft)
+		_, err = server.Core.DBdst.Exec("INSERT INTO switches (name, ip, mac, revision, serial, model, build, floor, upswitch, port, postop, posleft) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", sw.Name, sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Port, sw.Postop, sw.Posleft)
 		if err != nil {
 			log.Printf("Error adding %s switch into database: %s", sw.Name, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -77,7 +77,7 @@ func AddSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, model, build, floor, upswitch) = ($1, $2, $3, $4, $5, $6, $7, $8) WHERE name = $9", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Name)
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, model, build, floor, upswitch, port) = ($1, $2, $3, $4, $5, $6, $7, $8, $9) WHERE name = $10", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Model, sw.Build, sw.Floor, sw.Upswitch, sw.Port, sw.Name)
 	if err != nil {
 		log.Printf("Error updating %s switch into database: %s", sw.Name, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -153,7 +153,7 @@ func UpdateSwitchHandler(w http.ResponseWriter, r *http.Request) {
 
 	name := r.FormValue("name")
 
-	sw.IP, sw.MAC, sw.Upswitch, err = helpers.GetMainSwData(name)
+	sw.IP, sw.MAC, sw.Upswitch, sw.Port, err = helpers.GetMainSwData(name)
 	if err != nil {
 		log.Printf("Error getting %s switch data to update: %s", name, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -176,7 +176,7 @@ func UpdateSwitchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting serial number and revision of %s switch to update: %s", sw.Name, err)
 	}
 
-	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, upswitch) = ($1, $2, $3, $4, $5) where name = $6", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Name)
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, revision, serial, upswitch, port) = ($1, $2, $3, $4, $5, $6) where name = $7", sw.IP, sw.MAC, sw.Revision, sw.Serial, sw.Upswitch, sw.Port, sw.Name)
 	if err != nil {
 		log.Printf("Error updating %s switch data: %s", sw.Name, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

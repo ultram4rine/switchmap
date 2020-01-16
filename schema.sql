@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS switches (
     build STRING NOT NULL,
     floor STRING NOT NULL,
     upswitch STRING NULL,
+    port STRING NULL,
     postop STRING NOT NULL,
     posleft STRING NOT NULL
 );

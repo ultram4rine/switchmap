@@ -36,6 +36,7 @@ type Switch struct {
 	Build    string `db:"build"`
 	Floor    string `db:"floor"`
 	Upswitch string `db:"upswitch"`
+	Port     string `db:"port"`
 	Postop   string `db:"postop"`
 	Posleft  string `db:"posleft"`
 }
@@ -52,24 +53,25 @@ type ViewData struct {
 }
 
 // GetMainSwData gets IP, MAC and UpSwitchName of switch from source database.
-func GetMainSwData(name string) (ip, mac, upswitchname string, err error) {
+func GetMainSwData(name string) (ip, mac, upswitchname, port string, err error) {
 	type netmapSwitch struct {
 		Name         string         `db:"name"`
 		IP           string         `db:"ip"`
 		MAC          string         `db:"mac"`
 		UpSwitchID   sql.NullString `db:"switch_id"`
 		UpSwitchName string
+		Port         sql.NullString `db:"port"`
 	}
 
 	var sw netmapSwitch
 
-	err = server.Core.DBsrc.Get(&sw, "SELECT ip, mac, switch_id FROM unetmap_host WHERE name = ? AND ip IS NOT NULL", name)
+	err = server.Core.DBsrc.Get(&sw, "SELECT ip, mac, switch_id, port FROM unetmap_host WHERE name = ? AND ip IS NOT NULL", name)
 	if err == sql.ErrNoRows {
-		return "", "", "", fmt.Errorf("can't find switch with %s name", name)
+		return "", "", "", "", fmt.Errorf("can't find switch with %s name", name)
 	}
 	if err != nil {
 		log.Printf("Error getting IP, MAC and UpSwitchID for %s switch from netmap database: %s", name, err)
-		return "", "", "", err
+		return "", "", "", "", err
 	}
 
 	if sw.UpSwitchID.Valid {
@@ -90,12 +92,12 @@ func GetMainSwData(name string) (ip, mac, upswitchname string, err error) {
 	intIP, err := strconv.Atoi(sw.IP)
 	if err != nil {
 		log.Printf("Error converting string IP to int IP: %s", err)
-		return "", "", "", err
+		return "", "", "", "", err
 	}
 
 	realIP := fmt.Sprintf("%d.%d.%d.%d", byte(intIP>>24), byte(intIP>>16), byte(intIP>>8), byte(intIP))
 
-	return realIP, sw.MAC, sw.UpSwitchName, nil
+	return realIP, sw.MAC, sw.UpSwitchName, sw.Port.String, nil
 }
 
 const (

@@ -209,7 +209,7 @@ func FloorHandler(w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat(planPath); err == nil {
 		var switches []helpers.Switch
 
-		err := server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, upswitch, build, floor, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
+		err := server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, build, floor, upswitch, port, postop, posleft FROM switches WHERE build = $1 AND floor = $2", build, floor)
 		if err != nil {
 			log.Printf("Error getting switches for show it on floor: %s", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -251,7 +251,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 	var switches []helpers.Switch
 
-	err = server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model, upswitch, build, floor FROM switches")
+	err = server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model,  build, floor, upswitch, portFROM switches")
 	if err != nil {
 		log.Printf("Error getting switches to show list: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -298,7 +298,7 @@ func ChangePage(w http.ResponseWriter, r *http.Request) {
 
 	var sw helpers.Switch
 
-	err = server.Core.DBdst.Get(&sw, "SELECT ip, mac, revision, serial, model, upswitch FROM switches WHERE name = $1", swName)
+	err = server.Core.DBdst.Get(&sw, "SELECT ip, mac, revision, serial, model, upswitch, port FROM switches WHERE name = $1", swName)
 	if err != nil {
 		log.Printf("Error getting info about %s switch: %s", swName, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -335,8 +335,9 @@ func ChangeHandler(w http.ResponseWriter, r *http.Request) {
 	ip := r.FormValue("IP")
 	mac := r.FormValue("MAC")
 	upSwitch := r.FormValue("upswitch")
+	port := r.FormValue("port")
 
-	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, upswitch) = ($1, $2, $3) WHERE name = $4", ip, mac, upSwitch, sw)
+	_, err = server.Core.DBdst.Exec("UPDATE switches SET (ip, mac, upswitch, port) = ($1, $2, $3, $4) WHERE name = $5", ip, mac, upSwitch, port, sw)
 	if err != nil {
 		log.Printf("Error changing %s switch data: %s", sw, err)
 	}
