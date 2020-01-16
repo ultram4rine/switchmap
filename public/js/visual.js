@@ -1,17 +1,14 @@
-$.get("/getmap", function(resp) {
+$.get("/getmap", resp => {
   let map = new Map(Object.entries(resp));
 
   let container = document.getElementById("viz");
   let nodes = new vis.DataSet();
   let edges = new vis.DataSet();
 
-  map.forEach(function(_value, key) {
+  map.forEach((value, key) => {
     nodes.add([{ id: key, label: key }]);
-  });
-
-  map.forEach(function(value, key) {
     if (value !== null) {
-      value.forEach(function(val) {
+      value.forEach(val => {
         edges.add([{ from: key, to: val }]);
       });
     }
