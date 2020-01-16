@@ -251,7 +251,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 	var switches []helpers.Switch
 
-	err = server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model,  build, floor, upswitch, portFROM switches")
+	err = server.Core.DBdst.Select(&switches, "SELECT name, ip, mac, serial, model,  build, floor, upswitch, port FROM switches")
 	if err != nil {
 		log.Printf("Error getting switches to show list: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
