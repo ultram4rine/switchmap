@@ -1,37 +1,37 @@
-$.get("/getmap", resp => {
-  let map = new Map(Object.entries(resp));
+$.ajax({
+  url: "/getmap",
+  success: resp => {
+    let container = document.getElementById("viz");
+    let nodes = new vis.DataSet();
+    let edges = new vis.DataSet();
 
-  let container = document.getElementById("viz");
-  let nodes = new vis.DataSet();
-  let edges = new vis.DataSet();
+    resp.forEach(val => {
+      nodes.add([{ id: val.Name, label: val.Name }]);
+      edges.add([{ from: val.Upswitch, to: val.Name, label: val.Port }]);
+    });
 
-  map.forEach((value, key) => {
-    nodes.add([{ id: key, label: key }]);
-    if (value !== null) {
-      value.forEach(val => {
-        edges.add([{ from: key, to: val }]);
-      });
-    }
-  });
+    let data = {
+      nodes: nodes,
+      edges: edges
+    };
+    let options = {
+      physics: { enabled: false },
+      nodes: { physics: false },
+      edges: {
+        arrows: { to: { enabled: true } },
+        color: { color: "#181616" }
+      }
+    };
 
-  let data = {
-    nodes: nodes,
-    edges: edges
-  };
-  let options = {
-    physics: { enabled: false },
-    nodes: { physics: false },
-    edges: {
-      arrows: { middle: { enabled: true } },
-      color: { color: "#181616" }
-    }
-  };
+    options.nodes = {
+      color: "rgb(255, 140, 0)",
+      font: { color: "#181616", face: "sans-serif" },
+      shape: "box"
+    };
 
-  options.nodes = {
-    color: "rgb(255, 140, 0)",
-    font: { color: "#181616", face: "sans-serif" },
-    shape: "box"
-  };
-
-  let network = new vis.Network(container, data, options);
+    let network = new vis.Network(container, data, options);
+  },
+  error: jqXHR => {
+    alert(jqXHR.responseText);
+  }
 });

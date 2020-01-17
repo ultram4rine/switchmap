@@ -52,26 +52,28 @@ func SavePos(w http.ResponseWriter, r *http.Request) {
 
 // GetMap handles getting map of switches and their downswitches.
 func GetMap(w http.ResponseWriter, r *http.Request) {
-	visMap, err := helpers.MakeVisMap()
+	var switches []helpers.Switch
+
+	err := server.Core.DBdst.Select(&switches, "SELECT name, upswitch, port FROM switches")
 	if err != nil {
-		log.Printf("Error making map for visualization: %s", err)
-		http.Redirect(w, r, "/map", http.StatusFound)
+		log.Printf("Error getting switches to show on network visualization: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	visMapJSON, err := json.Marshal(visMap)
+	visJSON, err := json.Marshal(switches)
 	if err != nil {
 		log.Printf("Error marshalling map for sending: %s", err)
-		http.Redirect(w, r, "/map", http.StatusFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 
-	_, err = w.Write(visMapJSON)
+	_, err = w.Write(visJSON)
 	if err != nil {
 		log.Printf("Error writing map of switches for visualization: %s", err)
-		http.Redirect(w, r, "/map", http.StatusFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
