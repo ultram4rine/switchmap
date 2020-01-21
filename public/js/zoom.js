@@ -61,7 +61,7 @@ $(document).ready(() => {
     apply(el, transform);
   });
 
-  el.addEventListener("mousedown", function(e) {
+  const mouseWheelHandler = function(e) {
     if (e.preventDefault) e.preventDefault();
 
     let style = window.getComputedStyle(el),
@@ -89,6 +89,15 @@ $(document).ready(() => {
     });
 
     return false;
+  };
+
+  el.addEventListener("mousedown", mouseWheelHandler);
+
+  $(".switch").on("mousedown", function(e) {
+    el.removeEventListener("mousedown", mouseWheelHandler);
+  });
+  $(".switch").on("mouseup", function(e) {
+    el.addEventListener("mousedown", mouseWheelHandler);
   });
 
   $(document).on("mouseup", function() {
