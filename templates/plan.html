@@ -9,8 +9,7 @@
 {{ define "topScripts" }}
 <script type="text/javascript" src="/public/node_modules/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="/public/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-<script type="text/javascript" src="/public/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js">
-</script>
+<script type="text/javascript" src="/public/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
 {{ end }}
 
 {{ define "navLinks" }}
@@ -37,7 +36,8 @@
 {{ define "content" }}
 <div class="background">
   <div id="dragplan" class="plan">
-    <img id="image" src="/private/plans/{{ .Build}}{{ .Floor}}.png" ; max-height:100%; max-weidth:100% />
+    <img data-wheel-zoom id="image" src="/private/plans/{{ .Build}}{{ .Floor}}.png" ; max-height:100%;
+      max-weidth:100% />
     {{ range.Swits }}
     <div class="switch" style="top: {{ .Postop}}px; left: {{ .Posleft}}px;">
       <a href="/list/change/{{ .Name}}">
@@ -97,5 +97,4 @@
 <script type="text/javascript" src="/public/js/adding.js"></script>
 <script type="text/javascript" src="/public/js/blink.js"></script>
 <script type="text/javascript" src="/public/js/zoom.js"></script>
-<script type="text/javascript" src="/public/js/dragplan.js"></script>
 {{ end }}

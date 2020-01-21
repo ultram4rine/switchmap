@@ -1,52 +1,97 @@
-let elem = $("#dragplan");
-let img = $("image");
-let scale = 0.3;
-let xLast = -(img.naturalWidth * scale) / 2;
-let yLast = -(img.naturalHeight * scale) / 2;
-let xImage = 0;
-let yImage = 0;
+$(document).ready(() => {
+  const el = document.getElementById("dragplan");
 
-function addOnWheel(elem, handler) {
-  if (elem.addEventListener) {
-    if ("onwheel" in document) {
-      elem.addEventListener("wheel", handler);
-    } else if ("onmousewheel" in document) {
-      elem.addEventListener("mousewheel", handler);
+  const addOnWheel = (elem, handler) => {
+    if (elem.addEventListener) {
+      if ("onwheel" in document) {
+        elem.addEventListener("wheel", handler);
+      } else if ("onmousewheel" in document) {
+        elem.addEventListener("mousewheel", handler);
+      } else {
+        elem.addEventListener("MozMousePixelScroll", handler);
+      }
     } else {
-      elem.addEventListener("MozMousePixelScroll", handler);
+      elem.attachEvent("onmousewheel", handler);
     }
-  } else {
-    text.attachEvent("onmousewheel", handler);
-  }
-}
+  };
 
-addOnWheel(element, function(e) {
-  e.preventDefault();
+  const apply = (el, transform) => {
+    el.style.webkitTransform = transform;
+    el.style.mozTransform = transform;
+    el.style.transform = transform;
+  };
 
-  let delta = e.deltaY || e.detail || e.wheelDelta;
+  let scale = el.getBoundingClientRect().width / el.offsetWidth,
+    oldScale;
 
-  let xScreen = e.pageX - $(this).offset().left;
-  let yScreen = e.pageY - $(this).offset().top;
+  let rect, parentRect;
+  setTimeout(() => {
+    rect = el.getBoundingClientRect();
+  }, 0);
 
-  xImage = xImage + (xScreen - xLast) / scale;
-  yImage = yImage + (yScreen - yLast) / scale;
+  addOnWheel(el, e => {
+    e.preventDefault();
 
-  if (delta > 0) {
-    scale = scale <= 0.305 ? 0.3 : (scale -= 0.05);
-  } else {
-    scale = scale >= 1.795 ? 1.8 : (scale += 0.05);
-  }
+    let pgX = e.pageX,
+      pgY = e.pageY;
 
-  let xNew = (xScreen - xImage) / scale;
-  let yNew = (yScreen - yImage) / scale;
+    parentRect = el.parentNode.getBoundingClientRect();
+    rect = el.getBoundingClientRect();
 
-  xLast = xScreen;
-  yLast = yScreen;
+    let delta = Math.max(-1, Math.min(1, e.deltaY || e.detail || e.wheelDelta));
+    oldScale = scale;
+    scale -= delta / 10;
+    if (scale < 0.3) {
+      scale = 0.3;
+    }
+    if (scale > 1.8) {
+      scale = 1.8;
+    }
 
-  $(this)
-    .css(
-      "-moz-transform",
-      "scale(" + scale + ") translate(" + xNew + "px, " + yNew + "px)"
-    )
-    .css("-moz-transform-origin", xImage + "px " + yImage + "px");
+    let xPercent = ((pgX - rect.left) / rect.width).toFixed(2);
+    let yPercent = ((pgY - rect.top) / rect.height).toFixed(2);
+    let left = Math.round(
+      pgX - parentRect.left - xPercent * ((rect.width * scale) / oldScale)
+    );
+    let top = Math.round(
+      pgY - parentRect.top - yPercent * ((rect.height * scale) / oldScale)
+    );
+
+    let transform = `translate(${left}px, ${top}px) scale(${scale})`;
+    apply(el, transform);
+  });
+
+  el.addEventListener("mousedown", function(e) {
+    if (e.preventDefault) e.preventDefault();
+
+    let style = window.getComputedStyle(el),
+      matrix = new WebKitCSSMatrix(
+        style.transform || style.webkitTransform || style.mozTransform
+      );
+    let lastTransform = { dx: matrix.m41, dy: matrix.m42 };
+
+    let lastOffset = lastTransform;
+    let lastOffsetX = lastOffset ? lastOffset.dx : 0,
+      lastOffsetY = lastOffset ? lastOffset.dy : 0;
+
+    let startX = e.pageX - lastOffsetX,
+      startY = e.pageY - lastOffsetY;
+
+    $(document).on("mousemove", function(event) {
+      if (event.preventDefault) event.preventDefault();
+
+      let scale = el.getBoundingClientRect().width / el.offsetWidth;
+      let newDx = event.pageX - startX,
+        newDy = event.pageY - startY;
+
+      apply(el, `translate(${newDx}px, ${newDy}px) scale(${scale})`);
+      lastTransform = { dx: newDx, dy: newDy };
+    });
+
+    return false;
+  });
+
+  $(document).on("mouseup", function() {
+    $(this).off("mousemove");
+  });
 });
