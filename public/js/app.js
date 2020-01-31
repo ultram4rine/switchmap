@@ -91,10 +91,10 @@ let Clicker = {
 
     this.name = this.$element.attr("id");
     var nameheight =
-      parseInt($(".switch #" + this.name + ".name").css("height")) + 109;
+      parseInt($(`.switch #${this.name}.name`).css("height")) + 109;
 
-    if ($(".switch #" + this.name + ".cir").css("width") == "1px") {
-      $(".switch #" + this.name + ".cir").animate(
+    if ($(`.switch #${this.name}.cir`).css("width") === "1px") {
+      $(`.switch #${this.name}.cir`).animate(
         {
           width: "+=199px",
           height: "+=199px"
@@ -102,21 +102,21 @@ let Clicker = {
         300
       );
 
-      $(".switch #" + this.name + " img").animate(
+      $(`.switch #${this.name} img`).animate(
         {
           marginTop: "-95px"
         },
         300
       );
 
-      $(".switch #" + this.name + ".name").animate(
+      $(`.switch #${this.name}.name`).animate(
         {
           marginTop: "100px"
         },
         300
       );
 
-      $(".switch #" + this.name + ".change").animate(
+      $(`.switch #${this.name}.change`).animate(
         {
           opacity: 0.8,
           marginTop: "-112px"
@@ -124,7 +124,7 @@ let Clicker = {
         100
       );
 
-      $(".switch #" + this.name + ".blink").animate(
+      $(`.switch #${this.name}.blink`).animate(
         {
           opacity: 0.8,
           marginTop: nameheight + "px"
@@ -132,7 +132,7 @@ let Clicker = {
         100
       );
 
-      $(".switch #" + this.name + ".reload").animate(
+      $(`.switch #${this.name}.reload`).animate(
         {
           opacity: 0.8,
           marginLeft: "-82px"
@@ -140,7 +140,7 @@ let Clicker = {
         100
       );
 
-      $(".switch #" + this.name + ".download").animate(
+      $(`.switch #${this.name}.download`).animate(
         {
           opacity: 0.8,
           marginLeft: "153px"
@@ -148,7 +148,7 @@ let Clicker = {
         100
       );
     } else {
-      $(".switch #" + this.name + ".download").animate(
+      $(`.switch #${this.name}.download`).animate(
         {
           opacity: 0,
           marginLeft: "0"
@@ -156,7 +156,7 @@ let Clicker = {
         50
       );
 
-      $(".switch #" + this.name + ".reload").animate(
+      $(`.switch #${this.name}.reload`).animate(
         {
           opacity: 0,
           marginLeft: "0"
@@ -164,7 +164,7 @@ let Clicker = {
         50
       );
 
-      $(".switch #" + this.name + ".blink").animate(
+      $(`.switch #${this.name}.blink`).animate(
         {
           opacity: 0,
           marginTop: "0"
@@ -172,7 +172,7 @@ let Clicker = {
         50
       );
 
-      $(".switch #" + this.name + ".change").animate(
+      $(`.switch #${this.name}.change`).animate(
         {
           opacity: 0,
           marginTop: "0"
@@ -180,7 +180,7 @@ let Clicker = {
         50
       );
 
-      $(".switch #" + this.name + ".cir").animate(
+      $(`.switch #${this.name}.cir`).animate(
         {
           width: "-=199px",
           height: "-=199px"
@@ -188,14 +188,14 @@ let Clicker = {
         300
       );
 
-      $(".switch #" + this.name + " img").animate(
+      $(`.switch #${this.name} img`).animate(
         {
           marginTop: "0"
         },
         300
       );
 
-      $(".switch #" + this.name + ".name").animate(
+      $(`.switch #${this.name}.name`).animate(
         {
           marginTop: "0"
         },

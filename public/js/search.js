@@ -15,12 +15,11 @@ $("form input").keyup(function() {
         if (
           $(this)
             .find("td#name")
-            .is(":contains('" + data[j] + "')")
+            .is(`:contains('${data[j]}')`)
         ) {
           return true;
         }
       }
-
       return false;
     })
     .show();
