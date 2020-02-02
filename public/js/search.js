@@ -1,3 +1,7 @@
+import { $ } from "jquery";
+
+window.$ = $;
+
 $("form input").keyup(function() {
   let data = this.value.split(" ");
   let rows = $("tbody").find("tr");

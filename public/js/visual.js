@@ -1,3 +1,8 @@
+import { $ } from "jquery";
+import { vis } from "vis-network";
+
+window.$ = $;
+
 $.ajax({
   url: "/getmap",
   success: resp => {

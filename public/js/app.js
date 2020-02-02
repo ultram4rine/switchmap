@@ -1,3 +1,8 @@
+import { $ } from "jquery";
+import { draggable } from "jquery-ui-dist";
+
+window.$ = $;
+
 function reload(elem) {
   sw_name = $(elem).attr("id");
 

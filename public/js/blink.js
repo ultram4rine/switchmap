@@ -1,3 +1,7 @@
+import { $ } from "jquery";
+
+window.$ = $;
+
 setInterval(function() {
   let elem = $(".blink span");
   let str = elem.text();

@@ -1,3 +1,7 @@
+import { $ } from "jquery";
+
+window.$ = $;
+
 $(document).ready(() => {
   const el = document.getElementById("dragplan");
 

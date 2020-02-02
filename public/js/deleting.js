@@ -1,3 +1,7 @@
+import { $ } from "jquery";
+
+window.$ = $;
+
 function bdel(element) {
   let name = $(element)
     .parent()

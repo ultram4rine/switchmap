@@ -1,3 +1,7 @@
+import { $ } from "jquery";
+
+window.$ = $;
+
 function bAdd() {
   let name = document.getElementById("name").value;
   let addr = document.getElementById("addr").value;
