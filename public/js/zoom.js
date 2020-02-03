@@ -1,6 +1,4 @@
-import { $ } from "jquery";
-
-window.$ = $;
+import "/public/node_modules/jquery/dist/jquery.min.js";
 
 $(document).ready(() => {
   const el = document.getElementById("dragplan");

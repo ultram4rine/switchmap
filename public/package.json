@@ -5,6 +5,6 @@
     "jquery": "^3.4.1",
     "jquery-ui-dist": "^1.12.1",
     "jquery-ui-touch-punch": "^0.2.3",
-    "vis-network": "^6.3.1"
+    "vis-network": "^6.5.2"
   }
 }

@@ -1,8 +1,6 @@
-import { $ } from "jquery";
+import "/public/node_modules/jquery/dist/jquery.min.js";
 
-window.$ = $;
-
-function bAdd() {
+$("#badd").on("click", function() {
   let name = document.getElementById("name").value;
   let addr = document.getElementById("addr").value;
   let reg = /^b[1-9]?[0-9]$/;
@@ -25,7 +23,7 @@ function bAdd() {
       }
     });
   }
-}
+});
 
 function fAdd() {
   let href = location.href.split("/");

@@ -1,6 +1,4 @@
-import { $ } from "jquery";
-
-window.$ = $;
+import "/public/node_modules/jquery/dist/jquery.min.js";
 
 $("form input").keyup(function() {
   let data = this.value.split(" ");

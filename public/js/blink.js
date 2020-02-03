@@ -1,8 +1,6 @@
-import { $ } from "jquery";
+import "/public/node_modules/jquery/dist/jquery.min.js";
 
-window.$ = $;
-
-setInterval(function() {
+setInterval(() => {
   let elem = $(".blink span");
   let str = elem.text();
 

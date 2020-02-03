@@ -1,7 +1,5 @@
-import { $ } from "jquery";
-import { vis } from "vis-network";
-
-window.$ = $;
+import "/public/node_modules/jquery/dist/jquery.min.js";
+import "/public/node_modules/vis-network/dist/vis-network.min.js";
 
 $.ajax({
   url: "/getmap",

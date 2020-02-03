@@ -1,9 +1,7 @@
-import { $ } from "jquery";
+import "/public/node_modules/jquery/dist/jquery.min.js";
 
-window.$ = $;
-
-function bdel(element) {
-  let name = $(element)
+$("#bdel").on("click", function() {
+  let name = $(this)
     .parent()
     .children("a")
     .children(".name")
@@ -22,7 +20,7 @@ function bdel(element) {
       location.reload();
     }
   });
-}
+});
 
 function fdel(element) {
   let href = location.href.split("/");

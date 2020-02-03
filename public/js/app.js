@@ -1,7 +1,5 @@
-import { $ } from "jquery";
-import { draggable } from "jquery-ui-dist";
-
-window.$ = $;
+import "/public/node_modules/jquery/dist/jquery.min.js";
+import "/public/node_modules/jquery-ui-dist/jquery-ui.min.js";
 
 function reload(elem) {
   sw_name = $(elem).attr("id");

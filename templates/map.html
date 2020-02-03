@@ -7,12 +7,11 @@
 {{ end }}
 
 {{ define "topScripts" }}
-<script type="module" src="/public/node_modules/jquery/dist/jquery.min.js"></script>
 {{ end }}
 
 {{ define "navLinks" }}
 <li>
-  <button class="button" onclick="bAdd()">Добавить корпус</button>
+  <button id="badd" class="button">Добавить корпус</button>
   <ul class="subnavbar">
     <li>
       <input id="name" type="text" placeholder="Имя" required name="name" autocomplete="off" />
@@ -29,7 +28,7 @@
 <div class="map">
   {{ range.Builds }}
   <div class="build">
-    <a class="delete" onclick="bdel(this)">X</a>
+    <a id="bdel" class="delete">X</a>
     <a href="map/{{ .Address}}">
       <div style="margin-top: 2px">
         <img src="/public/images/build.svg" />
@@ -42,6 +41,6 @@
 {{ end }}
 
 {{ define "bottomScripts" }}
-<script type="text/javascript" src="/public/js/adding.js"></script>
-<script type="text/javascript" src="/public/js/deleting.js"></script>
+<script async type="module" src="/public/js/adding.js"></script>
+<script async type="module" src="/public/js/deleting.js"></script>
 {{ end }}
