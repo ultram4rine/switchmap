@@ -14,4 +14,6 @@ trait BuildComponent {
   }
 }
 
-case class Build(id: Int, name: String, addr: String)
+case class Build(id: Int, name: String, addr: String) {
+  override def equals(that: Any): Boolean = false
+}

@@ -16,4 +16,6 @@ trait FloorComponent {
   }
 }
 
-case class Floor(id: Int, buildID: Int, number: Int)
+case class Floor(id: Int, buildID: Int, number: Int) {
+  override def equals(that: Any): Boolean = false
+}

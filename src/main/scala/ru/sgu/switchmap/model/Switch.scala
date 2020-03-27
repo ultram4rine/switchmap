@@ -47,4 +47,6 @@ case class Switch(
   port: Option[String],
   posTop: Int,
   posLeft: Int
-)
+) {
+  override def equals(that: Any): Boolean = false
+}
