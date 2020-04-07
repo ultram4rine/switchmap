@@ -3,6 +3,7 @@ package ru.sgu.switchmap
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.json._
 import org.scalatra.{FutureSupport, ScalatraBase}
+import org.slf4j.{Logger, LoggerFactory}
 import slick.jdbc.PostgresProfile.api._
 import ru.sgu.switchmap.model.{BuildComponent, FloorComponent, SwitchComponent}
 
@@ -13,6 +14,7 @@ trait SwitchMapRoutes
     with BuildComponent
     with FloorComponent
     with SwitchComponent {
+  val logger: Logger = LoggerFactory.getLogger(getClass)
   def db: Database
 
   protected implicit lazy val jsonFormats: Formats = DefaultFormats
@@ -31,5 +33,35 @@ trait SwitchMapRoutes
 
   get("/switches") {
     db.run(switches.sortBy(_.name.desc).result)
+  }
+
+  post("/build") {
+    var b: Build = parsedBody.extract[Build]
+
+    try {
+      db.run(DBIO.seq(builds += b))
+    } catch {
+      case ex: Exception => logger.error(ex.getMessage())
+    }
+  }
+
+  post("/floor") {
+    var f: Floor = parsedBody.extract[Floor]
+
+    try {
+      db.run(DBIO.seq(floors += f))
+    } catch {
+      case ex: Exception => logger.error(ex.getMessage())
+    }
+  }
+
+  post("/switch") {
+    var s: Switch = parsedBody.extract[Switch]
+
+    try {
+      db.run(DBIO.seq(switches += s))
+    } catch {
+      case ex: Exception => logger.error(ex.getMessage())
+    }
   }
 }
