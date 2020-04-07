@@ -17,8 +17,7 @@ class ScalatraBootstrap
   val db = Database.forConfig("switchmap")
 
   val createTables = DBIO.seq(
-    (builds.schema ++ floors.schema ++ switches.schema).createIfNotExists,
-    builds += (Build(1, "9 корпус", "b9"))
+    (builds.schema ++ floors.schema ++ switches.schema).createIfNotExists
   )
 
   override def init(context: ServletContext) {
