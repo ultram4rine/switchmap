@@ -16,13 +16,12 @@ class ScalatraBootstrap
 
   val db = Database.forConfig("switchmap")
 
-  val createTables = DBIO.seq(
-    (builds.schema ++ floors.schema ++ switches.schema).createIfNotExists
-  )
-
   override def init(context: ServletContext) {
     try {
-      db.run(createTables)
+      logger.info("Creating tables schemas")
+      db.run(builds.schema.create)
+      db.run(floors.schema.create)
+      db.run(switches.schema.create)
     } catch {
       case ex: Exception => logger.error(ex.getMessage())
     }
