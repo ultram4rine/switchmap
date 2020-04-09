@@ -27,6 +27,8 @@ class ScalatraBootstrap
       case ex: Exception => logger.error(ex.getMessage())
     }
 
+    context.setInitParameter("org.scalatra.cors.allowCredentials", "false")
+
     context.mount(new SwitchMapApp(db), "/*")
   }
 

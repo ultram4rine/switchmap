@@ -1,6 +1,7 @@
 package ru.sgu.switchmap
 
 import org.json4s.{DefaultFormats, Formats}
+import org.scalatra.CorsSupport
 import org.scalatra.json._
 import org.scalatra.{FutureSupport, ScalatraBase}
 import org.slf4j.{Logger, LoggerFactory}
@@ -10,6 +11,7 @@ import ru.sgu.switchmap.model.{BuildComponent, FloorComponent, SwitchComponent}
 trait SwitchMapRoutes
     extends ScalatraBase
     with FutureSupport
+    with CorsSupport
     with JacksonJsonSupport
     with BuildComponent
     with FloorComponent
@@ -18,6 +20,13 @@ trait SwitchMapRoutes
   def db: Database
 
   protected implicit lazy val jsonFormats: Formats = DefaultFormats
+
+  options("/*") {
+    response.setHeader(
+      "Access-Control-Allow-Origin",
+      request.getHeader("Origin")
+    )
+  }
 
   before() {
     contentType = formats("json")
