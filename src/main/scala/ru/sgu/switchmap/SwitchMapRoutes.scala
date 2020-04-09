@@ -6,7 +6,7 @@ import org.scalatra.json._
 import org.scalatra.{FutureSupport, ScalatraBase}
 import org.slf4j.{Logger, LoggerFactory}
 import slick.jdbc.PostgresProfile.api._
-import ru.sgu.switchmap.model.{BuildComponent, FloorComponent, SwitchComponent}
+import ru.sgu.switchmap.model._
 
 trait SwitchMapRoutes
     extends ScalatraBase
@@ -33,11 +33,20 @@ trait SwitchMapRoutes
   }
 
   get("/builds") {
-    db.run(builds.sortBy(_.addr.desc).result)
+    db.run(
+      builds.result
+        .map(b =>
+          b.sortWith((b1, b2) =>
+            (b1.addr.substring(1).toInt < b2.addr.substring(1).toInt)
+          )
+        )
+    )
   }
 
-  get("/floors") {
-    db.run(floors.sortBy(_.number.desc).result)
+  get("/build/:addr/floors") {
+    val addr = params("addr")
+
+    db.run(floors.filter(_.buildAddr === addr).sortBy(_.number.asc).result)
   }
 
   get("/switches") {
