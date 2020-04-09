@@ -1,27 +1,78 @@
 <template>
   <div id="home">
-    <div v-for="(build, i) in builds" :key="i">
-      <v-card class="d-inline-block mx-auto" max-width="344" outlined>
-        <v-list-item two-line>
-          <v-list-item-content>
-            <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ build.floors }} floors, {{ build.switches }} switches</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
+    <v-row no-gutters dense>
+      <v-col v-for="build in builds" :key="build.addr" :cols="3">
+        <v-card class="ma-1" outlined>
+          <v-list-item two-line>
+            <v-list-item-content>
+              <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
+              <v-list-item-subtitle>{{ build.floors }} floors, {{ build.switches }} switches</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
 
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              small
+              color="primary"
+              @click="addFloorForm = !addFloorForm; floorBuildName = build.name; floorBuildAddr = build.addr"
+            >Add floor</v-btn>
+            <v-btn small color="primary" :to="build.addr">Go</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row no-gutters>
+      <v-card class="ma-1">
+        <v-btn color="error" @click="addBuildForm = !addBuildForm">Add build</v-btn>
+      </v-card>
+    </v-row>
+
+    <v-overlay :value="addBuildForm">
+      <v-card>
+        <v-toolbar>
+          <v-toolbar-title>New build</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="addBuildForm = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-form ref="form">
+            <v-text-field v-model="name" label="Name" required></v-text-field>
+            <v-text-field v-model="addr" label="Address" required></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
         <v-card-actions>
-          <v-btn text>Go</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="success" @click="addBuild">Add</v-btn>
         </v-card-actions>
       </v-card>
-    </div>
+    </v-overlay>
 
-    <v-card class="d-inline-block mx-auto" max-width="344" outlined>
-      <v-list-item two-line>
-        <v-list-item-content>
-          <v-list-item-title class="headline mb-1">New build</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-    </v-card>
+    <v-overlay :value="addFloorForm">
+      <v-card>
+        <v-toolbar>
+          <v-toolbar-title>New floor</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="addFloorForm = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-form ref="form">
+            <v-text-field type="number" v-model="number" label="Number" required></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="success" @click="addFloor">Add</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-overlay>
   </div>
 </template>
 
@@ -32,7 +83,18 @@ export default {
   data() {
     return {
       builds: null,
-      endpoint: "http://localhost:8080/builds"
+      buildsEndpoint: "http://localhost:8080/builds",
+
+      addBuildForm: false,
+      addBuildEndpoint: "http://localhost:8080/build",
+      name: "",
+      addr: "",
+
+      addFloorForm: false,
+      addFloorFormEndpoint: "http://localhost:8080/floor",
+      number: "",
+      floorBuildName: "",
+      floorBuildAddr: ""
     };
   },
 
@@ -43,13 +105,45 @@ export default {
   methods: {
     getAllBuilds() {
       axios
-        .get(this.endpoint, { crossDomain: true })
+        .get(this.buildsEndpoint, { crossDomain: true })
         .then(response => {
           this.builds = response.data;
         })
         .catch(error => {
           console.log("-----error-------");
           console.log(error);
+        });
+    },
+
+    addBuild() {
+      axios
+        .post(this.addBuildEndpoint, {
+          name: this.name,
+          addr: this.addr
+        })
+        .then(() => {
+          this.getAllBuilds();
+          this.addBuildForm = false;
+        })
+        .catch(error => {
+          alert(error);
+        });
+    },
+
+    addFloor(event) {
+      event.get;
+      axios
+        .post(this.addFloorFormEndpoint, {
+          number: parseInt(this.number, 10),
+
+          buildName: this.floorBuildName,
+          buildAddr: this.floorBuildAddr
+        })
+        .then(() => {
+          this.addFloorForm = false;
+        })
+        .catch(error => {
+          alert(error);
         });
     }
   }
