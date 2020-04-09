@@ -3,7 +3,7 @@
     <v-navigation-drawer v-model="drawer" app dark clipped floating>
       <v-list>
         <v-list-item-group v-model="nav">
-          <v-list-item v-for="(nav, i) in navs" :key="i">
+          <v-list-item v-for="(nav, i) in navs" :key="i" :to="nav.link">
             <v-list-item-icon>
               <v-icon v-text="nav.icon"></v-icon>
             </v-list-item-icon>
@@ -41,8 +41,8 @@ export default {
       drawer: null,
       nav: 0,
       navs: [
-        { text: "Builds", icon: "mdi-office-building" },
-        { text: "Visualization", icon: "mdi-lan" }
+        { link: "/", text: "Builds", icon: "mdi-office-building" },
+        { link: "/vis", text: "Visualization", icon: "mdi-lan" }
       ]
     };
   }
