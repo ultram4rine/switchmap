@@ -24,6 +24,6 @@ libraryDependencies ++= Seq(
   "javax.servlet"      % "javax.servlet-api"   % "4.0.1" % "provided",
   "com.typesafe.slick" %% "slick"              % "3.3.2",
   "org.postgresql"     % "postgresql"          % "42.2.12",
-  "org.slf4j"          % "slf4j-nop"           % "1.7.26",
+  "org.slf4j"          % "slf4j-nop"           % "1.7.30",
   "com.typesafe.slick" %% "slick-hikaricp"     % "3.3.2"
 )
