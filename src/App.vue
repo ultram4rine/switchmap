@@ -18,6 +18,13 @@
     <v-app-bar app dark clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>SwitchMap</v-toolbar-title>
+      <v-progress-linear
+        :active="isLoading"
+        :indeterminate="isLoading"
+        absolute
+        bottom
+        color="orange accent-4"
+      ></v-progress-linear>
     </v-app-bar>
 
     <v-content>
@@ -38,6 +45,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      isLoading: false,
       drawer: null,
       nav: 0,
       navs: [
@@ -45,6 +53,40 @@ export default {
         { link: "/vis", text: "Visualization", icon: "mdi-lan" }
       ]
     };
+  },
+
+  methods: {
+    setLoading(isLoading) {
+      if (isLoading) {
+        this.isLoading = true;
+      } else {
+        this.isLoading = false;
+      }
+    }
+  },
+
+  created() {
+    axios.interceptors.request.use(
+      config => {
+        this.setLoading(true);
+        return config;
+      },
+      error => {
+        this.setLoading(false);
+        return Promise.reject(error);
+      }
+    );
+
+    axios.interceptors.response.use(
+      response => {
+        this.setLoading(false);
+        return response;
+      },
+      error => {
+        this.setLoading(false);
+        return Promise.reject(error);
+      }
+    );
   }
 };
 </script>
