@@ -6,7 +6,7 @@
           <v-list-item two-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ build.floors }} floors, {{ build.switches }} switches</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ }} floors, {{ }} switches</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
@@ -106,13 +106,8 @@ export default {
     getAllBuilds() {
       axios
         .get(this.buildsEndpoint, { crossDomain: true })
-        .then(response => {
-          this.builds = response.data;
-        })
-        .catch(error => {
-          console.log("-----error-------");
-          console.log(error);
-        });
+        .then(resp => (this.builds = resp.data))
+        .catch(err => console.log(err));
     },
 
     addBuild() {
@@ -125,9 +120,7 @@ export default {
           this.getAllBuilds();
           this.addBuildForm = false;
         })
-        .catch(error => {
-          alert(error);
-        });
+        .catch(err => console.log(err));
     },
 
     addFloor() {
@@ -141,9 +134,7 @@ export default {
         .then(() => {
           this.addFloorForm = false;
         })
-        .catch(error => {
-          alert(error);
-        });
+        .catch(err => console.log(err));
     }
   }
 };
