@@ -130,8 +130,7 @@ export default {
         });
     },
 
-    addFloor(event) {
-      event.get;
+    addFloor() {
       axios
         .post(this.addFloorFormEndpoint, {
           number: parseInt(this.number, 10),
