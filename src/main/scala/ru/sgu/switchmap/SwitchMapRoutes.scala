@@ -51,7 +51,13 @@ trait SwitchMapRoutes
   get("/build/:addr/floors") {
     val addr = params("addr")
 
-    db.run(floors.filter(_.buildAddr === addr).sortBy(_.number.asc).result)
+    db.run(
+      floors
+        .filter(_.buildAddr === addr)
+        .sortBy(_.number.asc)
+        .map(_.number)
+        .result
+    )
   }
 
   get("/switches") {
