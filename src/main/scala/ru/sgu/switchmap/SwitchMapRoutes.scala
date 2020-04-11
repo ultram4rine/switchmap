@@ -68,6 +68,7 @@ trait SwitchMapRoutes
                 .length
             )
           )
+          .sortBy(_._1)
           .result
       )
       .map(_.groupBy { f => FloorWithSwitchesCount(f._1, f._2) }.map(_._1))
