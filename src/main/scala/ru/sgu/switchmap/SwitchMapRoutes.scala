@@ -34,13 +34,17 @@ trait SwitchMapRoutes
 
   get("/builds") {
     db.run(
-      builds.result
-        .map(b =>
-          b.sortWith((b1, b2) =>
-            (b1.addr.substring(1).toInt < b2.addr.substring(1).toInt)
+        builds
+          .map(b =>
+            (
+              b.name,
+              b.addr,
+              floors.filter(_.buildAddr === b.addr).map(_.number).length
+            )
           )
-        )
-    )
+          .result
+      )
+      .map(_.groupBy { b => BuildWithFloorsCount(b._1, b._2, b._3) }.map(_._1))
   }
 
   get("/build/:addr/floors") {
@@ -82,4 +86,8 @@ trait SwitchMapRoutes
       case ex: Exception => logger.error(ex.getMessage())
     }
   }
+}
+
+case class BuildWithFloorsCount(name: String, addr: String, floors: Int) {
+  override def equals(that: Any): Boolean = false
 }

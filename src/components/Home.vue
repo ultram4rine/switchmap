@@ -6,7 +6,7 @@
           <v-list-item two-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ }} floors, {{ }} switches</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ build.floors }} floors, {{ }} switches</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
