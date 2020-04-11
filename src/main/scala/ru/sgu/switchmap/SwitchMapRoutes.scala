@@ -52,12 +52,22 @@ trait SwitchMapRoutes
     val addr = params("addr")
 
     db.run(
-      floors
-        .filter(_.buildAddr === addr)
-        .sortBy(_.number.asc)
-        .map(_.number)
-        .result
-    )
+        floors
+          .filter(_.buildAddr === addr)
+          .map(f =>
+            (
+              f.number,
+              switches
+                .filter(s =>
+                  (s.buildAddr === f.buildAddr && s.floorNumber === f.number)
+                )
+                .map(_.name)
+                .length
+            )
+          )
+          .result
+      )
+      .map(_.groupBy { f => FloorWithSwitchesCount(f._1, f._2) }.map(_._1))
   }
 
   get("/switches") {
@@ -110,5 +120,12 @@ trait SwitchMapRoutes
 }
 
 case class BuildWithFloorsCount(name: String, addr: String, floors: Int) {
+  override def equals(that: Any): Boolean = false
+}
+
+case class FloorWithSwitchesCount(
+  number: Int,
+  switches: Int
+) {
   override def equals(that: Any): Boolean = false
 }
