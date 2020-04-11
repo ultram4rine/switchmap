@@ -7,6 +7,7 @@ import org.scalatra.{FutureSupport, ScalatraBase}
 import org.slf4j.{Logger, LoggerFactory}
 import slick.jdbc.PostgresProfile.api._
 import ru.sgu.switchmap.model._
+import org.scalatra.Conflict
 
 trait SwitchMapRoutes
     extends ScalatraBase
@@ -71,7 +72,21 @@ trait SwitchMapRoutes
     var f: Floor = parsedBody.extract[Floor]
 
     try {
-      db.run(DBIO.seq(floors += f))
+      db.run(
+        floors
+          .filter(floor =>
+            floor.number === f.number && floor.buildName === f.buildName && floor.buildAddr === f.buildAddr
+          )
+          .exists
+          .result
+          .flatMap { exists =>
+            if (!exists) {
+              floors += f
+            } else {
+              DBIO.successful(None)
+            }
+          }
+      )
     } catch {
       case ex: Exception => logger.error(ex.getMessage())
     }
