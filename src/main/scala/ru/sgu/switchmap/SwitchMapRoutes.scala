@@ -40,12 +40,15 @@ trait SwitchMapRoutes
             (
               b.name,
               b.addr,
-              floors.filter(_.buildAddr === b.addr).map(_.number).length
+              floors.filter(_.buildAddr === b.addr).map(_.number).length,
+              switches.filter(_.buildAddr === b.addr).map(_.name).length
             )
           )
           .result
       )
-      .map(_.groupBy { b => BuildWithFloorsCount(b._1, b._2, b._3) }.map(_._1))
+      .map(_.groupBy { b =>
+        BuildWithFloorsAndSwitchesCount(b._1, b._2, b._3, b._4)
+      }.map(_._1))
   }
 
   get("/build/:addr/floors") {
@@ -119,7 +122,12 @@ trait SwitchMapRoutes
   }
 }
 
-case class BuildWithFloorsCount(name: String, addr: String, floors: Int) {
+case class BuildWithFloorsAndSwitchesCount(
+  name: String,
+  addr: String,
+  floors: Int,
+  switches: Int
+) {
   override def equals(that: Any): Boolean = false
 }
 
