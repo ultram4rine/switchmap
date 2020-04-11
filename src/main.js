@@ -11,14 +11,17 @@ const router = new Router({
   routes: [
     {
       path: "/",
+      redirect: "/builds"
+    },
+    {
+      path: "/builds",
       name: "home",
       component: Home
     },
     {
-      path: "/map/:id",
+      path: "/builds/:addr",
       name: "build",
-      component: null,
-      props: true
+      component: null
     }
   ]
 });

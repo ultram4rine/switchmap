@@ -17,7 +17,7 @@
               color="primary"
               @click="addFloorForm = !addFloorForm; floorBuildName = build.name; floorBuildAddr = build.addr"
             >Add floor</v-btn>
-            <v-btn small color="primary" :to="build.addr">Go</v-btn>
+            <v-btn small color="primary" :to="{ name: 'build', params: { addr: build.addr }}">Go</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
