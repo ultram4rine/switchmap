@@ -34,14 +34,14 @@
         <v-toolbar>
           <v-toolbar-title>New build</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click="addBuildForm = false">
+          <v-btn icon @click="addBuildForm = false; buildName = ''; buildAddr = ''">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-toolbar>
         <v-card-text>
           <v-form ref="form">
-            <v-text-field v-model="name" label="Name" required></v-text-field>
-            <v-text-field v-model="addr" label="Address" required></v-text-field>
+            <v-text-field v-model="buildName" label="Name" required></v-text-field>
+            <v-text-field v-model="buildAddr" label="Address" required></v-text-field>
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
@@ -57,13 +57,16 @@
         <v-toolbar>
           <v-toolbar-title>New floor</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click="addFloorForm = false">
+          <v-btn
+            icon
+            @click="addFloorForm = false; floorNumber = ''; floorBuildName = ''; floorBuildAddr = ''"
+          >
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-toolbar>
         <v-card-text>
           <v-form ref="form">
-            <v-text-field type="number" v-model="number" label="Number" required></v-text-field>
+            <v-text-field type="number" v-model="floorNumber" label="Number" required></v-text-field>
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
@@ -87,12 +90,12 @@ export default {
 
       addBuildForm: false,
       addBuildEndpoint: "http://localhost:8080/build",
-      name: "",
-      addr: "",
+      buildName: "",
+      buildAddr: "",
 
       addFloorForm: false,
       addFloorFormEndpoint: "http://localhost:8080/floor",
-      number: "",
+      floorNumber: "",
       floorBuildName: "",
       floorBuildAddr: ""
     };
@@ -113,8 +116,8 @@ export default {
     addBuild() {
       axios
         .post(this.addBuildEndpoint, {
-          name: this.name,
-          addr: this.addr
+          name: this.buildName,
+          addr: this.buildAddr
         })
         .then(() => {
           this.getAllBuilds();
@@ -126,7 +129,7 @@ export default {
     addFloor() {
       axios
         .post(this.addFloorFormEndpoint, {
-          number: parseInt(this.number, 10),
+          number: parseInt(this.floorNumber, 10),
 
           buildName: this.floorBuildName,
           buildAddr: this.floorBuildAddr
