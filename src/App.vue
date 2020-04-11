@@ -49,7 +49,8 @@ export default {
       drawer: null,
       nav: 0,
       navs: [
-        { link: "/", text: "Builds", icon: "mdi-office-building" },
+        { link: "/builds", text: "Builds", icon: "mdi-office-building" },
+        { link: "/switches", text: "Switches", icon: "mdi-router-network" },
         { link: "/vis", text: "Visualization", icon: "mdi-lan" }
       ]
     };
