@@ -1,5 +1,6 @@
-var path = require("path");
-var webpack = require("webpack");
+const path = require("path");
+const webpack = require("webpack");
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 module.exports = {
   entry: "./src/main.js",
@@ -8,6 +9,7 @@ module.exports = {
     publicPath: "/dist/",
     filename: "build.js"
   },
+  plugins: [new VueLoaderPlugin()],
   module: {
     rules: [
       {
@@ -66,8 +68,13 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        loader: "babel-loader",
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"]
+          }
+        }
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
