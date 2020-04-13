@@ -15,6 +15,7 @@
     "not ie <= 8"
   ],
   "dependencies": {
+    "@mdi/js": "^5.0.45",
     "axios": "^0.19.2",
     "vue": "^2.6.11",
     "vue-router": "^3.1.6",

@@ -41,6 +41,7 @@
 
 <script>
 import axios from "axios";
+import { mdiOfficeBuilding, mdiRouterNetwork, mdiLan } from "@mdi/js";
 
 export default {
   data() {
@@ -49,9 +50,9 @@ export default {
       drawer: null,
       nav: 0,
       navs: [
-        { link: "/builds", text: "Builds", icon: "mdi-office-building" },
-        { link: "/switches", text: "Switches", icon: "mdi-router-network" },
-        { link: "/vis", text: "Visualization", icon: "mdi-lan" }
+        { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
+        { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
+        { link: "/vis", text: "Visualization", icon: mdiLan }
       ]
     };
   },
