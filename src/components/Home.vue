@@ -35,7 +35,7 @@
           <v-toolbar-title>New build</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon @click="addBuildForm = false; buildName = ''; buildAddr = ''">
-            <v-icon>mdi-close</v-icon>
+            <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
         <v-card-text>
@@ -61,7 +61,7 @@
             icon
             @click="addFloorForm = false; floorNumber = ''; floorBuildName = ''; floorBuildAddr = ''"
           >
-            <v-icon>mdi-close</v-icon>
+            <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
         <v-card-text>
@@ -79,25 +79,31 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import axios from "axios";
+import { mdiClose } from "@mdi/js";
 
-export default {
+import { Build, Builds } from "../types";
+
+export default Vue.extend({
   data() {
     return {
-      builds: null,
-      buildsEndpoint: "http://localhost:8080/builds",
+      mdiClose: mdiClose,
 
-      addBuildForm: false,
-      addBuildEndpoint: "http://localhost:8080/build",
-      buildName: "",
-      buildAddr: "",
+      builds: [] as Array<Build>,
+      buildsEndpoint: "http://localhost:8080/builds" as string,
 
-      addFloorForm: false,
-      addFloorFormEndpoint: "http://localhost:8080/floor",
-      floorNumber: "",
-      floorBuildName: "",
-      floorBuildAddr: ""
+      addBuildForm: false as boolean,
+      addBuildEndpoint: "http://localhost:8080/build" as string,
+      buildName: "" as string,
+      buildAddr: "" as string,
+
+      addFloorForm: false as boolean,
+      addFloorFormEndpoint: "http://localhost:8080/floor" as string,
+      floorNumber: "" as string,
+      floorBuildName: "" as string,
+      floorBuildAddr: "" as string
     };
   },
 
@@ -108,8 +114,10 @@ export default {
   methods: {
     getAllBuilds() {
       axios
-        .get(this.buildsEndpoint, { crossDomain: true })
-        .then(resp => (this.builds = resp.data))
+        .get<Builds>(this.buildsEndpoint, {
+          transformResponse: (r: any) => r.data
+        })
+        .then(resp => (this.builds = resp.data.builds))
         .catch(err => console.log(err));
     },
 
@@ -140,5 +148,5 @@ export default {
         .catch(err => console.log(err));
     }
   }
-};
+});
 </script>

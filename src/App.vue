@@ -2,7 +2,7 @@
   <v-app>
     <v-navigation-drawer v-model="drawer" app dark clipped floating>
       <v-list>
-        <v-list-item-group v-model="nav">
+        <v-list-item-group>
           <v-list-item v-for="(nav, i) in navs" :key="i" :to="nav.link">
             <v-list-item-icon>
               <v-icon v-text="nav.icon"></v-icon>
@@ -39,26 +39,32 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import axios from "axios";
 import { mdiOfficeBuilding, mdiRouterNetwork, mdiLan } from "@mdi/js";
 
-export default {
+interface Nav {
+  text: string;
+  link: string;
+  icon: string;
+}
+
+export default Vue.extend({
   data() {
     return {
       isLoading: false,
-      drawer: null,
-      nav: 0,
+      drawer: true,
       navs: [
         { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
         { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
         { link: "/vis", text: "Visualization", icon: mdiLan }
-      ]
+      ] as Array<Nav>
     };
   },
 
   methods: {
-    setLoading(isLoading) {
+    setLoading(isLoading: boolean) {
       if (isLoading) {
         this.isLoading = true;
       } else {
@@ -90,5 +96,5 @@ export default {
       }
     );
   }
-};
+});
 </script>

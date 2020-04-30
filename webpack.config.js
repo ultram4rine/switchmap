@@ -1,52 +1,41 @@
 const path = require("path");
 const webpack = require("webpack");
-const VueLoaderPlugin = require("vue-loader/lib/plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { VueLoaderPlugin } = require("vue-loader");
 
 module.exports = {
-  entry: "./src/main.js",
+  entry: "./src/main.ts",
+  resolve: {
+    extensions: ["*", ".ts", ".js", ".vue", ".json"],
+    alias: {
+      vue$: "vue/dist/vue.esm.js",
+    },
+  },
   output: {
     path: path.resolve(__dirname, "./dist"),
     publicPath: "/dist/",
-    filename: "build.js"
+    filename: "build.js",
   },
-  plugins: [new VueLoaderPlugin()],
+  plugins: [new CleanWebpackPlugin(), new VueLoaderPlugin()],
   module: {
     rules: [
       {
-        test: /\.s(c|a)ss$/,
-        use: [
-          "vue-style-loader",
-          "css-loader",
-          {
-            loader: "sass-loader",
-            // Requires sass-loader@^7.0.0
-            options: {
-              implementation: require("sass"),
-              fiber: require("fibers"),
-              indentedSyntax: true // optional
-            },
-            // Requires sass-loader@^8.0.0
-            options: {
-              implementation: require("sass"),
-              sassOptions: {
-                fiber: require("fibers"),
-                indentedSyntax: true // optional
-              }
-            }
-          }
-        ]
+        test: /\.tsx?$/,
+        loader: "ts-loader",
+        exclude: /node_modules/,
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        },
       },
       {
-        test: /\.css$/,
-        use: ["vue-style-loader", "css-loader"]
-      },
-      {
-        test: /\.scss$/,
-        use: ["vue-style-loader", "css-loader", "sass-loader"]
-      },
-      {
-        test: /\.sass$/,
-        use: ["vue-style-loader", "css-loader", "sass-loader?indentedSyntax"]
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+          },
+        },
       },
       {
         test: /\.vue$/,
@@ -60,53 +49,61 @@ module.exports = {
             sass: [
               "vue-style-loader",
               "css-loader",
-              "sass-loader?indentedSyntax"
-            ]
-          }
+              "sass-loader?indentedSyntax",
+            ],
+          },
           // other vue-loader options go here
-        }
+        },
       },
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env"]
-          }
-        }
+        test: /\.css$/,
+        use: ["vue-style-loader", "css-loader"],
+      },
+      {
+        test: /\.sass$/,
+        use: [
+          "vue-style-loader",
+          "css-loader",
+          {
+            loader: "sass-loader",
+          },
+        ],
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          "vue-style-loader",
+          "css-loader",
+          {
+            loader: "sass-loader",
+          },
+        ],
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
         loader: "file-loader",
         options: {
-          name: "[name].[ext]?[hash]"
-        }
+          name: "[name].[ext]?[hash]",
+        },
       },
       {
         test: /\.(ttf|eot|svg|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: "file-loader",
         options: {
-          name: "[name].[ext]?[hash]"
-        }
-      }
-    ]
-  },
-  resolve: {
-    alias: {
-      vue$: "vue/dist/vue.esm.js"
-    },
-    extensions: ["*", ".js", ".vue", ".json"]
+          name: "[name].[ext]?[hash]",
+        },
+      },
+    ],
   },
   devServer: {
     historyApiFallback: true,
     noInfo: true,
-    overlay: true
+    overlay: true,
   },
   performance: {
-    hints: false
+    hints: false,
   },
-  devtool: "#eval-source-map"
+  devtool: "#eval-source-map",
 };
 
 if (process.env.NODE_ENV === "production") {
@@ -115,17 +112,17 @@ if (process.env.NODE_ENV === "production") {
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({
       "process.env": {
-        NODE_ENV: '"production"'
-      }
+        NODE_ENV: '"production"',
+      },
     }),
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {
-        warnings: false
-      }
+        warnings: false,
+      },
     }),
     new webpack.LoaderOptionsPlugin({
-      minimize: true
-    })
+      minimize: true,
+    }),
   ]);
 }

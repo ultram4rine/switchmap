@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "strict": true,
+    "module": "es2015",
+    "moduleResolution": "node"
+  },
+  "types": ["webpack-env", "jest"],
+  "paths": {
+    "@/*": ["src/*"]
+  },
+  "files": ["src/shims-vue.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules"]
+}

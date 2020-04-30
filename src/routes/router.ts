@@ -1,7 +1,8 @@
 import Vue from "vue";
+import Component from "vue-class-component";
 import Router from "vue-router";
 
-import Home from "./components/Home.vue";
+import Home from "../components/Home.vue";
 
 Vue.use(Router);
 
@@ -15,11 +16,6 @@ export default new Router({
       path: "/builds",
       name: "home",
       component: Home,
-    },
-    {
-      path: "/builds/:addr",
-      name: "build",
-      component: null,
     },
   ],
 });
