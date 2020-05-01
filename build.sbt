@@ -3,7 +3,7 @@ val SlickVersion = "3.3.2"
 val JettyVersion = "9.4.27.v20200227"
 
 lazy val root = (project in file("."))
-  .enablePlugins(SbtTwirl, ScalatraPlugin)
+  .enablePlugins(ScalatraPlugin)
   .settings()
 
 organization := "ru.sgu"
