@@ -26,7 +26,7 @@ const router = new Router({
       path: "/login",
       name: "login",
       component: Login,
-      meta: { layout: "empty" },
+      meta: { skipIfAuth: true, layout: "empty" },
     },
   ],
 });
@@ -40,12 +40,17 @@ router.beforeEach(
     ) => void
   ) => {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-      console.log(store.getters.isAuthenticated);
       if (!store.getters.isAuthenticated) {
         next({
           path: "/login",
           query: { redirect: to.fullPath },
         });
+      } else {
+        next();
+      }
+    } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
+      if (store.getters.isAuthenticated) {
+        next({ path: "/builds" });
       } else {
         next();
       }
