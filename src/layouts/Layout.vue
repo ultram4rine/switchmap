@@ -19,7 +19,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>SwitchMap</v-toolbar-title>
       <v-spacer />
-      <v-btn color="orange darken-1" class="mr-4" @click="logout">
+      <v-btn color="orange darken-1" @click="logout">
         Sign out
         <v-icon right>{{ mdiLogout }}</v-icon>
       </v-btn>
