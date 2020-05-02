@@ -29,6 +29,11 @@
       </v-card>
     </v-row>
 
+    <v-snackbar v-model="snackbar" :timeout="timeout">
+      {{ item }} added!
+      <v-btn color="orange darken-3" text @click="snackbar = false">Close</v-btn>
+    </v-snackbar>
+
     <v-overlay :value="addBuildForm">
       <v-card>
         <v-toolbar>
@@ -89,21 +94,26 @@ import { Build, Builds } from "../types";
 export default Vue.extend({
   data() {
     return {
+      snackbar: false,
+      timeout: 3000,
+
+      item: "",
+
       mdiClose: mdiClose,
 
       builds: [] as Array<Build>,
-      buildsEndpoint: "http://localhost:8080/builds" as string,
+      buildsEndpoint: "http://localhost:8080/builds",
 
-      addBuildForm: false as boolean,
-      addBuildEndpoint: "http://localhost:8080/build" as string,
-      buildName: "" as string,
-      buildAddr: "" as string,
+      addBuildForm: false,
+      addBuildEndpoint: "http://localhost:8080/build",
+      buildName: "",
+      buildAddr: "",
 
-      addFloorForm: false as boolean,
-      addFloorFormEndpoint: "http://localhost:8080/floor" as string,
-      floorNumber: "" as string,
-      floorBuildName: "" as string,
-      floorBuildAddr: "" as string
+      addFloorForm: false,
+      addFloorFormEndpoint: "http://localhost:8080/floor",
+      floorNumber: "",
+      floorBuildName: "",
+      floorBuildAddr: ""
     };
   },
 
@@ -130,6 +140,8 @@ export default Vue.extend({
         .then(() => {
           this.getAllBuilds();
           this.addBuildForm = false;
+          this.item = this.buildName;
+          this.snackbar = true;
         })
         .catch(err => console.log(err));
     },
@@ -144,6 +156,8 @@ export default Vue.extend({
         })
         .then(() => {
           this.addFloorForm = false;
+          this.item = `${this.floorNumber} floor in ${this.buildName}`;
+          this.snackbar = true;
         })
         .catch(err => console.log(err));
     }
