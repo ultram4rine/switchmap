@@ -2,7 +2,33 @@
   <div id="switches">
     <v-card>
       <v-toolbar dark flat>
-        Switches
+        <v-toolbar-title>Switches</v-toolbar-title>
+        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-dialog v-model="dialog" max-width="500px">
+          <template v-slot:activator="{ on }">
+            <v-btn color="orange darken-1" dark v-on="on">Add switch</v-btn>
+          </template>
+          <v-card dark>
+            <v-toolbar>
+              <v-toolbar-title>New switch</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon @click="dialog = false">
+                <v-icon>{{ mdiClose }}</v-icon>
+              </v-btn>
+            </v-toolbar>
+
+            <v-card-text>
+              <v-container>
+                <v-row></v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="orange darken-1" @click="addSwitch">Add</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -15,6 +41,7 @@
       </v-toolbar>
       <v-data-table
         :headers="headers"
+        :items="switches"
         :items-per-page="10"
         :search="search"
         multi-sort
@@ -26,15 +53,27 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { mdiMagnify } from "@mdi/js";
+import { mdiClose, mdiMagnify } from "@mdi/js";
 
 export default Vue.extend({
   data() {
     return {
+      mdiClose: mdiClose,
       mdiMagnify: mdiMagnify,
+
+      dialog: false,
 
       search: "",
 
+      switches: [
+        {
+          name: "switch",
+          mac: "00:30:48:5a:58:65",
+          ip: "192.168.1.1",
+          serial: "AAAAAAAAA",
+          location: "name build number floor"
+        }
+      ],
       headers: [
         {
           text: "Name",
