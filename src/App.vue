@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <component :is="layout">
+    <component :is-loading="isLoading" :is="layout">
       <router-view></router-view>
     </component>
   </v-app>
