@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "org.scalatra"       %% "scalatra-scalatest" % ScalatraVersion % "test",
   "org.scalatra"       %% "scalatra-json"      % ScalatraVersion,
   "org.json4s"         %% "json4s-jackson"     % "3.6.7",
+  "com.pauldijou"      %% "jwt-json4s-jackson" % "4.3.0",
   "com.typesafe.slick" %% "slick"              % SlickVersion,
   "com.typesafe.slick" %% "slick-hikaricp"     % SlickVersion,
   "org.postgresql"     % "postgresql"          % "42.2.12",

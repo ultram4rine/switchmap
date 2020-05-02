@@ -7,7 +7,10 @@ import org.scalatra.{FutureSupport, ScalatraBase}
 import org.slf4j.{Logger, LoggerFactory}
 import slick.jdbc.PostgresProfile.api._
 import ru.sgu.switchmap.model._
-import org.scalatra.Conflict
+import pdi.jwt.{JwtJson4s, JwtAlgorithm}
+import org.json4s._
+import org.json4s.JsonDSL.WithBigDecimal._
+import org.scalatra.Unauthorized
 
 trait SwitchMapRoutes
     extends ScalatraBase
@@ -31,6 +34,21 @@ trait SwitchMapRoutes
 
   before() {
     contentType = formats("json")
+  }
+
+  val key = "secretKey"
+  post("/auth") {
+    val u: User = parsedBody.extract[User]
+    if (u.username == "admin" && u.password == "admin") {
+      val token = JwtJson4s.encode(
+        JObject(("user", JString(u.username))),
+        key,
+        JwtAlgorithm.HS256
+      )
+      JObject(("token", JString(token)))
+    } else {
+      Unauthorized
+    }
   }
 
   get("/builds") {
@@ -138,3 +156,5 @@ case class FloorWithSwitchesCount(
 ) {
   override def equals(that: Any): Boolean = false
 }
+
+case class User(username: String, password: String)
