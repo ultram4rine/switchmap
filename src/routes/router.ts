@@ -5,6 +5,7 @@ import store from "../store/store";
 
 import Login from "../components/Login.vue";
 import Home from "../components/Home.vue";
+import Switches from "../components/Switches.vue";
 
 Vue.use(Router);
 
@@ -20,6 +21,12 @@ const router = new Router({
       path: "/builds",
       name: "home",
       component: Home,
+      meta: { requiresAuth: true, layout: "default" },
+    },
+    {
+      path: "/switches",
+      name: "switches",
+      component: Switches,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
