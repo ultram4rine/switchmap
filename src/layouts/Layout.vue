@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :v-bind="isLoading">
     <v-navigation-drawer v-model="drawer" app dark clipped floating>
       <v-list>
         <v-list-item-group>
@@ -19,7 +19,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>SwitchMap</v-toolbar-title>
       <v-spacer />
-      <v-btn color="orange" class="mr-4" @click="logout">
+      <v-btn color="orange darken-1" class="mr-4" @click="logout">
         Sign out
         <v-icon right>{{ mdiLogout }}</v-icon>
       </v-btn>
@@ -64,6 +64,10 @@ interface Nav {
 }
 
 export default Vue.extend({
+  props: {
+    isLoading: { type: Boolean, required: true }
+  },
+
   data() {
     return {
       drawer: true,

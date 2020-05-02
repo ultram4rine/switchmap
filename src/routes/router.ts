@@ -12,6 +12,7 @@ const router = new Router({
   routes: [
     {
       path: "/",
+      name: "root",
       redirect: "/builds",
       meta: { requiresAuth: true },
     },
@@ -19,12 +20,13 @@ const router = new Router({
       path: "/builds",
       name: "home",
       component: Home,
-      meta: { requiresAuth: true, layout: "layout" },
+      meta: { requiresAuth: true, layout: "default" },
     },
     {
       path: "/login",
       name: "login",
       component: Login,
+      meta: { skipIfAuth: true, layout: "empty" },
     },
   ],
 });
@@ -32,7 +34,7 @@ const router = new Router({
 router.beforeEach(
   (
     to: Route,
-    from: Route,
+    _from: Route,
     next: (
       to?: string | false | void | Location | ((vm: Vue) => any) | undefined
     ) => void
@@ -43,6 +45,12 @@ router.beforeEach(
           path: "/login",
           query: { redirect: to.fullPath },
         });
+      } else {
+        next();
+      }
+    } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
+      if (store.getters.isAuthenticated) {
+        next({ path: "/builds" });
       } else {
         next();
       }
