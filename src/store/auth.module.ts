@@ -36,7 +36,7 @@ const actions = {
       axios
         .post("http://localhost:8080/auth", user)
         .then((resp: any) => {
-          localStorage.setItem("user-token", resp.token);
+          localStorage.setItem("user-token", resp.data.token);
           context.commit(AUTH_SUCCESS, resp);
           resolve(resp);
         })
