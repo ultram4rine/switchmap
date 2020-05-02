@@ -45,14 +45,14 @@
         </v-toolbar>
         <v-card-text>
           <v-form ref="form">
-            <v-text-field v-model="buildName" label="Name" required></v-text-field>
-            <v-text-field v-model="buildAddr" label="Address" required></v-text-field>
+            <v-text-field v-model="buildName" label="Name" color="orange darken-1" required></v-text-field>
+            <v-text-field v-model="buildAddr" label="Address" color="orange darken-1" required></v-text-field>
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="success" @click="addBuild">Add</v-btn>
+          <v-btn color="orange darken-1" @click="addBuild">Add</v-btn>
         </v-card-actions>
       </v-card>
     </v-overlay>
@@ -71,13 +71,19 @@
         </v-toolbar>
         <v-card-text>
           <v-form ref="form">
-            <v-text-field type="number" v-model="floorNumber" label="Number" required></v-text-field>
+            <v-text-field
+              type="number"
+              v-model="floorNumber"
+              label="Number"
+              color="orange darken-1"
+              required
+            ></v-text-field>
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="success" @click="addFloor">Add</v-btn>
+          <v-btn color="orange darken-1" @click="addFloor">Add</v-btn>
         </v-card-actions>
       </v-card>
     </v-overlay>
