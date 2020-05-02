@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <router-view></router-view>
+    <component :is="layout">
+      <router-view></router-view>
+    </component>
   </v-app>
 </template>
 
@@ -8,7 +10,9 @@
 import Vue from "vue";
 import axios from "axios";
 
-const defaultLayout = "layout";
+import { AUTH_LOGOUT } from "./store/actions";
+
+const defaultLayout = "default";
 
 export default Vue.extend({
   data() {
@@ -50,9 +54,21 @@ export default Vue.extend({
         this.setLoading(false);
         return response;
       },
-      error => {
+      err => {
         this.setLoading(false);
-        return Promise.reject(error);
+        return new Promise((resolve, reject) => {
+          if (
+            err.status === 401 &&
+            err.config &&
+            !err.config.__isRetryRequest
+          ) {
+            // if you ever get an unauthorized, logout the user
+            this.$store.dispatch(AUTH_LOGOUT);
+            this.$router.push("/login");
+            // you can also redirect to /login if needed !
+          }
+          throw err;
+        });
       }
     );
   }
