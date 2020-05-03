@@ -10,7 +10,7 @@ organization := "ru.sgu"
 name := "switchmap"
 version := "2.0.0-SNAPSHOT"
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.2"
 
 resolvers += Classpaths.typesafeReleases
 
