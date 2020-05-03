@@ -12,6 +12,8 @@ version := "2.0.0-SNAPSHOT"
 
 scalaVersion := "2.13.2"
 
+containerPort in Jetty := 49147
+
 resolvers += Classpaths.typesafeReleases
 
 libraryDependencies ++= Seq(
