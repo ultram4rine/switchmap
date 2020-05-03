@@ -1,7 +1,9 @@
 <template>
   <v-app>
-    <component :is-loading="isLoading" :is="layout">
-      <router-view></router-view>
+    <component :is="layout" :is-loading="isLoading">
+      <template v-slot="props">
+        <router-view :is-loading="props.isLoading"></router-view>
+      </template>
     </component>
   </v-app>
 </template>

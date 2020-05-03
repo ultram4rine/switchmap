@@ -34,7 +34,7 @@
 
     <v-content>
       <v-container fluid>
-        <slot />
+        <slot :is-loading="isLoading" />
       </v-container>
     </v-content>
 
