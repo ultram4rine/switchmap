@@ -34,7 +34,7 @@
           v-model="search"
           :append-icon="this.mdiMagnify"
           label="Search"
-          color="orange darken-1"
+          color="orange accent-2"
           single-line
           hide-details
         ></v-text-field>

@@ -12,7 +12,7 @@
                 v-model="username"
                 label="Name"
                 type="text"
-                color="orange darken-2"
+                color="orange darken-1"
                 :prepend-icon="this.mdiAccount"
                 required
               ></v-text-field>
@@ -20,7 +20,7 @@
                 v-model="password"
                 label="Password"
                 type="password"
-                color="orange darken-2"
+                color="orange darken-1"
                 :prepend-icon="this.mdiKey"
                 required
               ></v-text-field>

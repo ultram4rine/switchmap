@@ -48,8 +48,8 @@
         </v-toolbar>
         <v-card-text>
           <v-form ref="form">
-            <v-text-field v-model="buildName" label="Name" color="orange darken-1" required></v-text-field>
-            <v-text-field v-model="buildAddr" label="Address" color="orange darken-1" required></v-text-field>
+            <v-text-field v-model="buildName" label="Name" color="orange accent-2" required></v-text-field>
+            <v-text-field v-model="buildAddr" label="Address" color="orange accent-2" required></v-text-field>
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
@@ -78,7 +78,7 @@
               type="number"
               v-model="floorNumber"
               label="Number"
-              color="orange darken-1"
+              color="orange accent-2"
               required
             ></v-text-field>
           </v-form>
