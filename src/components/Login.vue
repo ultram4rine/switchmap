@@ -13,16 +13,18 @@
                 label="Name"
                 type="text"
                 color="orange darken-1"
-                :prepend-icon="this.mdiAccount"
                 required
+                :prepend-icon="this.mdiAccount"
               ></v-text-field>
               <v-text-field
                 v-model="password"
                 label="Password"
-                type="password"
+                :type="show ? 'text' : 'password'"
                 color="orange darken-1"
-                :prepend-icon="this.mdiKey"
                 required
+                :prepend-icon="this.mdiKey"
+                :append-icon="show ? this.mdiEye : this.mdiEyeOff"
+                @click:append="show = !show"
               ></v-text-field>
             </v-form>
           </v-card-text>
@@ -42,19 +44,23 @@
 <script lang="ts">
 import Vue from "vue";
 import axios from "axios";
-import { mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
+import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
 import { AUTH_LOGIN } from "../store/actions";
 
 export default Vue.extend({
   data() {
     return {
-      username: "",
-      password: "",
-
+      mdiEye: mdiEye,
+      mdiEyeOff: mdiEyeOff,
       mdiAccount: mdiAccount,
       mdiKey: mdiKey,
-      mdiLogin: mdiLogin
+      mdiLogin: mdiLogin,
+
+      show: false,
+
+      username: "",
+      password: ""
     };
   },
 
