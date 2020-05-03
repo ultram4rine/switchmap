@@ -25,7 +25,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="orange darken-1" @click="addSwitch">Add</v-btn>
+              <v-btn color="orange darken-1" @click="dialog = false">Add</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -44,6 +44,7 @@
         :items="switches"
         :items-per-page="10"
         :search="search"
+        sort-by="name"
         multi-sort
         class="elevation-1"
       ></v-data-table>
