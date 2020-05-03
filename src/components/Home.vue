@@ -34,8 +34,8 @@
       <v-btn color="orange darken-3" text @click="snackbar = false">Close</v-btn>
     </v-snackbar>
 
-    <v-overlay :value="addBuildForm">
-      <v-card>
+    <v-dialog :value="addBuildForm" max-width="500px">
+      <v-card dark>
         <v-toolbar>
           <v-toolbar-title>New build</v-toolbar-title>
           <v-spacer></v-spacer>
@@ -55,10 +55,10 @@
           <v-btn color="orange darken-1" @click="addBuild">Add</v-btn>
         </v-card-actions>
       </v-card>
-    </v-overlay>
+    </v-dialog>
 
-    <v-overlay :value="addFloorForm">
-      <v-card>
+    <v-dialog v-model="addFloorForm" max-width="500px">
+      <v-card dark>
         <v-toolbar>
           <v-toolbar-title>New floor</v-toolbar-title>
           <v-spacer></v-spacer>
@@ -86,7 +86,7 @@
           <v-btn color="orange darken-1" @click="addFloor">Add</v-btn>
         </v-card-actions>
       </v-card>
-    </v-overlay>
+    </v-dialog>
   </div>
 </template>
 
@@ -100,12 +100,12 @@ import { Build, Builds } from "../types";
 export default Vue.extend({
   data() {
     return {
+      mdiClose: mdiClose,
+
       snackbar: false,
       timeout: 3000,
 
       item: "",
-
-      mdiClose: mdiClose,
 
       builds: [] as Array<Build>,
       buildsEndpoint: "http://localhost:8080/builds",
