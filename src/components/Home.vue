@@ -34,7 +34,9 @@
 
     <v-snackbar v-model="snackbar" :timeout="timeout">
       {{ item }} added!
-      <v-btn color="orange darken-3" text @click="snackbar = false">Close</v-btn>
+      <v-btn fab x-small @click="snackbar = false">
+        <v-icon dark>{{ mdiClose }}</v-icon>
+      </v-btn>
     </v-snackbar>
 
     <v-dialog :value="addBuildForm" max-width="500px">
