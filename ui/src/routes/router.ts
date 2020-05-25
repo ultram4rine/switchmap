@@ -21,13 +21,13 @@ const router = new Router({
       path: "/builds",
       name: "home",
       component: Home,
-      meta: { requiresAuth: true, layout: "default" },
+      meta: { requiresAuth: false, layout: "default" },
     },
     {
       path: "/switches",
       name: "switches",
       component: Switches,
-      meta: { requiresAuth: true, layout: "default" },
+      meta: { requiresAuth: false, layout: "default" },
     },
     {
       path: "/login",

@@ -1,8 +1,8 @@
 export interface Build {
   name: string;
   addr: string;
-  floorNumber: number;
-  switchNumber: number;
+  floorNumber: string;
+  switchNumber: string;
 }
 
 export interface Builds {

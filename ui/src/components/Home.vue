@@ -9,19 +9,35 @@
           <v-list-item two-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ build.floors }} floors, {{ build.switches }} switches</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ build.floorNumber }} floors, {{ build.switchNumber }} switches</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
+              dark
               small
               color="primary"
               @click="addFloorForm = !addFloorForm; floorBuildName = build.name; floorBuildAddr = build.addr"
             >Add floor</v-btn>
-            <v-btn small color="primary" :to="{ name: 'build', params: { addr: build.addr }}">Go</v-btn>
+            <v-btn
+              dark
+              small
+              color="primary"
+              :to="{ name: 'build', params: { addr: build.addr }}"
+            >Go</v-btn>
           </v-card-actions>
+        </v-card>
+      </v-col>
+
+      <v-col v-if="!isLoading && builds.length===0" :cols="3">
+        <v-card class="ma-1" outlined>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title class="headline mb-1">No builds to show</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-card>
       </v-col>
     </v-row>
@@ -116,7 +132,14 @@ export default Vue.extend({
 
       item: "",
 
-      builds: [] as Array<Build>,
+      builds: [
+        { name: "1 build", addr: "b1", floorNumber: "2", switchNumber: "0" },
+        { name: "4 build", addr: "b4", floorNumber: "1", switchNumber: "3" },
+        { name: "1 build", addr: "b1", floorNumber: "2", switchNumber: "0" },
+        { name: "4 build", addr: "b4", floorNumber: "1", switchNumber: "3" },
+        { name: "1 build", addr: "b1", floorNumber: "2", switchNumber: "0" },
+        { name: "4 build", addr: "b4", floorNumber: "1", switchNumber: "3" }
+      ] as Array<Build>,
       buildsEndpoint: "http://localhost:8080/builds",
 
       addBuildForm: false,
@@ -133,7 +156,7 @@ export default Vue.extend({
   },
 
   created() {
-    this.getAllBuilds();
+    //this.getAllBuilds();
   },
 
   methods: {
