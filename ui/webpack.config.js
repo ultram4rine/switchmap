@@ -96,7 +96,7 @@ module.exports = {
     ],
   },
   devServer: {
-    port: 9090,
+    port: 49148,
     historyApiFallback: true,
     noInfo: true,
     overlay: true,
