@@ -1,6 +1,6 @@
 val ScalatraVersion = "2.7.0"
 val SlickVersion = "3.3.2"
-val JettyVersion = "9.4.27.v20200227"
+val JettyVersion = "9.4.29.v20200521"
 
 lazy val root = (project in file("."))
   .enablePlugins(ScalatraPlugin)
@@ -25,6 +25,8 @@ libraryDependencies ++= Seq(
   "com.pauldijou"      %% "jwt-json4s-jackson" % "4.3.0",
   "com.typesafe.slick" %% "slick"              % SlickVersion,
   "com.typesafe.slick" %% "slick-hikaricp"     % SlickVersion,
+  "com.typesafe"       % "config"              % "1.4.0",
+  "com.unboundid"      % "unboundid-ldapsdk"   % "5.0.1",
   "org.postgresql"     % "postgresql"          % "42.2.12",
   "org.eclipse.jetty"  % "jetty-webapp"        % JettyVersion % "provided",
   "javax.servlet"      % "javax.servlet-api"   % "4.0.1" % "provided",
