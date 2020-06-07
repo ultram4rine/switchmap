@@ -5,8 +5,6 @@ import ru.sgu.switchmap.SwitchMapApp
 import ru.sgu.switchmap.model.{BuildComponent, FloorComponent, SwitchComponent}
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.{Await, Future}
-
 class ScalatraBootstrap
     extends LifeCycle
     with BuildComponent
@@ -23,7 +21,7 @@ class ScalatraBootstrap
       db.run(floors.schema.create)
       db.run(switches.schema.create)
     } catch {
-      case ex: Exception => logger.error(ex.getMessage())
+      case ex: Exception => logger.error(ex.getMessage)
     }
 
     context.setInitParameter("org.scalatra.cors.allowCredentials", "false")
@@ -38,6 +36,6 @@ class ScalatraBootstrap
 
   override def destroy(context: ServletContext) {
     super.destroy(context)
-    closeDbConnection
+    closeDbConnection()
   }
 }
