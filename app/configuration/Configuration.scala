@@ -16,6 +16,7 @@ case class LDAP(
   bindPass: String,
   baseDN: String,
   uidAttribute: String,
+  domain: String,
   poolSize: Int,
   cacheDuration: Int
 )

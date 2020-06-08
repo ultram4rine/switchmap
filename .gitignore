@@ -1,5 +1,5 @@
 ### Project settings ###
-src/main/resources/application.conf
+conf/application.conf
 
 # Created by https://www.gitignore.io/api/sbt,node,vuejs,scala,bloop,metals,intellij,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=sbt,node,vuejs,scala,bloop,metals,intellij,visualstudiocode

@@ -2,12 +2,9 @@ package ru.sgu.switchmap.auth
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.scalatra.{ScalatraBase}
-import org.scalatra.auth.strategy.BasicAuthSupport
 import org.scalatra.auth.{ScentryConfig, ScentrySupport}
 
-trait AuthenticationSupport
-    extends ScentrySupport[User]
-    with BasicAuthSupport[User] {
+trait AuthenticationSupport extends ScalatraBase with ScentrySupport[User] {
   self: ScalatraBase =>
 
   protected def fromSession: PartialFunction[String, User] = {
@@ -23,7 +20,6 @@ trait AuthenticationSupport
     }
   }
 
-  val realm = "Bearer Authentication"
   protected val scentryConfig: ScentryConfiguration =
     new ScentryConfig {}.asInstanceOf[ScentryConfiguration]
 
@@ -34,7 +30,8 @@ trait AuthenticationSupport
   }
 
   override protected def registerAuthStrategies: Unit = {
-    scentry.register("Bearer", app => new BearerAuthStrategy(app, realm))
+    scentry.register("LDAP", app => new LDAPAuthStrategy(app))
+    scentry.register("Bearer", app => new BearerAuthStrategy(app))
   }
 
   protected def auth()(
