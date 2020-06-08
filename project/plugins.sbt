@@ -1,1 +1,2 @@
-addSbtPlugin("org.scalatra.sbt" % "sbt-scalatra" % "1.0.3")
+// The Play plugin
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2")
