@@ -1,35 +1,19 @@
-val ScalatraVersion = "2.7.0"
-val SlickVersion = "3.3.2"
-val JettyVersion = "9.4.29.v20200521"
-
 lazy val root = (project in file("."))
-  .enablePlugins(ScalatraPlugin)
-  .settings()
-
-organization := "ru.sgu"
-name := "switchmap"
-version := "2.0.0-SNAPSHOT"
-
-scalaVersion := "2.13.2"
-
-containerPort in Jetty := 49147
-
-resolvers += Classpaths.typesafeReleases
-
-libraryDependencies ++= Seq(
-  "org.scalatra"       %% "scalatra"           % ScalatraVersion,
-  "org.scalatra"       %% "scalatra-auth"      % ScalatraVersion,
-  "org.scalatra"       %% "scalatra-scalatest" % ScalatraVersion % "test",
-  "org.scalatra"       %% "scalatra-json"      % ScalatraVersion,
-  "org.json4s"         %% "json4s-jackson"     % "3.6.8",
-  "com.pauldijou"      %% "jwt-json4s-jackson" % "4.3.0",
-  "com.typesafe.slick" %% "slick"              % SlickVersion,
-  "com.typesafe.slick" %% "slick-hikaricp"     % SlickVersion,
-  "com.typesafe"       % "config"              % "1.4.0",
-  "com.unboundid"      % "unboundid-ldapsdk"   % "5.0.1",
-  "org.postgresql"     % "postgresql"          % "42.2.12",
-  "org.eclipse.jetty"  % "jetty-webapp"        % JettyVersion % "provided",
-  "javax.servlet"      % "javax.servlet-api"   % "4.0.1" % "provided",
-  "ch.qos.logback"     % "logback-classic"     % "1.2.3" % "runtime",
-  "org.slf4j"          % "slf4j-nop"           % "1.7.30"
-)
+  .enablePlugins(PlayScala)
+  .settings(
+    organization := """ru.sgu""",
+    name := """switchmap""",
+    version := "2.0-SNAPSHOT",
+    scalaVersion := "2.13.2",
+    libraryDependencies ++= Seq(
+      guice,
+      "com.typesafe.play"      %% "play-slick"         % "5.0.0",
+      "com.unboundid"          % "unboundid-ldapsdk"   % "2.3.6",
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+    ),
+    scalacOptions ++= Seq(
+      "-feature",
+      "-deprecation",
+      "-Xfatal-warnings"
+    )
+  )
