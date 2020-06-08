@@ -1,4 +1,4 @@
-package ru.sgu.switchmap.model
+package models
 
 import slick.jdbc.PostgresProfile.api._
 

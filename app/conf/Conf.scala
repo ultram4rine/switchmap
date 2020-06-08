@@ -1,8 +1,8 @@
-package ru.sgu.switchmap.configuration
+package conf
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-object Configuration {
+object Conf {
   val conf: Config = ConfigFactory.load()
   val jwtKey: String = conf.getString("jwtKey")
   val ldap: LDAP = conf.getEnum(Class[LDAP], "ldap")

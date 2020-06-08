@@ -1,4 +1,4 @@
-package ru.sgu.switchmap.auth
+package auth
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.scalatra.{ScalatraBase}

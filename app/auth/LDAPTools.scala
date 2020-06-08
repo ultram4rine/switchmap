@@ -1,4 +1,4 @@
-package ru.sgu.switchmap.auth
+package auth
 
 import com.unboundid.ldap.sdk._
 import ru.sgu.switchmap.configuration.{Configuration, LDAP}

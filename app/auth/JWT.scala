@@ -1,4 +1,4 @@
-package ru.sgu.switchmap.auth
+package auth
 
 import org.json4s
 import org.json4s.{DefaultFormats, JObject, JString}
