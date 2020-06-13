@@ -141,4 +141,10 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
         .filter(_.floorNumber === floorNumber)
         .result
     }
+
+  def createBuild(b: Build): Future[Int] = { db.run(builds += b) }
+
+  def createFloor(f: Floor): Future[Int] = { db.run(floors += f) }
+
+  def createSwitch(sw: Switch): Future[Int] = { db.run(switches += sw) }
 }
