@@ -32,11 +32,11 @@
       ></v-progress-linear>
     </v-app-bar>
 
-    <v-content>
+    <v-main>
       <v-container fluid>
         <slot :is-loading="isLoading" />
       </v-container>
-    </v-content>
+    </v-main>
 
     <v-speed-dial
       v-model="fab"
