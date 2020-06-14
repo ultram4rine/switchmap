@@ -43,7 +43,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import axios from "axios";
 import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
 import { AUTH_LOGIN } from "../store/actions";
