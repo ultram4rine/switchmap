@@ -116,6 +116,7 @@ import Vue from "vue";
 import axios from "axios";
 import { mdiClose } from "@mdi/js";
 
+import config from "../config/config";
 import { Build, Builds } from "../types";
 
 export default Vue.extend({
@@ -140,15 +141,15 @@ export default Vue.extend({
         { name: "1 build", addr: "b1", floorNumber: "2", switchNumber: "0" },
         { name: "4 build", addr: "b4", floorNumber: "1", switchNumber: "3" }
       ] as Array<Build>,
-      buildsEndpoint: "http://localhost:8080/builds",
+      buildsEndpoint: `${config.apiURL}/builds`,
 
       addBuildForm: false,
-      addBuildEndpoint: "http://localhost:8080/build",
+      addBuildEndpoint: `${config.apiURL}/build`,
       buildName: "",
       buildAddr: "",
 
       addFloorForm: false,
-      addFloorFormEndpoint: "http://localhost:8080/floor",
+      addFloorFormEndpoint: `${config.apiURL}/floor`,
       floorNumber: "",
       floorBuildName: "",
       floorBuildAddr: ""
