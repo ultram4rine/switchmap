@@ -7,7 +7,8 @@ import play.api.routing.sird._
 
 class ApiRouter @Inject() (
   buildController: BuildController,
-  floorController: FloorController
+  floorController: FloorController,
+  switchController: SwitchController
 ) extends SimpleRouter {
   val prefix = "/api/v2"
 
@@ -17,6 +18,14 @@ class ApiRouter @Inject() (
 
     case GET(p"/build/$buildAddr/floors") =>
       floorController.floorsOf(buildAddr)
+
+    case GET(p"/switches") => switchController.switches
+
+    case GET(p"/build/$buildAddr/switches") =>
+      switchController.switchesOfBuild(buildAddr)
+
+    case GET(p"/build/$buildAddr/$floorNumber/switches") =>
+      switchController.switchesOfFloor(buildAddr, floorNumber.toInt)
 
     case POST(p"/build") =>
       buildController.addBuild()
