@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       "com.mohiva"             %% "play-silhouette-crypto-jca"      % SilhouetteVersion,
       "com.mohiva"             %% "play-silhouette-totp"            % SilhouetteVersion,
       "com.unboundid"           % "unboundid-ldapsdk"               % "5.1.0",
-      "net.logstash.logback"    % "logstash-logback-encoder"        % "6.2",
+      "net.logstash.logback"    % "logstash-logback-encoder"        % "6.4",
       "org.scalatestplus.play" %% "scalatestplus-play"              % "5.1.0" % Test
     ),
     scalacOptions ++= Seq(
