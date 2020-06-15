@@ -17,4 +17,6 @@ export interface Floor {
 
 export interface Switch {
   name: string;
+  upSwitch: string;
+  port: string;
 }
