@@ -9,7 +9,7 @@
           <v-list-item two-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ build.floorNumber }} floors, {{ build.switchNumber }} switches</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ build.floorsNumber }} floors, {{ build.switchesNumber }} switches</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
