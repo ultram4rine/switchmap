@@ -5,7 +5,8 @@
 <script lang="ts">
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
-import vis from "vis-network";
+import { Edge, Node, Network } from "vis-network";
+import "vis-network/dist/dist/vis-network.min.css";
 
 import config from "../config/config";
 import { Switch } from "../interfaces";
@@ -35,12 +36,12 @@ export default Vue.extend({
 
           let container = <HTMLElement>document.getElementById("viz");
 
-          let nodes = new vis.DataSet();
-          let edges = new vis.DataSet();
+          let nodes = new Array<Node>();
+          let edges = new Array<Edge>();
 
           this.switches.forEach(sw => {
-            nodes.add([{ id: sw.name, label: sw.name }]);
-            edges.add([{ from: sw.upSwitch, to: sw.name, label: sw.port }]);
+            nodes.push({ id: sw.name, label: sw.name });
+            edges.push({ from: sw.upSwitch, to: sw.name, label: sw.port });
           });
 
           let data = {
@@ -62,7 +63,7 @@ export default Vue.extend({
             }
           };
 
-          let network = new vis.Network(container, data, options);
+          let network = new Network(container, data, options);
         })
         .catch(err => console.log(err));
     }
