@@ -54,7 +54,11 @@
 
 <script lang="ts">
 import Vue from "vue";
+import axios, { AxiosResponse } from "axios";
 import { mdiClose, mdiMagnify } from "@mdi/js";
+
+import config from "../config/config";
+import { Switch } from "../interfaces";
 
 export default Vue.extend({
   data() {
@@ -66,15 +70,9 @@ export default Vue.extend({
 
       search: "",
 
-      switches: [
-        {
-          name: "switch",
-          mac: "00:30:48:5a:58:65",
-          ip: "192.168.1.1",
-          serial: "AAAAAAAAA",
-          location: "name build number floor"
-        }
-      ],
+      switches: new Array<Switch>(),
+      switchesEndpoint: `${config.apiURL}/switches`,
+
       headers: [
         {
           text: "Name",
@@ -87,6 +85,19 @@ export default Vue.extend({
         { text: "Location", value: "location" }
       ]
     };
+  },
+
+  created() {
+    this.getAllSwitches();
+  },
+
+  methods: {
+    getAllSwitches() {
+      axios
+        .get<Switch, AxiosResponse<Switch[]>>(this.switchesEndpoint)
+        .then(resp => (this.switches = resp.data))
+        .catch(err => console.log(err));
+    }
   }
 });
 </script>
