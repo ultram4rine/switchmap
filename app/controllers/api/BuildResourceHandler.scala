@@ -35,7 +35,9 @@ class BuildResourceHandler @Inject() (
 
   def find(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
     dataRepository.getBuilds.flatMap { builds =>
-      createBuildResourceSeq(builds)
+      val sortedBuilds =
+        builds.sortBy(b => b.addr.substring(1).toIntOption.getOrElse(1000))
+      createBuildResourceSeq(sortedBuilds)
     }
   }
 
