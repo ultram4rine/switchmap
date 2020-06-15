@@ -5,10 +5,6 @@ export interface Build {
   switchesNumber: number;
 }
 
-export interface Builds {
-  builds: Array<Build>;
-}
-
 export interface Floor {
   build: Build;
   number: number;
