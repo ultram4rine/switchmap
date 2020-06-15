@@ -11,18 +11,20 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SNMPUtil(implicit ec: ExecutionContext) {
-  private val entPhysicalDescr = new Nothing(".1.3.6.1.2.1.47.1.1.1.1.2.1")
-  private val entPhysicalSerialNum = new Nothing(".1.3.6.1.2.1.47.1.1.1.1.11.1")
+  private val entPhysicalDescr = new OID(".1.3.6.1.2.1.47.1.1.1.1.2.1")
+  private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
 
   def getSwitchInfo(switch: Switch): Future[SNMPInfo] =
     Future {
-      val transport = new DefaultUdpTransportMapping
+      val transport = new DefaultUdpTransportMapping()
       transport.listen()
 
-      val target = new CommunityTarget
-      target.setCommunity(new OctetString("public"))
+      val target =
+        new CommunityTarget(
+          new UdpAddress(s"${switch.ip}/161"),
+          new OctetString("public")
+        )
       target.setVersion(SnmpConstants.version2c)
-      target.setAddress(new Nothing("udp:" + switch.ip + "/161"))
       target.setRetries(2)
       target.setTimeout(1000)
 
