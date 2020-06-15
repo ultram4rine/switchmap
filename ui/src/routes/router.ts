@@ -7,6 +7,7 @@ import Login from "../components/Login.vue";
 import Home from "../components/Home.vue";
 import Build from "../components/Build.vue";
 import Switches from "../components/Switches.vue";
+import Vis from "../components/Vis.vue";
 
 Vue.use(Router);
 
@@ -40,6 +41,12 @@ const router = new Router({
       path: "/switches",
       name: "switches",
       component: Switches,
+      meta: { requiresAuth: false, layout: "default" },
+    },
+    {
+      path: "/vis",
+      name: "visualization",
+      component: Vis,
       meta: { requiresAuth: false, layout: "default" },
     },
   ],
