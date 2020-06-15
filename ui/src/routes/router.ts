@@ -5,12 +5,19 @@ import store from "../store/store";
 
 import Login from "../components/Login.vue";
 import Home from "../components/Home.vue";
+import Build from "../components/Build.vue";
 import Switches from "../components/Switches.vue";
 
 Vue.use(Router);
 
 const router = new Router({
   routes: [
+    {
+      path: "/login",
+      name: "login",
+      component: Login,
+      meta: { skipIfAuth: true, layout: "empty" },
+    },
     {
       path: "/",
       name: "root",
@@ -24,16 +31,16 @@ const router = new Router({
       meta: { requiresAuth: false, layout: "default" },
     },
     {
+      path: "/builds/:addr",
+      name: "build",
+      component: Build,
+      meta: { requiresAuth: false, layout: "default" },
+    },
+    {
       path: "/switches",
       name: "switches",
       component: Switches,
       meta: { requiresAuth: false, layout: "default" },
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: Login,
-      meta: { skipIfAuth: true, layout: "empty" },
     },
   ],
 });
