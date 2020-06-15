@@ -117,7 +117,7 @@ import axios, { AxiosResponse } from "axios";
 import { mdiClose } from "@mdi/js";
 
 import config from "../config/config";
-import { Build, Builds } from "../types";
+import { Build, Builds } from "../interfaces";
 
 export default Vue.extend({
   props: {
