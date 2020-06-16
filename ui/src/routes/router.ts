@@ -7,6 +7,7 @@ import Login from "../components/Login.vue";
 import Home from "../components/Home.vue";
 import Build from "../components/Build.vue";
 import Floor from "../components/Floor.vue";
+import PlanUpload from "../components/PlanUpload.vue";
 import Switches from "../components/Switches.vue";
 import Vis from "../components/Vis.vue";
 
@@ -40,6 +41,12 @@ const router = new Router({
     },
     {
       path: "/builds/:addr/:floor",
+      name: "floor",
+      component: Floor,
+      meta: { requiresAuth: false, layout: "default" },
+    },
+    {
+      path: "/builds/:addr/:floor/upload",
       name: "floor",
       component: Floor,
       meta: { requiresAuth: false, layout: "default" },
