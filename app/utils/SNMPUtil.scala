@@ -60,5 +60,5 @@ class SNMPUtil(implicit ec: ExecutionContext) {
       }
     }
 
-  private case class SNMPInfo(revision: String, serial: String)
+  case class SNMPInfo(revision: String, serial: String)
 }
