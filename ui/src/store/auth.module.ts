@@ -1,6 +1,7 @@
 import { ActionContext, Commit, Module } from "Vuex";
 import axios from "axios";
 
+import { config } from "../config";
 import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_SUCCESS, AUTH_ERROR } from "./actions";
 
 interface User {
@@ -34,7 +35,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGIN);
       axios
-        .post("http://localhost:8080/auth", user)
+        .post(`${config.apiURL}/auth`, user)
         .then((resp: any) => {
           localStorage.setItem("user-token", resp.data.token);
           context.commit(AUTH_SUCCESS, resp);
