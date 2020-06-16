@@ -15,6 +15,7 @@ class LDAPProfileParser
       CommonSocialProfile,
       LDAPInfo
     ] {
+
   val ID = "LDAP"
 
   override def parse(
@@ -22,17 +23,8 @@ class LDAPProfileParser
     authInfo: LDAPInfo
   ): Future[CommonSocialProfile] =
     Future.successful {
-
       CommonSocialProfile(
-        loginInfo = LoginInfo(ID, searchEntry.getAttributeValue("uid")),
-        firstName = Some(searchEntry.getAttributeValue("givenName")),
-        lastName = Some(searchEntry.getAttributeValue("sn")),
-        fullName = Some(
-          searchEntry.getAttributeValue("givenName") + " " + searchEntry
-            .getAttributeValue("sn")
-        ),
-        email = Some(searchEntry.getAttributeValue("mail")),
-        avatarURL = None
+        loginInfo = LoginInfo(ID, searchEntry.getAttributeValue("uid"))
       )
     }
 }
