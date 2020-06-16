@@ -8,7 +8,7 @@ import axios, { AxiosResponse } from "axios";
 import { Edge, Node, Network } from "vis-network";
 import "vis-network/dist/dist/vis-network.min.css";
 
-import config from "../config/config";
+import { config } from "../config";
 import { Switch } from "../interfaces";
 
 export default Vue.extend({

@@ -57,7 +57,7 @@ import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 import { mdiClose, mdiMagnify } from "@mdi/js";
 
-import config from "../config/config";
+import { config } from "../config";
 import { Switch } from "../interfaces";
 
 export default Vue.extend({
