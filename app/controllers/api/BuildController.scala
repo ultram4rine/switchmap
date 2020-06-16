@@ -3,8 +3,10 @@ package controllers.api
 import forms.BuildForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
+import play.api.http.FileMimeTypes
+import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,7 +41,7 @@ class BuildController @Inject() (
     }
 
   private def processJsonBuild[A]()(implicit
-    request: BuildRequest[A]
+    request: ApiRequest[A]
   ): Future[Result] = {
     def failure(badForm: Form[BuildForm]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
@@ -53,4 +55,25 @@ class BuildController @Inject() (
 
     form.bindFromRequest().fold(failure, success)
   }
+}
+
+case class BuildControllerComponents @Inject() (
+  apiActionBuilder: ApiActionBuilder,
+  buildResourceHandler: BuildResourceHandler,
+  actionBuilder: DefaultActionBuilder,
+  parsers: PlayBodyParsers,
+  messagesApi: MessagesApi,
+  langs: Langs,
+  fileMimeTypes: FileMimeTypes,
+  executionContext: scala.concurrent.ExecutionContext
+) extends ControllerComponents
+
+class BuildBaseController @Inject() (bcc: BuildControllerComponents)
+    extends BaseController
+    with RequestMarkerContext {
+  override protected def controllerComponents: ControllerComponents = bcc
+
+  def BuildAction: ApiActionBuilder = bcc.apiActionBuilder
+
+  def buildResourceHandler: BuildResourceHandler = bcc.buildResourceHandler
 }

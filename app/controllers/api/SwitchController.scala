@@ -3,10 +3,12 @@ package controllers.api
 import forms.SwitchForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
+import play.api.http.FileMimeTypes
+import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SwitchController @Inject() (
@@ -14,6 +16,7 @@ class SwitchController @Inject() (
   switchResourceHandler: SwitchResourceHandler
 )(implicit ec: ExecutionContext)
     extends SwitchBaseController(cc) {
+
   private val form: Form[SwitchForm] = {
     import play.api.data.Forms._
 
@@ -47,7 +50,7 @@ class SwitchController @Inject() (
 
   /*
   private def processJsonSwitch[A]()(implicit
-    request: SwitchRequest[A]
+    request: ApiRequest[A]
   ): Future[Result] = {
     def failure(badForm: Form[SwitchForm]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
@@ -61,4 +64,25 @@ class SwitchController @Inject() (
 
     form.bindFromRequest().fold(failure, success)
   }*/
+}
+
+case class SwitchControllerComponents @Inject() (
+  apiActionBuilder: ApiActionBuilder,
+  switchResourceHandler: SwitchResourceHandler,
+  actionBuilder: DefaultActionBuilder,
+  parsers: PlayBodyParsers,
+  messagesApi: MessagesApi,
+  langs: Langs,
+  fileMimeTypes: FileMimeTypes,
+  executionContext: scala.concurrent.ExecutionContext
+) extends ControllerComponents
+
+class SwitchBaseController @Inject() (scc: SwitchControllerComponents)
+    extends BaseController
+    with RequestMarkerContext {
+  override protected def controllerComponents: ControllerComponents = scc
+
+  def SwitchAction: ApiActionBuilder = scc.apiActionBuilder
+
+  def switchResourceHandler: SwitchResourceHandler = scc.switchResourceHandler
 }
