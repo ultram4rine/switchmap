@@ -25,7 +25,7 @@
               dark
               small
               color="primary"
-              :to="{ name: 'floor', params: { addr: floor.number }}"
+              :to="{ name: 'floor', params: { addr: $route.params.addr, floor: floor.number }}"
             >Go</v-btn>
           </v-card-actions>
         </v-card>
