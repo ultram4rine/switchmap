@@ -6,7 +6,6 @@ export interface Build {
 }
 
 export interface Floor {
-  build: Build;
   number: number;
   switchNumber: number;
 }
@@ -22,4 +21,6 @@ export interface Switch {
   port: string;
   posTop: number;
   posLeft: number;
+  buildAddr: string;
+  floorNumber: number;
 }
