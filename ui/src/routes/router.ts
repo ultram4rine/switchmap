@@ -47,8 +47,8 @@ const router = new Router({
     },
     {
       path: "/builds/:addr/:floor/upload",
-      name: "floor",
-      component: Floor,
+      name: "plan-upload",
+      component: PlanUpload,
       meta: { requiresAuth: false, layout: "default" },
     },
     {
