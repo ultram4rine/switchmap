@@ -29,14 +29,14 @@ class BuildController @Inject() (
   }
 
   def builds: Action[AnyContent] =
-    BuildAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       buildResourceHandler.find.map { builds =>
         Ok(Json.toJson(builds))
       }
     }
 
   def addBuild(): Action[AnyContent] =
-    BuildAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       processJsonBuild()
     }
 
@@ -65,7 +65,7 @@ case class BuildControllerComponents @Inject() (
   messagesApi: MessagesApi,
   langs: Langs,
   fileMimeTypes: FileMimeTypes,
-  executionContext: scala.concurrent.ExecutionContext
+  executionContext: ExecutionContext
 ) extends ControllerComponents
 
 class BuildBaseController @Inject() (bcc: BuildControllerComponents)
@@ -73,7 +73,7 @@ class BuildBaseController @Inject() (bcc: BuildControllerComponents)
     with RequestMarkerContext {
   override protected def controllerComponents: ControllerComponents = bcc
 
-  def BuildAction: ApiActionBuilder = bcc.apiActionBuilder
+  def ApiAction: ApiActionBuilder = bcc.apiActionBuilder
 
   def buildResourceHandler: BuildResourceHandler = bcc.buildResourceHandler
 }

@@ -29,19 +29,19 @@ class SwitchController @Inject() (
   }
 
   def switches: Action[AnyContent] =
-    SwitchAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       switchResourceHandler.list.map { switches => Ok(Json.toJson(switches)) }
     }
 
   def switchesOfBuild(buildAddr: String): Action[AnyContent] =
-    SwitchAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       switchResourceHandler.listOfBuild(buildAddr).map { switches =>
         Ok(Json.toJson(switches))
       }
     }
 
   def switchesOfFloor(buildAddr: String, floorNumber: Int): Action[AnyContent] =
-    SwitchAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       switchResourceHandler.listOfFloor(buildAddr, floorNumber).map {
         switches =>
           Ok(Json.toJson(switches))
@@ -74,7 +74,7 @@ case class SwitchControllerComponents @Inject() (
   messagesApi: MessagesApi,
   langs: Langs,
   fileMimeTypes: FileMimeTypes,
-  executionContext: scala.concurrent.ExecutionContext
+  executionContext: ExecutionContext
 ) extends ControllerComponents
 
 class SwitchBaseController @Inject() (scc: SwitchControllerComponents)
@@ -82,7 +82,7 @@ class SwitchBaseController @Inject() (scc: SwitchControllerComponents)
     with RequestMarkerContext {
   override protected def controllerComponents: ControllerComponents = scc
 
-  def SwitchAction: ApiActionBuilder = scc.apiActionBuilder
+  def ApiAction: ApiActionBuilder = scc.apiActionBuilder
 
   def switchResourceHandler: SwitchResourceHandler = scc.switchResourceHandler
 }

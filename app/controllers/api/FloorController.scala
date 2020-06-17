@@ -30,14 +30,14 @@ class FloorController @Inject() (
   }
 
   def floorsOf(buildAddr: String): Action[AnyContent] =
-    FloorAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       floorResourceHandler.listOf(buildAddr).map { floors =>
         Ok(Json.toJson(floors))
       }
     }
 
   def addFloor(): Action[AnyContent] =
-    FloorAction.async { implicit request =>
+    ApiAction.async { implicit request =>
       processJsonFloor()
     }
 
@@ -66,7 +66,7 @@ case class FloorControllerComponents @Inject() (
   messagesApi: MessagesApi,
   langs: Langs,
   fileMimeTypes: FileMimeTypes,
-  executionContext: scala.concurrent.ExecutionContext
+  executionContext: ExecutionContext
 ) extends ControllerComponents
 
 class FloorBaseController @Inject() (fcc: FloorControllerComponents)
@@ -74,7 +74,7 @@ class FloorBaseController @Inject() (fcc: FloorControllerComponents)
     with RequestMarkerContext {
   override protected def controllerComponents: ControllerComponents = fcc
 
-  def FloorAction: ApiActionBuilder = fcc.apiActionBuilder
+  def ApiAction: ApiActionBuilder = fcc.apiActionBuilder
 
   def floorResourceHandler: FloorResourceHandler = fcc.floorResourceHandler
 }
