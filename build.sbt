@@ -21,6 +21,7 @@ lazy val root = (project in file("."))
       "com.mohiva"             %% "play-silhouette-persistence" % SilhouetteVersion,
       "com.mohiva"             %% "play-silhouette-crypto-jca"  % SilhouetteVersion,
       "com.pauldijou"          %% "jwt-play"                    % "4.3.0",
+      "com.pauldijou"          %% "jwt-play-json"               % "4.3.0",
       "com.unboundid"           % "unboundid-ldapsdk"           % "5.1.0",
       "org.snmp4j"              % "snmp4j"                      % "3.4.1",
       "net.codingwell"         %% "scala-guice"                 % "4.2.7",
