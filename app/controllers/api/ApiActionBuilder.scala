@@ -5,10 +5,11 @@ import java.time.Clock
 import auth.User
 import javax.inject.Inject
 import pdi.jwt.JwtSession._
-import play.api.MarkerContext
 import play.api.http.HttpVerbs
 import play.api.i18n.MessagesApi
+import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
+import play.api.{Configuration, MarkerContext}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,7 +27,7 @@ class ApiRequest[A](
 class ApiActionBuilder @Inject() (
   messagesApi: MessagesApi,
   playBodyParsers: PlayBodyParsers
-)(implicit val executionContext: ExecutionContext)
+)(implicit val executionContext: ExecutionContext, configuration: Configuration)
     extends ActionBuilder[ApiRequest, AnyContent]
     with RequestMarkerContext
     with HttpVerbs {
