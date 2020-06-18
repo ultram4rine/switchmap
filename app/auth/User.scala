@@ -1,9 +1,8 @@
 package auth
 
-import com.mohiva.play.silhouette.api.Identity
 import play.api.libs.json.{Json, OFormat}
 
-case class User(username: String) extends Identity
+case class User(username: String)
 
 object User {
   implicit val userFormat: OFormat[User] = Json.format[User]
