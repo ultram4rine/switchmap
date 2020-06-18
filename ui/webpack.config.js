@@ -96,10 +96,12 @@ module.exports = {
     ],
   },
   devServer: {
-    port: 49148,
     historyApiFallback: true,
     noInfo: true,
     overlay: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
   },
   performance: {
     hints: false,
