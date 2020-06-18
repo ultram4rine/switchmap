@@ -1,10 +1,10 @@
 <template>
   <div id="home">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" :cols="3">
+      <v-col v-if="isLoading" :sm="12" :md="4" :lg="2">
         <v-skeleton-loader type="article" class="mx-auto"></v-skeleton-loader>
       </v-col>
-      <v-col v-else v-for="build in builds" :key="build.addr" :cols="3">
+      <v-col v-else v-for="build in builds" :key="build.addr" :sm="12" :md="4" :lg="2">
         <v-card class="ma-1" outlined>
           <v-list-item two-line>
             <v-list-item-content>
@@ -31,7 +31,7 @@
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && builds.length===0" :cols="3">
+      <v-col v-if="!isLoading && builds.length===0" :sm="12" :md="4" :lg="2">
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
