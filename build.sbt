@@ -1,5 +1,3 @@
-val SilhouetteVersion = "7.0.0"
-
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .settings(
@@ -15,18 +13,14 @@ lazy val root = (project in file("."))
       jdbc
     ),
     libraryDependencies ++= Seq(
-      "com.typesafe.play"      %% "play-slick"                  % "5.0.0",
-      "org.postgresql"          % "postgresql"                  % "42.2.14",
-      "com.mohiva"             %% "play-silhouette"             % SilhouetteVersion,
-      "com.mohiva"             %% "play-silhouette-persistence" % SilhouetteVersion,
-      "com.mohiva"             %% "play-silhouette-crypto-jca"  % SilhouetteVersion,
-      "com.pauldijou"          %% "jwt-play"                    % "4.3.0",
-      "com.pauldijou"          %% "jwt-play-json"               % "4.3.0",
-      "com.unboundid"           % "unboundid-ldapsdk"           % "5.1.0",
-      "org.snmp4j"              % "snmp4j"                      % "3.4.1",
-      "net.codingwell"         %% "scala-guice"                 % "4.2.7",
-      "net.logstash.logback"    % "logstash-logback-encoder"    % "6.3",
-      "org.scalatestplus.play" %% "scalatestplus-play"          % "5.1.0" % Test
+      "com.typesafe.play"      %% "play-slick"               % "5.0.0",
+      "org.postgresql"          % "postgresql"               % "42.2.14",
+      "com.pauldijou"          %% "jwt-play-json"            % "4.3.0",
+      "com.unboundid"           % "unboundid-ldapsdk"        % "5.1.0",
+      "org.snmp4j"              % "snmp4j"                   % "3.4.1",
+      "net.codingwell"         %% "scala-guice"              % "4.2.7",
+      "net.logstash.logback"    % "logstash-logback-encoder" % "6.3",
+      "org.scalatestplus.play" %% "scalatestplus-play"       % "5.1.0" % Test
     ),
     scalacOptions ++= Seq(
       "-feature",
