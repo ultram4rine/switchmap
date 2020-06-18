@@ -4,14 +4,17 @@ import java.time.Clock
 
 import auth.User
 import javax.inject.Inject
+import pdi.jwt.{JwtAlgorithm, JwtJson}
 import pdi.jwt.JwtSession._
 import play.api.http.HttpVerbs
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import play.api.{Configuration, MarkerContext}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 trait ApiRequestHeader
     extends MessagesRequestHeader
@@ -45,20 +48,33 @@ class ApiActionBuilder @Inject() (
       request
     )
 
-    request.jwtSession.getAs[User]("user") match {
-      case Some(user) =>
-        block(new ApiRequest[A](user, request, messagesApi))
-          .map(result => {
-            result.refreshJwtSession(request)
-            request.method match {
-              case GET | HEAD =>
-                result.withHeaders("Cache-Control" -> s"max-age: 100")
-              case _ =>
-                result
-            }
-          })
-      case _ =>
-        Future(Unauthorized)
+    request.headers.get("Authorization") match {
+      case Some(token) =>
+        JwtJson.decodeJson(
+          token,
+          configuration.get[String]("play.http.secret.key"),
+          Seq(JwtAlgorithm.HS256)
+        ) match {
+          case Success(claim) =>
+            block(
+              new ApiRequest[A](
+                User(claim.value("user").toString()),
+                request,
+                messagesApi
+              )
+            ).map(result => {
+              result.refreshJwtSession(request)
+              request.method match {
+                case GET | HEAD =>
+                  result.withHeaders("Cache-Control" -> s"max-age: 100")
+                case _ =>
+                  result
+              }
+            })
+          case _ =>
+            Future(Unauthorized)
+        }
+      case _ => Future(Unauthorized)
     }
   }
 
