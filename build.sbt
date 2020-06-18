@@ -10,7 +10,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       cacheApi,
       guice,
-      jdbc
+      jdbc,
+      ws
     ),
     libraryDependencies ++= Seq(
       "com.typesafe.play"      %% "play-slick"               % "5.0.0",
