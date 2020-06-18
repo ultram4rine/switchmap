@@ -5,10 +5,8 @@ import java.time.Clock
 import auth.User
 import javax.inject.Inject
 import pdi.jwt.{JwtAlgorithm, JwtJson}
-import pdi.jwt.JwtSession._
 import play.api.http.HttpVerbs
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
 import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import play.api.{Configuration, MarkerContext}
@@ -63,7 +61,6 @@ class ApiActionBuilder @Inject() (
                 messagesApi
               )
             ).map(result => {
-              result.refreshJwtSession(request)
               request.method match {
                 case GET | HEAD =>
                   result.withHeaders("Cache-Control" -> s"max-age: 100")
