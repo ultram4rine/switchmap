@@ -2,6 +2,7 @@ package controllers.api
 
 import java.time.Clock
 
+import auth.ldap.LDAP
 import javax.inject.{Inject, Singleton}
 import pdi.jwt.{JwtAlgorithm, JwtJson}
 import play.api.Configuration
@@ -15,7 +16,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AuthController @Inject() (
-  cc: AuthControllerComponents
+  cc: AuthControllerComponents,
+  ldap: LDAP
 )(implicit ec: ExecutionContext, configuration: Configuration)
     extends AuthBaseController(cc) {
 
@@ -27,28 +29,27 @@ class AuthController @Inject() (
 
   def login: Action[JsValue] =
     Action(parse.json).async { implicit request =>
-      val result = request.body
+      request.body
         .validate(loginForm)
         .fold(
           errors => {
-            BadRequest(JsError.toJson(errors))
+            Future { BadRequest(JsError.toJson(errors)) }
           },
           {
             case (username, password) =>
-              if (username == "admin" && password == "admin")
-                Ok(
-                  JwtJson.encode(
-                    Json.obj(("user", 1)),
-                    configuration.get[String]("play.http.secret.key"),
-                    JwtAlgorithm.HS256
+              ldap.bind(username, password).map {
+                case 0 =>
+                  Ok(
+                    JwtJson.encode(
+                      Json.obj(("user", 1)),
+                      configuration.get[String]("play.http.secret.key"),
+                      JwtAlgorithm.HS256
+                    )
                   )
-                )
-              else
-                Unauthorized
+                case _ => Unauthorized
+              }
           }
         )
-
-      Future(result)
     }
 }
 
