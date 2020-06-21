@@ -2,11 +2,7 @@ import { ActionContext, Module } from "Vuex";
 import axios from "axios";
 
 import { config } from "../../config";
-
-const AUTH_LOGIN = "AUTH_LOGIN";
-const AUTH_LOGOUT = "AUTH_LOGOUT";
-const AUTH_SUCCESS = "AUTH_SUCCESS";
-const AUTH_ERROR = "AUTH_ERROR";
+import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_SUCCESS, AUTH_ERROR } from "../actions";
 
 interface User {
   username: string;
