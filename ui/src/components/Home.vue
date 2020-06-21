@@ -168,10 +168,15 @@ export default Vue.extend({
           addr: this.buildAddr
         })
         .then(() => {
-          this.getAllBuilds();
           this.addBuildForm = false;
+
+          this.getAllBuilds();
+
           this.item = this.buildName;
           this.snackbar = true;
+
+          this.buildName = "";
+          this.buildAddr = "";
         })
         .catch(err => console.log(err));
     },
@@ -186,8 +191,13 @@ export default Vue.extend({
         })
         .then(() => {
           this.addFloorForm = false;
+
           this.item = `${this.floorNumber} floor in ${this.buildName}`;
           this.snackbar = true;
+
+          this.floorNumber = "";
+          this.floorBuildName = "";
+          this.floorBuildAddr = "";
         })
         .catch(err => console.log(err));
     }
