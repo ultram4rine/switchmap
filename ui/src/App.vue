@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { mapActions } from "vuex";
 import axios from "axios";
 
 import { AUTH_LOGOUT } from "./store/actions";
@@ -30,7 +31,9 @@ export default Vue.extend({
       } else {
         this.isLoading = false;
       }
-    }
+    },
+
+    ...mapActions("csrf", ["setToken"])
   },
 
   computed: {
@@ -40,9 +43,14 @@ export default Vue.extend({
   },
 
   created() {
+    const bodyHtmlTag = document.getElementsByTagName("body")[0];
+    const csrfToken = bodyHtmlTag.getAttribute("csrf-token-value");
+    this.setToken(csrfToken);
+
     axios.interceptors.request.use(
       config => {
         this.setLoading(true);
+        axios.defaults.headers.common["Csrf-Token"] = csrfToken;
         return config;
       },
       error => {
