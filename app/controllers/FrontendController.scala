@@ -18,7 +18,7 @@ class FrontendController @Inject() (
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
 
-  def index(path: String): Action[AnyContent] =
+  def vueApp(path: String): Action[AnyContent] =
     Action.async { implicit req =>
       environment.mode match {
         case Mode.Dev =>
