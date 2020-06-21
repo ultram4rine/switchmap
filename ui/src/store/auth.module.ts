@@ -1,4 +1,4 @@
-import { ActionContext, Commit, Module } from "Vuex";
+import { ActionContext, Module } from "Vuex";
 import axios from "axios";
 
 import { config } from "../config";
@@ -7,10 +7,6 @@ import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_SUCCESS, AUTH_ERROR } from "./actions";
 interface User {
   username: string;
   password: string;
-}
-
-interface AuthResp {
-  token: string;
 }
 
 interface State {
@@ -26,7 +22,9 @@ const state: State = {
 };
 
 const getters = {
-  isAuthenticated: (state: State) => !!state.token,
+  isAuthenticated: (state: State) => {
+    return !!state.token;
+  },
   authStatus: (state: State) => state.status,
 };
 
@@ -63,7 +61,7 @@ const mutations = {
   },
   [AUTH_SUCCESS]: (state: State, resp: any) => {
     state.status = "success";
-    state.token = resp.token;
+    state.token = resp.data;
     state.hasLoadedOnce = true;
   },
   [AUTH_ERROR]: (state: State) => {
@@ -76,6 +74,7 @@ const mutations = {
 };
 
 const auth: Module<State, any> = {
+  namespaced: true,
   state,
   getters,
   actions,

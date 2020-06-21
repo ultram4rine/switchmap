@@ -67,9 +67,9 @@ export default Vue.extend({
     login: function() {
       let { username, password } = this;
       this.$store
-        .dispatch(AUTH_LOGIN, { username, password })
+        .dispatch("auth/AUTH_LOGIN", { username, password })
         .then(() => {
-          this.$router.push({ name: "home" }, () => {});
+          this.$router.push("/");
         })
         .catch((err: any) => {
           console.log(err);

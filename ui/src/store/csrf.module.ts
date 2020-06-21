@@ -9,7 +9,9 @@ const state: State = {
 };
 
 const getters = {
-  getToken: (state: State) => state.token,
+  getToken: (state: State) => {
+    return state.token;
+  },
 };
 
 const actions = {
