@@ -1,5 +1,6 @@
-->         /api                controllers.api.ApiRouter
+->         /api                 controllers.api.ApiRouter
 
-GET        /favicon.ico        controllers.Assets.at(path="/public", file="favicon.ico")
+GET        /favicon.ico         controllers.Assets.at(path="/public", file="favicon.ico")
+GET        /plans/*file        controllers.Assets.at(path="/public/plans", file)
 
-GET        /$any<.*>           controllers.FrontendController.vueApp(any)
+GET        /$any<.*>            controllers.FrontendController.vueApp(any)
