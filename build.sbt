@@ -8,7 +8,7 @@ lazy val root = (project in file("."))
     resolvers += Classpaths.typesafeReleases,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      cacheApi,
+      caffeine,
       guice,
       jdbc,
       ws
