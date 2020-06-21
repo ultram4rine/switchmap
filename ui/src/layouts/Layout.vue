@@ -37,11 +37,6 @@
         <slot :is-loading="isLoading" />
       </v-container>
     </v-main>
-
-    <v-footer app dark inset>
-      <v-icon>{{ mdiCopyright }}</v-icon>
-      <span class="px-4">2020</span>
-    </v-footer>
   </div>
 </template>
 
