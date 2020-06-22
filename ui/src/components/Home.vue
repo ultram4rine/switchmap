@@ -104,7 +104,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" @click="addFloor">Add</v-btn>
+          <v-btn color="orange darken-1" @click="addFloorWithReload">Add</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -134,6 +134,14 @@ export default mixins(buildsMixin, floorsMixin).extend({
 
   created() {
     this.getAllBuilds();
+  },
+
+  methods: {
+    addFloorWithReload() {
+      this.addFloor();
+      this.getBuild(this.floorBuildAddr);
+      this.floorBuildAddr = "";
+    }
   }
 });
 </script>

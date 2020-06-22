@@ -35,7 +35,6 @@ const floorsMixin = Vue.extend({
       axios
         .post(this.addFloorEndpoint, {
           number: parseInt(this.floorNumber, 10),
-
           buildName: this.floorBuildName,
           buildAddr: this.floorBuildAddr,
         })
@@ -47,7 +46,6 @@ const floorsMixin = Vue.extend({
 
           this.floorNumber = "";
           this.floorBuildName = "";
-          this.floorBuildAddr = "";
         })
         .catch((err) => console.log(err));
     },

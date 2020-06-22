@@ -14,6 +14,7 @@ const buildsMixin = Vue.extend({
 
       builds: new Array<Build>(),
       buildsEndpoint: `${config.apiURL}/builds`,
+      buildEndpoint: `${config.apiURL}/build/`,
 
       addBuildForm: false,
       addBuildEndpoint: `${config.apiURL}/build`,
@@ -27,6 +28,19 @@ const buildsMixin = Vue.extend({
       axios
         .get<Build, AxiosResponse<Build[]>>(this.buildsEndpoint)
         .then((resp) => (this.builds = resp.data))
+        .catch((err) => console.log(err));
+    },
+
+    getBuild(buildAddr: string) {
+      axios
+        .get<Build, AxiosResponse<Build>>(this.buildEndpoint + buildAddr)
+        .then((resp) =>
+          this.builds.forEach((build, i) => {
+            if (build.addr === buildAddr) {
+              this.builds[i] = resp.data;
+            }
+          })
+        )
         .catch((err) => console.log(err));
     },
 
