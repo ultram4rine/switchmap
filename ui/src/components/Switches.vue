@@ -60,6 +60,10 @@ import { mdiClose, mdiMagnify } from "@mdi/js";
 import switchesMixin from "../mixins/switchesMixin";
 
 export default mixins(switchesMixin).extend({
+  props: {
+    isLoading: { type: Boolean, required: true }
+  },
+
   data() {
     return {
       mdiClose: mdiClose,
