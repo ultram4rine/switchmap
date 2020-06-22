@@ -30,7 +30,7 @@ const buildsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    addBuildMixin() {
+    addBuild() {
       axios
         .post(this.addBuildEndpoint, {
           name: this.buildName,
