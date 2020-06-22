@@ -37,6 +37,17 @@ class SwitchResourceHandler @Inject() (
     }
   }
 
+  def findByName(
+    switchName: String
+  )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
+    dataRepository.getSwitchByName(switchName).flatMap { maybeSwitch =>
+      maybeSwitch.map { switch => createSwitchResource(switch) } match {
+        case Some(sw) => sw.map(Some(_))
+        case None     => Future.successful(None)
+      }
+    }
+  }
+
   def listOfBuild(
     buildAddr: String
   )(implicit mc: MarkerContext): Future[Seq[SwitchResource]] = {

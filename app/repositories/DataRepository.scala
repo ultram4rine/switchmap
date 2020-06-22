@@ -131,6 +131,9 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
   def getSwitches: Future[Seq[Switch]] = db.run { switches.result }
 
+  def getSwitchByName(switchName: String): Future[Option[Switch]] =
+    db.run { switches.filter(_.name === switchName).result.headOption }
+
   def getSwitchesOfBuild(buildAddr: String): Future[Seq[Switch]] =
     db.run { switches.filter(_.buildAddr === buildAddr).result }
 

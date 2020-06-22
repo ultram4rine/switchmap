@@ -29,6 +29,9 @@ class ApiRouter @Inject() (
     case GET(p"/switches") =>
       switchController.switches
 
+    case GET(p"/switch/$switchName") =>
+      switchController.switchByName(switchName)
+
     case GET(p"/build/$buildAddr/switches") =>
       switchController.switchesOfBuild(buildAddr)
 

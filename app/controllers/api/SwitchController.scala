@@ -33,6 +33,14 @@ class SwitchController @Inject() (
       switchResourceHandler.list.map { switches => Ok(Json.toJson(switches)) }
     }
 
+  def switchByName(switchName: String): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      switchResourceHandler.findByName(switchName).map {
+        case Some(b) => Ok(Json.toJson(b))
+        case None    => NoContent
+      }
+    }
+
   def switchesOfBuild(buildAddr: String): Action[AnyContent] =
     ApiAction.async { implicit request =>
       switchResourceHandler.listOfBuild(buildAddr).map { switches =>
