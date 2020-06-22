@@ -123,6 +123,9 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
   def getBuilds: Future[Seq[Build]] = db.run { builds.result }
 
+  def getBuildByAddr(buildAddr: String): Future[Option[Build]] =
+    db.run { builds.filter(_.addr === buildAddr).result.headOption }
+
   def getFloorOf(buildAddr: String): Future[Seq[Floor]] =
     db.run { floors.filter(_.buildAddr === buildAddr).sortBy(_.number).result }
 

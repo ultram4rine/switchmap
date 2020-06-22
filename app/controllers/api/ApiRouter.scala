@@ -20,6 +20,9 @@ class ApiRouter @Inject() (
     case GET(p"/builds") =>
       buildController.builds
 
+    case GET(p"/build/$buildAddr") =>
+      buildController.buildByAddr(buildAddr)
+
     case GET(p"/build/$buildAddr/floors") =>
       floorController.floorsOf(buildAddr)
 

@@ -30,8 +30,16 @@ class BuildController @Inject() (
 
   def builds: Action[AnyContent] =
     ApiAction.async { implicit request =>
-      buildResourceHandler.find.map { builds =>
+      buildResourceHandler.list.map { builds =>
         Ok(Json.toJson(builds))
+      }
+    }
+
+  def buildByAddr(buildAddr: String): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      buildResourceHandler.findByAddr(buildAddr).map {
+        case Some(b) => Ok(Json.toJson(b))
+        case None    => NoContent
       }
     }
 

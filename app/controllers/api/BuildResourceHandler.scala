@@ -8,6 +8,7 @@ import play.api.libs.json.{Format, Json}
 import repositories.DataRepository
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 case class BuildResource(
   name: String,
@@ -33,11 +34,22 @@ class BuildResourceHandler @Inject() (
     }
   }
 
-  def find(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
+  def list(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
     dataRepository.getBuilds.flatMap { builds =>
       val sortedBuilds =
         builds.sortBy(b => b.addr.substring(1).toIntOption.getOrElse(1000))
       createBuildResourceSeq(sortedBuilds)
+    }
+  }
+
+  def findByAddr(
+    buildAddr: String
+  )(implicit mc: MarkerContext): Future[Option[BuildResource]] = {
+    dataRepository.getBuildByAddr(buildAddr).flatMap { maybeBuild =>
+      maybeBuild.map { build => createBuildResource(build) } match {
+        case Some(b) => b.map(Some(_))
+        case None    => Future.successful(None)
+      }
     }
   }
 
