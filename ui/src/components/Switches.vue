@@ -4,7 +4,7 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-dialog v-model="dialog" max-width="500px">
+        <v-dialog v-model="addSwitchForm" max-width="500px">
           <template v-slot:activator="{ on }">
             <v-btn color="orange darken-1" dark v-on="on">Add switch</v-btn>
           </template>
@@ -12,7 +12,7 @@
             <v-toolbar>
               <v-toolbar-title>New switch</v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-btn icon @click="dialog = false">
+              <v-btn icon @click="addSwitchForm = false">
                 <v-icon>{{ mdiClose }}</v-icon>
               </v-btn>
             </v-toolbar>
@@ -25,7 +25,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="orange darken-1" @click="dialog = false">Add</v-btn>
+              <v-btn color="orange darken-1" @click="addSwitchForm = false">Add</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -54,24 +54,18 @@
 
 <script lang="ts">
 import Vue from "vue";
-import axios, { AxiosResponse } from "axios";
+import mixins from "vue-typed-mixins";
 import { mdiClose, mdiMagnify } from "@mdi/js";
 
-import { config } from "../config";
-import { Switch } from "../interfaces";
+import switchesMixin from "../mixins/switchesMixin";
 
-export default Vue.extend({
+export default mixins(switchesMixin).extend({
   data() {
     return {
       mdiClose: mdiClose,
       mdiMagnify: mdiMagnify,
 
-      dialog: false,
-
       search: "",
-
-      switches: new Array<Switch>(),
-      switchesEndpoint: `${config.apiURL}/switches`,
 
       headers: [
         {
@@ -89,15 +83,6 @@ export default Vue.extend({
 
   created() {
     this.getAllSwitches();
-  },
-
-  methods: {
-    getAllSwitches() {
-      axios
-        .get<Switch, AxiosResponse<Switch[]>>(this.switchesEndpoint)
-        .then(resp => (this.switches = resp.data))
-        .catch(err => console.log(err));
-    }
   }
 });
 </script>
