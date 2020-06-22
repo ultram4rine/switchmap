@@ -126,8 +126,6 @@ export default mixins(buildsMixin, floorsMixin).extend({
     isLoading: { type: Boolean, required: true }
   },
 
-  mixins: [buildsMixin, floorsMixin],
-
   data() {
     return {
       mdiClose: mdiClose
