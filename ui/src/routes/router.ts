@@ -4,8 +4,8 @@ import Router, { Route, Location } from "vue-router";
 import store from "../store/store";
 
 import Login from "../components/Login.vue";
-import Home from "../components/Home.vue";
-import Build from "../components/Build.vue";
+import Builds from "../components/Builds.vue";
+import Floors from "../components/Floors.vue";
 import Floor from "../components/Floor.vue";
 import PlanUpload from "../components/PlanUpload.vue";
 import Switches from "../components/Switches.vue";
@@ -30,13 +30,13 @@ const router = new Router({
     {
       path: "/builds",
       name: "home",
-      component: Home,
+      component: Builds,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
       path: "/builds/:addr",
       name: "build",
-      component: Build,
+      component: Floors,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
