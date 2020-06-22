@@ -90,64 +90,27 @@
 
 <script lang="ts">
 import Vue from "vue";
-import axios, { AxiosResponse } from "axios";
+import mixins from "vue-typed-mixins";
 import { mdiClose } from "@mdi/js";
 
 import { config } from "../config";
 import { Floor } from "../interfaces";
 
-export default Vue.extend({
+import floorsMixin from "../mixins/floorsMixin";
+
+export default mixins(floorsMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true }
   },
 
   data() {
     return {
-      mdiClose: mdiClose,
-
-      snackbar: false,
-      timeout: 3000,
-
-      item: "",
-
-      floors: new Array<Floor>(),
-      floorsEndpoint: `${config.apiURL}/build/${this.$route.params.addr}/floors`,
-
-      addFloorForm: false,
-      addFloorFormEndpoint: `${config.apiURL}/floor`,
-      floorNumber: "",
-      floorBuildName: "",
-      floorBuildAddr: ""
+      mdiClose: mdiClose
     };
   },
 
   created() {
-    this.getAllBuilds();
-  },
-
-  methods: {
-    getAllBuilds() {
-      axios
-        .get<Floor, AxiosResponse<Floor[]>>(this.floorsEndpoint)
-        .then(resp => (this.floors = resp.data))
-        .catch(err => console.log(err));
-    },
-
-    addFloor() {
-      axios
-        .post(this.addFloorFormEndpoint, {
-          number: parseInt(this.floorNumber, 10),
-
-          buildName: this.floorBuildName,
-          buildAddr: this.floorBuildAddr
-        })
-        .then(() => {
-          this.addFloorForm = false;
-          this.item = `${this.floorNumber} floor`;
-          this.snackbar = true;
-        })
-        .catch(err => console.log(err));
-    }
+    this.getAllFloors();
   }
 });
 </script>
