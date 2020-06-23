@@ -1,4 +1,4 @@
-import { ActionContext, Module } from "Vuex";
+import { ActionContext, Module } from "vuex";
 import axios from "axios";
 
 import { config } from "../../config";

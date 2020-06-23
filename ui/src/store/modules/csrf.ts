@@ -1,4 +1,4 @@
-import { ActionContext, Module } from "Vuex";
+import { ActionContext, Module } from "vuex";
 
 interface State {
   token: string;
