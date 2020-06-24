@@ -35,11 +35,11 @@ const buildsMixin = Vue.extend({
       axios
         .get<Build, AxiosResponse<Build>>(this.buildEndpoint + buildAddr)
         .then((resp) =>
-          this.builds.forEach((build, i) => {
-            if (build.addr === buildAddr) {
-              this.builds[i] = resp.data;
-            }
-          })
+          Vue.set(
+            this.builds,
+            this.builds.findIndex((b) => b.addr === buildAddr),
+            resp.data
+          )
         )
         .catch((err) => console.log(err));
     },
