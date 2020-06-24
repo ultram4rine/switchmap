@@ -50,9 +50,11 @@
 
     <v-snackbar v-model="snackbar" :timeout="timeout">
       {{ item }} added!
-      <v-btn fab x-small @click="snackbar = false">
-        <v-icon dark>{{ mdiClose }}</v-icon>
-      </v-btn>
+      <template v-slot:action="{ attrs }">
+        <v-btn fab x-small v-bind="attrs" @click="snackbar = false">
+          <v-icon dark>{{ mdiClose }}</v-icon>
+        </v-btn>
+      </template>
     </v-snackbar>
 
     <v-dialog :value="addBuildForm" max-width="500px">
@@ -137,7 +139,7 @@ export default mixins(buildsMixin, floorsMixin).extend({
   },
 
   methods: {
-    addFloorWithReload() {
+    addFloorWithRefresh() {
       this.addFloor();
       this.getBuild(this.floorBuildAddr);
       this.floorBuildAddr = "";
