@@ -5,8 +5,8 @@
 <script lang="ts">
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
-import { Edge, Node, Network } from "vis-network";
-import "vis-network/dist/dist/vis-network.min.css";
+
+import { Node, Edge, Network } from "vis-network/standalone";
 
 import { config } from "../config";
 import { Switch } from "../interfaces";
