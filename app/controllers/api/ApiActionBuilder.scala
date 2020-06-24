@@ -28,8 +28,10 @@ class ApiRequest[A](
 class ApiActionBuilder @Inject() (
   messagesApi: MessagesApi,
   playBodyParsers: PlayBodyParsers
-)(implicit val executionContext: ExecutionContext, configuration: Configuration)
-    extends ActionBuilder[ApiRequest, AnyContent]
+)(implicit
+  val executionContext: ExecutionContext,
+  configuration: Configuration
+) extends ActionBuilder[ApiRequest, AnyContent]
     with RequestMarkerContext
     with HttpVerbs {
 

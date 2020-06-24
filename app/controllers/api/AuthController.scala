@@ -18,8 +18,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthController @Inject() (
   cc: AuthControllerComponents,
   ldap: LDAP
-)(implicit ec: ExecutionContext, configuration: Configuration)
-    extends AuthBaseController(cc) {
+)(implicit
+  ec: ExecutionContext,
+  configuration: Configuration
+) extends AuthBaseController(cc) {
 
   implicit val clock: Clock = Clock.systemUTC
 
