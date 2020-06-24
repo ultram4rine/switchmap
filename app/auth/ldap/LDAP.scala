@@ -17,11 +17,10 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LDAP @Inject() (implicit
-  ec: ExecutionContext,
+class LDAP @Inject() (
   configuration: Configuration,
   cache: AsyncCacheApi
-) {
+)(implicit ec: ExecutionContext) {
 
   private val protocol =
     configuration.getOptional[String]("ldap.protocol").getOrElse("ldap")
@@ -111,7 +110,6 @@ class LDAP @Inject() (implicit
   def getUserDN(uid: String): Future[Option[String]] = {
     val cacheKey = "userDN." + uid
     cache.getOrElseUpdate[Option[String]](cacheKey) {
-      println("LDAP: get DN for " + uid)
       val searchEntries
         : java.util.List[com.unboundid.ldap.sdk.SearchResultEntry] =
         connectionPool
@@ -141,7 +139,6 @@ class LDAP @Inject() (implicit
       getUserDN(uid).flatMap {
         case Some(dn) =>
           Future {
-            println("LDAP: binding " + uid + " hash=" + hash)
             connectionPool
               .bindAndRevertAuthentication(new SimpleBindRequest(dn, pass))
               .getResultCode
