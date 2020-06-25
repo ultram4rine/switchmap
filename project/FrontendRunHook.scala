@@ -9,7 +9,7 @@ object FrontendRunHook {
       var process: Option[Process] = None
 
       var npmInstall: String = FrontendCommands.dependencyInstall
-      var npmRun: String = FrontendCommands.dev
+      var npmRun: String = FrontendCommands.serve
 
       if (System.getProperty("os.name").toLowerCase().contains("win")) {
         npmInstall = "cmd /c" + npmInstall
