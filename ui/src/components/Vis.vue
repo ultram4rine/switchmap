@@ -1,5 +1,7 @@
 <template>
-  <div id="viz"></div>
+  <div id="vis">
+    <div id="container"></div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -34,7 +36,7 @@ export default Vue.extend({
         .then(resp => {
           this.switches = resp.data;
 
-          let container = <HTMLElement>document.getElementById("viz");
+          let container = <HTMLElement>document.getElementById("container");
 
           let nodes = new Array<Node>();
           let edges = new Array<Edge>();
