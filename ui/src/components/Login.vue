@@ -45,8 +45,6 @@
 import Vue from "vue";
 import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
-import { AUTH_LOGIN } from "../store/actions";
-
 export default Vue.extend({
   data() {
     return {
@@ -65,7 +63,7 @@ export default Vue.extend({
 
   methods: {
     login: function() {
-      let { username, password } = this;
+      const { username, password } = this;
       this.$store
         .dispatch("auth/AUTH_LOGIN", { username, password })
         .then(() => {

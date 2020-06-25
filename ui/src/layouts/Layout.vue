@@ -50,8 +50,6 @@ import {
   mdiCopyright
 } from "@mdi/js";
 
-import { AUTH_LOGOUT } from "../store/actions";
-
 interface Nav {
   text: string;
   link: string;

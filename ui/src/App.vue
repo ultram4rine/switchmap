@@ -68,7 +68,7 @@ export default Vue.extend({
       },
       err => {
         this.setLoading(false);
-        return new Promise((resolve, reject) => {
+        return new Promise((_resolve, _reject) => {
           if (
             err.status === 401 &&
             err.config &&

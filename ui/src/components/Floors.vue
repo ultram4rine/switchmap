@@ -89,12 +89,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import mixins from "vue-typed-mixins";
 import { mdiClose } from "@mdi/js";
-
-import { config } from "../config";
-import { Floor } from "../interfaces";
 
 import floorsMixin from "../mixins/floorsMixin";
 
