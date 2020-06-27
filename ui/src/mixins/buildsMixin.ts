@@ -16,7 +16,7 @@ const buildsMixin = Vue.extend({
       buildsEndpoint: `${config.apiURL}/builds`,
       buildEndpoint: `${config.apiURL}/build/`,
 
-      addBuildForm: false,
+      buildForm: false,
       addBuildEndpoint: `${config.apiURL}/build`,
       buildName: "",
       buildAddr: "",
@@ -51,7 +51,7 @@ const buildsMixin = Vue.extend({
           addr: this.buildAddr,
         })
         .then(() => {
-          this.addBuildForm = false;
+          this.buildForm = false;
 
           this.getAllBuilds();
 
@@ -62,6 +62,19 @@ const buildsMixin = Vue.extend({
           this.buildAddr = "";
         })
         .catch((err) => console.log(err));
+    },
+
+    closeBuildForm() {
+      this.buildForm = false;
+      this.buildName = "";
+      this.buildAddr = "";
+    },
+
+    updateBuildName(name: string) {
+      this.buildName = name;
+    },
+    updateBuildAddr(addr: string) {
+      this.buildAddr = addr;
     },
   },
 });

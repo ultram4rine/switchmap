@@ -15,7 +15,7 @@ const floorsMixin = Vue.extend({
       floors: new Array<Floor>(),
       floorsEndpoint: `${config.apiURL}/build/${this.$route.params.addr}/floors`,
 
-      addFloorForm: false,
+      floorForm: false,
       addFloorEndpoint: `${config.apiURL}/floor`,
       floorNumber: "",
       floorBuildName: "",
@@ -39,7 +39,7 @@ const floorsMixin = Vue.extend({
           buildAddr: this.floorBuildAddr,
         })
         .then(() => {
-          this.addFloorForm = false;
+          this.floorForm = false;
 
           this.item = `${this.floorNumber} floor in ${this.floorBuildName}`;
           this.snackbar = true;
@@ -48,6 +48,17 @@ const floorsMixin = Vue.extend({
           this.floorBuildName = "";
         })
         .catch((err) => console.log(err));
+    },
+
+    closeFloorForm() {
+      this.floorForm = false;
+      this.floorNumber = "";
+      this.floorBuildName = "";
+      this.floorBuildAddr = "";
+    },
+
+    updateFloorNumber(number: string) {
+      this.floorNumber = number;
     },
   },
 });

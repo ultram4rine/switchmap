@@ -44,7 +44,7 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="addFloorForm = !addFloorForm">Add floor</v-btn>
+        <v-btn color="error" @click="floorForm = !floorForm">Add floor</v-btn>
       </v-card>
     </v-row>
 
@@ -55,36 +55,12 @@
       </v-btn>
     </v-snackbar>
 
-    <v-dialog v-model="addFloorForm" max-width="500px">
-      <v-card dark>
-        <v-toolbar>
-          <v-toolbar-title>New floor</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn
-            icon
-            @click="addFloorForm = false; floorNumber = ''; floorBuildName = ''; floorBuildAddr = ''"
-          >
-            <v-icon>{{ mdiClose }}</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field
-              type="number"
-              v-model="floorNumber"
-              label="Number"
-              color="orange accent-2"
-              required
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" @click="addFloor">Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <FloorForm
+      v-model="floorForm"
+      @submit="addFloor"
+      @close="closeFloorForm"
+      v-on:emitFloorNumber="updateFloorNumber"
+    />
   </div>
 </template>
 
@@ -94,9 +70,15 @@ import { mdiClose } from "@mdi/js";
 
 import floorsMixin from "../mixins/floorsMixin";
 
+import FloorForm from "./FloorForm.vue";
+
 export default mixins(floorsMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true }
+  },
+
+  components: {
+    FloorForm
   },
 
   data() {

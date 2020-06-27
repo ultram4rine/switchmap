@@ -19,7 +19,7 @@
               dark
               small
               color="primary"
-              @click="addFloorForm = !addFloorForm; floorBuildName = build.name; floorBuildAddr = build.addr"
+              @click="floorForm = !floorForm; floorBuildName = build.name; floorBuildAddr = build.addr"
             >Add floor</v-btn>
             <v-btn
               dark
@@ -44,7 +44,7 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="addBuildForm = !addBuildForm">Add build</v-btn>
+        <v-btn color="error" @click="buildForm = !buildForm">Add build</v-btn>
       </v-card>
     </v-row>
 
@@ -57,59 +57,20 @@
       </template>
     </v-snackbar>
 
-    <v-dialog :value="addBuildForm" max-width="500px">
-      <v-card dark>
-        <v-toolbar>
-          <v-toolbar-title>New build</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn icon @click="addBuildForm = false; buildName = ''; buildAddr = ''">
-            <v-icon>{{ mdiClose }}</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field v-model="buildName" label="Name" color="orange accent-2" required></v-text-field>
-            <v-text-field v-model="buildAddr" label="Address" color="orange accent-2" required></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" @click="addBuild">Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <BuildForm
+      v-model="buildForm"
+      @submit="addBuild"
+      @close="closeBuildForm"
+      v-on:emitBuildName="updateBuildName"
+      v-on:emitBuildAddr="updateBuildAddr"
+    />
 
-    <v-dialog v-model="addFloorForm" max-width="500px">
-      <v-card dark>
-        <v-toolbar>
-          <v-toolbar-title>New floor</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn
-            icon
-            @click="addFloorForm = false; floorNumber = ''; floorBuildName = ''; floorBuildAddr = ''"
-          >
-            <v-icon>{{ mdiClose }}</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field
-              type="number"
-              v-model="floorNumber"
-              label="Number"
-              color="orange accent-2"
-              required
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" @click="addFloorWithRefresh">Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <FloorForm
+      v-model="floorForm"
+      @submit="addFloorWithRefresh"
+      @close="closeFloorForm"
+      v-on:emitFloorNumber="updateFloorNumber"
+    />
   </div>
 </template>
 
@@ -120,9 +81,17 @@ import { mdiClose } from "@mdi/js";
 import buildsMixin from "../mixins/buildsMixin";
 import floorsMixin from "../mixins/floorsMixin";
 
+import BuildForm from "./BuildForm.vue";
+import FloorForm from "./FloorForm.vue";
+
 export default mixins(buildsMixin, floorsMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true }
+  },
+
+  components: {
+    BuildForm,
+    FloorForm
   },
 
   data() {
@@ -140,7 +109,7 @@ export default mixins(buildsMixin, floorsMixin).extend({
       this.addFloor();
       this.getBuild(this.floorBuildAddr);
       this.floorBuildAddr = "";
-    }
+    },
   }
 });
 </script>
