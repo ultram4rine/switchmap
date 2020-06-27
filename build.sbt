@@ -5,8 +5,7 @@ lazy val root = (project in file("."))
     name := """switchmap""",
     version := "2.0-SNAPSHOT",
     scalaVersion := "2.13.3",
-    resolvers += Classpaths.typesafeReleases,
-    resolvers += Resolver.jcenterRepo,
+    resolvers ++= Seq(Classpaths.typesafeReleases, Resolver.jcenterRepo),
     libraryDependencies ++= Seq(
       caffeine,
       guice,
