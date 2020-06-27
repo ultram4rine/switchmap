@@ -20,5 +20,21 @@ case class Switch(
 }
 
 object Switch {
+  def tupled: (
+    (
+      String,
+      String,
+      String,
+      String,
+      Option[String],
+      Option[String],
+      Option[Int],
+      Option[String],
+      Int,
+      Int,
+      String,
+      Int
+    )
+  ) => Switch = (Switch.apply _).tupled
   implicit val switchFormat: OFormat[Switch] = Json.format[Switch]
 }

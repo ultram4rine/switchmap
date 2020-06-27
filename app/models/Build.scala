@@ -7,5 +7,6 @@ case class Build(name: String, addr: String) {
 }
 
 object Build {
+  def tupled: ((String, String)) => Build = (Build.apply _).tupled
   implicit val buildFormat: OFormat[Build] = Json.format[Build]
 }

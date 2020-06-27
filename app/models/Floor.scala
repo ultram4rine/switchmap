@@ -7,5 +7,6 @@ case class Floor(number: Int, buildName: String, buildAddr: String) {
 }
 
 object Floor {
+  def tupled: ((Int, String, String)) => Floor = (Floor.apply _).tupled
   implicit val floorFormat: OFormat[Floor] = Json.format[Floor]
 }
