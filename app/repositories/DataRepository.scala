@@ -21,7 +21,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     def name = column[String]("name", O.Unique)
     def addr = column[String]("addr", O.Unique)
 
-    def * = (name, addr) <> ((Build.apply _).tupled, Build.unapply)
+    def * = (name, addr).mapTo[Build]
 
     def pk = primaryKey("build_pk", (name, addr))
   }
@@ -34,7 +34,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     def buildAddr = column[String]("build_addr")
 
     def * =
-      (number, buildName, buildAddr) <> ((Floor.apply _).tupled, Floor.unapply)
+      (number, buildName, buildAddr).mapTo[Floor]
 
     def pk = primaryKey("floor_pk", (number, buildAddr))
 
@@ -93,7 +93,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
         posLeft,
         buildAddr,
         floorNumber
-      ) <> ((Switch.apply _).tupled, Switch.unapply)
+      ).mapTo[Switch]
 
     def pk = primaryKey("switch_pk", (name, mac))
 
