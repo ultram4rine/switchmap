@@ -4,31 +4,7 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-dialog v-model="addSwitchForm" max-width="500px">
-          <template v-slot:activator="{ on }">
-            <v-btn color="orange darken-1" dark v-on="on">Add switch</v-btn>
-          </template>
-          <v-card dark>
-            <v-toolbar>
-              <v-toolbar-title>New switch</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon @click="addSwitchForm = false">
-                <v-icon>{{ mdiClose }}</v-icon>
-              </v-btn>
-            </v-toolbar>
-
-            <v-card-text>
-              <v-container>
-                <v-row></v-row>
-              </v-container>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="orange darken-1" @click="addSwitchForm = false">Add</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+        <v-btn color="orange darken-1" dark @click="switchForm = !switchForm">Add switch</v-btn>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -49,23 +25,30 @@
         class="elevation-1"
       ></v-data-table>
     </v-card>
+
+    <SwitchForm v-model="switchForm" @submit="addSwitch" @close="closeSwitchForm" />
   </div>
 </template>
 
 <script lang="ts">
 import mixins from "vue-typed-mixins";
-import { mdiClose, mdiMagnify } from "@mdi/js";
+import { mdiMagnify } from "@mdi/js";
 
 import switchesMixin from "../mixins/switchesMixin";
+
+import SwitchForm from "./SwitchForm.vue";
 
 export default mixins(switchesMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true }
   },
 
+  components: {
+    SwitchForm
+  },
+
   data() {
     return {
-      mdiClose: mdiClose,
       mdiMagnify: mdiMagnify,
 
       search: "",

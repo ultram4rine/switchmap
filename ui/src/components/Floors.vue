@@ -19,7 +19,7 @@
               dark
               small
               color="primary"
-              @click="addSwitchForm = !addSwitchForm; switchFloorNumber = floor.number"
+              @click="switchForm = !switchForm; switchFloorNumber = floor.number"
             >Add switch</v-btn>
             <v-btn
               dark
@@ -61,6 +61,8 @@
       @close="closeFloorForm"
       v-on:emitFloorNumber="updateFloorNumber"
     />
+
+    <SwitchForm v-model="switchForm" @submit="addSwitch" @close="closeSwitchForm" />
   </div>
 </template>
 
@@ -69,16 +71,19 @@ import mixins from "vue-typed-mixins";
 import { mdiClose } from "@mdi/js";
 
 import floorsMixin from "../mixins/floorsMixin";
+import switchesMixin from "../mixins/switchesMixin";
 
 import FloorForm from "./FloorForm.vue";
+import SwitchForm from "./SwitchForm.vue";
 
-export default mixins(floorsMixin).extend({
+export default mixins(floorsMixin, switchesMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true }
   },
 
   components: {
-    FloorForm
+    FloorForm,
+    SwitchForm
   },
 
   data() {

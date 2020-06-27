@@ -15,7 +15,7 @@ const switchesMixin = Vue.extend({
       switches: new Array<Switch>(),
       switchesEndpoint: `${config.apiURL}/switches`,
 
-      addSwitchForm: false,
+      switchForm: false,
       addSwitchEndpoint: `${config.apiURL}/switch`,
     };
   },
@@ -26,6 +26,14 @@ const switchesMixin = Vue.extend({
         .get<Switch, AxiosResponse<Switch[]>>(this.switchesEndpoint)
         .then((resp) => (this.switches = resp.data))
         .catch((err) => console.log(err));
+    },
+
+    addSwitch() {
+      this.switchForm = false;
+    },
+
+    closeSwitchForm() {
+      this.switchForm = false;
     },
   },
 });
