@@ -1,17 +1,32 @@
 <template>
   <div id="home">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" :sm="12" :md="4" :lg="2">
+      <v-col v-if="isLoading" cols="12" sm="12" md="4" lg="3" xl="1">
         <v-skeleton-loader type="article" class="mx-auto"></v-skeleton-loader>
       </v-col>
-      <v-col v-else v-for="build in builds" :key="build.addr" :sm="12" :md="4" :lg="2">
+      <v-col
+        v-else
+        v-for="build in builds"
+        :key="build.addr"
+        cols="12"
+        sm="12"
+        md="4"
+        lg="3"
+        xl="1"
+      >
         <v-card class="ma-1" outlined>
-          <v-list-item two-line>
-            <v-list-item-content>
-              <v-list-item-title class="headline mb-1">{{ build.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ build.floorsNumber }} floors, {{ build.switchesNumber }} switches</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
+          <v-card-title class="headline">
+            {{ build.name }}
+            <v-spacer></v-spacer>
+            <v-btn icon small color="grey">
+              <v-icon>{{ mdiPencil }}</v-icon>
+            </v-btn>
+            <v-btn icon small color="red">
+              <v-icon>{{ mdiDelete }}</v-icon>
+            </v-btn>
+          </v-card-title>
+
+          <v-card-subtitle>{{ build.floorsNumber }} floors, {{ build.switchesNumber }} switches</v-card-subtitle>
 
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -31,7 +46,7 @@
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && builds.length===0" :sm="12" :md="4" :lg="2">
+      <v-col v-if="!isLoading && builds.length===0" cols="12" sm="12" md="4" lg="3" xl="1">
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
@@ -76,7 +91,7 @@
 
 <script lang="ts">
 import mixins from "vue-typed-mixins";
-import { mdiClose } from "@mdi/js";
+import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
 
 import buildsMixin from "../mixins/buildsMixin";
 import floorsMixin from "../mixins/floorsMixin";
@@ -96,7 +111,9 @@ export default mixins(buildsMixin, floorsMixin).extend({
 
   data() {
     return {
-      mdiClose: mdiClose
+      mdiClose: mdiClose,
+      mdiPencil: mdiPencil,
+      mdiDelete: mdiDelete
     };
   },
 
@@ -109,7 +126,7 @@ export default mixins(buildsMixin, floorsMixin).extend({
       this.addFloor();
       this.getBuild(this.floorBuildAddr);
       this.floorBuildAddr = "";
-    },
+    }
   }
 });
 </script>
