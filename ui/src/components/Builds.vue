@@ -2,7 +2,7 @@
   <div id="home">
     <v-row no-gutters dense>
       <v-col v-if="isLoading" cols="12" sm="12" md="4" lg="3" xl="1">
-        <v-skeleton-loader type="article" class="mx-auto"></v-skeleton-loader>
+        <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
       </v-col>
       <v-col
         v-else
