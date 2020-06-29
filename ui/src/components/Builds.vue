@@ -18,10 +18,15 @@
           <v-card-title class="headline">
             {{ build.name }}
             <v-spacer></v-spacer>
-            <v-btn icon small color="grey">
+            <v-btn
+              icon
+              small
+              color="grey"
+              @click="buildForm = !buildForm; buildName = build.name; buildAddr = build.addr"
+            >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
-            <v-btn icon small color="red">
+            <v-btn icon small color="red" @click="deleteBuild(build.addr)">
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>

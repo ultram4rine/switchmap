@@ -64,6 +64,31 @@ const buildsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
+    updateBuild(buildAddr: string) {
+      axios
+        .put(this.buildEndpoint + buildAddr, {
+          name: this.buildName,
+          addr: this.buildAddr,
+        })
+        .then(() => {
+          this.buildForm = false;
+
+          this.getBuild(buildAddr);
+
+          this.buildName = "";
+          this.buildAddr = "";
+        });
+    },
+
+    deleteBuild(buildAddr: string) {
+      axios.delete(this.buildEndpoint + buildAddr).then(() => {
+        this.getAllBuilds();
+
+        this.buildName = "";
+        this.buildAddr = "";
+      });
+    },
+
     closeBuildForm() {
       this.buildForm = false;
       this.buildName = "";
