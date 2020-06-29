@@ -1,7 +1,7 @@
 <template>
   <div id="build">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" cols="12" sm="12" md="4" lg="3" xl="2">
+      <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
       </v-col>
       <v-col
@@ -9,7 +9,7 @@
         v-for="floor in floors"
         :key="floor.number"
         cols="12"
-        sm="12"
+        sm="6"
         md="4"
         lg="3"
         xl="2"
@@ -43,7 +43,7 @@
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && floors.length===0" cols="12" sm="12" md="4" lg="3" xl="2">
+      <v-col v-if="!isLoading && floors.length===0" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
