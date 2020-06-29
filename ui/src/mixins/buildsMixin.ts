@@ -83,9 +83,6 @@ const buildsMixin = Vue.extend({
     deleteBuild(buildAddr: string) {
       axios.delete(this.buildEndpoint + buildAddr).then(() => {
         this.getAllBuilds();
-
-        this.buildName = "";
-        this.buildAddr = "";
       });
     },
 
