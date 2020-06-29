@@ -14,6 +14,7 @@ const floorsMixin = Vue.extend({
 
       floors: new Array<Floor>(),
       floorsEndpoint: `${config.apiURL}/build/${this.$route.params.addr}/floors`,
+      floorEndpoint: `${config.apiURL}/build/${this.$route.params.addr}/floor/`,
 
       floorForm: false,
       addFloorEndpoint: `${config.apiURL}/floor`,
@@ -48,6 +49,14 @@ const floorsMixin = Vue.extend({
           this.floorBuildName = "";
         })
         .catch((err) => console.log(err));
+    },
+
+    deleteFloor(buildAddr: string, floorNumber: string) {
+      axios
+        .delete(this.floorEndpoint + buildAddr + "/" + floorNumber)
+        .then(() => {
+          this.getAllFloors();
+        });
     },
 
     closeFloorForm() {

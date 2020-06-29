@@ -18,10 +18,7 @@
           <v-card-title class="headline">
             Floor {{ floor.number }}
             <v-spacer></v-spacer>
-            <v-btn icon small color="grey">
-              <v-icon>{{ mdiPencil }}</v-icon>
-            </v-btn>
-            <v-btn icon small color="red">
+            <v-btn icon small color="red" @click="deleteFloor($route.params.addr, floor.number)">
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
@@ -83,7 +80,7 @@
 
 <script lang="ts">
 import mixins from "vue-typed-mixins";
-import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
+import { mdiClose, mdiDelete } from "@mdi/js";
 
 import floorsMixin from "../mixins/floorsMixin";
 import switchesMixin from "../mixins/switchesMixin";
@@ -104,7 +101,6 @@ export default mixins(floorsMixin, switchesMixin).extend({
   data() {
     return {
       mdiClose: mdiClose,
-      mdiPencil: mdiPencil,
       mdiDelete: mdiDelete
     };
   },
