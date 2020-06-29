@@ -41,6 +41,9 @@ class ApiRouter @Inject() (
     case POST(p"/build") =>
       buildController.addBuild()
 
+    case PUT(p"/build/$buildAddr") =>
+      buildController.updateBuild(buildAddr)
+
     case POST(p"/floor") =>
       floorController.addFloor()
   }

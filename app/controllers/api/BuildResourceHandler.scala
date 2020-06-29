@@ -34,6 +34,16 @@ class BuildResourceHandler @Inject() (
     }
   }
 
+  def update(
+    buildAddr: String,
+    buildInput: BuildForm
+  )(implicit mc: MarkerContext): Future[BuildResource] = {
+    val build = Build(buildInput.name, buildInput.addr)
+    dataRepository.updateBuild(buildAddr, build).flatMap { _ =>
+      createBuildResource(build)
+    }
+  }
+
   def list(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
     dataRepository.getBuilds.flatMap { builds =>
       val sortedBuilds =

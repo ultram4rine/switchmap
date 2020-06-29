@@ -28,6 +28,16 @@ class BuildController @Inject() (
     )
   }
 
+  def addBuild(): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      processJson4Create()
+    }
+
+  def updateBuild(buildAddr: String): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      processJson4Update(buildAddr)
+    }
+
   def builds: Action[AnyContent] =
     ApiAction.async { implicit request =>
       buildResourceHandler.list.map { builds =>
@@ -43,12 +53,7 @@ class BuildController @Inject() (
       }
     }
 
-  def addBuild(): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      processJsonBuild()
-    }
-
-  private def processJsonBuild[A]()(implicit
+  private def processJson4Create[A]()(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
     def failure(badForm: Form[BuildForm]) = {
@@ -58,6 +63,22 @@ class BuildController @Inject() (
     def success(input: BuildForm) = {
       buildResourceHandler
         .create(input)
+        .map { build => Created(Json.toJson(build)) }
+    }
+
+    form.bindFromRequest().fold(failure, success)
+  }
+
+  private def processJson4Update[A](buildAddr: String)(implicit
+    request: ApiRequest[A]
+  ): Future[Result] = {
+    def failure(badForm: Form[BuildForm]) = {
+      Future.successful(BadRequest(badForm.errorsAsJson))
+    }
+
+    def success(input: BuildForm) = {
+      buildResourceHandler
+        .update(buildAddr, input)
         .map { build => Created(Json.toJson(build)) }
     }
 
