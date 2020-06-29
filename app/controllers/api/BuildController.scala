@@ -38,6 +38,15 @@ class BuildController @Inject() (
       processJson4Update(buildAddr)
     }
 
+  def deleteBuild(buildAddr: String): Action[AnyContent] = {
+    ApiAction.async { implicit request =>
+      buildResourceHandler.delete(buildAddr).map {
+        case Some(_) => Ok
+        case None    => NoContent
+      }
+    }
+  }
+
   def builds: Action[AnyContent] =
     ApiAction.async { implicit request =>
       buildResourceHandler.list.map { builds =>

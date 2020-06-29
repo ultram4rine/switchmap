@@ -44,6 +44,19 @@ class BuildResourceHandler @Inject() (
     }
   }
 
+  def delete(
+    buildAddr: String
+  )(implicit mc: MarkerContext): Future[Option[Int]] = {
+    dataRepository.getBuildByAddr(buildAddr).flatMap { maybeBuild =>
+      maybeBuild.map { build =>
+        dataRepository.deleteBuild(build)
+      } match {
+        case Some(r) => r.map(Some(_))
+        case None    => Future.successful(None)
+      }
+    }
+  }
+
   def list(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
     dataRepository.getBuilds.flatMap { builds =>
       val sortedBuilds =

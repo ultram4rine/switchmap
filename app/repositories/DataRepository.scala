@@ -154,6 +154,14 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     db.run(builds.filter(_.addr === buildAddr).update(b))
   }
 
+  def deleteBuild(b: Build): Future[Int] = {
+    db.run(
+      builds
+        .filter(build => build.name === b.name && build.addr === b.addr)
+        .delete
+    )
+  }
+
   def createFloor(f: Floor): Future[Int] = { db.run(floors += f) }
 
   def createSwitch(sw: Switch): Future[Int] = { db.run(switches += sw) }
