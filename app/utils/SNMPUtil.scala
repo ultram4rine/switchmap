@@ -14,7 +14,7 @@ class SNMPUtil(implicit ec: ExecutionContext) {
   private val entPhysicalDescr = new OID(".1.3.6.1.2.1.47.1.1.1.1.2.1")
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
 
-  def getSwitchInfo(switch: Switch): Future[SNMPInfo] =
+  def getSwitchInfo(switch: Switch): Future[SwitchInfo] =
     Future {
       val transport = new DefaultUdpTransportMapping()
       transport.listen()
@@ -48,17 +48,17 @@ class SNMPUtil(implicit ec: ExecutionContext) {
           if (errorStatus == PDU.noError) {
             val revision = responsePDU.getVariable(entPhysicalDescr)
             val serial = responsePDU.getVariable(entPhysicalSerialNum)
-            SNMPInfo(revision.toString, serial.toString)
+            SwitchInfo(Some(revision.toString), Some(serial.toString))
           } else {
-            SNMPInfo("", "")
+            SwitchInfo(None, None)
           }
         } else {
-          SNMPInfo("", "")
+          SwitchInfo(None, None)
         }
       } else {
-        SNMPInfo("", "")
+        SwitchInfo(None, None)
       }
     }
 
-  case class SNMPInfo(revision: String, serial: String)
+  case class SwitchInfo(revision: Option[String], serial: Option[String])
 }
