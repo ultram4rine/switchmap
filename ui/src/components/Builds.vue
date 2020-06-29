@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" cols="12" sm="12" md="4" lg="3" xl="1">
+      <v-col v-if="isLoading" cols="12" sm="12" md="4" lg="3" xl="2">
         <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
       </v-col>
       <v-col
@@ -12,7 +12,7 @@
         sm="12"
         md="4"
         lg="3"
-        xl="1"
+        xl="2"
       >
         <v-card class="ma-1" outlined>
           <v-card-title class="headline">
@@ -46,7 +46,7 @@
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && builds.length===0" cols="12" sm="12" md="4" lg="3" xl="1">
+      <v-col v-if="!isLoading && builds.length===0" cols="12" sm="12" md="4" lg="3" xl="2">
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
