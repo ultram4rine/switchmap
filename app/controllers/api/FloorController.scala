@@ -41,6 +41,18 @@ class FloorController @Inject() (
       processJsonFloor()
     }
 
+  def deleteFloor(buildAddr: String, floorNumber: String): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      floorNumber.toIntOption match {
+        case Some(num) =>
+          floorResourceHandler.delete(buildAddr, num).map {
+            case Some(_) => Ok
+            case None    => NoContent
+          }
+        case None => Future { BadRequest() }
+      }
+    }
+
   private def processJsonFloor[A]()(implicit
     request: ApiRequest[A]
   ): Future[Result] = {

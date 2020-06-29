@@ -129,6 +129,19 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   def getFloorOf(buildAddr: String): Future[Seq[Floor]] =
     db.run { floors.filter(_.buildAddr === buildAddr).sortBy(_.number).result }
 
+  def getFloorByAddrAndNum(
+    buildAddr: String,
+    floorNumber: Int
+  ): Future[Option[Floor]] =
+    db.run {
+      floors
+        .filter(floor =>
+          floor.buildAddr === buildAddr && floor.number === floorNumber
+        )
+        .result
+        .headOption
+    }
+
   def getSwitches: Future[Seq[Switch]] = db.run { switches.result }
 
   def getSwitchByName(switchName: String): Future[Option[Switch]] =
@@ -163,6 +176,16 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   }
 
   def createFloor(f: Floor): Future[Int] = { db.run(floors += f) }
+
+  def deleteFloor(f: Floor): Future[Int] = {
+    db.run(
+      floors
+        .filter(floor =>
+          floor.buildAddr === f.buildAddr && floor.number === f.number
+        )
+        .delete
+    )
+  }
 
   def createSwitch(sw: Switch): Future[Int] = { db.run(switches += sw) }
 }

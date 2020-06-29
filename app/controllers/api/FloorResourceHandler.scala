@@ -32,6 +32,20 @@ class FloorResourceHandler @Inject() (
     }
   }
 
+  def delete(buildAddr: String, floorNumber: Int)(implicit
+    mc: MarkerContext
+  ): Future[Option[Int]] = {
+    dataRepository.getFloorByAddrAndNum(buildAddr, floorNumber).flatMap {
+      maybeFloor =>
+        maybeFloor.map { floor =>
+          dataRepository.deleteFloor(floor)
+        } match {
+          case Some(r) => r.map(Some(_))
+          case None    => Future.successful(None)
+        }
+    }
+  }
+
   def listOf(
     buildAddr: String
   )(implicit mc: MarkerContext): Future[Seq[FloorResource]] = {
