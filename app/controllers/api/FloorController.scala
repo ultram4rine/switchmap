@@ -49,7 +49,7 @@ class FloorController @Inject() (
             case Some(_) => Ok
             case None    => NoContent
           }
-        case None => Future { BadRequest() }
+        case None => Future { BadRequest("wrong floor number") }
       }
     }
 
