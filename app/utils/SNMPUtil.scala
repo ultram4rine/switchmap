@@ -13,6 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SNMPUtil(implicit ec: ExecutionContext) {
   private val entPhysicalDescr = new OID(".1.3.6.1.2.1.47.1.1.1.1.2.1")
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
+  private val entPhysicalName = new OID(".1.3.6.1.2.1.47.1.1.1.1.7")
 
   def getSwitchInfo(switch: Switch): Future[SwitchInfo] =
     Future {
