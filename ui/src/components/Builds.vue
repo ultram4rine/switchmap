@@ -13,7 +13,7 @@
               icon
               small
               color="grey"
-              @click="buildForm = !buildForm; buildName = build.name; buildAddr = build.addr"
+              @click="buildForm = !buildForm; buildName = build.name; buildAddr = build.addr; action = 'edit'"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
@@ -70,6 +70,7 @@
 
     <BuildForm
       v-model="buildForm"
+      :action="action"
       @submit="addBuild"
       @close="closeBuildForm"
       v-on:emitBuildName="updateBuildName"

@@ -20,6 +20,8 @@ const buildsMixin = Vue.extend({
       addBuildEndpoint: `${config.apiURL}/build`,
       buildName: "",
       buildAddr: "",
+
+      action: "new",
     };
   },
 
@@ -90,6 +92,8 @@ const buildsMixin = Vue.extend({
       this.buildForm = false;
       this.buildName = "";
       this.buildAddr = "";
+
+      this.action = "new";
     },
 
     updateBuildName(name: string) {

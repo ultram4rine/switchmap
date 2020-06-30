@@ -2,7 +2,7 @@
   <v-dialog :value="value" persistent max-width="500px">
     <v-card dark>
       <v-toolbar>
-        <v-toolbar-title>New build</v-toolbar-title>
+        <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="$emit('close')">
           <v-icon>{{ mdiClose }}</v-icon>
@@ -42,7 +42,8 @@ import { mdiClose } from "@mdi/js";
 
 export default Vue.extend({
   props: {
-    value: { type: Boolean, required: true }
+    value: { type: Boolean, required: true },
+    action: { type: String, required: true }
   },
 
   data() {
@@ -52,6 +53,13 @@ export default Vue.extend({
       buildName: "",
       buildAddr: ""
     };
+  },
+
+  computed: {
+    title: function() {
+      if (this.action == "new") return "New build";
+      else if (this.action == "edit") return "Change build";
+    }
   },
 
   methods: {
