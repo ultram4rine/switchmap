@@ -51,7 +51,7 @@ const floorsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    deleteFloor(buildAddr: string, floorNumber: string) {
+    deleteFloor(floorNumber: string) {
       axios.delete(this.floorEndpoint + floorNumber).then(() => {
         this.getAllFloors();
       });
