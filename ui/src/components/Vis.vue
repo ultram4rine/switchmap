@@ -1,5 +1,6 @@
 <template>
   <div id="vis">
+    <v-toolbar dense></v-toolbar>
     <div id="container"></div>
   </div>
 </template>
@@ -21,7 +22,9 @@ export default Vue.extend({
   data() {
     return {
       switches: new Array<Switch>(),
-      switchesEndpoint: `${config.apiURL}/switches`
+      switchesEndpoint: `${config.apiURL}/switches`,
+
+      showAll: false
     };
   },
 
