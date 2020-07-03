@@ -8,6 +8,7 @@
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </v-toolbar>
+
       <v-card-text>
         <v-form ref="form">
           <v-text-field
@@ -20,7 +21,9 @@
           ></v-text-field>
         </v-form>
       </v-card-text>
+
       <v-divider></v-divider>
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="orange darken-1" @click="$emit('submit')">Add</v-btn>
