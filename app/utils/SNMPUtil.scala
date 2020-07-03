@@ -18,14 +18,14 @@ class SNMPUtil(implicit ec: ExecutionContext) {
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
   private val entPhysicalName = new OID(".1.3.6.1.2.1.47.1.1.1.1.7")
 
-  def getSwitchInfo(switch: Switch): Future[SwitchInfo] =
+  def getSwitchInfo(switchIP: String): Future[SwitchInfo] =
     Future {
       val transport = new DefaultUdpTransportMapping()
       transport.listen()
 
       val target =
         new CommunityTarget(
-          new UdpAddress(s"${switch.ip}/161"),
+          new UdpAddress(s"$switchIP/161"),
           new OctetString("public")
         )
       target.setVersion(SnmpConstants.version2c)
@@ -64,14 +64,14 @@ class SNMPUtil(implicit ec: ExecutionContext) {
       }
     }
 
-  def getSwitchPortsNumber(switch: Switch): Future[Int] =
+  def getSwitchPortsNumber(switchIP: String): Future[Int] =
     Future {
       val transport = new DefaultUdpTransportMapping()
       transport.listen()
 
       val target =
         new CommunityTarget(
-          new UdpAddress(s"${switch.ip}/161"),
+          new UdpAddress(s"$switchIP/161"),
           new OctetString("public")
         )
       target.setVersion(SnmpConstants.version2c)

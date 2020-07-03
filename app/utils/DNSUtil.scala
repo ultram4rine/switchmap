@@ -15,11 +15,11 @@ class DNSUtil @Inject() (configuration: Configuration)(implicit
   private lazy val dnsSuffix =
     configuration.getOptional[String]("switchmap.dnsSuffix")
 
-  def getIPByHostname(switch: Switch): Future[Option[String]] =
+  def getIPByHostname(switchName: String): Future[Option[String]] =
     Future {
       dnsSuffix match {
         case Some(suffix) =>
-          val ip = InetAddress.getByName(s"${switch.name}.$suffix")
+          val ip = InetAddress.getByName(s"$switchName.$suffix")
           Some(ip.getHostAddress)
         case None => None
       }
