@@ -17,6 +17,15 @@ const switchesMixin = Vue.extend({
 
       switchForm: false,
       addSwitchEndpoint: `${config.apiURL}/switch`,
+
+      switchName: "",
+      switchIPResolveMethod: "Direct",
+      switchIP: "",
+      switchMAC: "",
+      switchSNMPCommunityType: "Public",
+      switchSNMPCommunity: "",
+
+      action: "Add",
     };
   },
 
@@ -30,10 +39,45 @@ const switchesMixin = Vue.extend({
 
     addSwitch() {
       this.switchForm = false;
+      console.log(
+        this.switchName,
+        this.switchIPResolveMethod,
+        this.switchIP,
+        this.switchMAC,
+        this.switchSNMPCommunityType,
+        this.switchSNMPCommunity
+      );
     },
 
     closeSwitchForm() {
       this.switchForm = false;
+      this.switchName = "";
+      this.switchIPResolveMethod = "Direct";
+      this.switchIP = "";
+      this.switchMAC = "";
+      this.switchSNMPCommunityType = "Public";
+      this.switchSNMPCommunity = "";
+
+      this.action = "Add";
+    },
+
+    updateSwitchName(name: string) {
+      this.switchName = name;
+    },
+    updateSwitchIPResolveMethod(method: string) {
+      this.switchIPResolveMethod = method;
+    },
+    updateSwitchIP(ip: string) {
+      this.switchIP = ip;
+    },
+    updateSwitchMAC(mac: string) {
+      this.switchMAC = mac;
+    },
+    updateSwitchSNMPCommunityType(type: string) {
+      this.switchSNMPCommunityType = type;
+    },
+    updateSwitchSNMPCommunity(community: string) {
+      this.switchSNMPCommunity = community;
     },
   },
 });
