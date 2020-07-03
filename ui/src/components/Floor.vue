@@ -8,7 +8,7 @@
         single-line
       ></v-text-field>
       <v-hover v-slot:default="{ hover }">
-        <v-btn icon :color="hover ? 'orange darken-1' : ''">
+        <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
           <v-icon dark>{{ mdiPlus }}</v-icon>
         </v-btn>
       </v-hover>
@@ -18,16 +18,26 @@
         <img :src="planPath" class="image" />
       </div>
     </div>
+
+    <SwitchForm v-model="switchForm" @submit="addSwitch" @close="closeSwitchForm" />
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import mixins from "vue-typed-mixins";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
-export default Vue.extend({
+import switchesMixin from "../mixins/switchesMixin";
+
+import SwitchForm from "./SwitchForm.vue";
+
+export default mixins(switchesMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true }
+  },
+
+  components: {
+    SwitchForm
   },
 
   data() {
@@ -37,6 +47,10 @@ export default Vue.extend({
 
       planPath: `/plans/${this.$route.params.addr}f${this.$route.params.floor}.png`
     };
+  },
+
+  created() {
+    this.getAllSwitches();
   },
 
   directives: {
