@@ -60,7 +60,7 @@ export default Vue.extend({
 
   computed: {
     title: function() {
-      if (this.action == "New") return "New build";
+      if (this.action == "Add") return "New build";
       else if (this.action == "Change") return "Change build";
     }
   },

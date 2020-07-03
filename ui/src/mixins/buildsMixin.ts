@@ -22,7 +22,7 @@ const buildsMixin = Vue.extend({
       buildName: "",
       buildAddr: "",
 
-      action: "New",
+      action: "Add",
     };
   },
 
@@ -94,7 +94,7 @@ const buildsMixin = Vue.extend({
       this.buildName = "";
       this.buildAddr = "";
 
-      this.action = "new";
+      this.action = "Add";
     },
 
     updateBuildName(name: string) {
