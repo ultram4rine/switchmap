@@ -1,13 +1,22 @@
 <template>
-  <div id="floor">
-    <div v-scroll class="plan">
-      <img :src="planPath" class="image" />
+  <div>
+    <v-toolbar dense floating>
+      <v-text-field hide-details :prepend-icon="this.mdiMagnify" single-line></v-text-field>
+      <v-btn icon>
+        <v-icon>{{ mdiPlus }}</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <div id="floor">
+      <div v-scroll class="plan">
+        <img :src="planPath" class="image" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 export default Vue.extend({
   props: {
@@ -16,6 +25,9 @@ export default Vue.extend({
 
   data() {
     return {
+      mdiMagnify: mdiMagnify,
+      mdiPlus: mdiPlus,
+
       planPath: `/plans/${this.$route.params.addr}f${this.$route.params.floor}.png`
     };
   },
@@ -132,7 +144,6 @@ export default Vue.extend({
   display: inline-block;
   position: absolute;
   border: 3px solid black;
-  z-index: 1;
   transform: scale(0.2);
   -webkit-transform-origin: 0 0;
   -moz-transform-origin: 0 0;
