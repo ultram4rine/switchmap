@@ -18,6 +18,7 @@ const buildsMixin = Vue.extend({
 
       buildForm: false,
       addBuildEndpoint: `${config.apiURL}/build`,
+
       buildName: "",
       buildAddr: "",
 

@@ -18,6 +18,7 @@ const floorsMixin = Vue.extend({
 
       floorForm: false,
       addFloorEndpoint: `${config.apiURL}/floor`,
+
       floorNumber: "",
       floorBuildName: "",
       floorBuildAddr: "",
