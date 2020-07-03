@@ -38,15 +38,32 @@ const switchesMixin = Vue.extend({
     },
 
     addSwitch() {
-      this.switchForm = false;
-      console.log(
-        this.switchName,
-        this.switchIPResolveMethod,
-        this.switchIP,
-        this.switchMAC,
-        this.switchSNMPCommunityType,
-        this.switchSNMPCommunity
-      );
+      axios
+        .post(this.addSwitchEndpoint, {
+          name: this.switchName,
+          ipResolveMethod: this.switchIPResolveMethod,
+          ip: this.switchIP,
+          mac: this.switchMAC,
+          snmpCommunityType: this.switchSNMPCommunityType,
+          snmpCommunity: this.switchSNMPCommunity,
+          buildAddr: this.$route.params.addr,
+          floorNumber: this.$route.params.floor,
+        })
+        .then(() => {
+          this.switchForm = false;
+
+          this.getAllSwitches();
+
+          this.switchName = "";
+          this.switchIPResolveMethod = "Direct";
+          this.switchIP = "";
+          this.switchMAC = "";
+          this.switchSNMPCommunityType = "Public";
+          this.switchSNMPCommunity = "";
+
+          this.action = "Add";
+        })
+        .catch((err) => console.log(err));
     },
 
     closeSwitchForm() {
