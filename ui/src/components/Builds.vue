@@ -13,7 +13,7 @@
               icon
               small
               color="grey"
-              @click="buildForm = !buildForm; buildName = build.name; buildAddr = build.addr; action = 'edit'"
+              @click="buildForm = !buildForm; buildName = build.name; buildAddr = build.addr; action = 'Change'"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>

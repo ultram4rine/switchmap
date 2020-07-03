@@ -21,7 +21,7 @@ const buildsMixin = Vue.extend({
       buildName: "",
       buildAddr: "",
 
-      action: "new",
+      action: "New",
     };
   },
 
