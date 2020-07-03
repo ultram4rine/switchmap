@@ -1,10 +1,12 @@
 package controllers.api
 
+import forms.SwitchForm
 import javax.inject.Inject
 import models.Switch
 import play.api.MarkerContext
 import play.api.libs.json.{Format, Json}
 import repositories.DataRepository
+import utils.{DNSUtil, SNMPUtil}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,8 +30,49 @@ object SwitchResource {
 }
 
 class SwitchResourceHandler @Inject() (
-  dataRepository: DataRepository
+  dataRepository: DataRepository,
+  dnsUtil: DNSUtil,
+  snmpUtil: SNMPUtil
 )(implicit ec: ExecutionContext) {
+
+  def create(
+    switchInput: SwitchForm
+  )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
+    val futureMaybeIP = switchInput.ipResolveMethod match {
+      case "DNS"    => dnsUtil.getIPByHostname(switchInput.name)
+      case "Direct" => Future { switchInput.ip }
+      case _        => Future { None }
+    }
+
+    futureMaybeIP.flatMap {
+      case Some(ip) =>
+        snmpUtil.getSwitchInfo(ip, switchInput.snmpCommunityType).flatMap {
+          switchInfo =>
+            {
+              val switch = Switch(
+                switchInput.name,
+                ip,
+                switchInput.mac,
+                "",
+                switchInfo.revision,
+                switchInfo.serial,
+                None,
+                None,
+                0,
+                0,
+                "",
+                0
+              )
+              dataRepository.createSwitch(switch).flatMap { _ =>
+                Some(createSwitchResource(switch)) match {
+                  case Some(sw) => sw.map(Some(_))
+                }
+              }
+            }
+        }
+      case None => Future { None }
+    }
+  }
 
   def list(implicit mc: MarkerContext): Future[Seq[SwitchResource]] = {
     dataRepository.getSwitches.flatMap { switches =>

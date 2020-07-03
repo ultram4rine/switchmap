@@ -52,5 +52,8 @@ class ApiRouter @Inject() (
 
     case DELETE(p"/build/$buildAddr/$floorNumber") =>
       floorController.deleteFloor(buildAddr, floorNumber)
+
+    case POST(p"/switch") =>
+      switchController.addSwitch()
   }
 }

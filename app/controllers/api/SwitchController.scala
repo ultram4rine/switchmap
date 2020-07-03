@@ -8,7 +8,7 @@ import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SwitchController @Inject() (
@@ -23,10 +23,21 @@ class SwitchController @Inject() (
     Form(
       mapping(
         "name" -> nonEmptyText,
-        "vendor" -> nonEmptyText
+        "ipResolveMethod" -> nonEmptyText,
+        "ip" -> optional(text),
+        "mac" -> nonEmptyText,
+        "snmpCommunityType" -> nonEmptyText,
+        "snmpCommunity" -> optional(text),
+        "buildAddr" -> optional(text),
+        "floorNumber" -> optional(number)
       )(SwitchForm.apply)(SwitchForm.unapply)
     )
   }
+
+  def addSwitch(): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      processJson4Create()
+    }
 
   def switches: Action[AnyContent] =
     ApiAction.async { implicit request =>
@@ -56,8 +67,7 @@ class SwitchController @Inject() (
       }
     }
 
-  /*
-  private def processJsonSwitch[A]()(implicit
+  private def processJson4Create[A]()(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
     def failure(badForm: Form[SwitchForm]) = {
@@ -71,7 +81,7 @@ class SwitchController @Inject() (
     }
 
     form.bindFromRequest().fold(failure, success)
-  }*/
+  }
 }
 
 case class SwitchControllerComponents @Inject() (
