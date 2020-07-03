@@ -1,10 +1,13 @@
 package utils
 
+import java.util
+
 import javax.inject.Singleton
 import models.Switch
 import org.snmp4j.mp.SnmpConstants
 import org.snmp4j.smi._
 import org.snmp4j.transport.DefaultUdpTransportMapping
+import org.snmp4j.util.{DefaultPDUFactory, TreeUtils}
 import org.snmp4j.{CommunityTarget, PDU, Snmp}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,6 +62,56 @@ class SNMPUtil(implicit ec: ExecutionContext) {
       } else {
         SwitchInfo(None, None)
       }
+    }
+
+  def getSwitchPortsNumber(switch: Switch): Future[Int] =
+    Future {
+      val transport = new DefaultUdpTransportMapping()
+      transport.listen()
+
+      val target =
+        new CommunityTarget(
+          new UdpAddress(s"${switch.ip}/161"),
+          new OctetString("public")
+        )
+      target.setVersion(SnmpConstants.version2c)
+      target.setRetries(2)
+      target.setTimeout(1000)
+
+      val snmp = new Snmp(transport)
+
+      val result = new util.TreeMap[String, String]
+
+      val treeUtils = new TreeUtils(snmp, new DefaultPDUFactory)
+      val events = treeUtils.getSubtree(target, entPhysicalName)
+
+      events.forEach { event =>
+        val varBindings = event.getVariableBindings
+        if (varBindings == null || varBindings.isEmpty) {
+          snmp.close()
+          return Future { 0 }
+        }
+        for (varBinding <- varBindings) {
+          if (varBinding == null) {
+            snmp.close()
+            return Future { 0 }
+          }
+          result.put(
+            "." + varBinding.getOid.toString,
+            varBinding.getVariable.toString
+          )
+        }
+      }
+
+      snmp.close()
+
+      var portsCount = 0
+      result.forEach { (_, v) =>
+        if (v.contains("Port ")) {
+          portsCount += 1
+        }
+      }
+      portsCount
     }
 
   case class SwitchInfo(revision: Option[String], serial: Option[String])
