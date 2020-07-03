@@ -1,10 +1,17 @@
 <template>
   <div>
     <v-toolbar dense floating>
-      <v-text-field hide-details :prepend-icon="this.mdiMagnify" single-line></v-text-field>
-      <v-btn icon>
-        <v-icon>{{ mdiPlus }}</v-icon>
-      </v-btn>
+      <v-text-field
+        hide-details
+        color="orange darken-1"
+        :prepend-icon="this.mdiMagnify"
+        single-line
+      ></v-text-field>
+      <v-hover v-slot:default="{ hover }">
+        <v-btn icon :color="hover ? 'orange darken-1' : ''">
+          <v-icon dark>{{ mdiPlus }}</v-icon>
+        </v-btn>
+      </v-hover>
     </v-toolbar>
     <div id="floor">
       <div v-scroll class="plan">
