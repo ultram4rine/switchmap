@@ -8,7 +8,6 @@ import play.api.libs.json.{Format, Json}
 import repositories.DataRepository
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 case class BuildResource(
   name: String,
