@@ -3,7 +3,6 @@ package utils
 import java.util
 
 import javax.inject.Singleton
-import models.Switch
 import org.snmp4j.mp.SnmpConstants
 import org.snmp4j.smi._
 import org.snmp4j.transport.DefaultUdpTransportMapping
@@ -18,15 +17,24 @@ class SNMPUtil(implicit ec: ExecutionContext) {
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
   private val entPhysicalName = new OID(".1.3.6.1.2.1.47.1.1.1.1.7")
 
-  def getSwitchInfo(switchIP: String): Future[SwitchInfo] =
+  def getSwitchInfo(
+    switchIP: String,
+    communityType: String
+  ): Future[SwitchInfo] =
     Future {
       val transport = new DefaultUdpTransportMapping()
       transport.listen()
 
+      val community = communityType match {
+        case "Public"  => "public"
+        case "Private" => ""
+        case _         => ""
+      }
+
       val target =
         new CommunityTarget(
           new UdpAddress(s"$switchIP/161"),
-          new OctetString("public")
+          new OctetString(community)
         )
       target.setVersion(SnmpConstants.version2c)
       target.setRetries(2)
