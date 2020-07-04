@@ -5,6 +5,11 @@ import { config } from "../config";
 import { Floor } from "../interfaces";
 
 const floorsMixin = Vue.extend({
+  props: {
+    build: { type: String, required: true },
+    floor: { type: String, required: true },
+  },
+
   data() {
     return {
       snackbar: false,
@@ -13,8 +18,8 @@ const floorsMixin = Vue.extend({
       item: "",
 
       floors: new Array<Floor>(),
-      floorsEndpoint: `${config.apiURL}/build/${this.$route.params.addr}/floors`,
-      floorEndpoint: `${config.apiURL}/build/${this.$route.params.addr}/`,
+      floorsEndpoint: `${config.apiURL}/build/${this.build}/floors`,
+      floorEndpoint: `${config.apiURL}/build/${this.build}/`,
 
       floorForm: false,
       addFloorEndpoint: `${config.apiURL}/floor`,

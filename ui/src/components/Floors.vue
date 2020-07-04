@@ -101,8 +101,7 @@ import SwitchForm from "./SwitchForm.vue";
 
 export default mixins(floorsMixin, switchesMixin).extend({
   props: {
-    isLoading: { type: Boolean, required: true },
-    build: { type: String, required: true }
+    isLoading: { type: Boolean, required: true }
   },
 
   components: {

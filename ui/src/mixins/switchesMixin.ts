@@ -5,6 +5,11 @@ import { config } from "../config";
 import { Switch } from "../interfaces";
 
 const switchesMixin = Vue.extend({
+  props: {
+    build: { type: String, required: true },
+    floor: { type: String, required: true },
+  },
+
   data() {
     return {
       snackbar: false,
