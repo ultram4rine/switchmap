@@ -74,7 +74,18 @@
       v-on:emitFloorNumber="updateFloorNumber"
     />
 
-    <SwitchForm v-model="switchForm" @submit="addSwitch" @close="closeSwitchForm" />
+    <SwitchForm
+      v-model="switchForm"
+      :action="action"
+      @submit="addSwitch"
+      @close="closeSwitchForm"
+      v-on:emitSwitchName="updateSwitchName"
+      v-on:emitSwitchIPResolveMethod="updateSwitchIPResolveMethod"
+      v-on:emitSwitchIP="updateSwitchIP"
+      v-on:emitSwitchMAC="updateSwitchMAC"
+      v-on:emitSwitchSNMPCommunityType="updateSwitchSNMPCommunityType"
+      v-on:emitSwitchSNMPCommunity="updateSwitchSNMPCommunity"
+    />
   </div>
 </template>
 
