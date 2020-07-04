@@ -36,7 +36,7 @@
               dark
               small
               color="primary"
-              :to="{ name: 'build', params: { addr: build.addr }}"
+              :to="{ name: 'build', params: { build: build.addr }}"
             >Go</v-btn>
           </v-card-actions>
         </v-card>

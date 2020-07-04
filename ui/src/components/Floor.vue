@@ -46,7 +46,9 @@ import SwitchForm from "./SwitchForm.vue";
 
 export default mixins(switchesMixin).extend({
   props: {
-    isLoading: { type: Boolean, required: true }
+    isLoading: { type: Boolean, required: true },
+    build: { type: String, required: true },
+    floor: { type: String, required: true }
   },
 
   components: {
@@ -62,7 +64,7 @@ export default mixins(switchesMixin).extend({
       mdiMagnify: mdiMagnify,
       mdiPlus: mdiPlus,
 
-      planPath: `/plans/${this.$route.params.addr}f${this.$route.params.floor}.png`
+      planPath: `/plans/${this.build}f${this.floor}.png`
     };
   },
 

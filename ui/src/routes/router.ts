@@ -34,21 +34,24 @@ const router = new Router({
       meta: { requiresAuth: true, layout: "default" },
     },
     {
-      path: "/builds/:addr",
+      path: "/builds/:build",
       name: "build",
       component: Floors,
+      props: true,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
-      path: "/builds/:addr/:floor",
+      path: "/builds/:build/:floor",
       name: "floor",
       component: Floor,
+      props: true,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
-      path: "/builds/:addr/:floor/upload",
+      path: "/builds/:build/:floor/upload",
       name: "plan-upload",
       component: PlanUpload,
+      props: true,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
