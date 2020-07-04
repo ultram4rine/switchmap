@@ -18,7 +18,7 @@
           <v-card-title class="headline">
             Floor {{ floor.number }}
             <v-spacer></v-spacer>
-            <v-btn icon small color="red" @click="deleteFloor(build, floor.number)">
+            <v-btn icon small color="red" @click="deleteFloorOf(build, floor.number)">
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
@@ -37,7 +37,7 @@
               dark
               small
               color="primary"
-              :to="{ name: 'floor', params: { build: build, floor: floor.number }}"
+              :to="{ name: 'floor', params: { build: build, floor: floor.number.toString() }}"
             >Go</v-btn>
           </v-card-actions>
         </v-card>
@@ -101,7 +101,8 @@ import SwitchForm from "./SwitchForm.vue";
 
 export default mixins(floorsMixin, switchesMixin).extend({
   props: {
-    isLoading: { type: Boolean, required: true }
+    isLoading: { type: Boolean, required: true },
+    build: { type: String, required: true }
   },
 
   components: {
@@ -117,7 +118,7 @@ export default mixins(floorsMixin, switchesMixin).extend({
   },
 
   created() {
-    this.getAllFloors();
+    this.getFloorsOf(this.build);
   }
 });
 </script>

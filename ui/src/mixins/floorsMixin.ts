@@ -5,11 +5,6 @@ import { config } from "../config";
 import { Floor } from "../interfaces";
 
 const floorsMixin = Vue.extend({
-  props: {
-    build: { type: String, required: true },
-    floor: { type: String, required: true },
-  },
-
   data() {
     return {
       snackbar: false,
@@ -18,8 +13,7 @@ const floorsMixin = Vue.extend({
       item: "",
 
       floors: new Array<Floor>(),
-      floorsEndpoint: `${config.apiURL}/build/${this.build}/floors`,
-      floorEndpoint: `${config.apiURL}/build/${this.build}/`,
+      floorsEndpoint: `${config.apiURL}/build`,
 
       floorForm: false,
       addFloorEndpoint: `${config.apiURL}/floor`,
@@ -31,9 +25,11 @@ const floorsMixin = Vue.extend({
   },
 
   methods: {
-    getAllFloors() {
+    getFloorsOf(build: String) {
       axios
-        .get<Floor, AxiosResponse<Floor[]>>(this.floorsEndpoint)
+        .get<Floor, AxiosResponse<Floor[]>>(
+          `${this.floorsEndpoint}/${build}/floors`
+        )
         .then((resp) => (this.floors = resp.data))
         .catch((err) => console.log(err));
     },
@@ -57,9 +53,9 @@ const floorsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    deleteFloor(floorNumber: string) {
-      axios.delete(this.floorEndpoint + floorNumber).then(() => {
-        this.getAllFloors();
+    deleteFloorOf(build: String, floor: string) {
+      axios.delete(`${this.floorsEndpoint}/${build}/${floor}`).then(() => {
+        this.getFloorsOf(build);
       });
     },
 
