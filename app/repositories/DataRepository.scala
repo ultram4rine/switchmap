@@ -92,8 +92,8 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     def floor =
       foreignKey("fk_floor", (buildShortName.get, floorNumber.get), floors)(
         f => (f.buildShortName, f.number),
-        onUpdate = ForeignKeyAction.Cascade,
-        onDelete = ForeignKeyAction.Cascade
+        onUpdate = ForeignKeyAction.NoAction,
+        onDelete = ForeignKeyAction.NoAction
       )
 
     def switch =
