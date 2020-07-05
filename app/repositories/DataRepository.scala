@@ -18,6 +18,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   import profile.api._
 
   private class BuildsTable(tag: Tag) extends Table[Build](tag, "builds") {
+
     def name = column[String]("name", O.Unique)
     def shortName = column[String]("short_name", O.Unique)
 
@@ -27,10 +28,9 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   }
 
   private class FloorsTable(tag: Tag) extends Table[Floor](tag, "floors") {
+
     def number = column[Int]("number")
-
     def buildName = column[String]("build_name")
-
     def buildShortName = column[String]("build_short_name")
 
     def * =
@@ -55,53 +55,56 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
         tag,
         "switches"
       ) {
+
     def name = column[String]("name", O.Unique)
-
-    def ip = column[String]("ip")
-
+    def ip = column[Option[String]]("ip", O.Unique)
     def mac = column[String]("mac", O.Unique)
-
-    def vendor = column[String]("vendor")
-
     def revision = column[Option[String]]("revision")
-
-    def serial = column[Option[String]]("serial")
-
-    def upSwitch = column[Option[Int]]("switch_id")
-
-    def port = column[Option[String]]("port")
-
-    def posTop = column[Int]("pos_top")
-
-    def posLeft = column[Int]("pos_left")
-
-    def buildShortName = column[String]("build_short_name")
-
-    def floorNumber = column[Int]("floor_number")
+    def serial = column[Option[String]]("serial", O.Unique)
+    def portsNumber = column[Option[Int]]("ports_number")
+    def buildShortName = column[Option[String]]("build_short_name")
+    def floorNumber = column[Option[Int]]("floor_number")
+    def positionTop = column[Option[Int]]("position_top")
+    def positionLeft = column[Option[Int]]("position_left")
+    def upSwitchName = column[Option[String]]("up_switch_name")
+    def upSwitchMAC = column[Option[String]]("up_switch_mac")
+    def upLink = column[Option[String]]("up_link")
 
     def * =
       (
         name,
         ip,
         mac,
-        vendor,
         revision,
         serial,
-        upSwitch,
-        port,
-        posTop,
-        posLeft,
+        portsNumber,
         buildShortName,
-        floorNumber
+        floorNumber,
+        positionTop,
+        positionLeft,
+        upSwitchName,
+        upSwitchMAC,
+        upLink
       ).mapTo[Switch]
 
     def pk = primaryKey("switch_pk", (name, mac))
 
     def floor =
-      foreignKey("floor_fk", (floorNumber, buildShortName), floors)(
-        f => (f.number, f.buildShortName),
+      foreignKey("fk_floor", (buildShortName.get, floorNumber.get), floors)(
+        f => (f.buildShortName, f.number),
         onUpdate = ForeignKeyAction.Cascade,
         onDelete = ForeignKeyAction.Cascade
+      )
+
+    def switch =
+      foreignKey(
+        name = "fk_switch",
+        (upSwitchName.get, upSwitchMAC.get),
+        switches
+      )(
+        sw => (sw.name, sw.mac),
+        onUpdate = ForeignKeyAction.NoAction,
+        onDelete = ForeignKeyAction.NoAction
       )
   }
 

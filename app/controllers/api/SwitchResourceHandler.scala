@@ -12,17 +12,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class SwitchResource(
   name: String,
-  ip: String,
+  ip: Option[String],
   mac: String,
-  vendor: String,
   revision: Option[String],
   serial: Option[String],
-  upSwitch: Option[Int],
-  port: Option[String],
-  posTop: Int,
-  posLeft: Int,
-  buildAddr: String,
-  floorNumber: Int
+  portsNumber: Option[Int],
+  buildShortName: Option[String],
+  floorNumber: Option[Int],
+  positionTop: Option[Int],
+  positionLeft: Option[Int],
+  upSwitchName: Option[String],
+  upSwitchMAC: Option[String],
+  upLink: Option[String]
 )
 
 object SwitchResource {
@@ -51,17 +52,18 @@ class SwitchResourceHandler @Inject() (
             {
               val switch = Switch(
                 switchInput.name,
-                ip,
+                Some(ip),
                 switchInput.mac,
-                "",
                 switchInfo.revision,
                 switchInfo.serial,
                 None,
                 None,
-                0,
-                0,
-                "",
-                0
+                None,
+                None,
+                None,
+                None,
+                None,
+                None
               )
               dataRepository.createSwitch(switch).flatMap { _ =>
                 Some(createSwitchResource(switch)) match {
@@ -114,15 +116,16 @@ class SwitchResourceHandler @Inject() (
         sw.name,
         sw.ip,
         sw.mac,
-        sw.vendor,
         sw.revision,
         sw.serial,
-        sw.upSwitch,
-        sw.port,
-        sw.posTop,
-        sw.posLeft,
+        sw.portsNumber,
         sw.buildShortName,
-        sw.floorNumber
+        sw.floorNumber,
+        sw.positionTop,
+        sw.positionLeft,
+        sw.upSwitchName,
+        sw.upSwitchMAC,
+        sw.upLink
       )
     }
 
