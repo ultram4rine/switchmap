@@ -7,7 +7,7 @@ export interface Build {
 
 export interface Floor {
   number: number;
-  switchNumber: number;
+  switchesNumber: number;
 }
 
 export interface Switch {
