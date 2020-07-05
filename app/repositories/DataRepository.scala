@@ -19,7 +19,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
   private class BuildsTable(tag: Tag) extends Table[Build](tag, "builds") {
     def name = column[String]("name", O.Unique)
-    def shortName = column[String]("addr", O.Unique)
+    def shortName = column[String]("short_name", O.Unique)
 
     def * = (name, shortName).mapTo[Build]
 
@@ -31,7 +31,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
     def buildName = column[String]("build_name")
 
-    def buildShortName = column[String]("build_addr")
+    def buildShortName = column[String]("build_short_name")
 
     def * =
       (number, buildName, buildShortName).mapTo[Floor]
@@ -75,7 +75,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
     def posLeft = column[Int]("pos_left")
 
-    def buildShortName = column[String]("build_addr")
+    def buildShortName = column[String]("build_short_name")
 
     def floorNumber = column[Int]("floor_number")
 
