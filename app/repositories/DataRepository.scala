@@ -112,18 +112,6 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   private val floors = TableQuery[FloorsTable]
   private val switches = TableQuery[SwitchesTable]
 
-  private val tables = List(builds, floors, switches)
-  private val existing: Future[Vector[MTable]] = db.run { MTable.getTables }
-
-  def createIfNotExist: Future[List[Unit]] =
-    existing.flatMap(v => {
-      val names = v.map(mt => mt.name.name)
-      val createIfNotExist = tables
-        .filter(table => !names.contains(table.baseTableRow.tableName))
-        .map(_.schema.create)
-      db.run(DBIO.sequence(createIfNotExist))
-    })
-
   def getBuilds: Future[Seq[Build]] = db.run { builds.result }
 
   def getBuildByAddr(buildAddr: String): Future[Option[Build]] =
