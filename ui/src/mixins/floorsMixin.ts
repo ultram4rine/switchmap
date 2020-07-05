@@ -39,7 +39,7 @@ const floorsMixin = Vue.extend({
         .post(this.addFloorEndpoint, {
           number: parseInt(this.floorNumber, 10),
           buildName: this.floorBuildName,
-          buildAddr: this.floorBuildShortName,
+          buildShortName: this.floorBuildShortName,
         })
         .then(() => {
           this.floorForm = false;
