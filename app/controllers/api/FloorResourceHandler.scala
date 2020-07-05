@@ -57,7 +57,9 @@ class FloorResourceHandler @Inject() (
   private def createFloorResource(f: Floor): Future[FloorResource] = {
     for {
       swNum <-
-        dataRepository.getSwitchesOfFloor(f.buildAddr, f.number).map { _.size }
+        dataRepository.getSwitchesOfFloor(f.buildShortName, f.number).map {
+          _.size
+        }
     } yield FloorResource(f.number, swNum)
   }
 

@@ -185,7 +185,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     db.run(
       floors
         .filter(floor =>
-          floor.buildShortName === f.buildAddr && floor.number === f.number
+          floor.buildShortName === f.buildShortName && floor.number === f.number
         )
         .delete
     )
