@@ -23,6 +23,10 @@ const buildsMixin = Vue.extend({
       buildShortName: "",
 
       action: "Add",
+
+      confirmation: false,
+      buildForDeleteName: "",
+      buildForDeleteShortName: "",
     };
   },
 
@@ -85,6 +89,7 @@ const buildsMixin = Vue.extend({
 
     deleteBuild(buildShortName: string) {
       axios.delete(this.buildEndpoint + buildShortName).then(() => {
+        this.confirmation = !this.confirmation;
         this.getAllBuilds();
       });
     },

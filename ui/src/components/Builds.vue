@@ -26,7 +26,12 @@
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
-            <v-btn icon small color="red" @click="deleteBuild(build.addr)">
+            <v-btn
+              icon
+              small
+              color="red"
+              @click="buildForDeleteName = build.name; buildForDeleteShortName = build.shortName; confirmation = !confirmation"
+            >
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
@@ -92,6 +97,14 @@
       @close="closeFloorForm"
       v-on:emitFloorNumber="updateFloorNumber"
     />
+
+    <Confirmation
+      v-model="confirmation"
+      item="build"
+      :name="buildForDeleteName"
+      @confirm="deleteBuild(buildForDeleteShortName)"
+      @cancel="confirmation = !confirmation"
+    />
   </div>
 </template>
 
@@ -104,6 +117,7 @@ import floorsMixin from "../mixins/floorsMixin";
 
 import BuildForm from "./BuildForm.vue";
 import FloorForm from "./FloorForm.vue";
+import Confirmation from "./Confirmation.vue";
 
 export default mixins(buildsMixin, floorsMixin).extend({
   props: {
@@ -112,7 +126,8 @@ export default mixins(buildsMixin, floorsMixin).extend({
 
   components: {
     BuildForm,
-    FloorForm
+    FloorForm,
+    Confirmation
   },
 
   data() {
