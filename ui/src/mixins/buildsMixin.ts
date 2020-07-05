@@ -20,7 +20,7 @@ const buildsMixin = Vue.extend({
       addBuildEndpoint: `${config.apiURL}/build`,
 
       buildName: "",
-      buildAddr: "",
+      buildShortName: "",
 
       action: "Add",
     };
@@ -34,13 +34,13 @@ const buildsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    getBuild(buildAddr: string) {
+    getBuild(buildShortName: string) {
       axios
-        .get<Build, AxiosResponse<Build>>(this.buildEndpoint + buildAddr)
+        .get<Build, AxiosResponse<Build>>(this.buildEndpoint + buildShortName)
         .then((resp) =>
           Vue.set(
             this.builds,
-            this.builds.findIndex((b) => b.addr === buildAddr),
+            this.builds.findIndex((b) => b.shortName === buildShortName),
             resp.data
           )
         )
@@ -51,7 +51,7 @@ const buildsMixin = Vue.extend({
       axios
         .post(this.addBuildEndpoint, {
           name: this.buildName,
-          addr: this.buildAddr,
+          shortName: this.buildShortName,
         })
         .then(() => {
           this.buildForm = false;
@@ -62,29 +62,29 @@ const buildsMixin = Vue.extend({
           this.snackbar = true;
 
           this.buildName = "";
-          this.buildAddr = "";
+          this.buildShortName = "";
         })
         .catch((err) => console.log(err));
     },
 
-    updateBuild(buildAddr: string) {
+    updateBuild(buildShortName: string) {
       axios
-        .put(this.buildEndpoint + buildAddr, {
+        .put(this.buildEndpoint + buildShortName, {
           name: this.buildName,
-          addr: this.buildAddr,
+          addr: this.buildShortName,
         })
         .then(() => {
           this.buildForm = false;
 
-          this.getBuild(buildAddr);
+          this.getBuild(buildShortName);
 
           this.buildName = "";
-          this.buildAddr = "";
+          this.buildShortName = "";
         });
     },
 
-    deleteBuild(buildAddr: string) {
-      axios.delete(this.buildEndpoint + buildAddr).then(() => {
+    deleteBuild(buildShortName: string) {
+      axios.delete(this.buildEndpoint + buildShortName).then(() => {
         this.getAllBuilds();
       });
     },
@@ -92,7 +92,7 @@ const buildsMixin = Vue.extend({
     closeBuildForm() {
       this.buildForm = false;
       this.buildName = "";
-      this.buildAddr = "";
+      this.buildShortName = "";
 
       this.action = "Add";
     },
@@ -100,8 +100,8 @@ const buildsMixin = Vue.extend({
     updateBuildName(name: string) {
       this.buildName = name;
     },
-    updateBuildAddr(addr: string) {
-      this.buildAddr = addr;
+    updateBuildShortName(addr: string) {
+      this.buildShortName = addr;
     },
   },
 });

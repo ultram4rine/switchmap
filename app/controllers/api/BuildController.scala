@@ -23,7 +23,7 @@ class BuildController @Inject() (
     Form(
       mapping(
         "name" -> nonEmptyText,
-        "addr" -> nonEmptyText
+        "shortName" -> nonEmptyText
       )(BuildForm.apply)(BuildForm.unapply)
     )
   }

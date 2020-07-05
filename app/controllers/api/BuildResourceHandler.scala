@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class BuildResource(
   name: String,
-  addr: String,
+  shortName: String,
   floorsNumber: Int,
   switchesNumber: Int
 )
@@ -27,7 +27,7 @@ class BuildResourceHandler @Inject() (
   def create(
     buildInput: BuildForm
   )(implicit mc: MarkerContext): Future[BuildResource] = {
-    val build = Build(buildInput.name, buildInput.addr)
+    val build = Build(buildInput.name, buildInput.shortName)
     dataRepository.createBuild(build).flatMap { _ =>
       createBuildResource(build)
     }
@@ -37,7 +37,7 @@ class BuildResourceHandler @Inject() (
     buildAddr: String,
     buildInput: BuildForm
   )(implicit mc: MarkerContext): Future[BuildResource] = {
-    val build = Build(buildInput.name, buildInput.addr)
+    val build = Build(buildInput.name, buildInput.shortName)
     dataRepository.updateBuild(buildAddr, build).flatMap { _ =>
       createBuildResource(build)
     }
@@ -59,7 +59,7 @@ class BuildResourceHandler @Inject() (
   def list(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
     dataRepository.getBuilds.flatMap { builds =>
       val sortedBuilds =
-        builds.sortBy(b => b.addr.substring(1).toIntOption.getOrElse(1000))
+        builds.sortBy(b => b.shortName.substring(1).toIntOption.getOrElse(1000))
       createBuildResourceSeq(sortedBuilds)
     }
   }
@@ -77,9 +77,9 @@ class BuildResourceHandler @Inject() (
 
   private def createBuildResource(b: Build): Future[BuildResource] = {
     for {
-      fNum <- dataRepository.getFloorOf(b.addr).map { _.size }
-      swNum <- dataRepository.getSwitchesOfBuild(b.addr).map { _.size }
-    } yield BuildResource(b.name, b.addr, fNum, swNum)
+      fNum <- dataRepository.getFloorOf(b.shortName).map { _.size }
+      swNum <- dataRepository.getSwitchesOfBuild(b.shortName).map { _.size }
+    } yield BuildResource(b.name, b.shortName, fNum, swNum)
   }
 
   private def createBuildResourceSeq(

@@ -2,7 +2,7 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Build(name: String, addr: String) {
+case class Build(name: String, shortName: String) {
   override def equals(that: Any): Boolean = false
 }
 

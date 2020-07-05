@@ -1,6 +1,6 @@
 export interface Build {
   name: string;
-  addr: string;
+  shortName: string;
   floorsNumber: number;
   switchesNumber: number;
 }
@@ -21,6 +21,6 @@ export interface Switch {
   port: string;
   posTop: number;
   posLeft: number;
-  buildAddr: string;
+  buildShortName: string;
   floorNumber: number;
 }

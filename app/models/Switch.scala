@@ -13,7 +13,7 @@ case class Switch(
   port: Option[String],
   posTop: Int,
   posLeft: Int,
-  buildAddr: String,
+  buildShortName: String,
   floorNumber: Int
 ) {
   override def equals(that: Any): Boolean = false

@@ -2,7 +2,7 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Floor(number: Int, buildName: String, buildAddr: String) {
+case class Floor(number: Int, buildName: String, buildShortName: String) {
   override def equals(that: Any): Boolean = false
 }
 

@@ -20,7 +20,7 @@ const floorsMixin = Vue.extend({
 
       floorNumber: "",
       floorBuildName: "",
-      floorBuildAddr: "",
+      floorBuildShortName: "",
     };
   },
 
@@ -39,7 +39,7 @@ const floorsMixin = Vue.extend({
         .post(this.addFloorEndpoint, {
           number: parseInt(this.floorNumber, 10),
           buildName: this.floorBuildName,
-          buildAddr: this.floorBuildAddr,
+          buildAddr: this.floorBuildShortName,
         })
         .then(() => {
           this.floorForm = false;
@@ -63,7 +63,7 @@ const floorsMixin = Vue.extend({
       this.floorForm = false;
       this.floorNumber = "";
       this.floorBuildName = "";
-      this.floorBuildAddr = "";
+      this.floorBuildShortName = "";
     },
 
     updateFloorNumber(number: string) {

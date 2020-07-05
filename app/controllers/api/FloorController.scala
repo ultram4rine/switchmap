@@ -24,7 +24,7 @@ class FloorController @Inject() (
       mapping(
         "number" -> number,
         "buildName" -> nonEmptyText,
-        "buildAddr" -> nonEmptyText
+        "buildShortName" -> nonEmptyText
       )(FloorForm.apply)(FloorForm.unapply)
     )
   }

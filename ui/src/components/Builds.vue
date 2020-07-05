@@ -4,7 +4,16 @@
       <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
       </v-col>
-      <v-col v-else v-for="build in builds" :key="build.addr" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-else
+        v-for="build in builds"
+        :key="build.shortName"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-card class="ma-1" outlined>
           <v-card-title class="headline">
             {{ build.name }}
@@ -13,7 +22,7 @@
               icon
               small
               color="grey"
-              @click="buildForm = !buildForm; buildName = build.name; buildAddr = build.addr; action = 'Change'"
+              @click="buildForm = !buildForm; buildName = build.name; buildShortName = build.shortName; action = 'Change'"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
@@ -30,13 +39,13 @@
               dark
               small
               color="primary"
-              @click="floorForm = !floorForm; floorBuildName = build.name; floorBuildAddr = build.addr"
+              @click="floorForm = !floorForm; floorBuildName = build.name; floorBuildShortName = build.shortName"
             >Add floor</v-btn>
             <v-btn
               dark
               small
               color="primary"
-              :to="{ name: 'build', params: { build: build.addr }}"
+              :to="{ name: 'build', params: { build: build.shortName }}"
             >Go</v-btn>
           </v-card-actions>
         </v-card>
@@ -74,7 +83,7 @@
       @submit="addBuild"
       @close="closeBuildForm"
       v-on:emitBuildName="updateBuildName"
-      v-on:emitBuildAddr="updateBuildAddr"
+      v-on:emitBuildShortName="updateBuildShortName"
     />
 
     <FloorForm
@@ -121,8 +130,8 @@ export default mixins(buildsMixin, floorsMixin).extend({
   methods: {
     addFloorWithRefresh() {
       this.addFloor();
-      this.getBuild(this.floorBuildAddr);
-      this.floorBuildAddr = "";
+      this.getBuild(this.floorBuildShortName);
+      this.floorBuildShortName = "";
     }
   }
 });

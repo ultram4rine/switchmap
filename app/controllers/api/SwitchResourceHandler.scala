@@ -121,7 +121,7 @@ class SwitchResourceHandler @Inject() (
         sw.port,
         sw.posTop,
         sw.posLeft,
-        sw.buildAddr,
+        sw.buildShortName,
         sw.floorNumber
       )
     }

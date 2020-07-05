@@ -1,3 +1,3 @@
 package forms
 
-case class BuildForm(name: String, addr: String)
+case class BuildForm(name: String, shortName: String)

@@ -19,11 +19,11 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
   private class BuildsTable(tag: Tag) extends Table[Build](tag, "builds") {
     def name = column[String]("name", O.Unique)
-    def addr = column[String]("addr", O.Unique)
+    def shortName = column[String]("addr", O.Unique)
 
-    def * = (name, addr).mapTo[Build]
+    def * = (name, shortName).mapTo[Build]
 
-    def pk = primaryKey("build_pk", (name, addr))
+    def pk = primaryKey("build_pk", (name, shortName))
   }
 
   private class FloorsTable(tag: Tag) extends Table[Floor](tag, "floors") {
@@ -31,20 +31,20 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
     def buildName = column[String]("build_name")
 
-    def buildAddr = column[String]("build_addr")
+    def buildShortName = column[String]("build_addr")
 
     def * =
-      (number, buildName, buildAddr).mapTo[Floor]
+      (number, buildName, buildShortName).mapTo[Floor]
 
-    def pk = primaryKey("floor_pk", (number, buildAddr))
+    def pk = primaryKey("floor_pk", (number, buildShortName))
 
     def build =
       foreignKey(
         "build_fk",
-        (buildName, buildAddr),
+        (buildName, buildShortName),
         builds
       )(
-        b => (b.name, b.addr),
+        b => (b.name, b.shortName),
         onUpdate = ForeignKeyAction.Cascade,
         onDelete = ForeignKeyAction.Cascade
       )
@@ -75,7 +75,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
     def posLeft = column[Int]("pos_left")
 
-    def buildAddr = column[String]("build_addr")
+    def buildShortName = column[String]("build_addr")
 
     def floorNumber = column[Int]("floor_number")
 
@@ -91,15 +91,15 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
         port,
         posTop,
         posLeft,
-        buildAddr,
+        buildShortName,
         floorNumber
       ).mapTo[Switch]
 
     def pk = primaryKey("switch_pk", (name, mac))
 
     def floor =
-      foreignKey("floor_fk", (floorNumber, buildAddr), floors)(
-        f => (f.number, f.buildAddr),
+      foreignKey("floor_fk", (floorNumber, buildShortName), floors)(
+        f => (f.number, f.buildShortName),
         onUpdate = ForeignKeyAction.Cascade,
         onDelete = ForeignKeyAction.Cascade
       )
@@ -124,10 +124,12 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   def getBuilds: Future[Seq[Build]] = db.run { builds.result }
 
   def getBuildByAddr(buildAddr: String): Future[Option[Build]] =
-    db.run { builds.filter(_.addr === buildAddr).result.headOption }
+    db.run { builds.filter(_.shortName === buildAddr).result.headOption }
 
   def getFloorOf(buildAddr: String): Future[Seq[Floor]] =
-    db.run { floors.filter(_.buildAddr === buildAddr).sortBy(_.number).result }
+    db.run {
+      floors.filter(_.buildShortName === buildAddr).sortBy(_.number).result
+    }
 
   def getFloorByAddrAndNum(
     buildAddr: String,
@@ -136,7 +138,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     db.run {
       floors
         .filter(floor =>
-          floor.buildAddr === buildAddr && floor.number === floorNumber
+          floor.buildShortName === buildAddr && floor.number === floorNumber
         )
         .result
         .headOption
@@ -148,7 +150,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     db.run { switches.filter(_.name === switchName).result.headOption }
 
   def getSwitchesOfBuild(buildAddr: String): Future[Seq[Switch]] =
-    db.run { switches.filter(_.buildAddr === buildAddr).result }
+    db.run { switches.filter(_.buildShortName === buildAddr).result }
 
   def getSwitchesOfFloor(
     buildAddr: String,
@@ -156,7 +158,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   ): Future[Seq[Switch]] =
     db.run {
       switches
-        .filter(_.buildAddr === buildAddr)
+        .filter(_.buildShortName === buildAddr)
         .filter(_.floorNumber === floorNumber)
         .result
     }
@@ -164,13 +166,15 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   def createBuild(b: Build): Future[Int] = { db.run(builds += b) }
 
   def updateBuild(buildAddr: String, b: Build): Future[Int] = {
-    db.run(builds.filter(_.addr === buildAddr).update(b))
+    db.run(builds.filter(_.shortName === buildAddr).update(b))
   }
 
   def deleteBuild(b: Build): Future[Int] = {
     db.run(
       builds
-        .filter(build => build.name === b.name && build.addr === b.addr)
+        .filter(build =>
+          build.name === b.name && build.shortName === b.shortName
+        )
         .delete
     )
   }
@@ -181,7 +185,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     db.run(
       floors
         .filter(floor =>
-          floor.buildAddr === f.buildAddr && floor.number === f.number
+          floor.buildShortName === f.buildAddr && floor.number === f.number
         )
         .delete
     )
