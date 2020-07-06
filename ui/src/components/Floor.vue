@@ -22,7 +22,8 @@
     <SwitchForm
       v-model="switchForm"
       :action="action"
-      @submit="addSwitch"
+      :needLocationFields="false"
+      @submit="addSwitch(build, floor)"
       @close="closeSwitchForm"
       v-on:emitSwitchName="updateSwitchName"
       v-on:emitSwitchIPResolveMethod="updateSwitchIPResolveMethod"
@@ -30,6 +31,8 @@
       v-on:emitSwitchMAC="updateSwitchMAC"
       v-on:emitSwitchSNMPCommunityType="updateSwitchSNMPCommunityType"
       v-on:emitSwitchSNMPCommunity="updateSwitchSNMPCommunity"
+      v-on:emitSwitchBuild="updateSwitchBuild"
+      v-on:emitSwitchFloor="updateSwitchFloor"
     />
   </div>
 </template>

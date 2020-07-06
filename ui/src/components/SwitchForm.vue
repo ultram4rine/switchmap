@@ -12,16 +12,17 @@
       <v-card-text>
         <v-form ref="form">
           <v-text-field
-            v-model="switchName"
+            v-model="name"
             label="Name"
             color="orange accent-2"
             required
             v-on:keyup="emitSwitchName"
           ></v-text-field>
+
           <v-row dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="switchIPResolveMethod"
+                v-model="ipResolveMethod"
                 :items="methods"
                 hide-details
                 label="IP resolve method"
@@ -30,9 +31,9 @@
                 v-on:input="emitSwitchIPResolveMethod"
               ></v-select>
             </v-col>
-            <v-col v-if="switchIPResolveMethod === 'Direct'" cols="12" sm="6">
+            <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
               <v-text-field
-                v-model="switchIP"
+                v-model="ip"
                 label="IP"
                 placeholder="e.g. 192.168.1.1"
                 color="orange accent-2"
@@ -41,18 +42,20 @@
               ></v-text-field>
             </v-col>
           </v-row>
+
           <v-text-field
-            v-model="switchMAC"
+            v-model="mac"
             label="MAC"
             placeholder="XX:XX:XX:XX:XX:XX"
             color="orange accent-2"
             required
             v-on:keyup="emitSwitchMAC"
           ></v-text-field>
+
           <v-row dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="switchSNMPCommunityType"
+                v-model="snmpCommunityType"
                 :items="types"
                 hide-details
                 label="SNMP community type"
@@ -61,14 +64,39 @@
                 v-on:input="emitSwitchSNMPCommunityType"
               ></v-select>
             </v-col>
-            <v-col v-if="switchSNMPCommunityType === 'Private'" cols="12" sm="6">
+            <v-col v-if="snmpCommunityType === 'Private'" cols="12" sm="6">
               <v-text-field
-                v-model="switchSNMPCommunity"
+                v-model="snmpCommunity"
                 label="Community"
                 color="orange accent-2"
                 required
                 v-on:keyup="emitSwitchSNMPCommunity"
               ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <v-row v-if="needLocationFields" dense>
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="build"
+                :items="builds"
+                hide-details
+                label="Build"
+                color="orange accent-2"
+                required
+                v-on:input="emitSwitchBuild"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="floor"
+                :items="floors"
+                hide-details
+                label="Floor"
+                color="orange accent-2"
+                required
+                v-on:input="emitSwitchFloor"
+              ></v-select>
             </v-col>
           </v-row>
         </v-form>
@@ -92,22 +120,28 @@ import { mdiClose } from "@mdi/js";
 export default Vue.extend({
   props: {
     value: { type: Boolean, required: true },
-    action: { type: String, required: true }
+    action: { type: String, required: true },
+    needLocationFields: { type: Boolean, required: true }
   },
 
   data() {
     return {
       mdiClose: mdiClose,
 
-      switchName: "",
-      switchIPResolveMethod: "Direct",
-      switchIP: "",
-      switchMAC: "",
-      switchSNMPCommunityType: "Public",
-      switchSNMPCommunity: "",
+      name: "",
+      ipResolveMethod: "Direct",
+      ip: "",
+      mac: "",
+      snmpCommunityType: "Public",
+      snmpCommunity: "",
 
       methods: ["Direct", "DNS"],
-      types: ["Public", "Private"]
+      types: ["Public", "Private"],
+
+      build: "",
+      builds: [],
+      floor: "",
+      floors: []
     };
   },
 
@@ -120,22 +154,28 @@ export default Vue.extend({
 
   methods: {
     emitSwitchName() {
-      this.$emit("emitSwitchName", this.switchName);
+      this.$emit("emitSwitchName", this.name);
     },
     emitSwitchIPResolveMethod() {
-      this.$emit("emitSwitchIPResolveMethod", this.switchIPResolveMethod);
+      this.$emit("emitSwitchIPResolveMethod", this.ipResolveMethod);
     },
     emitSwitchIP() {
-      this.$emit("emitSwitchIP", this.switchIP);
+      this.$emit("emitSwitchIP", this.ip);
     },
     emitSwitchMAC() {
-      this.$emit("emitSwitchMAC", this.switchMAC);
+      this.$emit("emitSwitchMAC", this.mac);
     },
     emitSwitchSNMPCommunityType() {
-      this.$emit("emitSwitchSNMPCommunityType", this.switchSNMPCommunityType);
+      this.$emit("emitSwitchSNMPCommunityType", this.snmpCommunityType);
     },
     emitSwitchSNMPCommunity() {
-      this.$emit("emitSwitchSNMPCommunity", this.switchSNMPCommunity);
+      this.$emit("emitSwitchSNMPCommunity", this.snmpCommunity);
+    },
+    emitSwitchBuild() {
+      this.$emit("emitSwitchBuild", this.build);
+    },
+    emitSwitchFloor() {
+      this.$emit("emitSwitchFloor", this.floor);
     }
   }
 });

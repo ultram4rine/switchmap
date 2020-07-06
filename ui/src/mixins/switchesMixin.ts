@@ -24,6 +24,8 @@ const switchesMixin = Vue.extend({
       switchMAC: "",
       switchSNMPCommunityType: "Public",
       switchSNMPCommunity: "",
+      switchBuild: "",
+      switchFloor: "",
 
       action: "Add",
     };
@@ -37,7 +39,7 @@ const switchesMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    addSwitch() {
+    addSwitch(build: string, floor: string) {
       axios
         .post(this.addSwitchEndpoint, {
           name: this.switchName,
@@ -46,8 +48,8 @@ const switchesMixin = Vue.extend({
           mac: this.switchMAC,
           snmpCommunityType: this.switchSNMPCommunityType,
           snmpCommunity: this.switchSNMPCommunity,
-          buildAddr: this.$route.params.addr,
-          floorNumber: this.$route.params.floor,
+          build: build,
+          floor: floor,
         })
         .then(() => {
           this.switchForm = false;
@@ -95,6 +97,12 @@ const switchesMixin = Vue.extend({
     },
     updateSwitchSNMPCommunity(community: string) {
       this.switchSNMPCommunity = community;
+    },
+    updateSwitchBuild(build: string) {
+      this.switchBuild = build;
+    },
+    updateSwitchFloor(floor: string) {
+      this.switchFloor = floor;
     },
   },
 });
