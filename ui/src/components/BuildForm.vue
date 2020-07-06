@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="value" persistent max-width="500px">
+  <v-dialog :value="form" persistent max-width="500px">
     <v-card dark>
       <v-toolbar>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
@@ -45,7 +45,7 @@ import { mdiClose } from "@mdi/js";
 
 export default Vue.extend({
   props: {
-    value: { type: Boolean, required: true },
+    form: { type: Boolean, required: true },
     action: { type: String, required: true }
   },
 

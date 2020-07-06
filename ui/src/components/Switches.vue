@@ -27,7 +27,7 @@
     </v-card>
 
     <SwitchForm
-      v-model="switchForm"
+      :form="switchForm"
       :action="action"
       :needLocationFields="true"
       @submit="addSwitch('', '')"

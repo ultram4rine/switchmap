@@ -20,7 +20,7 @@
     </div>
 
     <SwitchForm
-      v-model="switchForm"
+      :form="switchForm"
       :action="action"
       :needLocationFields="false"
       @submit="addSwitch(build, floor)"

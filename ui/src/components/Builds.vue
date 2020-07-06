@@ -83,7 +83,7 @@
     </v-snackbar>
 
     <BuildForm
-      v-model="buildForm"
+      :form="buildForm"
       :action="action"
       @submit="addBuild"
       @close="closeBuildForm"
@@ -92,7 +92,7 @@
     />
 
     <FloorForm
-      v-model="floorForm"
+      :form="floorForm"
       @submit="addFloorWithRefresh"
       @close="closeFloorForm"
       v-on:emitFloorNumber="updateFloorNumber"

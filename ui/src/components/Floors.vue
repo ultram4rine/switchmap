@@ -68,14 +68,14 @@
     </v-snackbar>
 
     <FloorForm
-      v-model="floorForm"
+      :form="floorForm"
       @submit="addFloor"
       @close="closeFloorForm"
       v-on:emitFloorNumber="updateFloorNumber"
     />
 
     <SwitchForm
-      v-model="switchForm"
+      :form="switchForm"
       :action="action"
       :needLocationFields="false"
       @submit="addSwitch"
