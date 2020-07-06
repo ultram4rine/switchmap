@@ -77,6 +77,7 @@
     <SwitchForm
       v-model="switchForm"
       :action="action"
+      :needLocationFields="false"
       @submit="addSwitch"
       @close="closeSwitchForm"
       v-on:emitSwitchName="updateSwitchName"
