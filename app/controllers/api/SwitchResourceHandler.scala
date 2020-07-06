@@ -50,26 +50,32 @@ class SwitchResourceHandler @Inject() (
         snmpUtil.getSwitchInfo(ip, switchInput.snmpCommunityType).flatMap {
           switchInfo =>
             {
-              val switch = Switch(
-                switchInput.name,
-                Some(ip),
-                switchInput.mac,
-                switchInfo.revision,
-                switchInfo.serial,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None
-              )
-              dataRepository.createSwitch(switch).flatMap { _ =>
-                Some(createSwitchResource(switch)) match {
-                  case Some(sw) => sw.map(Some(_))
+              snmpUtil
+                .getSwitchPortsNumber(ip, switchInput.snmpCommunityType)
+                .flatMap { portsNumber =>
+                  {
+                    val switch = Switch(
+                      switchInput.name,
+                      Some(ip),
+                      switchInput.mac,
+                      switchInfo.revision,
+                      switchInfo.serial,
+                      Some(portsNumber),
+                      switchInput.build,
+                      switchInput.floor,
+                      None,
+                      None,
+                      None,
+                      None,
+                      None
+                    )
+                    dataRepository.createSwitch(switch).flatMap { _ =>
+                      Some(createSwitchResource(switch)) match {
+                        case Some(sw) => sw.map(Some(_))
+                      }
+                    }
+                  }
                 }
-              }
             }
         }
       case None => Future { None }

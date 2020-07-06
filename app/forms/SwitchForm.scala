@@ -7,6 +7,6 @@ case class SwitchForm(
   mac: String,
   snmpCommunityType: String,
   snmpCommunity: Option[String],
-  buildAddr: Option[String],
-  floorNumber: Option[Int]
+  build: Option[String],
+  floor: Option[Int]
 )
