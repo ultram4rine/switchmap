@@ -19,11 +19,11 @@
             v-on:keyup="emitBuildName"
           ></v-text-field>
           <v-text-field
-            v-model="buildAddr"
-            label="Address"
+            v-model="buildShortName"
+            label="Short Name"
             color="orange accent-2"
             required
-            v-on:keyup="emitBuildAddr"
+            v-on:keyup="emitBuildShortName"
           ></v-text-field>
         </v-form>
       </v-card-text>
@@ -54,7 +54,7 @@ export default Vue.extend({
       mdiClose: mdiClose,
 
       buildName: "",
-      buildAddr: ""
+      buildShortName: ""
     };
   },
 
@@ -69,8 +69,8 @@ export default Vue.extend({
     emitBuildName() {
       this.$emit("emitBuildName", this.buildName);
     },
-    emitBuildAddr() {
-      this.$emit("emitBuildAddr", this.buildAddr);
+    emitBuildShortName() {
+      this.$emit("emitBuildShortName", this.buildShortName);
     }
   }
 });
