@@ -91,7 +91,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
     def floor =
       foreignKey("fk_floor", (buildShortName.get, floorNumber.get), floors)(
         f => (f.buildShortName, f.number),
-        onUpdate = ForeignKeyAction.NoAction,
+        onUpdate = ForeignKeyAction.Cascade,
         onDelete = ForeignKeyAction.NoAction
       )
 
@@ -102,7 +102,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
         switches
       )(
         sw => (sw.name, sw.mac),
-        onUpdate = ForeignKeyAction.NoAction,
+        onUpdate = ForeignKeyAction.Cascade,
         onDelete = ForeignKeyAction.NoAction
       )
   }
