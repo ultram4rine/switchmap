@@ -45,7 +45,7 @@ import switchesMixin from "../mixins/switchesMixin";
 
 import dragAndScroll from "../directives/dragAndScrollDirective";
 
-import SwitchForm from "./SwitchForm.vue";
+import SwitchForm from "./forms/SwitchForm.vue";
 
 export default mixins(switchesMixin).extend({
   props: {

@@ -97,8 +97,8 @@ import { mdiClose, mdiDelete } from "@mdi/js";
 import floorsMixin from "../mixins/floorsMixin";
 import switchesMixin from "../mixins/switchesMixin";
 
-import FloorForm from "./FloorForm.vue";
-import SwitchForm from "./SwitchForm.vue";
+import FloorForm from "./forms/FloorForm.vue";
+import SwitchForm from "./forms/SwitchForm.vue";
 
 export default mixins(floorsMixin, switchesMixin).extend({
   props: {

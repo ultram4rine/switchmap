@@ -50,7 +50,7 @@ import { mdiMagnify } from "@mdi/js";
 
 import switchesMixin from "../mixins/switchesMixin";
 
-import SwitchForm from "./SwitchForm.vue";
+import SwitchForm from "./forms/SwitchForm.vue";
 
 export default mixins(switchesMixin).extend({
   props: {

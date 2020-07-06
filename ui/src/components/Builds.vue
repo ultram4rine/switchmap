@@ -115,8 +115,8 @@ import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
 import buildsMixin from "../mixins/buildsMixin";
 import floorsMixin from "../mixins/floorsMixin";
 
-import BuildForm from "./BuildForm.vue";
-import FloorForm from "./FloorForm.vue";
+import BuildForm from "./forms/BuildForm.vue";
+import FloorForm from "./forms/FloorForm.vue";
 import Confirmation from "./Confirmation.vue";
 
 export default mixins(buildsMixin, floorsMixin).extend({
