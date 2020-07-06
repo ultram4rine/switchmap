@@ -1,10 +1,10 @@
 package controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment, Mode}
-import play.api.http.{ContentTypes, HttpErrorHandler}
-import play.api.mvc._
+import play.api.http.ContentTypes
 import play.api.libs.ws.WSClient
+import play.api.mvc._
+import play.api.{Environment, Mode}
 import services.IndexRenderService
 
 import scala.concurrent.{ExecutionContext, Future}
