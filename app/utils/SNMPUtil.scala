@@ -17,6 +17,7 @@ class SNMPUtil @Inject() (implicit ec: ExecutionContext) {
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
   private val entPhysicalName = new OID(".1.3.6.1.2.1.47.1.1.1.1.7")
 
+  // TODO: Split this methods in one
   def getSwitchInfo(
     switchIP: String,
     communityType: String
@@ -72,15 +73,24 @@ class SNMPUtil @Inject() (implicit ec: ExecutionContext) {
       }
     }
 
-  def getSwitchPortsNumber(switchIP: String): Future[Int] =
+  def getSwitchPortsNumber(
+    switchIP: String,
+    communityType: String
+  ): Future[Int] =
     Future {
       val transport = new DefaultUdpTransportMapping()
       transport.listen()
 
+      val community = communityType match {
+        case "Public"  => "public"
+        case "Private" => ""
+        case _         => ""
+      }
+
       val target =
         new CommunityTarget(
           new UdpAddress(s"$switchIP/161"),
-          new OctetString("public")
+          new OctetString(community)
         )
       target.setVersion(SnmpConstants.version2c)
       target.setRetries(2)
