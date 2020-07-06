@@ -4,7 +4,6 @@ import javax.inject.{Inject, Singleton}
 import models.{Build, Floor, Switch}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
-import slick.jdbc.meta.MTable
 
 import scala.concurrent.{ExecutionContext, Future}
 
