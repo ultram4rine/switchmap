@@ -28,8 +28,8 @@ class SwitchController @Inject() (
         "mac" -> nonEmptyText,
         "snmpCommunityType" -> nonEmptyText,
         "snmpCommunity" -> optional(text),
-        "buildShortName" -> optional(text),
-        "floorNumber" -> optional(number)
+        "build" -> optional(text),
+        "floor" -> optional(number)
       )(SwitchForm.apply)(SwitchForm.unapply)
     )
   }
