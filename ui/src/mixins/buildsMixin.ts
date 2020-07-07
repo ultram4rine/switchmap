@@ -8,7 +8,6 @@ const buildsMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-      timeout: 3000,
 
       item: "",
 

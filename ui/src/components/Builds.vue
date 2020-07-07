@@ -73,15 +73,6 @@
       </v-card>
     </v-row>
 
-    <v-snackbar v-model="snackbar" :timeout="timeout">
-      {{ item }} added!
-      <template v-slot:action="{ attrs }">
-        <v-btn fab x-small v-bind="attrs" @click="snackbar = false">
-          <v-icon dark>{{ mdiClose }}</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
     <BuildForm
       :form="buildForm"
       :action="action"
@@ -98,6 +89,8 @@
       @confirm="deleteBuild(buildForDeleteShortName)"
       @cancel="confirmation = !confirmation"
     />
+
+    <Snackbar :snackbar="snackbar" :item="item" :action="action" @close="closeSnackbar()" />
   </div>
 </template>
 
@@ -110,7 +103,9 @@ import floorsMixin from "../mixins/floorsMixin";
 
 import BuildForm from "./forms/BuildForm.vue";
 import FloorForm from "./forms/FloorForm.vue";
+
 import Confirmation from "./Confirmation.vue";
+import Snackbar from "./Snackbar.vue";
 
 export default mixins(buildsMixin, floorsMixin).extend({
   props: {
@@ -120,7 +115,8 @@ export default mixins(buildsMixin, floorsMixin).extend({
   components: {
     BuildForm,
     FloorForm,
-    Confirmation
+    Confirmation,
+    Snackbar
   },
 
   data() {

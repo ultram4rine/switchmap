@@ -60,13 +60,6 @@
       </v-card>
     </v-row>
 
-    <v-snackbar v-model="snackbar" :timeout="timeout">
-      {{ item }} added!
-      <v-btn fab x-small @click="snackbar = false">
-        <v-icon dark>{{ mdiClose }}</v-icon>
-      </v-btn>
-    </v-snackbar>
-
     <FloorForm :form="floorForm" @submit="addFloor" @close="closeFloorForm" />
 
     <SwitchForm
@@ -76,6 +69,8 @@
       @submit="addSwitch"
       @close="closeSwitchForm"
     />
+
+    <Snackbar :snackbar="snackbar" :item="item" :action="action" @close="closeSnackbar()" />
   </div>
 </template>
 
@@ -89,6 +84,8 @@ import switchesMixin from "../mixins/switchesMixin";
 import FloorForm from "./forms/FloorForm.vue";
 import SwitchForm from "./forms/SwitchForm.vue";
 
+import Snackbar from "./Snackbar.vue";
+
 export default mixins(floorsMixin, switchesMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -97,7 +94,8 @@ export default mixins(floorsMixin, switchesMixin).extend({
 
   components: {
     FloorForm,
-    SwitchForm
+    SwitchForm,
+    Snackbar
   },
 
   data() {
