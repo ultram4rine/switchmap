@@ -21,6 +21,8 @@ export default Vue.extend({
 
   data() {
     return {
+      mdiClose: mdiClose,
+
       timeout: 3000
     };
   }
