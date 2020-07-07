@@ -1,5 +1,6 @@
 import { DirectiveOptions } from "vue";
 
+// TODO: divide this directive into two separate.
 const directive: DirectiveOptions = {
   inserted: (el) => {
     const addOnWheel = (elem: HTMLElement, handler: any) => {
