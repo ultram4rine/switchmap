@@ -67,12 +67,7 @@
       </v-btn>
     </v-snackbar>
 
-    <FloorForm
-      :form="floorForm"
-      @submit="addFloor"
-      @close="closeFloorForm"
-      v-on:emitFloorNumber="updateFloorNumber"
-    />
+    <FloorForm :form="floorForm" @submit="addFloor" @close="closeFloorForm" />
 
     <SwitchForm
       :form="switchForm"
@@ -80,12 +75,6 @@
       :needLocationFields="false"
       @submit="addSwitch"
       @close="closeSwitchForm"
-      v-on:emitSwitchName="updateSwitchName"
-      v-on:emitSwitchIPResolveMethod="updateSwitchIPResolveMethod"
-      v-on:emitSwitchIP="updateSwitchIP"
-      v-on:emitSwitchMAC="updateSwitchMAC"
-      v-on:emitSwitchSNMPCommunityType="updateSwitchSNMPCommunityType"
-      v-on:emitSwitchSNMPCommunity="updateSwitchSNMPCommunity"
     />
   </div>
 </template>

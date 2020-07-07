@@ -85,18 +85,11 @@
     <BuildForm
       :form="buildForm"
       :action="action"
-      @submit="addBuild"
+      @submit="action === 'Add' ? addBuild() : updateBuild(buildShortName)"
       @close="closeBuildForm"
-      v-on:emitBuildName="updateBuildName"
-      v-on:emitBuildShortName="updateBuildShortName"
     />
 
-    <FloorForm
-      :form="floorForm"
-      @submit="addFloorWithRefresh"
-      @close="closeFloorForm"
-      v-on:emitFloorNumber="updateFloorNumber"
-    />
+    <FloorForm :form="floorForm" @submit="addFloorWithRefresh" @close="closeFloorForm" />
 
     <Confirmation
       v-model="confirmation"

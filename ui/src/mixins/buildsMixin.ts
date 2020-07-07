@@ -101,13 +101,6 @@ const buildsMixin = Vue.extend({
 
       this.action = "Add";
     },
-
-    updateBuildName(name: string) {
-      this.buildName = name;
-    },
-    updateBuildShortName(addr: string) {
-      this.buildShortName = addr;
-    },
   },
 });
 

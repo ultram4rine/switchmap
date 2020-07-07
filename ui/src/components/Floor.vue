@@ -25,14 +25,6 @@
       :needLocationFields="false"
       @submit="addSwitch(build, floor)"
       @close="closeSwitchForm"
-      v-on:emitSwitchName="updateSwitchName"
-      v-on:emitSwitchIPResolveMethod="updateSwitchIPResolveMethod"
-      v-on:emitSwitchIP="updateSwitchIP"
-      v-on:emitSwitchMAC="updateSwitchMAC"
-      v-on:emitSwitchSNMPCommunityType="updateSwitchSNMPCommunityType"
-      v-on:emitSwitchSNMPCommunity="updateSwitchSNMPCommunity"
-      v-on:emitSwitchBuild="updateSwitchBuild"
-      v-on:emitSwitchFloor="updateSwitchFloor"
     />
   </div>
 </template>

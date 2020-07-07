@@ -65,10 +65,6 @@ const floorsMixin = Vue.extend({
       this.floorBuildName = "";
       this.floorBuildShortName = "";
     },
-
-    updateFloorNumber(number: string) {
-      this.floorNumber = number;
-    },
   },
 });
 

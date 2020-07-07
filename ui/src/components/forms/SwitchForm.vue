@@ -11,13 +11,7 @@
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field
-            v-model="name"
-            label="Name"
-            color="orange accent-2"
-            required
-            v-on:keyup="emitSwitchName"
-          ></v-text-field>
+          <v-text-field v-model="name" label="Name" color="orange accent-2" required></v-text-field>
 
           <v-row dense>
             <v-col cols="12" sm="6">
@@ -28,7 +22,6 @@
                 label="IP resolve method"
                 color="orange accent-2"
                 required
-                v-on:input="emitSwitchIPResolveMethod"
               ></v-select>
             </v-col>
             <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
@@ -38,7 +31,6 @@
                 placeholder="e.g. 192.168.1.1"
                 color="orange accent-2"
                 required
-                v-on:keyup="emitSwitchIP"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -49,7 +41,6 @@
             placeholder="XX:XX:XX:XX:XX:XX"
             color="orange accent-2"
             required
-            v-on:keyup="emitSwitchMAC"
           ></v-text-field>
 
           <v-row dense>
@@ -61,7 +52,6 @@
                 label="SNMP community type"
                 color="orange accent-2"
                 required
-                v-on:input="emitSwitchSNMPCommunityType"
               ></v-select>
             </v-col>
             <v-col v-if="snmpCommunityType === 'Private'" cols="12" sm="6">
@@ -70,7 +60,6 @@
                 label="Community"
                 color="orange accent-2"
                 required
-                v-on:keyup="emitSwitchSNMPCommunity"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -84,7 +73,6 @@
                 label="Build"
                 color="orange accent-2"
                 required
-                v-on:input="emitSwitchBuild"
               ></v-select>
             </v-col>
             <v-col cols="12" sm="6">
@@ -95,7 +83,6 @@
                 label="Floor"
                 color="orange accent-2"
                 required
-                v-on:input="emitSwitchFloor"
               ></v-select>
             </v-col>
           </v-row>
@@ -113,14 +100,15 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-
 import { mdiClose } from "@mdi/js";
 
-export default Vue.extend({
+import mixins from "vue-typed-mixins";
+
+import switchesMixin from "../../mixins/switchesMixin";
+
+export default mixins(switchesMixin).extend({
   props: {
     form: { type: Boolean, required: true },
-    action: { type: String, required: true },
     needLocationFields: { type: Boolean, required: true }
   },
 
@@ -128,19 +116,10 @@ export default Vue.extend({
     return {
       mdiClose: mdiClose,
 
-      name: "",
-      ipResolveMethod: "Direct",
-      ip: "",
-      mac: "",
-      snmpCommunityType: "Public",
-      snmpCommunity: "",
-
       methods: ["Direct", "DNS"],
       types: ["Public", "Private"],
 
-      build: "",
       builds: [],
-      floor: "",
       floors: []
     };
   },
@@ -149,33 +128,6 @@ export default Vue.extend({
     title: function() {
       if (this.action == "Add") return "New switch";
       else if (this.action == "Change") return "Change switch";
-    }
-  },
-
-  methods: {
-    emitSwitchName() {
-      this.$emit("emitSwitchName", this.name);
-    },
-    emitSwitchIPResolveMethod() {
-      this.$emit("emitSwitchIPResolveMethod", this.ipResolveMethod);
-    },
-    emitSwitchIP() {
-      this.$emit("emitSwitchIP", this.ip);
-    },
-    emitSwitchMAC() {
-      this.$emit("emitSwitchMAC", this.mac);
-    },
-    emitSwitchSNMPCommunityType() {
-      this.$emit("emitSwitchSNMPCommunityType", this.snmpCommunityType);
-    },
-    emitSwitchSNMPCommunity() {
-      this.$emit("emitSwitchSNMPCommunity", this.snmpCommunity);
-    },
-    emitSwitchBuild() {
-      this.$emit("emitSwitchBuild", this.build);
-    },
-    emitSwitchFloor() {
-      this.$emit("emitSwitchFloor", this.floor);
     }
   }
 });

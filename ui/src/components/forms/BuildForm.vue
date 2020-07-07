@@ -11,19 +11,12 @@
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field
-            v-model="buildName"
-            label="Name"
-            color="orange accent-2"
-            required
-            v-on:keyup="emitBuildName"
-          ></v-text-field>
+          <v-text-field v-model="buildName" label="Name" color="orange accent-2" required></v-text-field>
           <v-text-field
             v-model="buildShortName"
             label="Short Name"
             color="orange accent-2"
             required
-            v-on:keyup="emitBuildShortName"
           ></v-text-field>
         </v-form>
       </v-card-text>
@@ -39,22 +32,20 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-
 import { mdiClose } from "@mdi/js";
 
-export default Vue.extend({
+import mixins from "vue-typed-mixins";
+
+import buildsMixin from "../../mixins/buildsMixin";
+
+export default mixins(buildsMixin).extend({
   props: {
-    form: { type: Boolean, required: true },
-    action: { type: String, required: true }
+    form: { type: Boolean, required: true }
   },
 
   data() {
     return {
-      mdiClose: mdiClose,
-
-      buildName: "",
-      buildShortName: ""
+      mdiClose: mdiClose
     };
   },
 
@@ -62,15 +53,6 @@ export default Vue.extend({
     title: function() {
       if (this.action == "Add") return "New build";
       else if (this.action == "Change") return "Change build";
-    }
-  },
-
-  methods: {
-    emitBuildName() {
-      this.$emit("emitBuildName", this.buildName);
-    },
-    emitBuildShortName() {
-      this.$emit("emitBuildShortName", this.buildShortName);
     }
   }
 });

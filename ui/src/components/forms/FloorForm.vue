@@ -17,7 +17,6 @@
             label="Number"
             color="orange accent-2"
             required
-            v-on:keyup="emitFloorNumber"
           ></v-text-field>
         </v-form>
       </v-card-text>
@@ -33,27 +32,21 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-
 import { mdiClose } from "@mdi/js";
 
-export default Vue.extend({
+import mixins from "vue-typed-mixins";
+
+import floorsMixin from "../../mixins/floorsMixin";
+
+export default mixins(floorsMixin).extend({
   props: {
     form: { type: Boolean, required: true }
   },
 
   data() {
     return {
-      mdiClose: mdiClose,
-
-      floorNumber: ""
+      mdiClose: mdiClose
     };
-  },
-
-  methods: {
-    emitFloorNumber() {
-      this.$emit("emitFloorNumber", this.floorNumber);
-    }
   }
 });
 </script>

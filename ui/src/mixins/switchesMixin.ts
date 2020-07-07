@@ -89,31 +89,6 @@ const switchesMixin = Vue.extend({
 
       this.action = "Add";
     },
-
-    updateSwitchName(name: string) {
-      this.switchName = name;
-    },
-    updateSwitchIPResolveMethod(method: string) {
-      this.switchIPResolveMethod = method;
-    },
-    updateSwitchIP(ip: string) {
-      this.switchIP = ip;
-    },
-    updateSwitchMAC(mac: string) {
-      this.switchMAC = mac;
-    },
-    updateSwitchSNMPCommunityType(type: string) {
-      this.switchSNMPCommunityType = type;
-    },
-    updateSwitchSNMPCommunity(community: string) {
-      this.switchSNMPCommunity = community;
-    },
-    updateSwitchBuild(build: string) {
-      this.switchBuild = build;
-    },
-    updateSwitchFloor(floor: string) {
-      this.switchFloor = floor;
-    },
   },
 });
 
