@@ -11,32 +11,10 @@
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="name" label="Name" color="orange accent-2" required></v-text-field>
-
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="ipResolveMethod"
-                :items="methods"
-                hide-details
-                label="IP resolve method"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-            <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
-              <v-text-field
-                v-model="ip"
-                label="IP"
-                placeholder="e.g. 192.168.1.1"
-                color="orange accent-2"
-                required
-              ></v-text-field>
-            </v-col>
-          </v-row>
+          <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
 
           <v-text-field
-            v-model="mac"
+            v-model="inputMAC"
             label="MAC"
             placeholder="XX:XX:XX:XX:XX:XX"
             color="orange accent-2"
@@ -46,7 +24,29 @@
           <v-row dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="snmpCommunityType"
+                v-model="inputIPResolveMethod"
+                :items="methods"
+                hide-details
+                label="IP resolve method"
+                color="orange accent-2"
+                required
+              ></v-select>
+            </v-col>
+            <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
+              <v-text-field
+                v-model="inputIP"
+                label="IP"
+                placeholder="e.g. 192.168.1.1"
+                color="orange accent-2"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <v-row dense>
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="inputSNMPCommunityType"
                 :items="types"
                 hide-details
                 label="SNMP community type"
@@ -54,9 +54,9 @@
                 required
               ></v-select>
             </v-col>
-            <v-col v-if="snmpCommunityType === 'Private'" cols="12" sm="6">
+            <v-col v-if="inputSNMPCommunityType === 'Private'" cols="12" sm="6">
               <v-text-field
-                v-model="snmpCommunity"
+                v-model="inputSNMPCommunity"
                 label="Community"
                 color="orange accent-2"
                 required
@@ -67,7 +67,7 @@
           <v-row v-if="needLocationFields" dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="build"
+                v-model="inputBuild"
                 :items="builds"
                 hide-details
                 label="Build"
@@ -77,7 +77,7 @@
             </v-col>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="floor"
+                v-model="inputFloor"
                 :items="floors"
                 hide-details
                 label="Floor"
@@ -100,35 +100,89 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, Ref, ref, computed } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import mixins from "vue-typed-mixins";
+import useInputValidator from "@/helpers/useInputValidator";
 
-import switchesMixin from "../../mixins/switchesMixin";
+import { isMAC, isIP } from "@/validators";
 
-export default mixins(switchesMixin).extend({
+import { Build, Floor } from "@/interfaces";
+
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
-    needLocationFields: { type: Boolean, required: true }
+    action: { type: String, required: true },
+    needLocationFields: { type: Boolean, required: true },
+    name: { type: String, required: true },
+    mac: { type: String, required: true },
+    ipResolveMethod: { type: String, required: true },
+    ip: { type: String, required: true },
+    snmpCommunityType: { type: String, required: true },
+    snmpCommunity: { type: String, required: true },
+    build: { type: String, required: true },
+    floor: { type: Number, required: true }
   },
 
-  data() {
+  setup(props, { emit }) {
+    const title = computed(() => {
+      if (props.action == "Add") return "New switch";
+      else if (props.action == "Change") return "Change switch";
+    });
+
+    const inputName = useInputValidator(props.name, [], (name: string) =>
+      emit("input", name)
+    );
+    const inputMAC = useInputValidator(props.mac, [], (mac: string) =>
+      emit("input", mac)
+    );
+    const inputIPResolveMethod = useInputValidator(
+      props.ipResolveMethod,
+      [],
+      (ipResolveMethod: string) => emit("input", ipResolveMethod)
+    );
+    const inputIP = useInputValidator(props.ip, [], (ip: string) =>
+      emit("input", ip)
+    );
+    const inputSNMPCommunityType = useInputValidator(
+      props.snmpCommunityType,
+      [],
+      (snmpCommunityType: string) => emit("input", snmpCommunityType)
+    );
+    const inputSNMPCommunity = useInputValidator(
+      props.snmpCommunity,
+      [],
+      (snmpCommunity: string) => emit("input", snmpCommunity)
+    );
+    const inputBuild = useInputValidator(props.build, [], (build: string) =>
+      emit("input", build)
+    );
+    const inputFloor = useInputValidator(
+      props.floor.toString(),
+      [],
+      (floor: string) => emit("input", floor)
+    );
+
+    const builds: Ref<Build[]> = ref([]);
+    const floors: Ref<Floor[]> = ref([]);
+
     return {
-      mdiClose: mdiClose,
+      title,
 
-      methods: ["Direct", "DNS"],
-      types: ["Public", "Private"],
+      inputName,
+      inputMAC,
+      inputIPResolveMethod,
+      inputIP,
+      inputSNMPCommunityType,
+      inputSNMPCommunity,
+      inputBuild,
+      inputFloor,
 
-      builds: [],
-      floors: []
+      builds,
+      floors,
+
+      mdiClose
     };
-  },
-
-  computed: {
-    title: function() {
-      if (this.action == "Add") return "New switch";
-      else if (this.action == "Change") return "Change switch";
-    }
   }
 });
 </script>
