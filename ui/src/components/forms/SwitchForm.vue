@@ -174,7 +174,7 @@ export default defineComponent({
     const builds = computed(getAllBuilds);
     let floors: Ref<Floor[]> = ref([]);
     watch(inputBuild, value => {
-      floors = getFloorsOf(inputBuild.input.value);
+      floors.value = getFloorsOf(inputBuild.input.value);
     });
 
     return {
