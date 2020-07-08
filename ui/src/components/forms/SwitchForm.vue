@@ -100,7 +100,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref, computed } from "@vue/composition-api";
+import {
+  defineComponent,
+  Ref,
+  ref,
+  computed,
+  watch
+} from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
 import useInputValidator from "@/helpers/useInputValidator";
@@ -108,6 +114,8 @@ import useInputValidator from "@/helpers/useInputValidator";
 import { isMAC, isIP } from "@/validators";
 
 import { Build, Floor } from "@/interfaces";
+
+import { getAllBuilds, getFloorsOf } from "@/helpers/getting";
 
 export default defineComponent({
   props: {
@@ -163,8 +171,11 @@ export default defineComponent({
       (floor: string) => emit("input", floor)
     );
 
-    const builds: Ref<Build[]> = ref([]);
-    const floors: Ref<Floor[]> = ref([]);
+    const builds = computed(getAllBuilds);
+    let floors: Ref<Floor[]> = ref([]);
+    watch(inputBuild, value => {
+      floors = getFloorsOf(inputBuild.input.value);
+    });
 
     return {
       title,
