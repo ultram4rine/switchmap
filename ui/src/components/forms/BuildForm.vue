@@ -11,9 +11,9 @@
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="buildName" label="Name" color="orange accent-2" required></v-text-field>
+          <v-text-field v-model="inputName.input" label="Name" color="orange accent-2" required></v-text-field>
           <v-text-field
-            v-model="buildShortName"
+            v-model="inputShortName.input"
             label="Short Name"
             color="orange accent-2"
             required
@@ -32,28 +32,44 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, computed } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import mixins from "vue-typed-mixins";
+import useInputValidator from "@/helpers/useInputValidator";
 
-import buildsMixin from "../../mixins/buildsMixin";
+export default defineComponent({
+  name: "BuildForm",
 
-export default mixins(buildsMixin).extend({
   props: {
-    form: { type: Boolean, required: true }
+    form: { type: Boolean, required: true },
+    action: { type: String, required: true },
+    name: { type: String, required: true },
+    shortName: { type: String, required: true }
   },
 
-  data() {
+  setup(props, { emit }) {
+    const title = computed(() => {
+      if (props.action == "Add") return "New build";
+      else if (props.action == "Change") return "Change build";
+    });
+
+    const inputName = useInputValidator(props.name, [], (name: string) =>
+      emit("input", name)
+    );
+    const inputShortName = useInputValidator(
+      props.shortName,
+      [],
+      (shortName: string) => emit("input", shortName)
+    );
+
     return {
-      mdiClose: mdiClose
-    };
-  },
+      title,
 
-  computed: {
-    title: function() {
-      if (this.action == "Add") return "New build";
-      else if (this.action == "Change") return "Change build";
-    }
+      inputName,
+      inputShortName,
+
+      mdiClose
+    };
   }
 });
 </script>

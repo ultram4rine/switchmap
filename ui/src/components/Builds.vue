@@ -76,6 +76,8 @@
     <BuildForm
       :form="buildForm"
       :action="action"
+      :name="buildName"
+      :shortName="buildShortName"
       @submit="action === 'Add' ? addBuild() : updateBuild(buildShortName)"
       @close="closeBuildForm"
     />
@@ -95,8 +97,10 @@
 </template>
 
 <script lang="ts">
-import mixins from "vue-typed-mixins";
+import { defineComponent, ref, Ref } from "@vue/composition-api";
 import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
+
+import { Build } from "@/interfaces";
 
 import buildsMixin from "../mixins/buildsMixin";
 import floorsMixin from "../mixins/floorsMixin";
@@ -107,7 +111,7 @@ import FloorForm from "./forms/FloorForm.vue";
 import Confirmation from "./Confirmation.vue";
 import Snackbar from "./Snackbar.vue";
 
-export default mixins(buildsMixin, floorsMixin).extend({
+export default {
   props: {
     isLoading: { type: Boolean, required: true }
   },
@@ -119,24 +123,26 @@ export default mixins(buildsMixin, floorsMixin).extend({
     Snackbar
   },
 
-  data() {
+  setup() {
+    const action = ref("Add");
+    const builds: Ref<Build[]> = ref([]);
+
+    const buildForm = ref(false);
+    const buildName = ref("");
+    const buildShortName = ref("");
+
     return {
-      mdiClose: mdiClose,
-      mdiPencil: mdiPencil,
-      mdiDelete: mdiDelete
+      action,
+      builds,
+
+      buildForm,
+      buildName,
+      buildShortName,
+
+      mdiClose,
+      mdiPencil,
+      mdiDelete
     };
-  },
-
-  created() {
-    this.getAllBuilds();
-  },
-
-  methods: {
-    addFloorWithRefresh() {
-      this.addFloor();
-      this.getBuild(this.floorBuildShortName);
-      this.floorBuildShortName = "";
-    }
   }
-});
+};
 </script>
