@@ -9,42 +9,42 @@ const buildEndpoint = `${config.apiURL}/build`;
 const switchesEndpoint = `${config.apiURL}/switches`;
 
 export function getAllBuilds() {
-  let builds: Ref<Build[]> = ref([]);
+  let builds: Build[] = [];
   axios
     .get<Build, AxiosResponse<Build[]>>(buildsEndpoint)
-    .then((resp) => (builds.value = resp.data))
+    .then((resp) => (builds = resp.data))
     .catch((err) => console.log(err));
 
   return builds;
 }
 
 export function getBuild(shortName: string) {
-  let build: Ref<Build | undefined> = ref();
+  let build = {} as Build;
   axios
     .get<Build, AxiosResponse<Build>>(`${buildEndpoint}/${shortName}`)
-    .then((resp) => (build.value = resp.data))
+    .then((resp) => (build = resp.data))
     .catch((err) => console.log(err));
 
   return build;
 }
 
 export function getFloorsOf(buildShortName: string) {
-  let floors: Ref<Floor[]> = ref([]);
+  let floors: Floor[] = [];
   axios
     .get<Floor, AxiosResponse<Floor[]>>(
       `${buildEndpoint}/${buildShortName}/floors`
     )
-    .then((resp) => (floors.value = resp.data))
+    .then((resp) => (floors = resp.data))
     .catch((err) => console.log(err));
 
   return floors;
 }
 
 export function getAllSwitches() {
-  let switches: Ref<Switch[]> = ref([]);
+  let switches: Switch[] = [];
   axios
     .get<Switch, AxiosResponse<Switch[]>>(switchesEndpoint)
-    .then((resp) => (switches.value = resp.data))
+    .then((resp) => (switches = resp.data))
     .catch((err) => console.log(err));
 
   return switches;
