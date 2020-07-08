@@ -13,7 +13,7 @@
         <v-form ref="form">
           <v-text-field
             type="number"
-            v-model="floorNumber"
+            v-model="inputNumber.input"
             label="Number"
             color="orange accent-2"
             required
@@ -32,20 +32,30 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, computed } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import mixins from "vue-typed-mixins";
+import useInputValidator from "@/helpers/useInputValidator";
 
-import floorsMixin from "../../mixins/floorsMixin";
+export default defineComponent({
+  name: "FloorForm",
 
-export default mixins(floorsMixin).extend({
   props: {
-    form: { type: Boolean, required: true }
+    form: { type: Boolean, required: true },
+    number: { type: Number, required: true }
   },
 
-  data() {
+  setup(props, { emit }) {
+    const inputNumber = useInputValidator(
+      props.number.toString(),
+      [],
+      (number: string) => emit("input", name)
+    );
+
     return {
-      mdiClose: mdiClose
+      inputNumber,
+
+      mdiClose
     };
   }
 });

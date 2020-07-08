@@ -82,7 +82,12 @@
       @close="closeBuildForm"
     />
 
-    <FloorForm :form="floorForm" @submit="addFloorWithRefresh" @close="closeFloorForm" />
+    <FloorForm
+      :form="floorForm"
+      :number="floorNumber"
+      @submit="addFloorWithRefresh"
+      @close="closeFloorForm"
+    />
 
     <Confirmation
       v-model="confirmation"
@@ -131,6 +136,9 @@ export default {
     const buildName = ref("");
     const buildShortName = ref("");
 
+    const floorForm = ref(false);
+    const floorNumber = ref(0);
+
     return {
       action,
       builds,
@@ -138,6 +146,9 @@ export default {
       buildForm,
       buildName,
       buildShortName,
+
+      floorForm,
+      floorNumber,
 
       mdiClose,
       mdiPencil,
