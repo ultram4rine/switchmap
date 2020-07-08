@@ -1,10 +1,10 @@
 import { Ref, ref, watch } from "@vue/composition-api";
 
-export default function (
+const useInputValidator = (
   startVal: string,
   validators: Array<(input: string) => string | null>,
   onValidate: (val: string) => void
-) {
+) => {
   const input = ref(startVal);
   const errors: Ref<(string | null)[]> = ref([]);
 
@@ -17,4 +17,6 @@ export default function (
     input,
     errors,
   };
-}
+};
+
+export default useInputValidator;
