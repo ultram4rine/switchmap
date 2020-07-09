@@ -81,7 +81,7 @@ const buildsMixin = Vue.extend({
         .then(() => {
           this.buildForm = false;
 
-          this.getBuild(buildForUpdate);
+          this.getBuild(this.buildShortName);
 
           this.buildName = "";
           this.buildShortName = "";
