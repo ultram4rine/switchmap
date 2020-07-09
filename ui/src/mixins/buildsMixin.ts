@@ -23,6 +23,8 @@ const buildsMixin = Vue.extend({
 
       action: "Add",
 
+      buildForUpdate: "",
+
       confirmation: false,
       buildForDeleteName: "",
       buildForDeleteShortName: "",
@@ -70,16 +72,16 @@ const buildsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    updateBuild(buildShortName: string) {
+    updateBuild(buildForUpdate: string) {
       axios
-        .put(this.buildEndpoint + buildShortName, {
+        .put(this.buildEndpoint + buildForUpdate, {
           name: this.buildName,
-          addr: this.buildShortName,
+          shortName: this.buildShortName,
         })
         .then(() => {
           this.buildForm = false;
 
-          this.getBuild(buildShortName);
+          this.getBuild(buildForUpdate);
 
           this.buildName = "";
           this.buildShortName = "";

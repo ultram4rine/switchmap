@@ -140,12 +140,15 @@ export default mixins(buildsMixin, floorsMixin).extend({
 
   methods: {
     handleSubmitBuild(name: string, shortName: string) {
-      this.buildName = name;
-      this.buildShortName = shortName;
       if (this.action == "Add") {
+        this.buildName = name;
+        this.buildShortName = shortName;
         this.addBuild();
       } else if (this.action == "Change") {
-        this.updateBuild(this.buildShortName);
+        this.buildForUpdate = this.buildShortName;
+        this.buildName = name;
+        this.buildShortName = shortName;
+        this.updateBuild(this.buildForUpdate);
       }
     },
     addFloorWithRefresh() {
