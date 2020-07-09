@@ -8,8 +8,8 @@ const switchesMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-
       item: "",
+      snackbarAction: "",
 
       switches: new Array<Switch>(),
       switchesEndpoint: `${config.apiURL}/switches`,
@@ -87,6 +87,12 @@ const switchesMixin = Vue.extend({
       this.switchSNMPCommunity = "";
 
       this.action = "Add";
+    },
+
+    closeSnackbar() {
+      this.snackbar = false;
+      this.item = "";
+      this.snackbarAction = "";
     },
   },
 });

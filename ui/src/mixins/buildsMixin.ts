@@ -8,8 +8,8 @@ const buildsMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-
       item: "",
+      snackbarAction: "",
 
       builds: new Array<Build>(),
       buildsEndpoint: `${config.apiURL}/builds`,
@@ -64,6 +64,7 @@ const buildsMixin = Vue.extend({
           this.getAllBuilds();
 
           this.item = this.buildName;
+          this.snackbarAction = "added";
           this.snackbar = true;
 
           this.buildName = "";
@@ -83,6 +84,10 @@ const buildsMixin = Vue.extend({
 
           this.getBuild(this.buildShortName);
 
+          this.item = this.buildName;
+          this.snackbarAction = "updated";
+          this.snackbar = true;
+
           this.buildName = "";
           this.buildShortName = "";
         });
@@ -92,6 +97,10 @@ const buildsMixin = Vue.extend({
       axios.delete(this.buildEndpoint + buildShortName).then(() => {
         this.confirmation = !this.confirmation;
         this.getAllBuilds();
+
+        this.item = this.buildName;
+        this.snackbarAction = "deleted";
+        this.snackbar = true;
       });
     },
 
@@ -101,6 +110,12 @@ const buildsMixin = Vue.extend({
       this.buildShortName = "";
 
       this.action = "Add";
+    },
+
+    closeSnackbar() {
+      this.snackbar = false;
+      this.item = "";
+      this.snackbarAction = "";
     },
   },
 });

@@ -97,7 +97,7 @@
       @cancel="confirmation = !confirmation"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="action" @close="closeSnackbar()" />
+    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @close="closeSnackbar" />
   </div>
 </template>
 

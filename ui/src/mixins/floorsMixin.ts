@@ -8,8 +8,8 @@ const floorsMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-
       item: "",
+      snackbarAction: "",
 
       floors: new Array<Floor>(),
       floorsEndpoint: `${config.apiURL}/build`,
@@ -44,6 +44,7 @@ const floorsMixin = Vue.extend({
           this.floorForm = false;
 
           this.item = `${this.floorNumber} floor in ${this.floorBuildName}`;
+          this.snackbarAction = "added";
           this.snackbar = true;
 
           this.floorNumber = "";
@@ -55,6 +56,10 @@ const floorsMixin = Vue.extend({
     deleteFloorOf(build: String, floor: string) {
       axios.delete(`${this.floorsEndpoint}/${build}/${floor}`).then(() => {
         this.getFloorsOf(build);
+
+        this.item = `${floor} floor in ${build}`;
+        this.snackbarAction = "deleted";
+        this.snackbar = true;
       });
     },
 
@@ -63,6 +68,12 @@ const floorsMixin = Vue.extend({
       this.floorNumber = "";
       this.floorBuildName = "";
       this.floorBuildShortName = "";
+    },
+
+    closeSnackbar() {
+      this.snackbar = false;
+      this.item = "";
+      this.snackbarAction = "";
     },
   },
 });
