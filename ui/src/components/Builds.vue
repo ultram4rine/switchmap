@@ -44,7 +44,7 @@
               dark
               small
               color="primary"
-              @click="floorForm = !floorForm; floorBuildName = build.name; floorBuildShortName = build.shortName"
+              @click="floorBuildName = build.name; floorBuildShortName = build.shortName; floorForm = !floorForm"
             >Add floor</v-btn>
             <v-btn
               dark
@@ -85,7 +85,7 @@
     <FloorForm
       :form="floorForm"
       :number="floorNumber"
-      @submit="addFloorWithRefresh"
+      @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
 
@@ -151,7 +151,8 @@ export default mixins(buildsMixin, floorsMixin).extend({
         this.updateBuild(this.buildForUpdate);
       }
     },
-    addFloorWithRefresh() {
+    handleSubmitFloor(number: string) {
+      this.floorNumber = number;
       this.addFloor();
       this.getBuild(this.floorBuildShortName);
       this.floorBuildShortName = "";
