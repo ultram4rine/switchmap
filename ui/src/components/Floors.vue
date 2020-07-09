@@ -60,12 +60,20 @@
       </v-card>
     </v-row>
 
-    <FloorForm :form="floorForm" @submit="addFloor" @close="closeFloorForm" />
+    <FloorForm :form="floorForm" :number="floorNumber" @submit="addFloor" @close="closeFloorForm" />
 
     <SwitchForm
       :form="switchForm"
       :action="action"
       :needLocationFields="false"
+      :name="switchName"
+      :mac="switchMAC"
+      :ipResolveMethod="switchIPResolveMethod"
+      :ip="switchIP"
+      :snmpCommunityType="switchSNMPCommunityType"
+      :snmpCommunity="switchSNMPCommunity"
+      :build="switchBuild"
+      :floor="switchFloor"
       @submit="addSwitch"
       @close="closeSwitchForm"
     />

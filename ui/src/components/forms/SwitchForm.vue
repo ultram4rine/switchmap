@@ -4,19 +4,27 @@
       <v-toolbar>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="$emit('close')">
+        <v-btn icon @click="close">
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </v-toolbar>
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="name" label="Name" color="orange accent-2" required></v-text-field>
+          <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
+
+          <v-text-field
+            v-model="inputMAC"
+            label="MAC"
+            placeholder="XX:XX:XX:XX:XX:XX"
+            color="orange accent-2"
+            required
+          ></v-text-field>
 
           <v-row dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="ipResolveMethod"
+                v-model="inputIPResolveMethod"
                 :items="methods"
                 hide-details
                 label="IP resolve method"
@@ -24,7 +32,7 @@
                 required
               ></v-select>
             </v-col>
-            <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
+            <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
               <v-text-field
                 v-model="ip"
                 label="IP"
@@ -35,18 +43,10 @@
             </v-col>
           </v-row>
 
-          <v-text-field
-            v-model="mac"
-            label="MAC"
-            placeholder="XX:XX:XX:XX:XX:XX"
-            color="orange accent-2"
-            required
-          ></v-text-field>
-
           <v-row dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="snmpCommunityType"
+                v-model="inputSNMPCommunityType"
                 :items="types"
                 hide-details
                 label="SNMP community type"
@@ -54,9 +54,9 @@
                 required
               ></v-select>
             </v-col>
-            <v-col v-if="snmpCommunityType === 'Private'" cols="12" sm="6">
+            <v-col v-if="inputSNMPCommunityType === 'Private'" cols="12" sm="6">
               <v-text-field
-                v-model="snmpCommunity"
+                v-model="inputSNMPCommunity"
                 label="Community"
                 color="orange accent-2"
                 required
@@ -67,7 +67,7 @@
           <v-row v-if="needLocationFields" dense>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="build"
+                v-model="inputBuild"
                 :items="builds"
                 hide-details
                 label="Build"
@@ -77,7 +77,7 @@
             </v-col>
             <v-col cols="12" sm="6">
               <v-select
-                v-model="floor"
+                v-model="inputFloor"
                 :items="floors"
                 hide-details
                 label="Floor"
@@ -93,28 +93,44 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="$emit('submit')">{{ action }}</v-btn>
+        <v-btn color="orange darken-1" @click="submit">{{ action }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import mixins from "vue-typed-mixins";
-
-import switchesMixin from "../../mixins/switchesMixin";
-
-export default mixins(switchesMixin).extend({
+export default Vue.extend({
   props: {
     form: { type: Boolean, required: true },
-    needLocationFields: { type: Boolean, required: true }
+    action: { type: String, required: true },
+    needLocationFields: { type: Boolean, required: true },
+
+    name: { type: String, required: true },
+    mac: { type: String, required: true },
+    ipResolveMethod: { type: String, required: true },
+    ip: { type: String, required: true },
+    snmpCommunityType: { type: String, required: true },
+    snmpCommunity: { type: String, required: true },
+    build: { type: String, required: true },
+    floor: { type: String, required: true }
   },
 
   data() {
     return {
       mdiClose: mdiClose,
+
+      inputName: this.name,
+      inputMAC: this.mac,
+      inputIPResolveMethod: this.ipResolveMethod,
+      inputIP: this.ip,
+      inputSNMPCommunityType: this.snmpCommunityType,
+      inputSNMPCommunity: this.snmpCommunity,
+      inputBuild: this.build,
+      inputFloor: this.floor,
 
       methods: ["Direct", "DNS"],
       types: ["Public", "Private"],
@@ -128,6 +144,52 @@ export default mixins(switchesMixin).extend({
     title: function() {
       if (this.action == "Add") return "New switch";
       else if (this.action == "Change") return "Change switch";
+    }
+  },
+
+  watch: {
+    name: function(newName) {
+      this.inputName = newName;
+    },
+    mac: function(newMAC) {
+      this.inputMAC = newMAC;
+    },
+    ipResolveMethod: function(newIPResolveMethod) {
+      this.inputIPResolveMethod = newIPResolveMethod;
+    },
+    ip: function(newIP) {
+      this.inputIP = newIP;
+    },
+    snmpCommunityType: function(newSNMPCommunityType) {
+      this.inputSNMPCommunityType = newSNMPCommunityType;
+    },
+    snmpCommunity: function(newSNMPCommunity) {
+      this.inputSNMPCommunity = newSNMPCommunity;
+    },
+    build: function(newBuild) {
+      this.inputBuild = newBuild;
+    },
+    floor: function(newFloor) {
+      this.inputFloor = newFloor;
+    }
+  },
+
+  methods: {
+    submit() {
+      this.$emit(
+        "submit",
+        this.inputName,
+        this.inputMAC,
+        this.inputIPResolveMethod,
+        this.inputIP,
+        this.inputSNMPCommunityType,
+        this.inputSNMPCommunity,
+        this.inputBuild,
+        this.inputFloor
+      );
+    },
+    close() {
+      this.$emit("close");
     }
   }
 });

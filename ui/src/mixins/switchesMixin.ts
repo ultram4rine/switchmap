@@ -18,9 +18,9 @@ const switchesMixin = Vue.extend({
       addSwitchEndpoint: `${config.apiURL}/switch`,
 
       switchName: "",
+      switchMAC: "",
       switchIPResolveMethod: "Direct",
       switchIP: "",
-      switchMAC: "",
       switchSNMPCommunityType: "Public",
       switchSNMPCommunity: "",
       switchBuild: "",
