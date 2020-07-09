@@ -56,11 +56,16 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="floorForm = !floorForm">Add floor</v-btn>
+        <v-btn color="error" @click="floorBuildShortName = build; floorForm = !floorForm">Add floor</v-btn>
       </v-card>
     </v-row>
 
-    <FloorForm :form="floorForm" :number="floorNumber" @submit="addFloor" @close="closeFloorForm" />
+    <FloorForm
+      :form="floorForm"
+      :number="floorNumber"
+      @submit="handleSubmitFloor"
+      @close="closeFloorForm"
+    />
 
     <SwitchForm
       :form="switchForm"
@@ -85,6 +90,10 @@
 <script lang="ts">
 import mixins from "vue-typed-mixins";
 import { mdiClose, mdiDelete } from "@mdi/js";
+
+import axios, { AxiosResponse } from "axios";
+import { config } from "../config";
+import { Build } from "../interfaces";
 
 import floorsMixin from "../mixins/floorsMixin";
 import switchesMixin from "../mixins/switchesMixin";
@@ -115,6 +124,22 @@ export default mixins(floorsMixin, switchesMixin).extend({
 
   created() {
     this.getFloorsOf(this.build);
+  },
+
+  methods: {
+    handleSubmitFloor(number: string) {
+      axios
+        .get<Build, AxiosResponse<Build>>(
+          `${config.apiURL}/build/${this.build}`
+        )
+        .then(resp => {
+          this.floorBuildName = resp.data.name;
+          this.floorNumber = number;
+          this.addFloor();
+          this.getFloorsOf(this.build);
+        })
+        .catch(err => console.log(err));
+    }
   }
 });
 </script>
