@@ -4,16 +4,16 @@
       <v-toolbar>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="$emit('close')">
+        <v-btn icon @click="close">
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </v-toolbar>
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="buildName" label="Name" color="orange accent-2" required></v-text-field>
+          <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
           <v-text-field
-            v-model="buildShortName"
+            v-model="inputShortName"
             label="Short Name"
             color="orange accent-2"
             required
@@ -25,27 +25,30 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="$emit('submit')">{{ action }}</v-btn>
+        <v-btn color="orange darken-1" @click="submit">{{ action }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import mixins from "vue-typed-mixins";
-
-import buildsMixin from "../../mixins/buildsMixin";
-
-export default mixins(buildsMixin).extend({
+export default Vue.extend({
   props: {
-    form: { type: Boolean, required: true }
+    form: { type: Boolean, required: true },
+    action: { type: String, required: true },
+    name: { type: String, required: true },
+    shortName: { type: String, required: true }
   },
 
   data() {
     return {
-      mdiClose: mdiClose
+      mdiClose: mdiClose,
+
+      inputName: this.name,
+      inputShortName: this.shortName
     };
   },
 
@@ -53,6 +56,24 @@ export default mixins(buildsMixin).extend({
     title: function() {
       if (this.action == "Add") return "New build";
       else if (this.action == "Change") return "Change build";
+    }
+  },
+
+  watch: {
+    name: function(newName) {
+      this.inputName = newName;
+    },
+    shortName: function(newShortName) {
+      this.inputShortName = newShortName;
+    }
+  },
+
+  methods: {
+    submit() {
+      this.$emit("submit", this.inputName, this.inputShortName);
+    },
+    close() {
+      this.$emit("close");
     }
   }
 });

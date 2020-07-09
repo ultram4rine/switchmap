@@ -22,7 +22,7 @@
               icon
               small
               color="grey"
-              @click="buildForm = !buildForm; buildName = build.name; buildShortName = build.shortName; action = 'Change'"
+              @click="action = 'Change'; buildName = build.name; buildShortName = build.shortName; buildForm = !buildForm"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
@@ -76,11 +76,18 @@
     <BuildForm
       :form="buildForm"
       :action="action"
-      @submit="action === 'Add' ? addBuild() : updateBuild(buildShortName)"
+      :name="buildName"
+      :shortName="buildShortName"
+      @submit="handleSubmitBuild"
       @close="closeBuildForm"
     />
 
-    <FloorForm :form="floorForm" @submit="addFloorWithRefresh" @close="closeFloorForm" />
+    <FloorForm
+      :form="floorForm"
+      :number="floorNumber"
+      @submit="addFloorWithRefresh"
+      @close="closeFloorForm"
+    />
 
     <Confirmation
       v-model="confirmation"
@@ -132,6 +139,15 @@ export default mixins(buildsMixin, floorsMixin).extend({
   },
 
   methods: {
+    handleSubmitBuild(name: string, shortName: string) {
+      this.buildName = name;
+      this.buildShortName = shortName;
+      if (this.action == "Add") {
+        this.addBuild();
+      } else if (this.action == "Change") {
+        this.updateBuild(this.buildShortName);
+      }
+    },
     addFloorWithRefresh() {
       this.addFloor();
       this.getBuild(this.floorBuildShortName);

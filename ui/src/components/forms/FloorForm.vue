@@ -4,7 +4,7 @@
       <v-toolbar>
         <v-toolbar-title>New floor</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="$emit('close')">
+        <v-btn icon @click="close">
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </v-toolbar>
@@ -13,7 +13,7 @@
         <v-form ref="form">
           <v-text-field
             type="number"
-            v-model="floorNumber"
+            v-model="inputNumber"
             label="Number"
             color="orange accent-2"
             required
@@ -25,28 +25,37 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="$emit('submit')">Add</v-btn>
+        <v-btn color="orange darken-1" @click="submit">Add</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import mixins from "vue-typed-mixins";
-
-import floorsMixin from "../../mixins/floorsMixin";
-
-export default mixins(floorsMixin).extend({
+export default Vue.extend({
   props: {
-    form: { type: Boolean, required: true }
+    form: { type: Boolean, required: true },
+    number: { type: String, required: true }
   },
 
   data() {
     return {
-      mdiClose: mdiClose
+      mdiClose: mdiClose,
+
+      inputNumber: this.number
     };
+  },
+
+  methods: {
+    submit() {
+      this.$emit("submit", this.inputNumber);
+    },
+    close() {
+      this.$emit("close");
+    }
   }
 });
 </script>
