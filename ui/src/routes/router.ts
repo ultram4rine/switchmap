@@ -3,7 +3,7 @@ import Router, { Route, Location } from "vue-router";
 
 import store from "@/store/store";
 
-import Login from ".@/views/Login.vue";
+import Login from "@/views/Login.vue";
 import Builds from "@/views/Builds.vue";
 import Floors from "@/views/Floors.vue";
 import Floor from "@/views/Floor.vue";
