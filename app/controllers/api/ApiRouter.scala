@@ -20,11 +20,11 @@ class ApiRouter @Inject() (
     case GET(p"/builds") =>
       buildController.builds
 
-    case GET(p"/build/$buildAddr") =>
-      buildController.buildByAddr(buildAddr)
+    case GET(p"/build/$buildShortName") =>
+      buildController.buildByAddr(buildShortName)
 
-    case GET(p"/build/$buildAddr/floors") =>
-      floorController.floorsOf(buildAddr)
+    case GET(p"/build/$buildShortName/floors") =>
+      floorController.floorsOf(buildShortName)
 
     case GET(p"/switches") =>
       switchController.switches
@@ -32,26 +32,26 @@ class ApiRouter @Inject() (
     case GET(p"/switch/$switchName") =>
       switchController.switchByName(switchName)
 
-    case GET(p"/build/$buildAddr/switches") =>
-      switchController.switchesOfBuild(buildAddr)
+    case GET(p"/build/$buildShortName/switches") =>
+      switchController.switchesOfBuild(buildShortName)
 
-    case GET(p"/build/$buildAddr/$floorNumber/switches") =>
-      switchController.switchesOfFloor(buildAddr, floorNumber.toInt)
+    case GET(p"/build/$buildShortName/$floorNumber/switches") =>
+      switchController.switchesOfFloor(buildShortName, floorNumber.toInt)
 
     case POST(p"/build") =>
       buildController.addBuild()
 
-    case PUT(p"/build/$buildAddr") =>
-      buildController.updateBuild(buildAddr)
+    case PUT(p"/build/$buildShortName") =>
+      buildController.updateBuild(buildShortName)
 
-    case DELETE(p"/build/$buildAddr") =>
-      buildController.deleteBuild(buildAddr)
+    case DELETE(p"/build/$buildShortName") =>
+      buildController.deleteBuild(buildShortName)
 
     case POST(p"/floor") =>
       floorController.addFloor()
 
-    case DELETE(p"/build/$buildAddr/$floorNumber") =>
-      floorController.deleteFloor(buildAddr, floorNumber)
+    case DELETE(p"/build/$buildShortName/$floorNumber") =>
+      floorController.deleteFloor(buildShortName, floorNumber)
 
     case POST(p"/switch") =>
       switchController.addSwitch()
