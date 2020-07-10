@@ -1,38 +1,45 @@
 <template>
   <div>
-    <v-toolbar dense floating>
-      <v-text-field
-        hide-details
-        color="orange darken-1"
-        :prepend-icon="this.mdiMagnify"
-        single-line
-      ></v-text-field>
-      <v-hover v-slot:default="{ hover }">
-        <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
-          <v-icon dark>{{ mdiPlus }}</v-icon>
-        </v-btn>
-      </v-hover>
-    </v-toolbar>
-    <div id="floor">
-      <div v-dragAndScroll class="plan">
-        <img :src="planPath" class="image" />
-      </div>
+    <div v-if="noPlan">
+      <PlanUpload @upload="uploadPlan" />
     </div>
 
-    <SwitchForm
-      :form="switchForm"
-      :action="action"
-      :needLocationFields="false"
-      :name="switchName"
-      :mac="switchMAC"
-      :snmpCommunity="switchSNMPCommunity"
-      :ipResolveMethod="switchIPResolveMethod"
-      :ip="switchIP"
-      :build="switchBuild"
-      :floor="switchFloor"
-      @submit="addSwitch(build, floor)"
-      @close="closeSwitchForm"
-    />
+    <div v-else>
+      <v-toolbar dense floating>
+        <v-text-field
+          hide-details
+          color="orange darken-1"
+          :prepend-icon="this.mdiMagnify"
+          single-line
+        ></v-text-field>
+        <v-hover v-slot:default="{ hover }">
+          <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
+            <v-icon dark>{{ mdiPlus }}</v-icon>
+          </v-btn>
+        </v-hover>
+      </v-toolbar>
+
+      <div id="floor">
+        <div v-dragAndScroll class="plan">
+          <img :src="planPath" class="image" @error="noPlan = true" />
+        </div>
+      </div>
+
+      <SwitchForm
+        :form="switchForm"
+        :action="action"
+        :needLocationFields="false"
+        :name="switchName"
+        :mac="switchMAC"
+        :snmpCommunity="switchSNMPCommunity"
+        :ipResolveMethod="switchIPResolveMethod"
+        :ip="switchIP"
+        :build="switchBuild"
+        :floor="switchFloor"
+        @submit="addSwitch(build, floor)"
+        @close="closeSwitchForm"
+      />
+    </div>
   </div>
 </template>
 
@@ -46,6 +53,8 @@ import dragAndScroll from "@/directives/dragAndScrollDirective";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 
+import PlanUpload from "@/components/PlanUpload.vue";
+
 export default mixins(switchesMixin).extend({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -54,7 +63,8 @@ export default mixins(switchesMixin).extend({
   },
 
   components: {
-    SwitchForm
+    SwitchForm,
+    PlanUpload
   },
 
   directives: {
@@ -66,12 +76,19 @@ export default mixins(switchesMixin).extend({
       mdiMagnify: mdiMagnify,
       mdiPlus: mdiPlus,
 
-      planPath: `/plans/${this.build}f${this.floor}.png`
+      planPath: `/plans/${this.build}f${this.floor}.png`,
+      noPlan: false
     };
   },
 
   created() {
     this.getAllSwitches();
+  },
+
+  methods: {
+    uploadPlan() {
+      console.log("ll");
+    }
   }
 });
 </script>
