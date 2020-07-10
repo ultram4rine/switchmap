@@ -37,6 +37,15 @@ const switchesMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
+    getSwitchesOf(build: string, floor: string) {
+      axios
+        .get<Switch, AxiosResponse<Switch[]>>(
+          `${config.apiURL}/build/${build}/${floor}`
+        )
+        .then((resp) => (this.switches = resp.data))
+        .catch((err) => console.log(err));
+    },
+
     addSwitch(build: string, floor: string) {
       if (build === "") {
         build = this.switchBuild;

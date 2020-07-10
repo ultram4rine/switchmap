@@ -82,7 +82,7 @@ export default mixins(switchesMixin).extend({
   },
 
   created() {
-    this.getAllSwitches();
+    this.getSwitchesOf(this.build, this.floor);
   },
 
   methods: {
