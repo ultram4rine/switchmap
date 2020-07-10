@@ -47,11 +47,11 @@ class SwitchResourceHandler @Inject() (
 
     futureMaybeIP.flatMap {
       case Some(ip) =>
-        snmpUtil.getSwitchInfo(ip, switchInput.snmpCommunityType).flatMap {
+        snmpUtil.getSwitchInfo(ip, switchInput.snmpCommunity).flatMap {
           switchInfo =>
             {
               snmpUtil
-                .getSwitchPortsNumber(ip, switchInput.snmpCommunityType)
+                .getSwitchPortsNumber(ip, switchInput.snmpCommunity)
                 .flatMap { portsNumber =>
                   {
                     val switch = Switch(

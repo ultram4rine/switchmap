@@ -23,11 +23,10 @@ class SwitchController @Inject() (
     Form(
       mapping(
         "name" -> nonEmptyText,
+        "mac" -> nonEmptyText,
+        "snmpCommunity" -> nonEmptyText,
         "ipResolveMethod" -> nonEmptyText,
         "ip" -> optional(text),
-        "mac" -> nonEmptyText,
-        "snmpCommunityType" -> nonEmptyText,
-        "snmpCommunity" -> optional(text),
         "build" -> optional(text),
         "floor" -> optional(number)
       )(SwitchForm.apply)(SwitchForm.unapply)
