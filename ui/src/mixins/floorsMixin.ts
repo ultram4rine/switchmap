@@ -70,8 +70,8 @@ const floorsMixin = Vue.extend({
       this.floorBuildShortName = "";
     },
 
-    closeSnackbar() {
-      this.snackbar = false;
+    updateSnackbar(snackbar: boolean) {
+      this.snackbar = snackbar;
       this.item = "";
       this.snackbarAction = "";
     },

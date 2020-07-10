@@ -83,7 +83,7 @@
       @close="closeSwitchForm"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @close="closeSnackbar" />
+    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @update="updateSnackbar" />
   </div>
 </template>
 

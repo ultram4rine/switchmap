@@ -1,5 +1,5 @@
 <template>
-  <v-snackbar v-model="snackbar" :timeout="timeout">
+  <v-snackbar :value="snackbar" :timeout="timeout" @input="close">
     {{ selfItem }} {{ selfAction }}
     <template v-slot:action="{ attrs }">
       <v-btn fab x-small v-bind="attrs" @click="close">
@@ -43,7 +43,7 @@ export default Vue.extend({
 
   methods: {
     close() {
-      this.$emit("close");
+      this.$emit("update", false);
     }
   }
 });

@@ -112,8 +112,8 @@ const buildsMixin = Vue.extend({
       this.action = "Add";
     },
 
-    closeSnackbar() {
-      this.snackbar = false;
+    updateSnackbar(snackbar: boolean) {
+      this.snackbar = snackbar;
       this.item = "";
       this.snackbarAction = "";
     },
