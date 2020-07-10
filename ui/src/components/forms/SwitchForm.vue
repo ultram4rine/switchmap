@@ -13,13 +13,25 @@
         <v-form ref="form">
           <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
 
-          <v-text-field
-            v-model="inputMAC"
-            label="MAC"
-            placeholder="XX:XX:XX:XX:XX:XX"
-            color="orange accent-2"
-            required
-          ></v-text-field>
+          <v-row dense>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="inputMAC"
+                label="MAC"
+                placeholder="XX:XX:XX:XX:XX:XX"
+                color="orange accent-2"
+                required
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="inputSNMPCommunity"
+                label="SNMP community"
+                color="orange accent-2"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
 
           <v-row dense>
             <v-col cols="12" sm="6">
@@ -34,30 +46,9 @@
             </v-col>
             <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
               <v-text-field
-                v-model="ip"
+                v-model="inputIP"
                 label="IP"
                 placeholder="e.g. 192.168.1.1"
-                color="orange accent-2"
-                required
-              ></v-text-field>
-            </v-col>
-          </v-row>
-
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputSNMPCommunityType"
-                :items="types"
-                hide-details
-                label="SNMP community type"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-            <v-col v-if="inputSNMPCommunityType === 'Private'" cols="12" sm="6">
-              <v-text-field
-                v-model="inputSNMPCommunity"
-                label="Community"
                 color="orange accent-2"
                 required
               ></v-text-field>
@@ -111,10 +102,9 @@ export default Vue.extend({
 
     name: { type: String, required: true },
     mac: { type: String, required: true },
+    snmpCommunity: { type: String, required: true },
     ipResolveMethod: { type: String, required: true },
     ip: { type: String, required: true },
-    snmpCommunityType: { type: String, required: true },
-    snmpCommunity: { type: String, required: true },
     build: { type: String, required: true },
     floor: { type: String, required: true }
   },
@@ -125,10 +115,9 @@ export default Vue.extend({
 
       inputName: this.name,
       inputMAC: this.mac,
+      inputSNMPCommunity: this.snmpCommunity,
       inputIPResolveMethod: this.ipResolveMethod,
       inputIP: this.ip,
-      inputSNMPCommunityType: this.snmpCommunityType,
-      inputSNMPCommunity: this.snmpCommunity,
       inputBuild: this.build,
       inputFloor: this.floor,
 
@@ -154,17 +143,14 @@ export default Vue.extend({
     mac: function(newMAC) {
       this.inputMAC = newMAC;
     },
+    snmpCommunity: function(newSNMPCommunity) {
+      this.inputSNMPCommunity = newSNMPCommunity;
+    },
     ipResolveMethod: function(newIPResolveMethod) {
       this.inputIPResolveMethod = newIPResolveMethod;
     },
     ip: function(newIP) {
       this.inputIP = newIP;
-    },
-    snmpCommunityType: function(newSNMPCommunityType) {
-      this.inputSNMPCommunityType = newSNMPCommunityType;
-    },
-    snmpCommunity: function(newSNMPCommunity) {
-      this.inputSNMPCommunity = newSNMPCommunity;
     },
     build: function(newBuild) {
       this.inputBuild = newBuild;
@@ -180,10 +166,9 @@ export default Vue.extend({
         "submit",
         this.inputName,
         this.inputMAC,
+        this.inputSNMPCommunity,
         this.inputIPResolveMethod,
         this.inputIP,
-        this.inputSNMPCommunityType,
-        this.inputSNMPCommunity,
         this.inputBuild,
         this.inputFloor
       );

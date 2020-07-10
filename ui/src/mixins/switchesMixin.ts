@@ -19,10 +19,9 @@ const switchesMixin = Vue.extend({
 
       switchName: "",
       switchMAC: "",
+      switchSNMPCommunity: "Public",
       switchIPResolveMethod: "Direct",
       switchIP: "",
-      switchSNMPCommunityType: "Public",
-      switchSNMPCommunity: "",
       switchBuild: "",
       switchFloor: "",
 
@@ -49,11 +48,10 @@ const switchesMixin = Vue.extend({
       axios
         .post(this.addSwitchEndpoint, {
           name: this.switchName,
+          mac: this.switchMAC,
+          snmpCommunity: this.switchSNMPCommunity,
           ipResolveMethod: this.switchIPResolveMethod,
           ip: this.switchIP,
-          mac: this.switchMAC,
-          snmpCommunityType: this.switchSNMPCommunityType,
-          snmpCommunity: this.switchSNMPCommunity,
           build: build,
           floor: floor,
         })
@@ -63,11 +61,10 @@ const switchesMixin = Vue.extend({
           this.getAllSwitches();
 
           this.switchName = "";
+          this.switchMAC = "";
+          this.switchSNMPCommunity = "Public";
           this.switchIPResolveMethod = "Direct";
           this.switchIP = "";
-          this.switchMAC = "";
-          this.switchSNMPCommunityType = "Public";
-          this.switchSNMPCommunity = "";
           this.switchBuild = "";
           this.switchFloor = "";
 
@@ -80,11 +77,12 @@ const switchesMixin = Vue.extend({
       this.switchForm = false;
 
       this.switchName = "";
+      this.switchMAC = "";
+      this.switchSNMPCommunity = "Public";
       this.switchIPResolveMethod = "Direct";
       this.switchIP = "";
-      this.switchMAC = "";
-      this.switchSNMPCommunityType = "Public";
-      this.switchSNMPCommunity = "";
+      this.switchBuild = "";
+      this.switchFloor = "";
 
       this.action = "Add";
     },
