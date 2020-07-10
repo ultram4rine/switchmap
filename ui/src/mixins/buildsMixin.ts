@@ -1,8 +1,8 @@
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 
-import { config } from "../config";
-import { Build } from "../interfaces";
+import { config } from "@/config";
+import { Build } from "@/interfaces";
 
 const buildsMixin = Vue.extend({
   data() {

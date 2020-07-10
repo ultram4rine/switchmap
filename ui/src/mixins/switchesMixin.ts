@@ -1,8 +1,8 @@
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 
-import { config } from "../config";
-import { Switch } from "../interfaces";
+import { config } from "@/config";
+import { Switch } from "@/interfaces";
 
 const switchesMixin = Vue.extend({
   data() {

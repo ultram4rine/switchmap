@@ -1,8 +1,8 @@
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 
-import { config } from "../config";
-import { Floor } from "../interfaces";
+import { config } from "@/config";
+import { Floor } from "@/interfaces";
 
 const floorsMixin = Vue.extend({
   data() {
