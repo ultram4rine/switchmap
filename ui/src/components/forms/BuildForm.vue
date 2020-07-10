@@ -11,13 +11,25 @@
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
-          <v-text-field
-            v-model="inputShortName"
-            label="Short Name"
-            color="orange accent-2"
-            required
-          ></v-text-field>
+          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+            <v-text-field
+              v-model="inputName"
+              :error-messages="errors"
+              label="Name"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
+
+          <ValidationProvider v-slot="{ errors }" name="Short name" rules="required">
+            <v-text-field
+              v-model="inputShortName"
+              :error-messages="errors"
+              label="Short name"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
         </v-form>
       </v-card-text>
 
@@ -35,12 +47,25 @@
 import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
+import { ValidationProvider, extend } from "vee-validate";
+import { required } from "vee-validate/dist/rules";
+
+extend("required", {
+  ...required,
+  message: "{_field_} can not be empty"
+});
+
 export default Vue.extend({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
+
     name: { type: String, required: true },
     shortName: { type: String, required: true }
+  },
+
+  components: {
+    ValidationProvider
   },
 
   data() {

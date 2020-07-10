@@ -11,25 +11,39 @@
 
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
+          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+            <v-text-field
+              v-model="inputName"
+              :error-messages="errors"
+              label="Name"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
 
           <v-row dense>
             <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="inputMAC"
-                label="MAC"
-                placeholder="XX:XX:XX:XX:XX:XX"
-                color="orange accent-2"
-                required
-              ></v-text-field>
+              <ValidationProvider v-slot="{ errors }" name="MAC" rules="required">
+                <v-text-field
+                  v-model="inputMAC"
+                  :error-messages="errors"
+                  label="MAC"
+                  placeholder="XX:XX:XX:XX:XX:XX"
+                  required
+                  color="orange accent-2"
+                ></v-text-field>
+              </ValidationProvider>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="inputSNMPCommunity"
-                label="SNMP community"
-                color="orange accent-2"
-                required
-              ></v-text-field>
+              <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
+                <v-text-field
+                  v-model="inputSNMPCommunity"
+                  :error-messages="errors"
+                  label="SNMP community"
+                  required
+                  color="orange accent-2"
+                ></v-text-field>
+              </ValidationProvider>
             </v-col>
           </v-row>
 
@@ -45,13 +59,16 @@
               ></v-select>
             </v-col>
             <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-              <v-text-field
-                v-model="inputIP"
-                label="IP"
-                placeholder="e.g. 192.168.1.1"
-                color="orange accent-2"
-                required
-              ></v-text-field>
+              <ValidationProvider v-slot="{ errors }" name="IP" rules="required">
+                <v-text-field
+                  v-model="inputIP"
+                  :error-messages="errors"
+                  label="IP"
+                  placeholder="e.g. 192.168.1.1"
+                  required
+                  color="orange accent-2"
+                ></v-text-field>
+              </ValidationProvider>
             </v-col>
           </v-row>
 
@@ -94,6 +111,14 @@
 import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
+import { ValidationProvider, extend } from "vee-validate";
+import { required } from "vee-validate/dist/rules";
+
+extend("required", {
+  ...required,
+  message: "{_field_} can not be empty"
+});
+
 export default Vue.extend({
   props: {
     form: { type: Boolean, required: true },
@@ -107,6 +132,10 @@ export default Vue.extend({
     ip: { type: String, required: true },
     build: { type: String, required: true },
     floor: { type: String, required: true }
+  },
+
+  components: {
+    ValidationProvider
   },
 
   data() {
