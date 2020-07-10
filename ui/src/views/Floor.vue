@@ -40,11 +40,11 @@
 import mixins from "vue-typed-mixins";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
-import switchesMixin from "../mixins/switchesMixin";
+import switchesMixin from "@/mixins/switchesMixin";
 
-import dragAndScroll from "../directives/dragAndScrollDirective";
+import dragAndScroll from "@/directives/dragAndScrollDirective";
 
-import SwitchForm from "./forms/SwitchForm.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
 
 export default mixins(switchesMixin).extend({
   props: {

@@ -105,14 +105,14 @@
 import mixins from "vue-typed-mixins";
 import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
 
-import buildsMixin from "../mixins/buildsMixin";
-import floorsMixin from "../mixins/floorsMixin";
+import buildsMixin from "@/mixins/buildsMixin";
+import floorsMixin from "@/mixins/floorsMixin";
 
-import BuildForm from "./forms/BuildForm.vue";
-import FloorForm from "./forms/FloorForm.vue";
+import BuildForm from "@/components/forms/BuildForm.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
 
-import Confirmation from "./Confirmation.vue";
-import Snackbar from "./Snackbar.vue";
+import Confirmation from "@/components/Confirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
 export default mixins(buildsMixin, floorsMixin).extend({
   props: {

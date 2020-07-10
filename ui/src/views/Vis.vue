@@ -11,8 +11,8 @@ import axios, { AxiosResponse } from "axios";
 
 import { Node, Edge, Network } from "vis-network/standalone";
 
-import { config } from "../config";
-import { Switch } from "../interfaces";
+import { config } from "@/config";
+import { Switch } from "@/interfaces";
 
 export default Vue.extend({
   props: {

@@ -1,15 +1,15 @@
 import Vue from "vue";
 import Router, { Route, Location } from "vue-router";
 
-import store from "../store/store";
+import store from "@/store/store";
 
-import Login from "../components/Login.vue";
-import Builds from "../components/Builds.vue";
-import Floors from "../components/Floors.vue";
-import Floor from "../components/Floor.vue";
-import PlanUpload from "../components/PlanUpload.vue";
-import Switches from "../components/Switches.vue";
-import Vis from "../components/Vis.vue";
+import Login from "@/views/Login.vue";
+import Builds from "@/views/Builds.vue";
+import Floors from "@/views/Floors.vue";
+import Floor from "@/views/Floor.vue";
+import PlanUpload from "@/views/PlanUpload.vue";
+import Switches from "@/views/Switches.vue";
+import Vis from "@/views/Vis.vue";
 
 Vue.use(Router);
 

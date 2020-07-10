@@ -89,18 +89,18 @@
 <script lang="ts">
 import mixins from "vue-typed-mixins";
 import { mdiClose, mdiDelete } from "@mdi/js";
-
 import axios, { AxiosResponse } from "axios";
-import { config } from "../config";
-import { Build } from "../interfaces";
 
-import floorsMixin from "../mixins/floorsMixin";
-import switchesMixin from "../mixins/switchesMixin";
+import { config } from "@/config";
+import { Build } from "@/interfaces";
 
-import FloorForm from "./forms/FloorForm.vue";
-import SwitchForm from "./forms/SwitchForm.vue";
+import floorsMixin from "@/mixins/floorsMixin";
+import switchesMixin from "@/mixins/switchesMixin";
 
-import Snackbar from "./Snackbar.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+
+import Snackbar from "@/components/Snackbar.vue";
 
 export default mixins(floorsMixin, switchesMixin).extend({
   props: {
