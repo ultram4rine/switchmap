@@ -23,7 +23,7 @@
 
           <v-row dense>
             <v-col cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="MAC" rules="required">
+              <ValidationProvider v-slot="{ errors }" name="MAC" rules="required|mac">
                 <v-text-field
                   v-model="inputMAC"
                   :error-messages="errors"
@@ -59,7 +59,7 @@
               ></v-select>
             </v-col>
             <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="IP" rules="required">
+              <ValidationProvider v-slot="{ errors }" name="IP" rules="required|ip">
                 <v-text-field
                   v-model="inputIP"
                   :error-messages="errors"
@@ -117,6 +117,22 @@ import { required } from "vee-validate/dist/rules";
 extend("required", {
   ...required,
   message: "{_field_} can not be empty"
+});
+
+extend("mac", {
+  validate: (val: string) => {
+    let regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
+    return regex.test(val);
+  },
+  message: "{_field_} is not correct MAC address"
+});
+
+extend("ip", {
+  validate: (val: string) => {
+    let regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+    return regex.test(val);
+  },
+  message: "{_field_} is not correct IP address"
 });
 
 export default Vue.extend({
