@@ -12,8 +12,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class SwitchResource(
   name: String,
-  ip: Option[String],
+  ip: String,
   mac: String,
+  snmpCommunity: String,
   revision: Option[String],
   serial: Option[String],
   portsNumber: Option[Int],
@@ -56,8 +57,9 @@ class SwitchResourceHandler @Inject() (
                   {
                     val switch = Switch(
                       switchInput.name,
-                      Some(ip),
+                      ip,
                       switchInput.mac,
+                      switchInput.snmpCommunity,
                       switchInfo.revision,
                       switchInfo.serial,
                       Some(portsNumber),
@@ -122,6 +124,7 @@ class SwitchResourceHandler @Inject() (
         sw.name,
         sw.ip,
         sw.mac,
+        sw.snmpCommunity,
         sw.revision,
         sw.serial,
         sw.portsNumber,

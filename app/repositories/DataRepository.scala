@@ -56,8 +56,9 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
       ) {
 
     def name = column[String]("name", O.Unique)
-    def ip = column[Option[String]]("ip", O.Unique)
+    def ip = column[String]("ip", O.Unique)
     def mac = column[String]("mac", O.Unique)
+    def snmpCommunity = column[String]("snmp_community")
     def revision = column[Option[String]]("revision")
     def serial = column[Option[String]]("serial", O.Unique)
     def portsNumber = column[Option[Int]]("ports_number")
@@ -74,6 +75,7 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
         name,
         ip,
         mac,
+        snmpCommunity,
         revision,
         serial,
         portsNumber,
