@@ -6,7 +6,7 @@
 
     <div v-else>
       <div id="floor">
-        <div v-drag v-scroll class="plan">
+        <div v-drag v-zoom class="plan">
           <img :src="planPath" class="image" @error="noPlan = true" />
         </div>
 
@@ -50,7 +50,7 @@ import { mdiMagnify, mdiPlus } from "@mdi/js";
 import switchesMixin from "@/mixins/switchesMixin";
 
 import drag from "@/directives/drag";
-import scroll from "@/directives/scroll";
+import zoom from "@/directives/zoom";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 
@@ -70,7 +70,7 @@ export default mixins(switchesMixin).extend({
 
   directives: {
     drag,
-    scroll
+    zoom
   },
 
   data() {
