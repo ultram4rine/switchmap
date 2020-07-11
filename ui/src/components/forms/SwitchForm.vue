@@ -124,7 +124,7 @@ extend("mac", {
     let regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
     return regex.test(val);
   },
-  message: "{_field_} is not correct MAC address"
+  message: "{_value_} is not correct MAC address"
 });
 
 extend("ip", {
@@ -132,7 +132,7 @@ extend("ip", {
     let regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
     return regex.test(val);
   },
-  message: "{_field_} is not correct IP address"
+  message: "{_value_} is not correct IP address"
 });
 
 export default Vue.extend({
