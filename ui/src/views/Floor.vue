@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="noPlan">
+    <div id="plan_upload" v-if="noPlan">
       <PlanUpload @upload="uploadPlan" />
     </div>
 
@@ -8,6 +8,18 @@
       <div id="floor">
         <div v-drag v-zoom class="plan">
           <v-img :src="planPath" class="image" @error="noPlan = true"></v-img>
+
+          <v-card
+            v-for="sw in switches"
+            :key="sw.name"
+            class="switch mx-auto"
+            max-width="400"
+            :style="{ top: sw.positionTop + 'px', left: sw.positionLeft + 'px' }"
+          >
+            <v-img class="white--text align-end" src="/images/HP-ProCurve.png">
+              <v-card-title>{{ sw.name }}</v-card-title>
+            </v-img>
+          </v-card>
         </div>
 
         <v-toolbar dense floating>
@@ -78,13 +90,17 @@ export default mixins(switchesMixin).extend({
       mdiMagnify: mdiMagnify,
       mdiPlus: mdiPlus,
 
+      switches: [
+        { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
+      ],
+
       planPath: `/plans/${this.build}f${this.floor}.png`,
       noPlan: false
     };
   },
 
   created() {
-    this.getSwitchesOf(this.build, this.floor);
+    //this.getSwitchesOf(this.build, this.floor);
   },
 
   methods: {
@@ -112,5 +128,8 @@ export default mixins(switchesMixin).extend({
 }
 .image {
   position: relative;
+}
+.switch {
+  position: absolute;
 }
 </style>
