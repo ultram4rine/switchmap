@@ -20,7 +20,7 @@
       </v-toolbar>
 
       <div id="floor">
-        <div v-dragAndScroll class="plan">
+        <div v-drag v-scroll class="plan">
           <img :src="planPath" class="image" @error="noPlan = true" />
         </div>
       </div>
@@ -49,7 +49,8 @@ import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 import switchesMixin from "@/mixins/switchesMixin";
 
-import dragAndScroll from "@/directives/dragAndScrollDirective";
+import drag from "@/directives/drag";
+import scroll from "@/directives/scroll";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 
@@ -68,7 +69,8 @@ export default mixins(switchesMixin).extend({
   },
 
   directives: {
-    dragAndScroll
+    drag,
+    scroll
   },
 
   data() {
