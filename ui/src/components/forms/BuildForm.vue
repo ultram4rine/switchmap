@@ -52,7 +52,7 @@ import { required } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "{_field_} can not be empty"
+  message: "{_field_} is required"
 });
 
 export default Vue.extend({

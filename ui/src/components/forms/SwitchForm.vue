@@ -23,7 +23,7 @@
 
           <v-row dense>
             <v-col cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="MAC" rules="required|mac">
+              <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
                 <v-text-field
                   v-model="inputMAC"
                   :error-messages="errors"
@@ -59,7 +59,7 @@
               ></v-select>
             </v-col>
             <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="IP" rules="required|ip">
+              <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
                 <v-text-field
                   v-model="inputIP"
                   :error-messages="errors"
@@ -116,7 +116,7 @@ import { required } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "{_field_} can not be empty"
+  message: "{_field_} is required"
 });
 
 extend("mac", {

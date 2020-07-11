@@ -11,7 +11,7 @@
 
       <v-card-text>
         <v-form ref="form">
-          <ValidationProvider v-slot="{ errors }" name="Number" rules="required">
+          <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
             <v-text-field
               v-model="inputNumber"
               :error-messages="errors"
@@ -42,7 +42,7 @@ import { required } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "{_field_} can not be empty"
+  message: "{_field_} is required"
 });
 
 export default Vue.extend({
