@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS floors
 CREATE TABLE IF NOT EXISTS switches
 (
     name             STRING     NOT NULL UNIQUE,
-    mac              STRING(12) NOT NULL UNIQUE,
     ip               INET       NOT NULL UNIQUE,
+    mac              STRING(12) NOT NULL UNIQUE,
     snmp_community   STRING     NOT NULL,
     revision         STRING     NULL,
     serial           STRING     NULL UNIQUE,
