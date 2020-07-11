@@ -7,7 +7,7 @@
     <div v-else>
       <div id="floor">
         <div v-drag v-zoom class="plan">
-          <img :src="planPath" class="image" @error="noPlan = true" />
+          <v-img :src="planPath" class="image" @error="noPlan = true"></v-img>
         </div>
 
         <v-toolbar dense floating>
