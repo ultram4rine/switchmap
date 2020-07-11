@@ -10,17 +10,19 @@
       </v-toolbar>
 
       <v-card-text>
-        <v-form ref="form">
-          <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
-            <v-text-field
-              v-model="inputNumber"
-              :error-messages="errors"
-              label="Number"
-              required
-              color="orange accent-2"
-            ></v-text-field>
-          </ValidationProvider>
-        </v-form>
+        <ValidationObserver ref="observer" v-slot="{ validate }">
+          <v-form ref="form">
+            <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
+              <v-text-field
+                v-model="inputNumber"
+                :error-messages="errors"
+                label="Number"
+                required
+                color="orange accent-2"
+              ></v-text-field>
+            </ValidationProvider>
+          </v-form>
+        </ValidationObserver>
       </v-card-text>
 
       <v-divider></v-divider>
@@ -37,7 +39,7 @@
 import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import { ValidationProvider, extend } from "vee-validate";
+import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
 extend("required", {
@@ -52,9 +54,7 @@ export default Vue.extend({
     number: { type: String, required: true }
   },
 
-  components: {
-    ValidationProvider
-  },
+  components: { ValidationObserver, ValidationProvider },
 
   data() {
     return {
@@ -66,7 +66,11 @@ export default Vue.extend({
 
   methods: {
     submit() {
-      this.$emit("submit", this.inputNumber);
+      this.$refs.observer.validate().then((valid: boolean) => {
+        if (valid) {
+          this.$emit("submit", this.inputNumber);
+        }
+      });
     },
     close() {
       this.$emit("close");

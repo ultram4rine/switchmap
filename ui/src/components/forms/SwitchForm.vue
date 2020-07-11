@@ -10,91 +10,93 @@
       </v-toolbar>
 
       <v-card-text>
-        <v-form ref="form">
-          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
-            <v-text-field
-              v-model="inputName"
-              :error-messages="errors"
-              label="Name"
-              required
-              color="orange accent-2"
-            ></v-text-field>
-          </ValidationProvider>
-
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
-                <v-text-field
-                  v-model="inputMAC"
-                  :error-messages="errors"
-                  label="MAC"
-                  placeholder="XX:XX:XX:XX:XX:XX"
-                  required
-                  color="orange accent-2"
-                ></v-text-field>
-              </ValidationProvider>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
-                <v-text-field
-                  v-model="inputSNMPCommunity"
-                  :error-messages="errors"
-                  label="SNMP community"
-                  required
-                  color="orange accent-2"
-                ></v-text-field>
-              </ValidationProvider>
-            </v-col>
-          </v-row>
-
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputIPResolveMethod"
-                :items="methods"
-                hide-details
-                label="IP resolve method"
-                color="orange accent-2"
+        <ValidationObserver ref="observer" v-slot="{ validate }">
+          <v-form ref="form">
+            <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+              <v-text-field
+                v-model="inputName"
+                :error-messages="errors"
+                label="Name"
                 required
-              ></v-select>
-            </v-col>
-            <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-              <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
-                <v-text-field
-                  v-model="inputIP"
-                  :error-messages="errors"
-                  label="IP"
-                  placeholder="e.g. 192.168.1.1"
-                  required
-                  color="orange accent-2"
-                ></v-text-field>
-              </ValidationProvider>
-            </v-col>
-          </v-row>
+                color="orange accent-2"
+              ></v-text-field>
+            </ValidationProvider>
 
-          <v-row v-if="needLocationFields" dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputBuild"
-                :items="builds"
-                hide-details
-                label="Build"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputFloor"
-                :items="floors"
-                hide-details
-                label="Floor"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-          </v-row>
-        </v-form>
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
+                  <v-text-field
+                    v-model="inputMAC"
+                    :error-messages="errors"
+                    label="MAC"
+                    placeholder="XX:XX:XX:XX:XX:XX"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
+                  <v-text-field
+                    v-model="inputSNMPCommunity"
+                    :error-messages="errors"
+                    label="SNMP community"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
+
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputIPResolveMethod"
+                  :items="methods"
+                  hide-details
+                  label="IP resolve method"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+              <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
+                  <v-text-field
+                    v-model="inputIP"
+                    :error-messages="errors"
+                    label="IP"
+                    placeholder="e.g. 192.168.1.1"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
+
+            <v-row v-if="needLocationFields" dense>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputBuild"
+                  :items="builds"
+                  hide-details
+                  label="Build"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputFloor"
+                  :items="floors"
+                  hide-details
+                  label="Floor"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+            </v-row>
+          </v-form>
+        </ValidationObserver>
       </v-card-text>
 
       <v-divider></v-divider>
@@ -111,7 +113,7 @@
 import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import { ValidationProvider, extend } from "vee-validate";
+import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
 extend("required", {
@@ -151,6 +153,7 @@ export default Vue.extend({
   },
 
   components: {
+    ValidationObserver,
     ValidationProvider
   },
 
@@ -207,16 +210,20 @@ export default Vue.extend({
 
   methods: {
     submit() {
-      this.$emit(
-        "submit",
-        this.inputName,
-        this.inputMAC,
-        this.inputSNMPCommunity,
-        this.inputIPResolveMethod,
-        this.inputIP,
-        this.inputBuild,
-        this.inputFloor
-      );
+      this.$refs.observer.validate().then((valid: boolean) => {
+        if (valid) {
+          this.$emit(
+            "submit",
+            this.inputName,
+            this.inputMAC,
+            this.inputSNMPCommunity,
+            this.inputIPResolveMethod,
+            this.inputIP,
+            this.inputBuild,
+            this.inputFloor
+          );
+        }
+      });
     },
     close() {
       this.$emit("close");

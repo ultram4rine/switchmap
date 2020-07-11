@@ -10,27 +10,29 @@
       </v-toolbar>
 
       <v-card-text>
-        <v-form ref="form">
-          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
-            <v-text-field
-              v-model="inputName"
-              :error-messages="errors"
-              label="Name"
-              required
-              color="orange accent-2"
-            ></v-text-field>
-          </ValidationProvider>
+        <ValidationObserver ref="observer" v-slot="{ validate }">
+          <v-form ref="form">
+            <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+              <v-text-field
+                v-model="inputName"
+                :error-messages="errors"
+                label="Name"
+                required
+                color="orange accent-2"
+              ></v-text-field>
+            </ValidationProvider>
 
-          <ValidationProvider v-slot="{ errors }" name="Short name" rules="required">
-            <v-text-field
-              v-model="inputShortName"
-              :error-messages="errors"
-              label="Short name"
-              required
-              color="orange accent-2"
-            ></v-text-field>
-          </ValidationProvider>
-        </v-form>
+            <ValidationProvider v-slot="{ errors }" name="Short name" rules="required">
+              <v-text-field
+                v-model="inputShortName"
+                :error-messages="errors"
+                label="Short name"
+                required
+                color="orange accent-2"
+              ></v-text-field>
+            </ValidationProvider>
+          </v-form>
+        </ValidationObserver>
       </v-card-text>
 
       <v-divider></v-divider>
@@ -47,7 +49,7 @@
 import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import { ValidationProvider, extend } from "vee-validate";
+import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
 extend("required", {
@@ -64,9 +66,7 @@ export default Vue.extend({
     shortName: { type: String, required: true }
   },
 
-  components: {
-    ValidationProvider
-  },
+  components: { ValidationObserver, ValidationProvider },
 
   data() {
     return {
@@ -95,7 +95,11 @@ export default Vue.extend({
 
   methods: {
     submit() {
-      this.$emit("submit", this.inputName, this.inputShortName);
+      this.$refs.observer.validate().then((valid: boolean) => {
+        if (valid) {
+          this.$emit("submit", this.inputName, this.inputShortName);
+        }
+      });
     },
     close() {
       this.$emit("close");
