@@ -24,6 +24,31 @@
 
             <v-row dense>
               <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputIPResolveMethod"
+                  :items="methods"
+                  hide-details
+                  label="IP resolve method"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+              <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
+                  <v-text-field
+                    v-model="inputIP"
+                    :error-messages="errors"
+                    label="IP"
+                    placeholder="e.g. 192.168.1.1"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
+
+            <v-row dense>
+              <v-col cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
                   <v-text-field
                     v-model="inputMAC"
@@ -41,31 +66,6 @@
                     v-model="inputSNMPCommunity"
                     :error-messages="errors"
                     label="SNMP community"
-                    required
-                    color="orange accent-2"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="inputIPResolveMethod"
-                  :items="methods"
-                  hide-details
-                  label="IP resolve method"
-                  color="orange accent-2"
-                  required
-                ></v-select>
-              </v-col>
-              <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-                <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
-                  <v-text-field
-                    v-model="inputIP"
-                    :error-messages="errors"
-                    label="IP"
-                    placeholder="e.g. 192.168.1.1"
                     required
                     color="orange accent-2"
                   ></v-text-field>
@@ -144,10 +144,10 @@ export default Vue.extend({
     needLocationFields: { type: Boolean, required: true },
 
     name: { type: String, required: true },
-    mac: { type: String, required: true },
-    snmpCommunity: { type: String, required: true },
     ipResolveMethod: { type: String, required: true },
     ip: { type: String, required: true },
+    mac: { type: String, required: true },
+    snmpCommunity: { type: String, required: true },
     build: { type: String, required: true },
     floor: { type: String, required: true }
   },
@@ -162,10 +162,10 @@ export default Vue.extend({
       mdiClose: mdiClose,
 
       inputName: this.name,
-      inputMAC: this.mac,
-      inputSNMPCommunity: this.snmpCommunity,
       inputIPResolveMethod: this.ipResolveMethod,
       inputIP: this.ip,
+      inputMAC: this.mac,
+      inputSNMPCommunity: this.snmpCommunity,
       inputBuild: this.build,
       inputFloor: this.floor,
 
@@ -188,17 +188,17 @@ export default Vue.extend({
     name: function(newName) {
       this.inputName = newName;
     },
-    mac: function(newMAC) {
-      this.inputMAC = newMAC;
-    },
-    snmpCommunity: function(newSNMPCommunity) {
-      this.inputSNMPCommunity = newSNMPCommunity;
-    },
     ipResolveMethod: function(newIPResolveMethod) {
       this.inputIPResolveMethod = newIPResolveMethod;
     },
     ip: function(newIP) {
       this.inputIP = newIP;
+    },
+    mac: function(newMAC) {
+      this.inputMAC = newMAC;
+    },
+    snmpCommunity: function(newSNMPCommunity) {
+      this.inputSNMPCommunity = newSNMPCommunity;
     },
     build: function(newBuild) {
       this.inputBuild = newBuild;
