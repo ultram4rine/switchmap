@@ -5,24 +5,24 @@
     </div>
 
     <div v-else>
-      <v-toolbar dense floating>
-        <v-text-field
-          hide-details
-          color="orange darken-1"
-          :prepend-icon="this.mdiMagnify"
-          single-line
-        ></v-text-field>
-        <v-hover v-slot:default="{ hover }">
-          <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
-            <v-icon dark>{{ mdiPlus }}</v-icon>
-          </v-btn>
-        </v-hover>
-      </v-toolbar>
-
       <div id="floor">
         <div v-drag v-scroll class="plan">
           <img :src="planPath" class="image" @error="noPlan = true" />
         </div>
+
+        <v-toolbar dense floating>
+          <v-text-field
+            hide-details
+            color="orange darken-1"
+            :prepend-icon="this.mdiMagnify"
+            single-line
+          ></v-text-field>
+          <v-hover v-slot:default="{ hover }">
+            <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
+              <v-icon dark>{{ mdiPlus }}</v-icon>
+            </v-btn>
+          </v-hover>
+        </v-toolbar>
       </div>
 
       <SwitchForm
