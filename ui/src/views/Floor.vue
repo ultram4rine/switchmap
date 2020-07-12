@@ -6,20 +6,16 @@
 
     <div v-else>
       <div id="floor">
-        <div v-drag v-zoom class="plan">
+        <div v-drag v-zoom id="plan">
           <v-img :src="planPath" class="image" @error="noPlan = true"></v-img>
 
-          <v-card
+          <v-chip
             v-for="sw in switches"
             :key="sw.name"
-            class="switch mx-auto"
-            max-width="400"
+            dark
+            class="switch ma-2"
             :style="{ top: sw.positionTop + 'px', left: sw.positionLeft + 'px' }"
-          >
-            <v-img class="white--text align-end" src="/images/HP-ProCurve.png">
-              <v-card-title>{{ sw.name }}</v-card-title>
-            </v-img>
-          </v-card>
+          >{{ sw.name }}</v-chip>
         </div>
 
         <v-toolbar dense floating>
@@ -57,7 +53,7 @@
 
 <script lang="ts">
 import mixins from "vue-typed-mixins";
-import { mdiMagnify, mdiPlus } from "@mdi/js";
+import { mdiMagnify, mdiPlus, mdiRouterNetwork } from "@mdi/js";
 
 import switchesMixin from "@/mixins/switchesMixin";
 
@@ -134,7 +130,7 @@ export default mixins(switchesMixin).extend({
 #floor {
   position: fixed;
 }
-.plan {
+#plan {
   width: auto;
   height: auto;
   display: inline-block;
