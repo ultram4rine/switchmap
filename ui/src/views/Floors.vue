@@ -78,7 +78,7 @@
       :snmpCommunity="switchSNMPCommunity"
       :build="switchBuild"
       :floor="switchFloor"
-      @submit="addSwitch"
+      @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
 
@@ -138,6 +138,25 @@ export default mixins(floorsMixin, switchesMixin).extend({
           this.getFloorsOf(this.build);
         })
         .catch(err => console.log(err));
+    },
+    handleSubmitSwitch(
+      name: string,
+      mac: string,
+      snmpCommunity: string,
+      ipResolveMethod: string,
+      ip: string,
+      build: string,
+      floor: string
+    ) {
+      this.switchName = name;
+      this.switchMAC = mac;
+      this.switchSNMPCommunity = snmpCommunity;
+      this.switchIPResolveMethod = ipResolveMethod;
+      this.switchIP = ip;
+      this.switchBuild = build;
+      this.switchFloor = floor;
+
+      this.addSwitch(build, floor);
     }
   }
 });
