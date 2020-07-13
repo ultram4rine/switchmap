@@ -20,8 +20,8 @@ case class SwitchResource(
   portsNumber: Option[Int],
   buildShortName: Option[String],
   floorNumber: Option[Int],
-  positionTop: Option[Int],
-  positionLeft: Option[Int],
+  positionTop: Option[Float],
+  positionLeft: Option[Float],
   upSwitchName: Option[String],
   upSwitchMAC: Option[String],
   upLink: Option[String]
