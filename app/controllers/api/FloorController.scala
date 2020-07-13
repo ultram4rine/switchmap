@@ -22,9 +22,7 @@ class FloorController @Inject() (
 
     Form(
       mapping(
-        "number" -> number,
-        "buildName" -> nonEmptyText,
-        "buildShortName" -> nonEmptyText
+        "number" -> number
       )(FloorForm.apply)(FloorForm.unapply)
     )
   }
@@ -36,9 +34,9 @@ class FloorController @Inject() (
       }
     }
 
-  def addFloor(): Action[AnyContent] =
+  def addFloor(buildShortName: String): Action[AnyContent] =
     ApiAction.async { implicit request =>
-      processJsonFloor()
+      processJsonFloor(buildShortName)
     }
 
   def deleteFloor(buildAddr: String, floorNumber: String): Action[AnyContent] =
@@ -53,7 +51,7 @@ class FloorController @Inject() (
       }
     }
 
-  private def processJsonFloor[A]()(implicit
+  private def processJsonFloor[A](buildShortName: String)(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
     def failure(badForm: Form[FloorForm]) = {
@@ -62,7 +60,7 @@ class FloorController @Inject() (
 
     def success(input: FloorForm) = {
       floorResourceHandler
-        .create(input)
+        .create(buildShortName, input)
         .map { floor => Created(Json.toJson(floor)) }
     }
 

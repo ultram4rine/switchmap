@@ -22,7 +22,7 @@
               icon
               small
               color="grey"
-              @click="buildForm = !buildForm; buildName = build.name; buildShortName = build.shortName; action = 'Change'"
+              @click="action = 'Change'; buildName = build.name; buildShortName = build.shortName; buildForm = !buildForm"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
@@ -44,7 +44,7 @@
               dark
               small
               color="primary"
-              @click="floorForm = !floorForm; floorBuildName = build.name; floorBuildShortName = build.shortName"
+              @click="floorBuildName = build.name; floorBuildShortName = build.shortName; floorForm = !floorForm"
             >Add floor</v-btn>
             <v-btn
               dark

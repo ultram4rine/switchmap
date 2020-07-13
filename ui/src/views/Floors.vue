@@ -56,35 +56,51 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="floorForm = !floorForm">Add floor</v-btn>
+        <v-btn color="error" @click="floorBuildShortName = build; floorForm = !floorForm">Add floor</v-btn>
       </v-card>
     </v-row>
 
-    <FloorForm :form="floorForm" @submit="addFloor" @close="closeFloorForm" />
+    <FloorForm
+      :form="floorForm"
+      :number="floorNumber"
+      @submit="handleSubmitFloor"
+      @close="closeFloorForm"
+    />
 
     <SwitchForm
       :form="switchForm"
       :action="action"
       :needLocationFields="false"
-      @submit="addSwitch"
+      :name="switchName"
+      :ipResolveMethod="switchIPResolveMethod"
+      :ip="switchIP"
+      :mac="switchMAC"
+      :snmpCommunity="switchSNMPCommunity"
+      :build="switchBuild"
+      :floor="switchFloor"
+      @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="action" @close="closeSnackbar()" />
+    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @update="updateSnackbar" />
   </div>
 </template>
 
 <script lang="ts">
 import mixins from "vue-typed-mixins";
 import { mdiClose, mdiDelete } from "@mdi/js";
+import axios, { AxiosResponse } from "axios";
 
-import floorsMixin from "../mixins/floorsMixin";
-import switchesMixin from "../mixins/switchesMixin";
+import { config } from "@/config";
+import { Build } from "@/interfaces";
 
-import FloorForm from "./forms/FloorForm.vue";
-import SwitchForm from "./forms/SwitchForm.vue";
+import floorsMixin from "@/mixins/floorsMixin";
+import switchesMixin from "@/mixins/switchesMixin";
 
-import Snackbar from "./Snackbar.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+
+import Snackbar from "@/components/Snackbar.vue";
 
 export default mixins(floorsMixin, switchesMixin).extend({
   props: {
@@ -107,6 +123,41 @@ export default mixins(floorsMixin, switchesMixin).extend({
 
   created() {
     this.getFloorsOf(this.build);
+  },
+
+  methods: {
+    handleSubmitFloor(number: string) {
+      axios
+        .get<Build, AxiosResponse<Build>>(
+          `${config.apiURL}/build/${this.build}`
+        )
+        .then(resp => {
+          this.floorBuildName = resp.data.name;
+          this.floorNumber = number;
+          this.addFloor();
+          this.getFloorsOf(this.build);
+        })
+        .catch(err => console.log(err));
+    },
+    handleSubmitSwitch(
+      name: string,
+      mac: string,
+      snmpCommunity: string,
+      ipResolveMethod: string,
+      ip: string,
+      build: string,
+      floor: string
+    ) {
+      this.switchName = name;
+      this.switchMAC = mac;
+      this.switchSNMPCommunity = snmpCommunity;
+      this.switchIPResolveMethod = ipResolveMethod;
+      this.switchIP = ip;
+      this.switchBuild = build;
+      this.switchFloor = floor;
+
+      this.addSwitch(build, floor);
+    }
   }
 });
 </script>

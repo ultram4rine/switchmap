@@ -33,9 +33,9 @@ class BuildController @Inject() (
       processJson4Create()
     }
 
-  def updateBuild(buildAddr: String): Action[AnyContent] =
+  def updateBuild(buildShortName: String): Action[AnyContent] =
     ApiAction.async { implicit request =>
-      processJson4Update(buildAddr)
+      processJson4Update(buildShortName)
     }
 
   def deleteBuild(buildAddr: String): Action[AnyContent] = {
@@ -54,9 +54,9 @@ class BuildController @Inject() (
       }
     }
 
-  def buildByAddr(buildAddr: String): Action[AnyContent] =
+  def buildByShortName(buildAddr: String): Action[AnyContent] =
     ApiAction.async { implicit request =>
-      buildResourceHandler.findByAddr(buildAddr).map {
+      buildResourceHandler.findByShortName(buildAddr).map {
         case Some(b) => Ok(Json.toJson(b))
         case None    => NoContent
       }
@@ -78,7 +78,7 @@ class BuildController @Inject() (
     form.bindFromRequest().fold(failure, success)
   }
 
-  private def processJson4Update[A](buildAddr: String)(implicit
+  private def processJson4Update[A](buildShortName: String)(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
     def failure(badForm: Form[BuildForm]) = {
@@ -87,7 +87,7 @@ class BuildController @Inject() (
 
     def success(input: BuildForm) = {
       buildResourceHandler
-        .update(buildAddr, input)
+        .update(buildShortName, input)
         .map { build => Created(Json.toJson(build)) }
     }
 

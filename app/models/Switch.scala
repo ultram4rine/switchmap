@@ -4,15 +4,16 @@ import play.api.libs.json.{Json, OFormat}
 
 case class Switch(
   name: String,
-  ip: Option[String],
+  ip: String,
   mac: String,
+  snmpCommunity: String,
   revision: Option[String],
   serial: Option[String],
   portsNumber: Option[Int],
   buildShortName: Option[String],
   floorNumber: Option[Int],
-  positionTop: Option[Int],
-  positionLeft: Option[Int],
+  positionTop: Option[Float],
+  positionLeft: Option[Float],
   upSwitchName: Option[String],
   upSwitchMAC: Option[String],
   upLink: Option[String]
@@ -24,15 +25,16 @@ object Switch {
   def tupled: (
     (
       String,
-      Option[String],
+      String,
+      String,
       String,
       Option[String],
       Option[String],
       Option[Int],
       Option[String],
       Option[Int],
-      Option[Int],
-      Option[Int],
+      Option[Float],
+      Option[Float],
       Option[String],
       Option[String],
       Option[String]

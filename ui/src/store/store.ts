@@ -1,8 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import auth from "./modules/auth";
-import csrf from "./modules/csrf";
+import auth from "@/store/modules/auth";
+import csrf from "@/store/modules/csrf";
 
 Vue.use(Vuex);
 

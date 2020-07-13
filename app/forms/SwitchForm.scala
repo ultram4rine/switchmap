@@ -2,11 +2,8 @@ package forms
 
 case class SwitchForm(
   name: String,
-  ipResolveMethod: String,
-  ip: Option[String],
   mac: String,
-  snmpCommunityType: String,
-  snmpCommunity: Option[String],
-  build: Option[String],
-  floor: Option[Int]
+  snmpCommunity: String,
+  ipResolveMethod: String,
+  ip: Option[String]
 )

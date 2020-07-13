@@ -23,33 +23,41 @@ class FloorResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
 
   def create(
+    buildShortName: String,
     floorInput: FloorForm
-  )(implicit mc: MarkerContext): Future[FloorResource] = {
-    val floor =
-      Floor(floorInput.number, floorInput.buildName, floorInput.buildAddr)
-    dataRepository.createFloor(floor).flatMap { _ =>
-      createFloorResource(floor)
+  )(implicit mc: MarkerContext): Future[Option[FloorResource]] = {
+    dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
+      maybeBuild.map { build =>
+        val floor = Floor(floorInput.number, build.name, build.shortName)
+        dataRepository.createFloor(floor).flatMap { _ =>
+          createFloorResource(floor)
+        }
+      } match {
+        case Some(r) => r.map(Some(_))
+        case None    => Future.successful(None)
+      }
     }
   }
 
-  def delete(buildAddr: String, floorNumber: Int)(implicit
+  def delete(buildShortName: String, floorNumber: Int)(implicit
     mc: MarkerContext
   ): Future[Option[Int]] = {
-    dataRepository.getFloorByAddrAndNum(buildAddr, floorNumber).flatMap {
-      maybeFloor =>
+    dataRepository
+      .getFloorByShortNameAndNum(buildShortName, floorNumber)
+      .flatMap { maybeFloor =>
         maybeFloor.map { floor =>
           dataRepository.deleteFloor(floor)
         } match {
           case Some(r) => r.map(Some(_))
           case None    => Future.successful(None)
         }
-    }
+      }
   }
 
   def listOf(
-    buildAddr: String
+    buildShortName: String
   )(implicit mc: MarkerContext): Future[Seq[FloorResource]] = {
-    dataRepository.getFloorOf(buildAddr).flatMap { floors =>
+    dataRepository.getFloorOf(buildShortName).flatMap { floors =>
       createFloorResourceSeq(floors)
     }
   }

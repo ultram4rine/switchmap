@@ -1,28 +1,35 @@
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 
-import { config } from "../config";
-import { Switch } from "../interfaces";
+import { config } from "@/config";
+import { Switch } from "@/interfaces";
 
 const switchesMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-
       item: "",
+      snackbarAction: "",
 
       switches: new Array<Switch>(),
       switchesEndpoint: `${config.apiURL}/switches`,
+      switchEndpoint: (sw: string) => {
+        return `${config.apiURL}/switches/${sw}`;
+      },
+      switchesOfBuildEndpoint: (build: string) => {
+        return `${config.apiURL}/builds/${build}/switches`;
+      },
+      switchesOfFloorEndpoint: (build: string, floor: string) => {
+        return `${config.apiURL}/builds/${build}/${floor}/switches`;
+      },
 
       switchForm: false,
-      addSwitchEndpoint: `${config.apiURL}/switch`,
 
       switchName: "",
       switchIPResolveMethod: "Direct",
       switchIP: "",
       switchMAC: "",
-      switchSNMPCommunityType: "Public",
-      switchSNMPCommunity: "",
+      switchSNMPCommunity: "Public",
       switchBuild: "",
       switchFloor: "",
 
@@ -38,6 +45,15 @@ const switchesMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
+    getSwitchesOf(build: string, floor: string) {
+      axios
+        .get<Switch, AxiosResponse<Switch[]>>(
+          this.switchesOfFloorEndpoint(build, floor)
+        )
+        .then((resp) => (this.switches = resp.data))
+        .catch((err) => console.log(err));
+    },
+
     addSwitch(build: string, floor: string) {
       if (build === "") {
         build = this.switchBuild;
@@ -47,15 +63,12 @@ const switchesMixin = Vue.extend({
       }
 
       axios
-        .post(this.addSwitchEndpoint, {
+        .post(this.switchesEndpoint, {
           name: this.switchName,
           ipResolveMethod: this.switchIPResolveMethod,
           ip: this.switchIP,
           mac: this.switchMAC,
-          snmpCommunityType: this.switchSNMPCommunityType,
           snmpCommunity: this.switchSNMPCommunity,
-          build: build,
-          floor: floor,
         })
         .then(() => {
           this.switchForm = false;
@@ -66,8 +79,7 @@ const switchesMixin = Vue.extend({
           this.switchIPResolveMethod = "Direct";
           this.switchIP = "";
           this.switchMAC = "";
-          this.switchSNMPCommunityType = "Public";
-          this.switchSNMPCommunity = "";
+          this.switchSNMPCommunity = "Public";
           this.switchBuild = "";
           this.switchFloor = "";
 
@@ -83,10 +95,17 @@ const switchesMixin = Vue.extend({
       this.switchIPResolveMethod = "Direct";
       this.switchIP = "";
       this.switchMAC = "";
-      this.switchSNMPCommunityType = "Public";
-      this.switchSNMPCommunity = "";
+      this.switchSNMPCommunity = "Public";
+      this.switchBuild = "";
+      this.switchFloor = "";
 
       this.action = "Add";
+    },
+
+    updateSnackbar(snackbar: boolean) {
+      this.snackbar = snackbar;
+      this.item = "";
+      this.snackbarAction = "";
     },
   },
 });

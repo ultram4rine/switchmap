@@ -14,13 +14,15 @@ export interface Switch {
   name: string;
   ip: string;
   mac: string;
-  vendor: string;
+  snmpCommunity: string;
   revision: string;
   serial: string;
-  upSwitch: string;
-  port: string;
-  posTop: number;
-  posLeft: number;
+  portsNumber: number;
   buildShortName: string;
   floorNumber: number;
+  positionTop: number;
+  positionLeft: number;
+  upSwitchName: string;
+  upSwitchMAC: string;
+  upLink: string;
 }

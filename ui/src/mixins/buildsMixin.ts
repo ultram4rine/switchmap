@@ -1,27 +1,30 @@
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 
-import { config } from "../config";
-import { Build } from "../interfaces";
+import { config } from "@/config";
+import { Build } from "@/interfaces";
 
 const buildsMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-
       item: "",
+      snackbarAction: "",
 
       builds: new Array<Build>(),
       buildsEndpoint: `${config.apiURL}/builds`,
-      buildEndpoint: `${config.apiURL}/build/`,
+      buildEndpoint: (build: string) => {
+        return `${config.apiURL}/builds/${build}`;
+      },
 
       buildForm: false,
-      addBuildEndpoint: `${config.apiURL}/build`,
 
       buildName: "",
       buildShortName: "",
 
       action: "Add",
+
+      buildForUpdate: "",
 
       confirmation: false,
       buildForDeleteName: "",
@@ -37,13 +40,13 @@ const buildsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    getBuild(buildShortName: string) {
+    getBuild(build: string) {
       axios
-        .get<Build, AxiosResponse<Build>>(this.buildEndpoint + buildShortName)
+        .get<Build, AxiosResponse<Build>>(this.buildEndpoint(build))
         .then((resp) =>
           Vue.set(
             this.builds,
-            this.builds.findIndex((b) => b.shortName === buildShortName),
+            this.builds.findIndex((b) => b.shortName === build),
             resp.data
           )
         )
@@ -52,7 +55,7 @@ const buildsMixin = Vue.extend({
 
     addBuild() {
       axios
-        .post(this.addBuildEndpoint, {
+        .post(this.buildsEndpoint, {
           name: this.buildName,
           shortName: this.buildShortName,
         })
@@ -62,6 +65,7 @@ const buildsMixin = Vue.extend({
           this.getAllBuilds();
 
           this.item = this.buildName;
+          this.snackbarAction = "added";
           this.snackbar = true;
 
           this.buildName = "";
@@ -70,26 +74,34 @@ const buildsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    updateBuild(buildShortName: string) {
+    updateBuild(buildForUpdate: string) {
       axios
-        .put(this.buildEndpoint + buildShortName, {
+        .put(this.buildEndpoint(buildForUpdate), {
           name: this.buildName,
-          addr: this.buildShortName,
+          shortName: this.buildShortName,
         })
         .then(() => {
           this.buildForm = false;
 
-          this.getBuild(buildShortName);
+          this.getBuild(this.buildShortName);
+
+          this.item = this.buildName;
+          this.snackbarAction = "updated";
+          this.snackbar = true;
 
           this.buildName = "";
           this.buildShortName = "";
         });
     },
 
-    deleteBuild(buildShortName: string) {
-      axios.delete(this.buildEndpoint + buildShortName).then(() => {
+    deleteBuild(build: string) {
+      axios.delete(this.buildEndpoint(build)).then(() => {
         this.confirmation = !this.confirmation;
         this.getAllBuilds();
+
+        this.item = this.buildName;
+        this.snackbarAction = "deleted";
+        this.snackbar = true;
       });
     },
 
@@ -99,6 +111,12 @@ const buildsMixin = Vue.extend({
       this.buildShortName = "";
 
       this.action = "Add";
+    },
+
+    updateSnackbar(snackbar: boolean) {
+      this.snackbar = snackbar;
+      this.item = "";
+      this.snackbarAction = "";
     },
   },
 });

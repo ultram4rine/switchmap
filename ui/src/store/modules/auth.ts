@@ -1,8 +1,13 @@
 import { ActionContext, Module } from "vuex";
 import axios from "axios";
 
-import { config } from "../../config";
-import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_SUCCESS, AUTH_ERROR } from "../actions";
+import { config } from "@/config";
+import {
+  AUTH_LOGIN,
+  AUTH_LOGOUT,
+  AUTH_SUCCESS,
+  AUTH_ERROR,
+} from "@/store/actions";
 
 interface User {
   username: string;

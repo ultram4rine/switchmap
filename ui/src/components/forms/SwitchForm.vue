@@ -4,132 +4,157 @@
       <v-toolbar>
         <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="$emit('close')">
+        <v-btn icon @click="close">
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </v-toolbar>
 
       <v-card-text>
-        <v-form ref="form">
-          <v-text-field v-model="inputName" label="Name" color="orange accent-2" required></v-text-field>
-
-          <v-text-field
-            v-model="inputMAC"
-            label="MAC"
-            placeholder="XX:XX:XX:XX:XX:XX"
-            color="orange accent-2"
-            required
-          ></v-text-field>
-
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputIPResolveMethod"
-                :items="methods"
-                hide-details
-                label="IP resolve method"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-            <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
+        <ValidationObserver ref="observer" v-slot="{ validate }">
+          <v-form ref="form">
+            <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
-                v-model="inputIP"
-                label="IP"
-                placeholder="e.g. 192.168.1.1"
-                color="orange accent-2"
+                v-model="inputName"
+                :error-messages="errors"
+                label="Name"
                 required
+                color="orange accent-2"
               ></v-text-field>
-            </v-col>
-          </v-row>
+            </ValidationProvider>
 
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputSNMPCommunityType"
-                :items="types"
-                hide-details
-                label="SNMP community type"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-            <v-col v-if="inputSNMPCommunityType === 'Private'" cols="12" sm="6">
-              <v-text-field
-                v-model="inputSNMPCommunity"
-                label="Community"
-                color="orange accent-2"
-                required
-              ></v-text-field>
-            </v-col>
-          </v-row>
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputIPResolveMethod"
+                  :items="methods"
+                  hide-details
+                  label="IP resolve method"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+              <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
+                  <v-text-field
+                    v-model="inputIP"
+                    :error-messages="errors"
+                    label="IP"
+                    placeholder="e.g. 192.168.1.1"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
 
-          <v-row v-if="needLocationFields" dense>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputBuild"
-                :items="builds"
-                hide-details
-                label="Build"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="inputFloor"
-                :items="floors"
-                hide-details
-                label="Floor"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-          </v-row>
-        </v-form>
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
+                  <v-text-field
+                    v-model="inputMAC"
+                    :error-messages="errors"
+                    label="MAC"
+                    placeholder="XX:XX:XX:XX:XX:XX"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
+                  <v-text-field
+                    v-model="inputSNMPCommunity"
+                    :error-messages="errors"
+                    label="SNMP community"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
+
+            <v-row v-if="needLocationFields" dense>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputBuild"
+                  :items="builds"
+                  hide-details
+                  label="Build"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="inputFloor"
+                  :items="floors"
+                  hide-details
+                  label="Floor"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+            </v-row>
+          </v-form>
+        </ValidationObserver>
       </v-card-text>
 
       <v-divider></v-divider>
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="$emit('submit')">{{ action }}</v-btn>
+        <v-btn color="orange darken-1" @click="submit">{{ action }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  Ref,
-  ref,
-  computed,
-  watch
-} from "@vue/composition-api";
+import Vue from "vue";
 import { mdiClose } from "@mdi/js";
 
-import useInputValidator from "@/helpers/useInputValidator";
+import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
+import { required } from "vee-validate/dist/rules";
 
-import { isMAC, isIP } from "@/validators";
+extend("required", {
+  ...required,
+  message: "{_field_} is required"
+});
 
-import { Build, Floor } from "@/interfaces";
+extend("mac", {
+  validate: (val: string) => {
+    let regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
+    return regex.test(val);
+  },
+  message: "{_value_} is not correct MAC address"
+});
 
-import { getAllBuilds, getFloorsOf } from "@/helpers/getting";
+extend("ip", {
+  validate: (val: string) => {
+    let regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+    return regex.test(val);
+  },
+  message: "{_value_} is not correct IP address"
+});
 
-export default defineComponent({
+export default Vue.extend({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
     needLocationFields: { type: Boolean, required: true },
+
     name: { type: String, required: true },
-    mac: { type: String, required: true },
     ipResolveMethod: { type: String, required: true },
     ip: { type: String, required: true },
-    snmpCommunityType: { type: String, required: true },
+    mac: { type: String, required: true },
     snmpCommunity: { type: String, required: true },
     build: { type: String, required: true },
-    floor: { type: Number, required: true }
+    floor: { type: String, required: true }
+  },
+
+  components: {
+    ValidationObserver,
+    ValidationProvider
   },
 
   setup(props, { emit }) {
@@ -180,20 +205,71 @@ export default defineComponent({
     return {
       title,
 
-      inputName,
-      inputMAC,
-      inputIPResolveMethod,
-      inputIP,
-      inputSNMPCommunityType,
-      inputSNMPCommunity,
-      inputBuild,
-      inputFloor,
+      inputName: this.name,
+      inputIPResolveMethod: this.ipResolveMethod,
+      inputIP: this.ip,
+      inputMAC: this.mac,
+      inputSNMPCommunity: this.snmpCommunity,
+      inputBuild: this.build,
+      inputFloor: this.floor,
+
+      methods: ["Direct", "DNS"],
+      types: ["Public", "Private"],
 
       builds,
       floors,
 
-      mdiClose
-    };
+  computed: {
+    title: function() {
+      if (this.action == "Add") return "New switch";
+      else if (this.action == "Change") return "Change switch";
+    }
+  },
+
+  watch: {
+    name: function(newName) {
+      this.inputName = newName;
+    },
+    ipResolveMethod: function(newIPResolveMethod) {
+      this.inputIPResolveMethod = newIPResolveMethod;
+    },
+    ip: function(newIP) {
+      this.inputIP = newIP;
+    },
+    mac: function(newMAC) {
+      this.inputMAC = newMAC;
+    },
+    snmpCommunity: function(newSNMPCommunity) {
+      this.inputSNMPCommunity = newSNMPCommunity;
+    },
+    build: function(newBuild) {
+      this.inputBuild = newBuild;
+    },
+    floor: function(newFloor) {
+      this.inputFloor = newFloor;
+    }
+  },
+
+  methods: {
+    submit() {
+      this.$refs.observer.validate().then((valid: boolean) => {
+        if (valid) {
+          this.$emit(
+            "submit",
+            this.inputName,
+            this.inputMAC,
+            this.inputSNMPCommunity,
+            this.inputIPResolveMethod,
+            this.inputIP,
+            this.inputBuild,
+            this.inputFloor
+          );
+        }
+      });
+    },
+    close() {
+      this.$emit("close");
+    }
   }
 });
 </script>

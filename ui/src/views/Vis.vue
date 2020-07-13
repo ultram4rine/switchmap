@@ -11,8 +11,8 @@ import axios, { AxiosResponse } from "axios";
 
 import { Node, Edge, Network } from "vis-network/standalone";
 
-import { config } from "../config";
-import { Switch } from "../interfaces";
+import { config } from "@/config";
+import { Switch } from "@/interfaces";
 
 export default Vue.extend({
   props: {
@@ -46,7 +46,11 @@ export default Vue.extend({
 
           this.switches.forEach(sw => {
             nodes.push({ id: sw.name, label: sw.name });
-            edges.push({ from: sw.upSwitch, to: sw.name, label: sw.port });
+            edges.push({
+              from: sw.upSwitchName,
+              to: sw.name,
+              label: sw.upLink
+            });
           });
 
           let data = {

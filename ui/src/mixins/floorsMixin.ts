@@ -1,21 +1,25 @@
 import Vue from "vue";
 import axios, { AxiosResponse } from "axios";
 
-import { config } from "../config";
-import { Floor } from "../interfaces";
+import { config } from "@/config";
+import { Floor } from "@/interfaces";
 
 const floorsMixin = Vue.extend({
   data() {
     return {
       snackbar: false,
-
       item: "",
+      snackbarAction: "",
 
       floors: new Array<Floor>(),
-      floorsEndpoint: `${config.apiURL}/build`,
+      floorsEndpoint: (build: string) => {
+        return `${config.apiURL}/builds/${build}/floors`;
+      },
+      floorEndpoint: (build: string, floor: string) => {
+        return `${config.apiURL}/builds/${build}/${floor}`;
+      },
 
       floorForm: false,
-      addFloorEndpoint: `${config.apiURL}/floor`,
 
       floorNumber: "",
       floorBuildName: "",
@@ -24,26 +28,23 @@ const floorsMixin = Vue.extend({
   },
 
   methods: {
-    getFloorsOf(build: String) {
+    getFloorsOf(build: string) {
       axios
-        .get<Floor, AxiosResponse<Floor[]>>(
-          `${this.floorsEndpoint}/${build}/floors`
-        )
+        .get<Floor, AxiosResponse<Floor[]>>(this.floorsEndpoint(build))
         .then((resp) => (this.floors = resp.data))
         .catch((err) => console.log(err));
     },
 
-    addFloor() {
+    addFloorTo(build: string) {
       axios
-        .post(this.addFloorEndpoint, {
+        .post(this.floorsEndpoint(build), {
           number: parseInt(this.floorNumber, 10),
-          buildName: this.floorBuildName,
-          buildShortName: this.floorBuildShortName,
         })
         .then(() => {
           this.floorForm = false;
 
           this.item = `${this.floorNumber} floor in ${this.floorBuildName}`;
+          this.snackbarAction = "added";
           this.snackbar = true;
 
           this.floorNumber = "";
@@ -52,9 +53,13 @@ const floorsMixin = Vue.extend({
         .catch((err) => console.log(err));
     },
 
-    deleteFloorOf(build: String, floor: string) {
-      axios.delete(`${this.floorsEndpoint}/${build}/${floor}`).then(() => {
+    deleteFloorOf(build: string, floor: string) {
+      axios.delete(this.floorEndpoint(build, floor)).then(() => {
         this.getFloorsOf(build);
+
+        this.item = `${floor} floor in ${build}`;
+        this.snackbarAction = "deleted";
+        this.snackbar = true;
       });
     },
 
@@ -63,6 +68,12 @@ const floorsMixin = Vue.extend({
       this.floorNumber = "";
       this.floorBuildName = "";
       this.floorBuildShortName = "";
+    },
+
+    updateSnackbar(snackbar: boolean) {
+      this.snackbar = snackbar;
+      this.item = "";
+      this.snackbarAction = "";
     },
   },
 });
