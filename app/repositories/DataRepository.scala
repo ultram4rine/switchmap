@@ -115,22 +115,22 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
 
   def getBuilds: Future[Seq[Build]] = db.run { builds.result }
 
-  def getBuildByAddr(buildAddr: String): Future[Option[Build]] =
-    db.run { builds.filter(_.shortName === buildAddr).result.headOption }
+  def getBuildByShortName(buildShortName: String): Future[Option[Build]] =
+    db.run { builds.filter(_.shortName === buildShortName).result.headOption }
 
   def getFloorOf(buildAddr: String): Future[Seq[Floor]] =
     db.run {
       floors.filter(_.buildShortName === buildAddr).sortBy(_.number).result
     }
 
-  def getFloorByAddrAndNum(
-    buildAddr: String,
+  def getFloorByShortNameAndNum(
+    buildShortName: String,
     floorNumber: Int
   ): Future[Option[Floor]] =
     db.run {
       floors
         .filter(floor =>
-          floor.buildShortName === buildAddr && floor.number === floorNumber
+          floor.buildShortName === buildShortName && floor.number === floorNumber
         )
         .result
         .headOption
@@ -141,24 +141,24 @@ class DataRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(
   def getSwitchByName(switchName: String): Future[Option[Switch]] =
     db.run { switches.filter(_.name === switchName).result.headOption }
 
-  def getSwitchesOfBuild(buildAddr: String): Future[Seq[Switch]] =
-    db.run { switches.filter(_.buildShortName === buildAddr).result }
+  def getSwitchesOfBuild(buildShortName: String): Future[Seq[Switch]] =
+    db.run { switches.filter(_.buildShortName === buildShortName).result }
 
   def getSwitchesOfFloor(
-    buildAddr: String,
+    buildShortName: String,
     floorNumber: Int
   ): Future[Seq[Switch]] =
     db.run {
       switches
-        .filter(_.buildShortName === buildAddr)
+        .filter(_.buildShortName === buildShortName)
         .filter(_.floorNumber === floorNumber)
         .result
     }
 
   def createBuild(b: Build): Future[Int] = { db.run(builds += b) }
 
-  def updateBuild(buildAddr: String, b: Build): Future[Int] = {
-    db.run(builds.filter(_.shortName === buildAddr).update(b))
+  def updateBuild(buildShortName: String, b: Build): Future[Int] = {
+    db.run(builds.filter(_.shortName === buildShortName).update(b))
   }
 
   def deleteBuild(b: Build): Future[Int] = {
