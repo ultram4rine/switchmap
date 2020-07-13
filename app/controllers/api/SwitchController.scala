@@ -26,9 +26,7 @@ class SwitchController @Inject() (
         "mac" -> nonEmptyText,
         "snmpCommunity" -> nonEmptyText,
         "ipResolveMethod" -> nonEmptyText,
-        "ip" -> optional(text),
-        "build" -> optional(text),
-        "floor" -> optional(number)
+        "ip" -> optional(text)
       )(SwitchForm.apply)(SwitchForm.unapply)
     )
   }
@@ -36,6 +34,14 @@ class SwitchController @Inject() (
   def addSwitch(): Action[AnyContent] =
     ApiAction.async { implicit request =>
       processJson4Create()
+    }
+
+  def addSwitchToFloor(
+    buildShortName: String,
+    floorNumber: String
+  ): Action[AnyContent] =
+    ApiAction.async { implicit request =>
+      processJson4CreateWithLocation(buildShortName, floorNumber)
     }
 
   def switches: Action[AnyContent] =
@@ -76,6 +82,23 @@ class SwitchController @Inject() (
     def success(input: SwitchForm) = {
       switchResourceHandler
         .create(input)
+        .map { switch => Created(Json.toJson(switch)) }
+    }
+
+    form.bindFromRequest().fold(failure, success)
+  }
+
+  private def processJson4CreateWithLocation[A](
+    buildShortName: String,
+    floorNumber: String
+  )(implicit request: ApiRequest[A]): Future[Result] = {
+    def failure(badForm: Form[SwitchForm]) = {
+      Future.successful(BadRequest(badForm.errorsAsJson))
+    }
+
+    def success(input: SwitchForm) = {
+      switchResourceHandler
+        .createWithLocation(input, buildShortName, floorNumber)
         .map { switch => Created(Json.toJson(switch)) }
     }
 

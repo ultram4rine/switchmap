@@ -63,8 +63,57 @@ class SwitchResourceHandler @Inject() (
                       switchInfo.revision,
                       switchInfo.serial,
                       Some(portsNumber),
-                      switchInput.build,
-                      switchInput.floor,
+                      None,
+                      None,
+                      None,
+                      None,
+                      None,
+                      None,
+                      None
+                    )
+                    dataRepository.createSwitch(switch).flatMap { _ =>
+                      Some(createSwitchResource(switch)) match {
+                        case Some(sw) => sw.map(Some(_))
+                      }
+                    }
+                  }
+                }
+            }
+        }
+      case None => Future { None }
+    }
+  }
+
+  def createWithLocation(
+    switchInput: SwitchForm,
+    buildShortName: String,
+    floorNumber: String
+  )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
+    val futureMaybeIP = switchInput.ipResolveMethod match {
+      case "DNS"    => dnsUtil.getIPByHostname(switchInput.name)
+      case "Direct" => Future { switchInput.ip }
+      case _        => Future { None }
+    }
+
+    futureMaybeIP.flatMap {
+      case Some(ip) =>
+        snmpUtil.getSwitchInfo(ip, switchInput.snmpCommunity).flatMap {
+          switchInfo =>
+            {
+              snmpUtil
+                .getSwitchPortsNumber(ip, switchInput.snmpCommunity)
+                .flatMap { portsNumber =>
+                  {
+                    val switch = Switch(
+                      switchInput.name,
+                      ip,
+                      switchInput.mac,
+                      switchInput.snmpCommunity,
+                      switchInfo.revision,
+                      switchInfo.serial,
+                      Some(portsNumber),
+                      Some(buildShortName),
+                      Some(floorNumber.toInt),
                       None,
                       None,
                       None,

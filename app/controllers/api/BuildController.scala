@@ -54,9 +54,9 @@ class BuildController @Inject() (
       }
     }
 
-  def buildByAddr(buildAddr: String): Action[AnyContent] =
+  def buildByShortName(buildAddr: String): Action[AnyContent] =
     ApiAction.async { implicit request =>
-      buildResourceHandler.findByAddr(buildAddr).map {
+      buildResourceHandler.findByShortName(buildAddr).map {
         case Some(b) => Ok(Json.toJson(b))
         case None    => NoContent
       }

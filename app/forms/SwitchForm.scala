@@ -5,7 +5,5 @@ case class SwitchForm(
   mac: String,
   snmpCommunity: String,
   ipResolveMethod: String,
-  ip: Option[String],
-  build: Option[String],
-  floor: Option[Int]
+  ip: Option[String]
 )

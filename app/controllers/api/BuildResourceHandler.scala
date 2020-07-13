@@ -34,19 +34,19 @@ class BuildResourceHandler @Inject() (
   }
 
   def update(
-    buildAddr: String,
+    buildShortName: String,
     buildInput: BuildForm
   )(implicit mc: MarkerContext): Future[BuildResource] = {
     val build = Build(buildInput.name, buildInput.shortName)
-    dataRepository.updateBuild(buildAddr, build).flatMap { _ =>
+    dataRepository.updateBuild(buildShortName, build).flatMap { _ =>
       createBuildResource(build)
     }
   }
 
   def delete(
-    buildAddr: String
+    buildShortName: String
   )(implicit mc: MarkerContext): Future[Option[Int]] = {
-    dataRepository.getBuildByAddr(buildAddr).flatMap { maybeBuild =>
+    dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
       maybeBuild.map { build =>
         dataRepository.deleteBuild(build)
       } match {
@@ -64,10 +64,10 @@ class BuildResourceHandler @Inject() (
     }
   }
 
-  def findByAddr(
-    buildAddr: String
+  def findByShortName(
+    buildShortName: String
   )(implicit mc: MarkerContext): Future[Option[BuildResource]] = {
-    dataRepository.getBuildByAddr(buildAddr).flatMap { maybeBuild =>
+    dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
       maybeBuild.map { build => createBuildResource(build) } match {
         case Some(b) => b.map(Some(_))
         case None    => Future.successful(None)
