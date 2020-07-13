@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import mixins from "vue-typed-mixins";
-import { mdiMagnify, mdiPlus, mdiRouterNetwork } from "@mdi/js";
+import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 import switchesMixin from "@/mixins/switchesMixin";
 
