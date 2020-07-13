@@ -33,8 +33,8 @@ object Switch {
       Option[Int],
       Option[String],
       Option[Int],
-      Option[Int],
-      Option[Int],
+      Option[Float],
+      Option[Float],
       Option[String],
       Option[String],
       Option[String]
