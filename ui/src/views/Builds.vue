@@ -78,14 +78,14 @@
       :action="action"
       :name="buildName"
       :shortName="buildShortName"
-      @submit="action === 'Add' ? addBuild() : updateBuild(buildShortName)"
+      @submit="handleSubmitBuild"
       @close="closeBuildForm"
     />
 
     <FloorForm
       :form="floorForm"
       :number="floorNumber"
-      @submit="addFloorWithRefresh"
+      @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
 
@@ -97,7 +97,7 @@
       @cancel="confirmation = !confirmation"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="action" @close="closeSnackbar()" />
+    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @update="updateSnackbar" />
   </div>
 </template>
 
@@ -106,17 +106,15 @@ import { defineComponent, ref, Ref } from "@vue/composition-api";
 import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
 
 import { Build } from "@/interfaces";
+import { getAllBuilds as getAllBuildsAPI } from "@/api/build";
 
-import buildsMixin from "../mixins/buildsMixin";
-import floorsMixin from "../mixins/floorsMixin";
+import BuildForm from "@/components/forms/BuildForm.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
 
-import BuildForm from "./forms/BuildForm.vue";
-import FloorForm from "./forms/FloorForm.vue";
+import Confirmation from "@/components/Confirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
-import Confirmation from "./Confirmation.vue";
-import Snackbar from "./Snackbar.vue";
-
-export default {
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true }
   },
@@ -129,8 +127,11 @@ export default {
   },
 
   setup() {
-    const action = ref("Add");
     const builds: Ref<Build[]> = ref([]);
+
+    const getAllBuilds = () => {
+      builds.value = getAllBuildsAPI();
+    };
 
     const buildForm = ref(false);
     const buildName = ref("");
@@ -140,8 +141,8 @@ export default {
     const floorNumber = ref(0);
 
     return {
-      action,
       builds,
+      getAllBuilds,
 
       buildForm,
       buildName,
@@ -154,6 +155,10 @@ export default {
       mdiPencil,
       mdiDelete
     };
+  },
+
+  created() {
+    this.getAllBuilds();
   }
-};
+});
 </script>
