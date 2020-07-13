@@ -13,9 +13,17 @@ const switchesMixin = Vue.extend({
 
       switches: new Array<Switch>(),
       switchesEndpoint: `${config.apiURL}/switches`,
+      switchEndpoint: (sw: string) => {
+        return `${config.apiURL}/switches/${sw}`;
+      },
+      switchesOfBuildEndpoint: (build: string) => {
+        return `${config.apiURL}/builds/${build}/switches`;
+      },
+      switchesOfFloorEndpoint: (build: string, floor: string) => {
+        return `${config.apiURL}/builds/${build}/${floor}/switches`;
+      },
 
       switchForm: false,
-      addSwitchEndpoint: `${config.apiURL}/switch`,
 
       switchName: "",
       switchIPResolveMethod: "Direct",
@@ -40,7 +48,7 @@ const switchesMixin = Vue.extend({
     getSwitchesOf(build: string, floor: string) {
       axios
         .get<Switch, AxiosResponse<Switch[]>>(
-          `${config.apiURL}/build/${build}/${floor}/switches`
+          this.switchesOfFloorEndpoint(build, floor)
         )
         .then((resp) => (this.switches = resp.data))
         .catch((err) => console.log(err));
@@ -55,14 +63,12 @@ const switchesMixin = Vue.extend({
       }
 
       axios
-        .post(this.addSwitchEndpoint, {
+        .post(this.switchesEndpoint, {
           name: this.switchName,
           ipResolveMethod: this.switchIPResolveMethod,
           ip: this.switchIP,
           mac: this.switchMAC,
           snmpCommunity: this.switchSNMPCommunity,
-          build: build,
-          floor: floor,
         })
         .then(() => {
           this.switchForm = false;
