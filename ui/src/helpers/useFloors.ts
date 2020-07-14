@@ -24,7 +24,7 @@ export default function () {
 
   const getFloorsOf = async (b: string) => {
     try {
-      const resp = await axios.get<Build, AxiosResponse<Build[]>>(
+      const resp = await axios.get<Floor, AxiosResponse<Floor[]>>(
         floorsEndpoint(b)
       );
       floors.value = resp.data;
