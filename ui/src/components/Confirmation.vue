@@ -1,7 +1,7 @@
 <template>
   <v-dialog :value="value" persistent max-width="500px">
     <v-card dark>
-      <v-card-title class="headline">Delete {{ item }} {{ name }}?</v-card-title>
+      <v-card-title class="headline">Delete {{ name }}?</v-card-title>
 
       <v-divider></v-divider>
 
@@ -20,7 +20,6 @@ import Vue from "vue";
 export default Vue.extend({
   props: {
     value: { type: Boolean, required: true },
-    item: { type: String, required: true },
     name: { type: String, required: true }
   }
 });
