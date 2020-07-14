@@ -21,7 +21,7 @@ export default function () {
 
   const switchForm = ref(false);
   const switchName = ref("");
-  const switchIPReolveMethod = ref("");
+  const switchIPResolveMethod = ref("");
   const switchIP = ref("");
   const switchMAC = ref("");
   const switchSNMPCommunity = ref("");
@@ -83,7 +83,7 @@ export default function () {
 
     switchForm,
     switchName,
-    switchIPReolveMethod,
+    switchIPResolveMethod,
     switchIP,
     switchMAC,
     switchSNMPCommunity,
