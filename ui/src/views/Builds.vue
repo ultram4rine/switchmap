@@ -130,7 +130,9 @@ export default defineComponent({
       buildShortName,
       buildError,
       getAllBuilds,
-      addBuild
+      addBuild,
+      updateBuild,
+      deleteBuild
     } = useBuilds();
 
     const { floorForm, floorNumber, addFloorTo } = useFloors();
@@ -147,6 +149,8 @@ export default defineComponent({
 
       getAllBuilds,
       addBuild,
+      updateBuild,
+      deleteBuild,
 
       floorForm,
       floorNumber,
