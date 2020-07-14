@@ -73,26 +73,9 @@
       </v-card>
     </v-row>
 
-    <BuildForm
-      :form="buildForm"
-      :action="action"
-      :name="buildName"
-      :shortName="buildShortName"
-      @submit="handleSubmitBuild"
-      @close="closeBuildForm"
-    />
-
-    <FloorForm
-      :form="floorForm"
-      :number="floorNumber"
-      @submit="handleSubmitFloor"
-      @close="closeFloorForm"
-    />
-
     <Confirmation
       v-model="confirmation"
-      item="build"
-      :name="buildForDeleteName"
+      :name="'build' + buildForDeleteName"
       @confirm="deleteBuild(buildForDeleteShortName)"
       @cancel="confirmation = !confirmation"
     />
@@ -114,6 +97,10 @@ import FloorForm from "@/components/forms/FloorForm.vue";
 import Confirmation from "@/components/Confirmation.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
+import useBuilds from "@/helpers/useBuilds";
+import useConfirmation from "@/helpers/useConfirmation";
+import useSnackbar from "@/helpers/useSnackbar";
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true }
@@ -127,29 +114,39 @@ export default defineComponent({
   },
 
   setup() {
-    const builds: Ref<Build[]> = ref([]);
-
-    const getAllBuilds = () => {
-      builds.value = getAllBuildsAPI();
-    };
-
-    const buildForm = ref(false);
-    const buildName = ref("");
-    const buildShortName = ref("");
+    const {
+      builds,
+      buildForm,
+      buildName,
+      buildShortName,
+      buildError,
+      getAllBuilds
+    } = useBuilds();
 
     const floorForm = ref(false);
     const floorNumber = ref(0);
 
+    const { value, name } = useConfirmation();
+    const { snackbar, action, item } = useSnackbar();
+
     return {
       builds,
-      getAllBuilds,
 
       buildForm,
       buildName,
       buildShortName,
 
+      getAllBuilds,
+
       floorForm,
       floorNumber,
+
+      value,
+      name,
+
+      snackbar,
+      action,
+      item,
 
       mdiClose,
       mdiPencil,
