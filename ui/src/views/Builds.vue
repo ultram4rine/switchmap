@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { defineComponent } from "@vue/composition-api";
 import { mdiPencil, mdiDelete } from "@mdi/js";
 
 import BuildForm from "@/components/forms/BuildForm.vue";
