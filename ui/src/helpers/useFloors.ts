@@ -20,7 +20,7 @@ export default function () {
   const floorBuildName = ref("");
   const floorBuildShortName = ref("");
 
-  const floorsError = ref("");
+  const floorError = ref("");
 
   const getFloorsOf = async (b: string) => {
     try {
@@ -29,7 +29,7 @@ export default function () {
       );
       floors.value = resp.data;
     } catch (err) {
-      floorsError.value = err;
+      floorError.value = err;
     }
   };
 
@@ -39,7 +39,7 @@ export default function () {
         number: f,
       });
     } catch (err) {
-      floorsError.value = err;
+      floorError.value = err;
     }
   };
 
@@ -47,7 +47,7 @@ export default function () {
     try {
       axios.delete(floorEndpoint(b, f));
     } catch (err) {
-      floorsError.value = err;
+      floorError.value = err;
     }
   };
 
@@ -60,7 +60,7 @@ export default function () {
     floorBuildName,
     floorBuildShortName,
 
-    floorsError,
+    floorError,
 
     getFloorsOf,
     addFloorTo,
