@@ -97,9 +97,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref } from "@vue/composition-api";
-import { mdiClose, mdiPencil, mdiDelete } from "@mdi/js";
-
-import { Build } from "@/interfaces";
+import { mdiPencil, mdiDelete } from "@mdi/js";
 
 import BuildForm from "@/components/forms/BuildForm.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
@@ -162,7 +160,6 @@ export default defineComponent({
       action,
       item,
 
-      mdiClose,
       mdiPencil,
       mdiDelete
     };
