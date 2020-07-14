@@ -87,22 +87,20 @@
 </template>
 
 <script lang="ts">
-import mixins from "vue-typed-mixins";
-import { mdiClose, mdiDelete } from "@mdi/js";
-import axios, { AxiosResponse } from "axios";
-
-import { config } from "@/config";
-import { Build } from "@/interfaces";
-
-import floorsMixin from "@/mixins/floorsMixin";
-import switchesMixin from "@/mixins/switchesMixin";
+import { defineComponent } from "@vue/composition-api";
+import { mdiDelete } from "@mdi/js";
 
 import FloorForm from "@/components/forms/FloorForm.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 
 import Snackbar from "@/components/Snackbar.vue";
 
-export default mixins(floorsMixin, switchesMixin).extend({
+import useFloors from "@/helpers/useFloors";
+import useSwitches from "@/helpers/useSwitches";
+import useConfirmation from "@/helpers/useConfirmation";
+import useSnackbar from "@/helpers/useSnackbar";
+
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
     build: { type: String, required: true }
@@ -114,50 +112,65 @@ export default mixins(floorsMixin, switchesMixin).extend({
     Snackbar
   },
 
-  data() {
+  setup() {
+    const {
+      floors,
+      floorForm,
+      floorNumber,
+      floorError,
+      getFloorsOf,
+      addFloorTo,
+      deleteFloorOf
+    } = useFloors();
+
+    const {
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+      switchError,
+      addSwitch
+    } = useSwitches();
+
+    const { snackbar, action, item } = useSnackbar();
+
     return {
-      mdiClose: mdiClose,
-      mdiDelete: mdiDelete
+      floors,
+
+      floorForm,
+      floorNumber,
+
+      floorError,
+
+      getFloorsOf,
+      addFloorTo,
+      deleteFloorOf,
+
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+
+      addSwitch,
+
+      snackbar,
+      action,
+      item,
+
+      mdiDelete
     };
   },
 
   created() {
     this.getFloorsOf(this.build);
-  },
-
-  methods: {
-    handleSubmitFloor(number: string) {
-      axios
-        .get<Build, AxiosResponse<Build>>(
-          `${config.apiURL}/build/${this.build}`
-        )
-        .then(resp => {
-          this.floorBuildName = resp.data.name;
-          this.floorNumber = number;
-          this.addFloor();
-          this.getFloorsOf(this.build);
-        })
-        .catch(err => console.log(err));
-    },
-    handleSubmitSwitch(
-      name: string,
-      mac: string,
-      snmpCommunity: string,
-      ipResolveMethod: string,
-      ip: string,
-      build: string,
-      floor: string
-    ) {
-      this.switchName = name;
-      this.switchMAC = mac;
-      this.switchSNMPCommunity = snmpCommunity;
-      this.switchIPResolveMethod = ipResolveMethod;
-      this.switchIP = ip;
-      this.switchBuild = build;
-      this.switchFloor = floor;
-
-      this.addSwitch(build, floor);
-    }
   }
 });
 </script>
