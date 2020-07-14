@@ -73,6 +73,17 @@
       </v-card>
     </v-row>
 
+    <BuildForm
+      :form="buildForm"
+      action="Add"
+      :name="buildName"
+      :shortName="buildShortName"
+      @submit="addBuild"
+      @close="() => {}"
+    />
+
+    <FloorForm :form="floorForm" :number="floorNumber" @submit="addFloorTo" @close="() => {}" />
+
     <Confirmation
       v-model="confirmation"
       :name="'build' + buildForDeleteName"
@@ -120,7 +131,8 @@ export default defineComponent({
       buildName,
       buildShortName,
       buildError,
-      getAllBuilds
+      getAllBuilds,
+      addBuild
     } = useBuilds();
 
     const { floorForm, floorNumber, addFloorTo } = useFloors();
@@ -136,6 +148,7 @@ export default defineComponent({
       buildShortName,
 
       getAllBuilds,
+      addBuild,
 
       floorForm,
       floorNumber,
