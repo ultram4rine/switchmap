@@ -159,6 +159,8 @@ export default defineComponent({
       switchBuild,
       switchFloor,
 
+      switchError,
+
       addSwitch,
 
       snackbar,
