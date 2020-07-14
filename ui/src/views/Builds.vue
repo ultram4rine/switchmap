@@ -97,6 +97,7 @@ import Confirmation from "@/components/Confirmation.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
 import useBuilds from "@/helpers/useBuilds";
+import useFloors from "@/helpers/useFloors";
 import useConfirmation from "@/helpers/useConfirmation";
 import useSnackbar from "@/helpers/useSnackbar";
 
@@ -122,8 +123,7 @@ export default defineComponent({
       getAllBuilds
     } = useBuilds();
 
-    const floorForm = ref(false);
-    const floorNumber = ref(0);
+    const { floorForm, floorNumber, addFloorTo } = useFloors();
 
     const { value, name } = useConfirmation();
     const { snackbar, action, item } = useSnackbar();
@@ -139,6 +139,8 @@ export default defineComponent({
 
       floorForm,
       floorNumber,
+
+      addFloorTo,
 
       value,
       name,
