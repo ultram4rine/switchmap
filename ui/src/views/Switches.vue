@@ -44,14 +44,14 @@
 </template>
 
 <script lang="ts">
-import mixins from "vue-typed-mixins";
+import { defineComponent, ref } from "@vue/composition-api";
 import { mdiMagnify } from "@mdi/js";
-
-import switchesMixin from "@/mixins/switchesMixin";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 
-export default mixins(switchesMixin).extend({
+import useSwitches from "@/helpers/useSwitches";
+
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true }
   },
@@ -60,23 +60,54 @@ export default mixins(switchesMixin).extend({
     SwitchForm
   },
 
-  data() {
+  setup() {
+    const search = ref("");
+    const headers = ref([
+      {
+        text: "Name",
+        align: "start",
+        value: "name"
+      },
+      { text: "MAC", value: "mac" },
+      { text: "IP", value: "ip" },
+      { text: "Serial", value: "serial" },
+      { text: "Location", value: "location" }
+    ]);
+
+    const {
+      switches,
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+      switchError,
+      getAllSwitches
+    } = useSwitches();
+
     return {
-      mdiMagnify: mdiMagnify,
+      search,
+      headers,
 
-      search: "",
+      switches,
 
-      headers: [
-        {
-          text: "Name",
-          align: "start",
-          value: "name"
-        },
-        { text: "MAC", value: "mac" },
-        { text: "IP", value: "ip" },
-        { text: "Serial", value: "serial" },
-        { text: "Location", value: "location" }
-      ]
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+
+      switchError,
+
+      getAllSwitches,
+
+      mdiMagnify
     };
   },
 
