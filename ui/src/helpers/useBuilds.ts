@@ -19,6 +19,31 @@ export default function () {
 
   const buildAction = ref("Add");
 
+  const handleSubmitBuild = (name: string, shortName: string) => {
+    switch (buildAction.value) {
+      case "Add":
+        addBuild(name, shortName).then(() =>
+          getAllBuilds().then(() => closeBuildForm())
+        );
+        break;
+      case "Change":
+        updateBuild(buildShortName.value, name, shortName).then(() => {
+          getBuild(buildShortName.value).then(() => {
+            const i = builds.value.findIndex(
+              (b) => b.shortName === buildShortName.value
+            );
+            builds.value[i] = build.value;
+
+            closeBuildForm();
+          });
+        });
+        break;
+      default:
+        console.log("what???");
+        break;
+    }
+  };
+
   const closeBuildForm = () => {
     buildForm.value = false;
 
@@ -99,6 +124,7 @@ export default function () {
 
     buildAction,
 
+    handleSubmitBuild,
     closeBuildForm,
 
     buildForDeleteName,

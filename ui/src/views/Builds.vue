@@ -78,7 +78,7 @@
       :action="buildAction"
       :name="buildName"
       :shortName="buildShortName"
-      @submit="addBuild(buildName, buildShortName)"
+      @submit="handleSubmitBuild"
       @close="closeBuildForm"
     />
 
@@ -134,6 +134,7 @@ export default defineComponent({
       buildName,
       buildShortName,
       buildAction,
+      handleSubmitBuild,
       closeBuildForm,
       buildForDeleteName,
       buildForDeleteShortName,
@@ -158,6 +159,7 @@ export default defineComponent({
 
       buildAction,
 
+      handleSubmitBuild,
       closeBuildForm,
 
       buildForDeleteName,
