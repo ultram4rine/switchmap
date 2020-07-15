@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="value" persistent max-width="500px">
+  <v-dialog :value="confirmation" persistent max-width="500px">
     <v-card dark>
       <v-card-title class="headline">Delete {{ name }}?</v-card-title>
 
@@ -15,11 +15,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "@vue/composition-api";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
-    value: { type: Boolean, required: true },
+    confirmation: { type: Boolean, required: true },
     name: { type: String, required: true }
   }
 });

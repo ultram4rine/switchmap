@@ -85,7 +85,7 @@
     <FloorForm :form="floorForm" :number="floorNumber" @submit="addFloorTo" @close="() => {}" />
 
     <Confirmation
-      v-model="confirmation"
+      :confirmation="confirmation"
       :name="'build' + buildForDeleteName"
       @confirm="deleteBuild(buildForDeleteShortName)"
       @cancel="confirmation = !confirmation"
@@ -137,7 +137,7 @@ export default defineComponent({
 
     const { floorForm, floorNumber, addFloorTo } = useFloors();
 
-    const { value, name } = useConfirmation();
+    const { confirmation, name } = useConfirmation();
     const { snackbar, item, action, updateSnackbar } = useSnackbar();
 
     return {
@@ -157,7 +157,7 @@ export default defineComponent({
 
       addFloorTo,
 
-      value,
+      confirmation,
       name,
 
       snackbar,

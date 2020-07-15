@@ -1,11 +1,11 @@
 import { ref } from "@vue/composition-api";
 
 export default function () {
-  const value = ref("");
+  const confirmation = ref(false);
   const name = ref("");
 
   return {
-    value,
+    confirmation,
     name,
   };
 }
