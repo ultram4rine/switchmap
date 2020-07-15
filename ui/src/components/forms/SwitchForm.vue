@@ -157,54 +157,9 @@ export default Vue.extend({
     ValidationProvider
   },
 
-  setup(props, { emit }) {
-    const title = computed(() => {
-      if (props.action == "Add") return "New switch";
-      else if (props.action == "Change") return "Change switch";
-    });
-
-    const inputName = useInputValidator(props.name, [], (name: string) =>
-      emit("input", name)
-    );
-    const inputMAC = useInputValidator(props.mac, [], (mac: string) =>
-      emit("input", mac)
-    );
-    const inputIPResolveMethod = useInputValidator(
-      props.ipResolveMethod,
-      [],
-      (ipResolveMethod: string) => emit("input", ipResolveMethod)
-    );
-    const inputIP = useInputValidator(props.ip, [], (ip: string) =>
-      emit("input", ip)
-    );
-    const inputSNMPCommunityType = useInputValidator(
-      props.snmpCommunityType,
-      [],
-      (snmpCommunityType: string) => emit("input", snmpCommunityType)
-    );
-    const inputSNMPCommunity = useInputValidator(
-      props.snmpCommunity,
-      [],
-      (snmpCommunity: string) => emit("input", snmpCommunity)
-    );
-    const inputBuild = useInputValidator(props.build, [], (build: string) =>
-      emit("input", build)
-    );
-    const inputFloor = useInputValidator(
-      props.floor.toString(),
-      [],
-      (floor: string) => emit("input", floor)
-    );
-
-    const builds = computed(getAllBuilds);
-    let floors: Ref<Floor[]> = ref([]);
-    watch(inputBuild, value => {
-      floors.value = getFloorsOf(inputBuild.input.value);
-    });
-
+  data() {
     return {
-      title,
-
+      mdiClose: mdiClose,
       inputName: this.name,
       inputIPResolveMethod: this.ipResolveMethod,
       inputIP: this.ip,
@@ -212,12 +167,12 @@ export default Vue.extend({
       inputSNMPCommunity: this.snmpCommunity,
       inputBuild: this.build,
       inputFloor: this.floor,
-
       methods: ["Direct", "DNS"],
       types: ["Public", "Private"],
-
-      builds,
-      floors,
+      builds: [],
+      floors: []
+    };
+  },
 
   computed: {
     title: function() {
