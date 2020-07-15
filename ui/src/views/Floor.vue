@@ -61,6 +61,8 @@ import zoom from "@/directives/zoom";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import PlanUpload from "@/components/PlanUpload.vue";
 
+import useSwitches from "@/helpers/useSwitches";
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -90,6 +92,18 @@ export default defineComponent({
       { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
     ]);
 
+    const {
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+      closeSwitchForm
+    } = useSwitches();
+
     return {
       planPath,
       noPlan,
@@ -97,6 +111,17 @@ export default defineComponent({
       uploadPlan,
 
       switches,
+
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+
+      closeSwitchForm,
 
       mdiMagnify,
       mdiPlus
