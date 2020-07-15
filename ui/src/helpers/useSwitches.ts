@@ -28,6 +28,17 @@ export default function () {
   const switchBuild = ref("");
   const switchFloor = ref("");
 
+  const closeSwitchForm = () => {
+    switchForm.value = false;
+    switchName.value = "";
+    switchIPResolveMethod.value = "";
+    switchIP.value = "";
+    switchMAC.value = "";
+    switchSNMPCommunity.value = "";
+    switchBuild.value = "";
+    switchFloor.value = "";
+  };
+
   const switchError = ref("");
 
   const getAllSwitches = async () => {
@@ -89,6 +100,8 @@ export default function () {
     switchSNMPCommunity,
     switchBuild,
     switchFloor,
+
+    closeSwitchForm,
 
     switchError,
 

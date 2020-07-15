@@ -84,6 +84,7 @@ export default defineComponent({
       switchSNMPCommunity,
       switchBuild,
       switchFloor,
+      closeSwitchForm,
       switchError,
       getAllSwitches
     } = useSwitches();
@@ -102,6 +103,8 @@ export default defineComponent({
       switchSNMPCommunity,
       switchBuild,
       switchFloor,
+
+      closeSwitchForm,
 
       switchError,
 
