@@ -44,7 +44,7 @@
               dark
               small
               color="primary"
-              @click="floorBuildName = build.name; floorBuildShortName = build.shortName; floorForm = !floorForm"
+              @click="floorBuildShortName = build.shortName; floorForm = !floorForm"
             >Add floor</v-btn>
             <v-btn
               dark
@@ -85,7 +85,7 @@
     <FloorForm
       :form="floorForm"
       :number="floorNumber"
-      @submit="addFloorTo(floorBuildShortName, floorNumber)"
+      @submit="handleSubmitFloorWithRefresh"
       @close="closeFloorForm"
     />
 
@@ -130,6 +130,7 @@ export default defineComponent({
   setup() {
     const {
       builds,
+      build,
       buildForm,
       buildName,
       buildShortName,
@@ -140,12 +141,31 @@ export default defineComponent({
       buildForDeleteShortName,
       buildError,
       getAllBuilds,
+      getBuild,
       addBuild,
       updateBuild,
       deleteBuild
     } = useBuilds();
 
-    const { floorForm, floorNumber, closeFloorForm, addFloorTo } = useFloors();
+    const {
+      floorForm,
+      floorNumber,
+      floorBuildShortName,
+      closeFloorForm,
+      addFloorTo
+    } = useFloors();
+
+    const handleSubmitFloorWithRefresh = (number: string) => {
+      addFloorTo(floorBuildShortName.value, parseInt(number)).then(() => {
+        getBuild(floorBuildShortName.value).then(() => {
+          const i = builds.value.findIndex(
+            b => b.shortName === floorBuildShortName.value
+          );
+          builds.value[i] = build.value;
+          closeFloorForm();
+        });
+      });
+    };
 
     const { confirmation, name } = useConfirmation();
     const { snackbar, item, action, updateSnackbar } = useSnackbar();
@@ -172,7 +192,9 @@ export default defineComponent({
 
       floorForm,
       floorNumber,
+      floorBuildShortName,
 
+      handleSubmitFloorWithRefresh,
       closeFloorForm,
 
       addFloorTo,
