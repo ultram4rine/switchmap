@@ -9,8 +9,8 @@
         </v-btn>
       </v-toolbar>
 
-      <v-card-text>
-        <ValidationObserver ref="observer" v-slot="{ validate }">
+      <ValidationObserver ref="observer" v-slot="{ invalid }">
+        <v-card-text>
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
@@ -96,15 +96,15 @@
               </v-col>
             </v-row>
           </v-form>
-        </ValidationObserver>
-      </v-card-text>
+        </v-card-text>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="submit">{{ action }}</v-btn>
-      </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">{{ action }}</v-btn>
+        </v-card-actions>
+      </ValidationObserver>
     </v-card>
   </v-dialog>
 </template>
@@ -207,20 +207,16 @@ export default Vue.extend({
 
   methods: {
     submit() {
-      this.$refs.observer.validate().then((valid: boolean) => {
-        if (valid) {
-          this.$emit(
-            "submit",
-            this.inputName,
-            this.inputMAC,
-            this.inputSNMPCommunity,
-            this.inputIPResolveMethod,
-            this.inputIP,
-            this.inputBuild,
-            this.inputFloor
-          );
-        }
-      });
+      this.$emit(
+        "submit",
+        this.inputName,
+        this.inputMAC,
+        this.inputSNMPCommunity,
+        this.inputIPResolveMethod,
+        this.inputIP,
+        this.inputBuild,
+        this.inputFloor
+      );
     },
     close() {
       this.$emit("close");
