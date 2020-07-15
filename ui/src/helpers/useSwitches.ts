@@ -28,8 +28,11 @@ export default function () {
   const switchBuild = ref("");
   const switchFloor = ref("");
 
+  const switchAction = ref("Add");
+
   const closeSwitchForm = () => {
     switchForm.value = false;
+
     switchName.value = "";
     switchIPResolveMethod.value = "";
     switchIP.value = "";
@@ -37,6 +40,8 @@ export default function () {
     switchSNMPCommunity.value = "";
     switchBuild.value = "";
     switchFloor.value = "";
+
+    switchAction.value = "Add";
   };
 
   const switchError = ref("");
@@ -100,6 +105,8 @@ export default function () {
     switchSNMPCommunity,
     switchBuild,
     switchFloor,
+
+    switchAction,
 
     closeSwitchForm,
 

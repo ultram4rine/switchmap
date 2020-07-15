@@ -28,7 +28,7 @@
 
     <SwitchForm
       :form="switchForm"
-      :action="action"
+      :action="switchAction"
       :needLocationFields="true"
       :name="switchName"
       :ipResolveMethod="switchIPResolveMethod"
@@ -84,6 +84,7 @@ export default defineComponent({
       switchSNMPCommunity,
       switchBuild,
       switchFloor,
+      switchAction,
       closeSwitchForm,
       switchError,
       getAllSwitches
@@ -103,6 +104,8 @@ export default defineComponent({
       switchSNMPCommunity,
       switchBuild,
       switchFloor,
+
+      switchAction,
 
       closeSwitchForm,
 

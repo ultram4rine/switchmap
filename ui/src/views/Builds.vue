@@ -22,7 +22,7 @@
               icon
               small
               color="grey"
-              @click="action = 'Change'; buildName = build.name; buildShortName = build.shortName; buildForm = !buildForm"
+              @click="buildAction = 'Change'; buildName = build.name; buildShortName = build.shortName; buildForm = !buildForm"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
@@ -75,7 +75,7 @@
 
     <BuildForm
       :form="buildForm"
-      action="Add"
+      :action="buildAction"
       :name="buildName"
       :shortName="buildShortName"
       @submit="addBuild(buildName, buildShortName)"
@@ -133,6 +133,7 @@ export default defineComponent({
       buildForm,
       buildName,
       buildShortName,
+      buildAction,
       closeBuildForm,
       buildForDeleteName,
       buildForDeleteShortName,
@@ -154,6 +155,8 @@ export default defineComponent({
       buildForm,
       buildName,
       buildShortName,
+
+      buildAction,
 
       closeBuildForm,
 
