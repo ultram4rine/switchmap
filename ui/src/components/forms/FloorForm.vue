@@ -16,6 +16,7 @@
               <v-text-field
                 v-model="inputNumber"
                 :error-messages="errors"
+                type="number"
                 label="Number"
                 required
                 color="orange accent-2"
