@@ -91,7 +91,7 @@
       @cancel="confirmation = !confirmation"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @update="updateSnackbar" />
+    <Snackbar :snackbar="snackbar" :item="item" :action="action" @update="updateSnackbar" />
   </div>
 </template>
 
@@ -138,7 +138,7 @@ export default defineComponent({
     const { floorForm, floorNumber, addFloorTo } = useFloors();
 
     const { value, name } = useConfirmation();
-    const { snackbar, action, item } = useSnackbar();
+    const { snackbar, item, action, updateSnackbar } = useSnackbar();
 
     return {
       builds,
@@ -161,8 +161,9 @@ export default defineComponent({
       name,
 
       snackbar,
-      action,
       item,
+      action,
+      updateSnackbar,
 
       mdiPencil,
       mdiDelete
