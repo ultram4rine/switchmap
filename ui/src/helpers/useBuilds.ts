@@ -17,6 +17,12 @@ export default function () {
   const buildName = ref("");
   const buildShortName = ref("");
 
+  const closeBuildForm = () => {
+    buildForm.value = false;
+    buildName.value = "";
+    buildShortName.value = "";
+  };
+
   const buildForDeleteName = ref("");
   const buildForDeleteShortName = ref("");
 
@@ -85,6 +91,8 @@ export default function () {
     buildForm,
     buildName,
     buildShortName,
+
+    closeBuildForm,
 
     buildForDeleteName,
     buildForDeleteShortName,

@@ -78,11 +78,16 @@
       action="Add"
       :name="buildName"
       :shortName="buildShortName"
-      @submit="addBuild"
-      @close="() => {}"
+      @submit="addBuild(buildName, buildShortName)"
+      @close="closeBuildForm"
     />
 
-    <FloorForm :form="floorForm" :number="floorNumber" @submit="addFloorTo" @close="() => {}" />
+    <FloorForm
+      :form="floorForm"
+      :number="floorNumber"
+      @submit="addFloorTo(floorBuildShortName, floorNumber)"
+      @close="closeFloorForm"
+    />
 
     <Confirmation
       :confirmation="confirmation"
@@ -128,6 +133,7 @@ export default defineComponent({
       buildForm,
       buildName,
       buildShortName,
+      closeBuildForm,
       buildForDeleteName,
       buildForDeleteShortName,
       buildError,
@@ -137,7 +143,7 @@ export default defineComponent({
       deleteBuild
     } = useBuilds();
 
-    const { floorForm, floorNumber, addFloorTo } = useFloors();
+    const { floorForm, floorNumber, closeFloorForm, addFloorTo } = useFloors();
 
     const { confirmation, name } = useConfirmation();
     const { snackbar, item, action, updateSnackbar } = useSnackbar();
@@ -149,6 +155,8 @@ export default defineComponent({
       buildName,
       buildShortName,
 
+      closeBuildForm,
+
       buildForDeleteName,
       buildForDeleteShortName,
 
@@ -159,6 +167,8 @@ export default defineComponent({
 
       floorForm,
       floorNumber,
+
+      closeFloorForm,
 
       addFloorTo,
 

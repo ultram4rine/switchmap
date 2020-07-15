@@ -20,6 +20,13 @@ export default function () {
   const floorBuildName = ref("");
   const floorBuildShortName = ref("");
 
+  const closeFloorForm = () => {
+    floorForm.value = false;
+    floorNumber.value = "";
+    floorBuildName.value = "";
+    floorBuildShortName.value = "";
+  };
+
   const floorError = ref("");
 
   const getFloorsOf = async (b: string) => {
@@ -59,6 +66,8 @@ export default function () {
     floorNumber,
     floorBuildName,
     floorBuildShortName,
+
+    closeFloorForm,
 
     floorError,
 
