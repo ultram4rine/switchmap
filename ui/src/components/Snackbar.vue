@@ -49,6 +49,8 @@ export default defineComponent({
       selfItem,
       selfAction,
 
+      close,
+
       mdiClose
     };
   }
