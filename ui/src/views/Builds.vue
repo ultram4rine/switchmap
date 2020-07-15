@@ -86,7 +86,7 @@
 
     <Confirmation
       :confirmation="confirmation"
-      :name="'build' + buildForDeleteName"
+      :name="'build ' + buildForDeleteName"
       @confirm="deleteBuild(buildForDeleteShortName)"
       @cancel="confirmation = !confirmation"
     />
@@ -128,6 +128,8 @@ export default defineComponent({
       buildForm,
       buildName,
       buildShortName,
+      buildForDeleteName,
+      buildForDeleteShortName,
       buildError,
       getAllBuilds,
       addBuild,
@@ -146,6 +148,9 @@ export default defineComponent({
       buildForm,
       buildName,
       buildShortName,
+
+      buildForDeleteName,
+      buildForDeleteShortName,
 
       getAllBuilds,
       addBuild,

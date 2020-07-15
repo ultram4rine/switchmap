@@ -17,6 +17,9 @@ export default function () {
   const buildName = ref("");
   const buildShortName = ref("");
 
+  const buildForDeleteName = ref("");
+  const buildForDeleteShortName = ref("");
+
   const buildError = ref("");
 
   const getAllBuilds = async () => {
@@ -82,6 +85,9 @@ export default function () {
     buildForm,
     buildName,
     buildShortName,
+
+    buildForDeleteName,
+    buildForDeleteShortName,
 
     buildError,
 
