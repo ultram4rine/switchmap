@@ -52,63 +52,59 @@
 </template>
 
 <script lang="ts">
-import mixins from "vue-typed-mixins";
+import { defineComponent, ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
-import switchesMixin from "@/mixins/switchesMixin";
+
 import drag from "@/directives/drag";
 import zoom from "@/directives/zoom";
+
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import PlanUpload from "@/components/PlanUpload.vue";
-export default mixins(switchesMixin).extend({
+
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
     build: { type: String, required: true },
     floor: { type: String, required: true }
   },
+
   components: {
     SwitchForm,
     PlanUpload
   },
+
   directives: {
     drag,
     zoom
   },
-  data() {
+
+  setup(props) {
+    const planPath = ref(`/plans/${props.build}f${props.floor}.png`);
+    const noPlan = ref(false);
+
+    const uploadPlan = () => {
+      console.log("ll");
+    };
+
+    const switches = ref([
+      { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
+    ]);
+
     return {
-      mdiMagnify: mdiMagnify,
-      mdiPlus: mdiPlus,
-      switches: [
-        { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
-      ],
-      planPath: `/plans/${this.build}f${this.floor}.png`,
-      noPlan: false
+      planPath,
+      noPlan,
+
+      uploadPlan,
+
+      switches,
+
+      mdiMagnify,
+      mdiPlus
     };
   },
+
   created() {
     //this.getSwitchesOf(this.build, this.floor);
-  },
-  methods: {
-    uploadPlan() {
-      console.log("ll");
-    },
-    handleSubmitSwitch(
-      name: string,
-      mac: string,
-      snmpCommunity: string,
-      ipResolveMethod: string,
-      ip: string,
-      build: string,
-      floor: string
-    ) {
-      this.switchName = name;
-      this.switchMAC = mac;
-      this.switchSNMPCommunity = snmpCommunity;
-      this.switchIPResolveMethod = ipResolveMethod;
-      this.switchIP = ip;
-      this.switchBuild = build;
-      this.switchFloor = floor;
-      this.addSwitch(build, floor);
-    }
   }
 });
 </script>
