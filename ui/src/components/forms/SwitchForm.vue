@@ -14,7 +14,7 @@
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
-                v-model="inputName"
+                v-model="inputSwitch.name"
                 :error-messages="errors"
                 label="Name"
                 required
@@ -36,7 +36,7 @@
               <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
                   <v-text-field
-                    v-model="inputIP"
+                    v-model="inputSwitch.ip"
                     :error-messages="errors"
                     label="IP"
                     placeholder="e.g. 192.168.1.1"
@@ -51,7 +51,7 @@
               <v-col cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
                   <v-text-field
-                    v-model="inputMAC"
+                    v-model="inputSwitch.mac"
                     :error-messages="errors"
                     label="MAC"
                     placeholder="XX:XX:XX:XX:XX:XX"
@@ -63,7 +63,7 @@
               <v-col cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
                   <v-text-field
-                    v-model="inputSNMPCommunity"
+                    v-model="inputSwitch.snmpCommunity"
                     :error-messages="errors"
                     label="SNMP community"
                     required
@@ -110,8 +110,16 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  Ref
+} from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
+
+import { Build, Floor, Switch } from "@/interfaces";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -137,17 +145,14 @@ extend("ip", {
   message: "{_value_} is not correct IP address"
 });
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
     needLocationFields: { type: Boolean, required: true },
 
-    name: { type: String, required: true },
+    switch: { type: Object as () => Switch, required: true },
     ipResolveMethod: { type: String, required: true },
-    ip: { type: String, required: true },
-    mac: { type: String, required: true },
-    snmpCommunity: { type: String, required: true },
     build: { type: String, required: true },
     floor: { type: String, required: true }
   },
@@ -157,70 +162,83 @@ export default Vue.extend({
     ValidationProvider
   },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
-      inputName: this.name,
-      inputIPResolveMethod: this.ipResolveMethod,
-      inputIP: this.ip,
-      inputMAC: this.mac,
-      inputSNMPCommunity: this.snmpCommunity,
-      inputBuild: this.build,
-      inputFloor: this.floor,
-      methods: ["Direct", "DNS"],
-      types: ["Public", "Private"],
-      builds: [],
-      floors: []
+  setup(props, { emit }) {
+    const title = computed(() => {
+      if (props.action == "Add") return "New build";
+      else if (props.action == "Change") return "Change build";
+    });
+
+    const inputSwitch = ref(props.switch);
+    const inputIPResolveMethod = ref(props.ipResolveMethod);
+    const inputBuild = ref(props.build);
+    const inputFloor = ref(props.floor);
+
+    const methods = ["Direct", "DNS"];
+    const builds: Ref<Build[]> = ref([]);
+    const floors: Ref<Floor[]> = ref([]);
+
+    watch(
+      () => props.switch.name,
+      (val: string) => {
+        inputSwitch.value.name = val;
+      }
+    );
+    watch(
+      () => props.ipResolveMethod,
+      (val: string) => {
+        inputIPResolveMethod.value = val;
+      }
+    );
+    watch(
+      () => props.switch.ip,
+      (val: string) => {
+        inputSwitch.value.ip = val;
+      }
+    );
+    watch(
+      () => props.switch.mac,
+      (val: string) => {
+        inputSwitch.value.mac = val;
+      }
+    );
+    watch(
+      () => props.switch.snmpCommunity,
+      (val: string) => {
+        inputSwitch.value.snmpCommunity = val;
+      }
+    );
+    watch(
+      () => props.build,
+      (val: string) => {
+        inputBuild.value = val;
+      }
+    );
+    watch(
+      () => props.floor,
+      (val: string) => {
+        inputFloor.value = val;
+      }
+    );
+
+    const submit = () => {
+      emit("submit", inputSwitch.value);
     };
-  },
+    const close = () => emit("close");
 
-  computed: {
-    title: function() {
-      if (this.action == "Add") return "New switch";
-      else if (this.action == "Change") return "Change switch";
-    }
-  },
+    return {
+      title,
+      inputSwitch,
+      inputIPResolveMethod,
 
-  watch: {
-    name: function(newName) {
-      this.inputName = newName;
-    },
-    ipResolveMethod: function(newIPResolveMethod) {
-      this.inputIPResolveMethod = newIPResolveMethod;
-    },
-    ip: function(newIP) {
-      this.inputIP = newIP;
-    },
-    mac: function(newMAC) {
-      this.inputMAC = newMAC;
-    },
-    snmpCommunity: function(newSNMPCommunity) {
-      this.inputSNMPCommunity = newSNMPCommunity;
-    },
-    build: function(newBuild) {
-      this.inputBuild = newBuild;
-    },
-    floor: function(newFloor) {
-      this.inputFloor = newFloor;
-    }
-  },
+      methods,
+      builds,
+      floors,
 
-  methods: {
-    submit() {
-      this.$emit(
-        "submit",
-        this.inputName,
-        this.inputMAC,
-        this.inputSNMPCommunity,
-        this.inputIPResolveMethod,
-        this.inputIP,
-        this.inputBuild,
-        this.inputFloor
-      );
-    },
-    close() {
-      this.$emit("close");
-    }
+      submit,
+      close,
+
+      mdiClose
+    };
   }
 });
 </script>
