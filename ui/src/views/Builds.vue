@@ -16,7 +16,7 @@
               icon
               small
               color="red"
-              @click="buildForDeleteName = b.name; buildForDeleteShortName = b.shortName; confirmation = !confirmation"
+              @click="buildFDN = b.name; buildFDSN = b.shortName; confirmation = !confirmation"
             >
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
@@ -77,8 +77,8 @@
 
     <Confirmation
       :confirmation="confirmation"
-      :name="'build ' + buildForDeleteName"
-      @confirm="deleteBuild(buildForDeleteShortName)"
+      :name="'build ' + buildFDN"
+      @confirm="deleteBuild(buildFDSN)"
       @cancel="confirmation = !confirmation"
     />
 
@@ -120,16 +120,15 @@ export default defineComponent({
       buildAction,
       buildName,
       buildShortName,
+      buildFUSN,
+      buildFDN,
+      buildFDSN,
       openBuildForm,
       handleSubmitBuild,
       closeBuildForm,
-      buildForDeleteName,
-      buildForDeleteShortName,
       buildError,
       getAllBuilds,
       getBuild,
-      addBuild,
-      updateBuild,
       deleteBuild
     } = useBuilds();
 
@@ -143,11 +142,11 @@ export default defineComponent({
 
     const handleSubmitFloorWithRefresh = (number: string) => {
       addFloorTo(floorBuildShortName.value, parseInt(number)).then(() => {
-        getBuild(floorBuildShortName.value).then(() => {
+        getBuild(floorBuildShortName.value).then(build => {
           const i = builds.value.findIndex(
             b => b.shortName === floorBuildShortName.value
           );
-          builds.value[i] = build.value;
+          builds.value[i] = build;
           closeFloorForm();
         });
       });
@@ -164,16 +163,15 @@ export default defineComponent({
       buildName,
       buildShortName,
 
+      buildFUSN,
+      buildFDN,
+      buildFDSN,
+
       openBuildForm,
       handleSubmitBuild,
       closeBuildForm,
 
-      buildForDeleteName,
-      buildForDeleteShortName,
-
       getAllBuilds,
-      addBuild,
-      updateBuild,
       deleteBuild,
 
       floorForm,

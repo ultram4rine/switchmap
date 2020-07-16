@@ -17,6 +17,16 @@ export default function () {
   const buildName = ref("");
   const buildShortName = ref("");
 
+  /*
+   * FU = ForUpdate;
+   * FD = ForDelete;
+   * N = Name;
+   * SN = ShortName;
+   */
+  const buildFUSN = ref("");
+  const buildFDN = ref("");
+  const buildFDSN = ref("");
+
   const openBuildForm = (action: string, b?: Build) => {
     buildAction.value = action;
     switch (action) {
@@ -26,6 +36,8 @@ export default function () {
         break;
       case "Change":
         if (b != undefined) {
+          buildFUSN.value = b.shortName;
+
           buildName.value = b.name;
           buildShortName.value = b.shortName;
         }
@@ -40,16 +52,19 @@ export default function () {
     switch (buildAction.value) {
       case "Add":
         addBuild(name, shortName).then(() =>
-          getAllBuilds().then(() => closeBuildForm())
+          getAllBuilds().then((bs) => {
+            builds.value = bs;
+            closeBuildForm();
+          })
         );
         break;
       case "Change":
-        updateBuild(build.value, name, shortName).then(() => {
-          getBuild(build.value).then(() => {
+        updateBuild(buildFUSN.value, name, shortName).then(() => {
+          getBuild(shortName).then((build) => {
             const i = builds.value.findIndex(
-              (b) => b.shortName === build.value.shortName
+              (b) => b.shortName == build.shortName
             );
-            builds.value[i] = build.value;
+            builds.value[i] = build;
 
             closeBuildForm();
           });
@@ -64,10 +79,10 @@ export default function () {
   const closeBuildForm = () => {
     buildForm.value = false;
     buildAction.value = "Add";
-  };
 
-  const buildForDeleteName = ref("");
-  const buildForDeleteShortName = ref("");
+    buildName.value = "";
+    buildShortName.value = "";
+  };
 
   const buildError = ref("");
 
@@ -133,16 +148,17 @@ export default function () {
     builds,
 
     buildForm,
+    buildAction,
     buildName,
     buildShortName,
-    buildAction,
+
+    buildFUSN,
+    buildFDN,
+    buildFDSN,
 
     openBuildForm,
     handleSubmitBuild,
     closeBuildForm,
-
-    buildForDeleteName,
-    buildForDeleteShortName,
 
     buildError,
 
