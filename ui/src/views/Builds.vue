@@ -71,7 +71,7 @@
     <FloorForm
       :form="floorForm"
       :number="floorNumber"
-      @submit="handleSubmitFloorWithRefresh"
+      @submit="handleSubmitFloorFromBuilds"
       @close="closeFloorForm"
     />
 
@@ -136,21 +136,10 @@ export default defineComponent({
       floorForm,
       floorNumber,
       floorBuildShortName,
+      handleSubmitFloorFromBuilds,
       closeFloorForm,
       addFloorTo
     } = useFloors();
-
-    const handleSubmitFloorWithRefresh = (number: string) => {
-      addFloorTo(floorBuildShortName.value, parseInt(number)).then(() => {
-        getBuild(floorBuildShortName.value).then(build => {
-          const i = builds.value.findIndex(
-            b => b.shortName === floorBuildShortName.value
-          );
-          builds.value[i] = build;
-          closeFloorForm();
-        });
-      });
-    };
 
     const { confirmation, name } = useConfirmation();
     const { snackbar, item, action, updateSnackbar } = useSnackbar();
@@ -178,7 +167,7 @@ export default defineComponent({
       floorNumber,
       floorBuildShortName,
 
-      handleSubmitFloorWithRefresh,
+      handleSubmitFloorFromBuilds,
       closeFloorForm,
 
       addFloorTo,
