@@ -4,25 +4,16 @@
       <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
       </v-col>
-      <v-col
-        v-else
-        v-for="build in builds"
-        :key="build.shortName"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
-        xl="2"
-      >
+      <v-col v-else v-for="b in builds" :key="b.shortName" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-card class="ma-1" outlined>
           <v-card-title class="headline">
-            {{ build.name }}
+            {{ b.name }}
             <v-spacer></v-spacer>
             <v-btn
               icon
               small
               color="grey"
-              @click="buildAction = 'Change'; buildName = build.name; buildShortName = build.shortName; buildForm = !buildForm"
+              @click="buildAction = 'Change'; build = b; buildForm = !buildForm"
             >
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
@@ -30,13 +21,13 @@
               icon
               small
               color="red"
-              @click="buildForDeleteName = build.name; buildForDeleteShortName = build.shortName; confirmation = !confirmation"
+              @click="buildForDeleteName = b.name; buildForDeleteShortName = b.shortName; confirmation = !confirmation"
             >
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
 
-          <v-card-subtitle>{{ build.floorsNumber }} floors, {{ build.switchesNumber }} switches</v-card-subtitle>
+          <v-card-subtitle>{{ b.floorsNumber }} floors, {{ b.switchesNumber }} switches</v-card-subtitle>
 
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -44,13 +35,13 @@
               dark
               small
               color="primary"
-              @click="floorBuildShortName = build.shortName; floorForm = !floorForm"
+              @click="floorBuildShortName = b.shortName; floorForm = !floorForm"
             >Add floor</v-btn>
             <v-btn
               dark
               small
               color="primary"
-              :to="{ name: 'build', params: { build: build.shortName }}"
+              :to="{ name: 'build', params: { build: b.shortName }}"
             >Go</v-btn>
           </v-card-actions>
         </v-card>
@@ -76,8 +67,7 @@
     <BuildForm
       :form="buildForm"
       :action="buildAction"
-      :name="buildName"
-      :shortName="buildShortName"
+      :build="build"
       @submit="handleSubmitBuild"
       @close="closeBuildForm"
     />
@@ -172,6 +162,7 @@ export default defineComponent({
 
     return {
       builds,
+      build,
 
       buildForm,
       buildName,

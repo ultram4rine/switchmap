@@ -14,7 +14,7 @@
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
-                v-model="inputName"
+                v-model="inputBuild.name"
                 :error-messages="errors"
                 label="Name"
                 required
@@ -24,7 +24,7 @@
 
             <ValidationProvider v-slot="{ errors }" name="Short name" rules="required">
               <v-text-field
-                v-model="inputShortName"
+                v-model="inputBuild.shortName"
                 :error-messages="errors"
                 label="Short name"
                 required
@@ -46,8 +46,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import { mdiClose } from "@mdi/js";
+
+import { Build } from "@/interfaces";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -62,8 +64,7 @@ export default Vue.extend({
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
 
-    name: { type: String, required: true },
-    shortName: { type: String, required: true }
+    build: { type: Object as PropType<Build>, required: true }
   },
 
   components: { ValidationObserver, ValidationProvider },
@@ -72,8 +73,7 @@ export default Vue.extend({
     return {
       mdiClose: mdiClose,
 
-      inputName: this.name,
-      inputShortName: this.shortName
+      inputBuild: this.build
     };
   },
 
@@ -85,17 +85,14 @@ export default Vue.extend({
   },
 
   watch: {
-    name: function(newName) {
-      this.inputName = newName;
-    },
-    shortName: function(newShortName) {
-      this.inputShortName = newShortName;
+    build: function(newBuild: Build) {
+      this.inputBuild = newBuild;
     }
   },
 
   methods: {
     submit() {
-      this.$emit("submit", this.inputName, this.inputShortName);
+      this.$emit("submit", this.inputBuild);
     },
     close() {
       this.$emit("close");
