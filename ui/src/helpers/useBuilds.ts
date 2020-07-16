@@ -88,9 +88,10 @@ export default function () {
       const resp = await axios.get<Build, AxiosResponse<Build>>(
         buildEndpoint(b)
       );
-      build.value = resp.data;
+      return resp.data;
     } catch (err) {
-      buildError.value = err;
+      console.log(err);
+      return {} as Build;
     }
   };
 
