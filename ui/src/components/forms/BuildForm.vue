@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from "vue";
+import { defineComponent, ref, computed, watch } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
 import { Build } from "@/interfaces";
@@ -59,44 +59,53 @@ extend("required", {
   message: "{_field_} is required"
 });
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
 
-    build: { type: Object as PropType<Build>, required: true }
+    build: { type: Object as () => Build, required: true }
   },
 
   components: { ValidationObserver, ValidationProvider },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
+  setup(props, { emit }) {
+    const title = computed(() => {
+      if (props.action == "Add") return "New build";
+      else if (props.action == "Change") return "Change build";
+    });
 
-      inputBuild: this.build
+    const inputBuild = ref(props.build);
+
+    watch(
+      () => props.build.name,
+      (val: string) => {
+        console.log(val);
+        inputBuild.value.name = val;
+      }
+    );
+    watch(
+      () => props.build.shortName,
+      (val: string) => {
+        console.log(val);
+        inputBuild.value.shortName = val;
+      }
+    );
+
+    const submit = () => {
+      emit("submit", inputBuild.value);
     };
-  },
+    const close = () => emit("close");
 
-  computed: {
-    title: function() {
-      if (this.action == "Add") return "New build";
-      else if (this.action == "Change") return "Change build";
-    }
-  },
+    return {
+      title,
+      inputBuild,
 
-  watch: {
-    build: function(newBuild: Build) {
-      this.inputBuild = newBuild;
-    }
-  },
+      submit,
+      close,
 
-  methods: {
-    submit() {
-      this.$emit("submit", this.inputBuild);
-    },
-    close() {
-      this.$emit("close");
-    }
+      mdiClose
+    };
   }
 });
 </script>
