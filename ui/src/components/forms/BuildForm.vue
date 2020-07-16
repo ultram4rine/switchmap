@@ -80,14 +80,12 @@ export default defineComponent({
     watch(
       () => props.build.name,
       (val: string) => {
-        console.log(val);
         inputBuild.value.name = val;
       }
     );
     watch(
       () => props.build.shortName,
       (val: string) => {
-        console.log(val);
         inputBuild.value.shortName = val;
       }
     );
