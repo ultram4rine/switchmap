@@ -14,7 +14,7 @@
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
               <v-text-field
-                v-model="inputNumber"
+                v-model.number="inputFloor.number"
                 :error-messages="errors"
                 type="number"
                 label="Number"
@@ -37,8 +37,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent, ref, watch } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
+
+import { Floor } from "@/interfaces";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -48,30 +50,38 @@ extend("required", {
   message: "{_field_} is required"
 });
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
 
-    number: { type: String, required: true }
+    floor: { type: Object as () => Floor, required: true }
   },
 
   components: { ValidationObserver, ValidationProvider },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
+  setup(props, { emit }) {
+    const inputFloor = ref(props.floor);
 
-      inputNumber: this.number
+    watch(
+      () => props.floor.number,
+      (val: number) => {
+        inputFloor.value.number = val;
+      }
+    );
+
+    const submit = () => {
+      emit("submit", inputFloor.value);
     };
-  },
+    const close = () => emit("close");
 
-  methods: {
-    submit() {
-      this.$emit("submit", this.inputNumber);
-    },
-    close() {
-      this.$emit("close");
-    }
+    return {
+      inputFloor,
+
+      submit,
+      close,
+
+      mdiClose
+    };
   }
 });
 </script>
