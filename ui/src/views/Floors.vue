@@ -4,26 +4,17 @@
       <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
       </v-col>
-      <v-col
-        v-else
-        v-for="floor in floors"
-        :key="floor.number"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
-        xl="2"
-      >
+      <v-col v-else v-for="f in floors" :key="f.number" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-card class="ma-1" outlined>
           <v-card-title class="headline">
-            Floor {{ floor.number }}
+            Floor {{ f.number }}
             <v-spacer></v-spacer>
-            <v-btn icon small color="red" @click="deleteFloorOf(build, floor.number)">
+            <v-btn icon small color="red" @click="deleteFloorOf(build, f.number)">
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
 
-          <v-card-subtitle>{{ floor.switchesNumber }} switches</v-card-subtitle>
+          <v-card-subtitle>{{ f.switchesNumber }} switches</v-card-subtitle>
 
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -31,19 +22,19 @@
               dark
               small
               color="primary"
-              @click="switchForm = !switchForm; switchFloorNumber = floor.number"
+              @click="switchForm = !switchForm; switchFloorNumber = f.number"
             >Add switch</v-btn>
             <v-btn
               dark
               small
               color="primary"
-              :to="{ name: 'floor', params: { build: build, floor: floor.number.toString() }}"
+              :to="{ name: 'floor', params: { build: build, floor: f.number.toString() }}"
             >Go</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && floors.length===0" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col v-if="!isLoading && floors.length === 0" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
