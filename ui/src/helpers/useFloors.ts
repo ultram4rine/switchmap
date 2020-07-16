@@ -13,7 +13,6 @@ const floorEndpoint = (build: string, floor: string) => {
 
 export default function () {
   const floors: Ref<Floor[]> = ref([]);
-  const floor: Ref<Floor> = ref({} as Floor);
 
   const floorForm = ref(false);
   const floorNumber = ref("");
@@ -23,6 +22,7 @@ export default function () {
   const closeFloorForm = () => {
     floorForm.value = false;
     floorNumber.value = "";
+
     floorBuildName.value = "";
     floorBuildShortName.value = "";
   };
@@ -34,9 +34,10 @@ export default function () {
       const resp = await axios.get<Floor, AxiosResponse<Floor[]>>(
         floorsEndpoint(b)
       );
-      floors.value = resp.data;
+      return resp.data;
     } catch (err) {
-      floorError.value = err;
+      console.log(err);
+      return [];
     }
   };
 
@@ -60,7 +61,6 @@ export default function () {
 
   return {
     floors,
-    floor,
 
     floorForm,
     floorNumber,

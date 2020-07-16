@@ -178,7 +178,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getFloorsOf(this.build);
+    this.getFloorsOf(this.build).then(floors => (this.floors = floors));
   }
 });
 </script>
