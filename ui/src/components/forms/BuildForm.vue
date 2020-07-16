@@ -14,7 +14,7 @@
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
-                v-model="inputBuild.name"
+                v-model="inputName"
                 :error-messages="errors"
                 label="Name"
                 required
@@ -24,7 +24,7 @@
 
             <ValidationProvider v-slot="{ errors }" name="Short name" rules="required">
               <v-text-field
-                v-model="inputBuild.shortName"
+                v-model="inputShortName"
                 :error-messages="errors"
                 label="Short name"
                 required
@@ -64,7 +64,8 @@ export default defineComponent({
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
 
-    build: { type: Object as () => Build, required: true }
+    name: { type: String, required: true },
+    shortName: { type: String, required: true }
   },
 
   components: { ValidationObserver, ValidationProvider },
@@ -75,29 +76,31 @@ export default defineComponent({
       else if (props.action == "Change") return "Change build";
     });
 
-    const inputBuild = ref(props.build);
+    const inputName = ref(props.name);
+    const inputShortName = ref(props.shortName);
 
     watch(
-      () => props.build.name,
+      () => props.name,
       (val: string) => {
-        inputBuild.value.name = val;
+        inputName.value = val;
       }
     );
     watch(
-      () => props.build.shortName,
+      () => props.shortName,
       (val: string) => {
-        inputBuild.value.shortName = val;
+        inputShortName.value = val;
       }
     );
 
     const submit = () => {
-      emit("submit", inputBuild.value);
+      emit("submit", inputName.value, inputShortName.value);
     };
     const close = () => emit("close");
 
     return {
       title,
-      inputBuild,
+      inputName,
+      inputShortName,
 
       submit,
       close,

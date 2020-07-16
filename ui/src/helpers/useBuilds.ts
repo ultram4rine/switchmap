@@ -11,13 +11,30 @@ const buildEndpoint = (build: string) => {
 
 export default function () {
   const builds: Ref<Build[]> = ref([]);
-  const build: Ref<Build> = ref({} as Build);
 
   const buildForm = ref(false);
+  const buildAction = ref("Add");
   const buildName = ref("");
   const buildShortName = ref("");
 
-  const buildAction = ref("Add");
+  const openBuildForm = (action: string, b?: Build) => {
+    buildAction.value = action;
+    switch (action) {
+      case "Add":
+        buildName.value = "";
+        buildShortName.value = "";
+        break;
+      case "Change":
+        if (b != undefined) {
+          buildName.value = b.name;
+          buildShortName.value = b.shortName;
+        }
+        break;
+      default:
+        break;
+    }
+    buildForm.value = true;
+  };
 
   const handleSubmitBuild = (name: string, shortName: string) => {
     switch (buildAction.value) {
@@ -27,10 +44,10 @@ export default function () {
         );
         break;
       case "Change":
-        updateBuild(buildShortName.value, name, shortName).then(() => {
-          getBuild(buildShortName.value).then(() => {
+        updateBuild(build.value, name, shortName).then(() => {
+          getBuild(build.value).then(() => {
             const i = builds.value.findIndex(
-              (b) => b.shortName === buildShortName.value
+              (b) => b.shortName === build.value.shortName
             );
             builds.value[i] = build.value;
 
@@ -46,10 +63,6 @@ export default function () {
 
   const closeBuildForm = () => {
     buildForm.value = false;
-
-    buildName.value = "";
-    buildShortName.value = "";
-
     buildAction.value = "Add";
   };
 
@@ -63,9 +76,10 @@ export default function () {
       const resp = await axios.get<Build, AxiosResponse<Build[]>>(
         buildsEndpoint
       );
-      builds.value = resp.data;
+      return resp.data;
     } catch (err) {
-      buildError.value = err;
+      console.log(err);
+      return [];
     }
   };
 
@@ -116,14 +130,13 @@ export default function () {
 
   return {
     builds,
-    build,
 
     buildForm,
     buildName,
     buildShortName,
-
     buildAction,
 
+    openBuildForm,
     handleSubmitBuild,
     closeBuildForm,
 

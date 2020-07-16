@@ -9,12 +9,7 @@
           <v-card-title class="headline">
             {{ b.name }}
             <v-spacer></v-spacer>
-            <v-btn
-              icon
-              small
-              color="grey"
-              @click="buildAction = 'Change'; build = b; buildForm = !buildForm"
-            >
+            <v-btn icon small color="grey" @click="openBuildForm('Change', b)">
               <v-icon>{{ mdiPencil }}</v-icon>
             </v-btn>
             <v-btn
@@ -47,7 +42,7 @@
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && builds.length===0" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col v-if="!isLoading && builds.length == 0" cols="12" sm="6" md="4" lg="3" xl="2">
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
@@ -60,14 +55,15 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="buildForm = !buildForm">Add build</v-btn>
+        <v-btn color="error" @click="openBuildForm('Add')">Add build</v-btn>
       </v-card>
     </v-row>
 
     <BuildForm
       :form="buildForm"
       :action="buildAction"
-      :build="build"
+      :name="buildName"
+      :shortName="buildShortName"
       @submit="handleSubmitBuild"
       @close="closeBuildForm"
     />
@@ -120,11 +116,11 @@ export default defineComponent({
   setup() {
     const {
       builds,
-      build,
       buildForm,
+      buildAction,
       buildName,
       buildShortName,
-      buildAction,
+      openBuildForm,
       handleSubmitBuild,
       closeBuildForm,
       buildForDeleteName,
@@ -162,14 +158,13 @@ export default defineComponent({
 
     return {
       builds,
-      build,
 
       buildForm,
+      buildAction,
       buildName,
       buildShortName,
 
-      buildAction,
-
+      openBuildForm,
       handleSubmitBuild,
       closeBuildForm,
 
@@ -204,7 +199,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getAllBuilds();
+    this.getAllBuilds().then(builds => (this.builds = builds));
   }
 });
 </script>
