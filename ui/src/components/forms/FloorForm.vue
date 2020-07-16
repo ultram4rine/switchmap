@@ -14,7 +14,7 @@
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
               <v-text-field
-                v-model.number="inputFloor.number"
+                v-model="inputNumber"
                 :error-messages="errors"
                 type="number"
                 label="Number"
@@ -54,28 +54,28 @@ export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
 
-    floor: { type: Object as () => Floor, required: true }
+    number: { type: String, required: true }
   },
 
   components: { ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
-    const inputFloor = ref(props.floor);
+    const inputNumber = ref(props.number);
 
     watch(
-      () => props.floor.number,
-      (val: number) => {
-        inputFloor.value.number = val;
+      () => props.number,
+      (val: string) => {
+        inputNumber.value = val;
       }
     );
 
     const submit = () => {
-      emit("submit", inputFloor.value);
+      emit("submit", inputNumber.value);
     };
     const close = () => emit("close");
 
     return {
-      inputFloor,
+      inputNumber,
 
       submit,
       close,
