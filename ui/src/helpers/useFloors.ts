@@ -4,8 +4,6 @@ import { ref, Ref } from "@vue/composition-api";
 import { config } from "@/config";
 import { Floor } from "@/interfaces";
 
-import useBuilds from "@/helpers/useBuilds";
-
 const floorsEndpoint = (build: string) => {
   return `${config.apiURL}/builds/${build}/floors`;
 };
@@ -20,19 +18,6 @@ export default function () {
   const floorNumber = ref("");
   const floorBuildName = ref("");
   const floorBuildShortName = ref("");
-
-  const { builds, getBuild } = useBuilds();
-  const handleSubmitFloorFromBuilds = (number: string) => {
-    addFloorTo(floorBuildShortName.value, parseInt(number)).then(() => {
-      getBuild(floorBuildShortName.value).then((build) => {
-        const i = builds.value.findIndex(
-          (b) => b.shortName === floorBuildShortName.value
-        );
-        builds.value[i] = build;
-        closeFloorForm();
-      });
-    });
-  };
 
   const closeFloorForm = () => {
     floorForm.value = false;
@@ -82,7 +67,6 @@ export default function () {
     floorBuildName,
     floorBuildShortName,
 
-    handleSubmitFloorFromBuilds,
     closeFloorForm,
 
     floorError,
