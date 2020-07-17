@@ -47,7 +47,7 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="floorBuildShortName = build; floorForm = !floorForm">Add floor</v-btn>
+        <v-btn color="error" @click="openFloorForm">Add floor</v-btn>
       </v-card>
     </v-row>
 
@@ -67,13 +67,13 @@
       :ip="switchIP"
       :mac="switchMAC"
       :snmpCommunity="switchSNMPCommunity"
-      :build="switchBuild"
+      :build="build"
       :floor="switchFloor"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="snackbarAction" @update="updateSnackbar" />
+    <Snackbar :snackbar="snackbar" :item="item" :action="action" @update="updateSnackbar" />
   </div>
 </template>
 
@@ -108,6 +108,9 @@ export default defineComponent({
       floors,
       floorForm,
       floorNumber,
+      openFloorForm,
+      handleSubmitFloor,
+      closeFloorForm,
       floorError,
       getFloorsOf,
       addFloorTo,
@@ -129,7 +132,8 @@ export default defineComponent({
       addSwitch
     } = useSwitches();
 
-    const { snackbar, action, item } = useSnackbar();
+    const { confirmation, name } = useConfirmation();
+    const { snackbar, item, action, updateSnackbar } = useSnackbar();
 
     return {
       floors,
@@ -137,7 +141,9 @@ export default defineComponent({
       floorForm,
       floorNumber,
 
-      floorError,
+      openFloorForm,
+      handleSubmitFloor,
+      closeFloorForm,
 
       getFloorsOf,
       addFloorTo,
@@ -160,9 +166,13 @@ export default defineComponent({
 
       addSwitch,
 
+      confirmation,
+      name,
+
       snackbar,
-      action,
       item,
+      action,
+      updateSnackbar,
 
       mdiDelete
     };

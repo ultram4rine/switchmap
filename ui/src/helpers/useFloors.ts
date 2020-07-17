@@ -26,6 +26,16 @@ export default function () {
     floorForm.value = true;
   };
 
+  const handleSubmitFloor = (build: string, number: string) => {
+    floorNumber.value = number;
+    addFloorTo(build, parseInt(number)).then(() =>
+      getFloorsOf(build).then((fs) => {
+        floors.value = fs;
+        closeFloorForm();
+      })
+    );
+  };
+
   const closeFloorForm = () => {
     floorForm.value = false;
     floorNumber.value = "";
@@ -75,6 +85,7 @@ export default function () {
     floorBuildShortName,
 
     openFloorForm,
+    handleSubmitFloor,
     closeFloorForm,
 
     floorError,
