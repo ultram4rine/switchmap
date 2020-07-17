@@ -81,13 +81,13 @@ export default defineComponent({
 
     watch(
       () => props.name,
-      (val: string) => {
+      val => {
         inputName.value = val;
       }
     );
     watch(
       () => props.shortName,
-      (val: string) => {
+      val => {
         inputShortName.value = val;
       }
     );
