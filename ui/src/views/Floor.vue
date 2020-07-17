@@ -26,7 +26,7 @@
             single-line
           ></v-text-field>
           <v-hover v-slot:default="{ hover }">
-            <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
+            <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="openSwitchForm('Add')">
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
           </v-hover>
@@ -102,6 +102,8 @@ export default defineComponent({
       switchBuild,
       switchFloor,
       switchAction,
+      openSwitchForm,
+      handleSubmitSwitch,
       closeSwitchForm
     } = useSwitches();
 
@@ -124,6 +126,8 @@ export default defineComponent({
 
       switchAction,
 
+      openSwitchForm,
+      handleSubmitSwitch,
       closeSwitchForm,
 
       mdiMagnify,

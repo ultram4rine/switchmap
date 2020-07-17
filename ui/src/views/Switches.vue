@@ -4,7 +4,7 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-btn color="orange darken-1" dark @click="switchForm = !switchForm">Add switch</v-btn>
+        <v-btn color="orange darken-1" dark @click="openSwitchForm('Add')">Add switch</v-btn>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -37,7 +37,7 @@
       :snmpCommunity="switchSNMPCommunity"
       :build="switchBuild"
       :floor="switchFloor"
-      @submit="addSwitch('', '')"
+      @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
   </div>
@@ -85,6 +85,8 @@ export default defineComponent({
       switchBuild,
       switchFloor,
       switchAction,
+      openSwitchForm,
+      handleSubmitSwitch,
       closeSwitchForm,
       switchError,
       getAllSwitches
@@ -107,6 +109,8 @@ export default defineComponent({
 
       switchAction,
 
+      openSwitchForm,
+      handleSubmitSwitch,
       closeSwitchForm,
 
       switchError,

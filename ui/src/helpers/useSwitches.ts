@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { ref, Ref } from "@vue/composition-api";
 
 import { config } from "@/config";
-import { Switch } from "@/interfaces";
+import { Floor, Switch } from "@/interfaces";
 
 const switchesEndpoint = `${config.apiURL}/switches`;
 const switchEndpoint = (sw: string) => {
@@ -28,7 +28,7 @@ export default function () {
   const switchBuild = ref("");
   const switchFloor = ref("");
 
-  const openSwitchForm = (action: string, sw?: Switch) => {
+  const openSwitchForm = (action: string, f?: Floor, sw?: Switch) => {
     switchAction.value = action;
     switch (action) {
       case "Add":
@@ -38,7 +38,11 @@ export default function () {
         switchMAC.value = "";
         switchSNMPCommunity.value = "Public";
         switchBuild.value = "";
-        switchFloor.value = "";
+        if (f != undefined) {
+          switchFloor.value = f.number.toString();
+        } else {
+          switchFloor.value = "";
+        }
         break;
       case "Change":
         console.log("later");
@@ -47,6 +51,29 @@ export default function () {
         break;
     }
     switchForm.value = true;
+  };
+
+  const handleSubmitSwitch = (
+    name: string,
+    ipResolveMethod: string,
+    ip: string,
+    mac: string,
+    snmpCommunity: string,
+    b?: string,
+    f?: string
+  ) => {
+    switchName.value = name;
+    switchIPResolveMethod.value = ipResolveMethod;
+    switchIP.value = ip;
+    switchMAC.value = mac;
+    switchSNMPCommunity.value = snmpCommunity;
+
+    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity).then(() =>
+      getSwitchesOf(b, f).then((sws) => {
+        switches.value = sws;
+        closeSwitchForm();
+      })
+    );
   };
 
   const closeSwitchForm = () => {
@@ -93,11 +120,13 @@ export default function () {
     ip: string,
     mac: string,
     snmpCommunity: string,
-    b: string,
-    f: string
+    b?: string,
+    f?: string
   ) => {
     const endpoint =
-      b !== "" && f !== "" ? switchesOfFloorEndpoint(b, f) : switchesEndpoint;
+      b != undefined && f != undefined
+        ? switchesOfFloorEndpoint(b, f)
+        : switchesEndpoint;
 
     try {
       axios.post(endpoint, {
@@ -126,6 +155,7 @@ export default function () {
     switchFloor,
 
     openSwitchForm,
+    handleSubmitSwitch,
     closeSwitchForm,
 
     switchError,

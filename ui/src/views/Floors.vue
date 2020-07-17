@@ -18,7 +18,7 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn dark small color="primary" @click="openSwitchForm('Add')">Add switch</v-btn>
+            <v-btn dark small color="primary" @click="openSwitchForm('Add', f)">Add switch</v-btn>
             <v-btn
               dark
               small
@@ -62,8 +62,6 @@
       :ip="switchIP"
       :mac="switchMAC"
       :snmpCommunity="switchSNMPCommunity"
-      :build="build"
-      :floor="switchFloor"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
@@ -98,7 +96,7 @@ export default defineComponent({
     Snackbar
   },
 
-  setup() {
+  setup(props) {
     const {
       floors,
       floorForm,
@@ -120,13 +118,41 @@ export default defineComponent({
       switchIP,
       switchMAC,
       switchSNMPCommunity,
-      switchBuild,
       switchFloor,
       openSwitchForm,
       closeSwitchForm,
       switchError,
       addSwitch
     } = useSwitches();
+
+    const handleSubmitSwitch = (
+      name: string,
+      ipResolveMethod: string,
+      ip: string,
+      mac: string,
+      snmpCommunity: string
+    ) => {
+      switchName.value = name;
+      switchIPResolveMethod.value = ipResolveMethod;
+      switchIP.value = ip;
+      switchMAC.value = mac;
+      switchSNMPCommunity.value = snmpCommunity;
+
+      addSwitch(
+        name,
+        ipResolveMethod,
+        ip,
+        mac,
+        snmpCommunity,
+        props.build,
+        switchFloor.value
+      ).then(() => {
+        getFloorsOf(props.build).then(fs => {
+          floors.value = fs;
+          closeSwitchForm();
+        });
+      });
+    };
 
     const { confirmation, name } = useConfirmation();
     const { snackbar, item, action, updateSnackbar } = useSnackbar();
@@ -151,11 +177,10 @@ export default defineComponent({
       switchIP,
       switchMAC,
       switchSNMPCommunity,
-      switchBuild,
-      switchFloor,
 
       switchAction,
 
+      handleSubmitSwitch,
       openSwitchForm,
       closeSwitchForm,
 
