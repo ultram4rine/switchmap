@@ -156,8 +156,8 @@ export default defineComponent({
     ip: { type: String, required: true },
     mac: { type: String, required: true },
     snmpCommunity: { type: String, required: true },
-    build: { type: String, required: true },
-    floor: { type: String, required: true }
+    build: { type: String, required: false },
+    floor: { type: String, required: false }
   },
 
   components: {
