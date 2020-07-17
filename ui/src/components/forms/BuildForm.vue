@@ -95,7 +95,11 @@ export default defineComponent({
     const submit = () => {
       emit("submit", inputName.value, inputShortName.value);
     };
-    const close = () => emit("close");
+    const close = () => {
+      inputName.value = "";
+      inputShortName.value = "";
+      emit("close");
+    };
 
     return {
       title,

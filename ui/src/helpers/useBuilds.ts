@@ -49,6 +49,8 @@ export default function () {
   };
 
   const handleSubmitBuild = (name: string, shortName: string) => {
+    buildName.value = name;
+    buildShortName.value = shortName;
     switch (buildAction.value) {
       case "Add":
         addBuild(name, shortName).then(() =>
