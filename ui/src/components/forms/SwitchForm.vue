@@ -14,7 +14,7 @@
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
-                v-model="inputSwitch.name"
+                v-model="inputName"
                 :error-messages="errors"
                 label="Name"
                 required
@@ -36,7 +36,7 @@
               <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
                   <v-text-field
-                    v-model="inputSwitch.ip"
+                    v-model="inputIP"
                     :error-messages="errors"
                     label="IP"
                     placeholder="e.g. 192.168.1.1"
@@ -51,7 +51,7 @@
               <v-col cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
                   <v-text-field
-                    v-model="inputSwitch.mac"
+                    v-model="inputMAC"
                     :error-messages="errors"
                     label="MAC"
                     placeholder="XX:XX:XX:XX:XX:XX"
@@ -63,7 +63,7 @@
               <v-col cols="12" sm="6">
                 <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
                   <v-text-field
-                    v-model="inputSwitch.snmpCommunity"
+                    v-model="inputSNMPCommunity"
                     :error-messages="errors"
                     label="SNMP community"
                     required
@@ -151,8 +151,11 @@ export default defineComponent({
     action: { type: String, required: true },
     needLocationFields: { type: Boolean, required: true },
 
-    switch: { type: Object as () => Switch, required: true },
+    name: { type: String, required: true },
     ipResolveMethod: { type: String, required: true },
+    ip: { type: String, required: true },
+    mac: { type: String, required: true },
+    snmpCommunity: { type: String, required: true },
     build: { type: String, required: true },
     floor: { type: String, required: true }
   },
@@ -168,8 +171,11 @@ export default defineComponent({
       else if (props.action == "Change") return "Change build";
     });
 
-    const inputSwitch = ref(props.switch);
+    const inputName = ref(props.name);
     const inputIPResolveMethod = ref(props.ipResolveMethod);
+    const inputIP = ref(props.ip);
+    const inputMAC = ref(props.mac);
+    const inputSNMPCommunity = ref(props.snmpCommunity);
     const inputBuild = ref(props.build);
     const inputFloor = ref(props.floor);
 
@@ -178,57 +184,71 @@ export default defineComponent({
     const floors: Ref<Floor[]> = ref([]);
 
     watch(
-      () => props.switch.name,
-      (val: string) => {
-        inputSwitch.value.name = val;
+      () => props.name,
+      val => {
+        inputName.value = val;
       }
     );
     watch(
       () => props.ipResolveMethod,
-      (val: string) => {
+      val => {
         inputIPResolveMethod.value = val;
       }
     );
     watch(
-      () => props.switch.ip,
-      (val: string) => {
-        inputSwitch.value.ip = val;
+      () => props.ip,
+      val => {
+        inputIP.value = val;
       }
     );
     watch(
-      () => props.switch.mac,
-      (val: string) => {
-        inputSwitch.value.mac = val;
+      () => props.mac,
+      val => {
+        inputMAC.value = val;
       }
     );
     watch(
-      () => props.switch.snmpCommunity,
-      (val: string) => {
-        inputSwitch.value.snmpCommunity = val;
+      () => props.snmpCommunity,
+      val => {
+        inputSNMPCommunity.value = val;
       }
     );
     watch(
       () => props.build,
-      (val: string) => {
+      val => {
         inputBuild.value = val;
       }
     );
     watch(
       () => props.floor,
-      (val: string) => {
+      val => {
         inputFloor.value = val;
       }
     );
 
     const submit = () => {
-      emit("submit", inputSwitch.value);
+      emit(
+        "submit",
+        inputName.value,
+        inputIPResolveMethod.value,
+        inputIP.value,
+        inputMAC.value,
+        inputSNMPCommunity.value,
+        inputBuild.value,
+        inputFloor.value
+      );
     };
     const close = () => emit("close");
 
     return {
       title,
-      inputSwitch,
+      inputName,
       inputIPResolveMethod,
+      inputIP,
+      inputMAC,
+      inputSNMPCommunity,
+      inputBuild,
+      inputFloor,
 
       methods,
       builds,
