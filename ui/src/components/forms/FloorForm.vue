@@ -72,7 +72,10 @@ export default defineComponent({
     const submit = () => {
       emit("submit", inputNumber.value);
     };
-    const close = () => emit("close");
+    const close = () => {
+      inputNumber.value = "";
+      emit("close");
+    };
 
     return {
       inputNumber,
