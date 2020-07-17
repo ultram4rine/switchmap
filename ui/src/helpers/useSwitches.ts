@@ -17,9 +17,9 @@ const switchesOfFloorEndpoint = (build: string, floor: string) => {
 
 export default function () {
   const switches: Ref<Switch[]> = ref([]);
-  const sw: Ref<Switch> = ref({} as Switch);
 
   const switchForm = ref(false);
+  const switchAction = ref("Add");
   const switchName = ref("");
   const switchIPResolveMethod = ref("");
   const switchIP = ref("");
@@ -28,16 +28,35 @@ export default function () {
   const switchBuild = ref("");
   const switchFloor = ref("");
 
-  const switchAction = ref("Add");
+  const openSwitchForm = (action: string, sw?: Switch) => {
+    switchAction.value = action;
+    switch (action) {
+      case "Add":
+        switchName.value = "";
+        switchIPResolveMethod.value = "Direct";
+        switchIP.value = "";
+        switchMAC.value = "";
+        switchSNMPCommunity.value = "Public";
+        switchBuild.value = "";
+        switchFloor.value = "";
+        break;
+      case "Change":
+        console.log("later");
+        break;
+      default:
+        break;
+    }
+    switchForm.value = true;
+  };
 
   const closeSwitchForm = () => {
     switchForm.value = false;
 
     switchName.value = "";
-    switchIPResolveMethod.value = "";
+    switchIPResolveMethod.value = "Direct";
     switchIP.value = "";
     switchMAC.value = "";
-    switchSNMPCommunity.value = "";
+    switchSNMPCommunity.value = "Public";
     switchBuild.value = "";
     switchFloor.value = "";
 
@@ -95,9 +114,9 @@ export default function () {
 
   return {
     switches,
-    sw,
 
     switchForm,
+    switchAction,
     switchName,
     switchIPResolveMethod,
     switchIP,
@@ -106,8 +125,7 @@ export default function () {
     switchBuild,
     switchFloor,
 
-    switchAction,
-
+    openSwitchForm,
     closeSwitchForm,
 
     switchError,

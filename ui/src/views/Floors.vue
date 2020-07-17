@@ -18,12 +18,7 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              dark
-              small
-              color="primary"
-              @click="switchForm = !switchForm; switchFloorNumber = f.number"
-            >Add switch</v-btn>
+            <v-btn dark small color="primary" @click="openSwitchForm('Add')">Add switch</v-btn>
             <v-btn
               dark
               small
@@ -119,6 +114,7 @@ export default defineComponent({
 
     const {
       switchForm,
+      switchAction,
       switchName,
       switchIPResolveMethod,
       switchIP,
@@ -126,7 +122,7 @@ export default defineComponent({
       switchSNMPCommunity,
       switchBuild,
       switchFloor,
-      switchAction,
+      openSwitchForm,
       closeSwitchForm,
       switchError,
       addSwitch
@@ -160,6 +156,7 @@ export default defineComponent({
 
       switchAction,
 
+      openSwitchForm,
       closeSwitchForm,
 
       switchError,
