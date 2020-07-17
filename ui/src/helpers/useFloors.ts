@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { ref, Ref } from "@vue/composition-api";
 
 import { config } from "@/config";
-import { Floor } from "@/interfaces";
+import { Build, Floor } from "@/interfaces";
 
 const floorsEndpoint = (build: string) => {
   return `${config.apiURL}/builds/${build}/floors`;
@@ -18,6 +18,13 @@ export default function () {
   const floorNumber = ref("");
   const floorBuildName = ref("");
   const floorBuildShortName = ref("");
+
+  const openFloorForm = (b: Build) => {
+    floorBuildName.value = b.name;
+    floorBuildShortName.value = b.shortName;
+    floorNumber.value = "";
+    floorForm.value = true;
+  };
 
   const closeFloorForm = () => {
     floorForm.value = false;
@@ -67,6 +74,7 @@ export default function () {
     floorBuildName,
     floorBuildShortName,
 
+    openFloorForm,
     closeFloorForm,
 
     floorError,

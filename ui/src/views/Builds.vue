@@ -26,12 +26,7 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              dark
-              small
-              color="primary"
-              @click="floorBuildShortName = b.shortName; floorForm = !floorForm"
-            >Add floor</v-btn>
+            <v-btn dark small color="primary" @click="openFloorForm(b)">Add floor</v-btn>
             <v-btn
               dark
               small
@@ -136,6 +131,7 @@ export default defineComponent({
       floorForm,
       floorNumber,
       floorBuildShortName,
+      openFloorForm,
       closeFloorForm,
       addFloorTo
     } = useFloors();
@@ -180,6 +176,7 @@ export default defineComponent({
       floorBuildShortName,
 
       handleSubmitFloor,
+      openFloorForm,
       closeFloorForm,
 
       addFloorTo,
