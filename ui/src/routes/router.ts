@@ -40,7 +40,7 @@ const router = new Router({
       meta: { requiresAuth: true, layout: "default" },
     },
     {
-      path: "/builds/:build/:floor",
+      path: "/builds/:build/f:floor",
       name: "floor",
       component: Floor,
       props: true,
