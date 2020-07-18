@@ -30,13 +30,13 @@ const directive: DirectiveOptions = {
     addOnWheel(el, (e: WheelEvent) => {
       e.preventDefault();
 
-      let pgX = e.pageX,
+      const pgX = e.pageX,
         pgY = e.pageY;
 
       parentRect = (<Element>el!.parentNode!).getBoundingClientRect();
       rect = el.getBoundingClientRect();
 
-      let delta = Math.max(-1, Math.min(1, e.deltaY || e.detail));
+      const delta = Math.max(-1, Math.min(1, e.deltaY || e.detail));
 
       oldScale = scale;
       scale -= delta / 10;
@@ -47,16 +47,16 @@ const directive: DirectiveOptions = {
         scale = 1.5;
       }
 
-      let xPercent = (pgX - rect.left) / rect.width;
-      let yPercent = (pgY - rect.top) / rect.height;
-      let left = Math.round(
+      const xPercent = (pgX - rect.left) / rect.width;
+      const yPercent = (pgY - rect.top) / rect.height;
+      const left = Math.round(
         pgX - parentRect.left - xPercent * ((rect.width * scale) / oldScale)
       );
-      let top = Math.round(
+      const top = Math.round(
         pgY - parentRect.top - yPercent * ((rect.height * scale) / oldScale)
       );
 
-      let transform = `translate(${left}px, ${top}px) scale(${scale})`;
+      const transform = `translate(${left}px, ${top}px) scale(${scale})`;
       apply(el, transform);
     });
   },
