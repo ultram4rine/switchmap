@@ -40,8 +40,6 @@
 import { defineComponent, ref, watch } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import { Floor } from "@/interfaces";
-
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
