@@ -37,7 +37,7 @@
       :snmpCommunity="switchSNMPCommunity"
       :build="switchBuild"
       :floor="switchFloor"
-      @submit="handleSubmitSwitch"
+      @submit="handleSubmitSwitchFromSwitchesView"
       @close="closeSwitchForm"
     />
   </div>
@@ -86,7 +86,7 @@ export default defineComponent({
       switchFloor,
       switchAction,
       openSwitchForm,
-      handleSubmitSwitch,
+      handleSubmitSwitchFromSwitchesView,
       closeSwitchForm,
       switchError,
       getAllSwitches
@@ -110,7 +110,7 @@ export default defineComponent({
       switchAction,
 
       openSwitchForm,
-      handleSubmitSwitch,
+      handleSubmitSwitchFromSwitchesView,
       closeSwitchForm,
 
       switchError,
@@ -122,7 +122,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getAllSwitches();
+    this.getAllSwitches().then(sws => (this.switches = sws));
   }
 });
 </script>

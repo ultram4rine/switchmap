@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { ref, Ref } from "@vue/composition-api";
 
 import { config } from "@/config";
-import { Floor, Switch } from "@/interfaces";
+import { Build, Floor, Switch } from "@/interfaces";
 
 const switchesEndpoint = `${config.apiURL}/switches`;
 const switchEndpoint = (sw: string) => {
@@ -28,7 +28,12 @@ export default function () {
   const switchBuild = ref("");
   const switchFloor = ref("");
 
-  const openSwitchForm = (action: string, f?: Floor, sw?: Switch) => {
+  const openSwitchForm = (
+    action: string,
+    b?: Build,
+    f?: Floor,
+    sw?: Switch
+  ) => {
     switchAction.value = action;
     switch (action) {
       case "Add":
@@ -37,7 +42,11 @@ export default function () {
         switchIP.value = "";
         switchMAC.value = "";
         switchSNMPCommunity.value = "Public";
-        switchBuild.value = "";
+        if (b != undefined) {
+          switchBuild.value = b.shortName;
+        } else {
+          switchBuild.value = "";
+        }
         if (f != undefined) {
           switchFloor.value = f.number.toString();
         } else {
@@ -53,7 +62,7 @@ export default function () {
     switchForm.value = true;
   };
 
-  const handleSubmitSwitch = (
+  const handleSubmitSwitchFromSwitchesView = (
     name: string,
     ipResolveMethod: string,
     ip: string,
@@ -68,7 +77,30 @@ export default function () {
     switchMAC.value = mac;
     switchSNMPCommunity.value = snmpCommunity;
 
-    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity).then(() =>
+    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
+      getAllSwitches().then((sws) => {
+        switches.value = sws;
+        closeSwitchForm();
+      })
+    );
+  };
+
+  const handleSubmitSwitchFromFloorView = (
+    name: string,
+    ipResolveMethod: string,
+    ip: string,
+    mac: string,
+    snmpCommunity: string,
+    b: string,
+    f: string
+  ) => {
+    switchName.value = name;
+    switchIPResolveMethod.value = ipResolveMethod;
+    switchIP.value = ip;
+    switchMAC.value = mac;
+    switchSNMPCommunity.value = snmpCommunity;
+
+    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
       getSwitchesOf(b, f).then((sws) => {
         switches.value = sws;
         closeSwitchForm();
@@ -97,9 +129,10 @@ export default function () {
       const resp = await axios.get<Switch, AxiosResponse<Switch[]>>(
         switchesEndpoint
       );
-      switches.value = resp.data;
+      return resp.data;
     } catch (err) {
-      switchError.value = err;
+      console.log(err);
+      return [];
     }
   };
 
@@ -108,9 +141,10 @@ export default function () {
       const resp = await axios.get<Switch, AxiosResponse<Switch[]>>(
         switchesOfFloorEndpoint(b, f)
       );
-      switches.value = resp.data;
+      return resp.data;
     } catch (err) {
-      switchError.value = err;
+      console.log(err);
+      return [];
     }
   };
 
@@ -155,7 +189,8 @@ export default function () {
     switchFloor,
 
     openSwitchForm,
-    handleSubmitSwitch,
+    handleSubmitSwitchFromSwitchesView,
+    handleSubmitSwitchFromFloorView,
     closeSwitchForm,
 
     switchError,

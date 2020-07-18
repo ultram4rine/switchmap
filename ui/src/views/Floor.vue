@@ -26,7 +26,11 @@
             single-line
           ></v-text-field>
           <v-hover v-slot:default="{ hover }">
-            <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="openSwitchForm('Add')">
+            <v-btn
+              icon
+              :color="hover ? 'orange darken-1' : ''"
+              @click="openSwitchForm('Add', build, floor)"
+            >
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
           </v-hover>
@@ -44,7 +48,7 @@
         :snmpCommunity="switchSNMPCommunity"
         :build="switchBuild"
         :floor="switchFloor"
-        @submit="handleSubmitSwitch"
+        @submit="handleSubmitSwitchFromFloorView"
         @close="closeSwitchForm"
       />
     </div>
@@ -103,7 +107,7 @@ export default defineComponent({
       switchFloor,
       switchAction,
       openSwitchForm,
-      handleSubmitSwitch,
+      handleSubmitSwitchFromFloorView,
       closeSwitchForm
     } = useSwitches();
 
@@ -127,7 +131,7 @@ export default defineComponent({
       switchAction,
 
       openSwitchForm,
-      handleSubmitSwitch,
+      handleSubmitSwitchFromFloorView,
       closeSwitchForm,
 
       mdiMagnify,
@@ -136,7 +140,7 @@ export default defineComponent({
   },
 
   created() {
-    //this.getSwitchesOf(this.build, this.floor);
+    //this.getSwitchesOf(this.build, this.floor).then(sws => (this.switches = sws));
   }
 });
 </script>
