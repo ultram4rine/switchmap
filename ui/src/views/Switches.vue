@@ -4,7 +4,7 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-btn color="orange darken-1" dark @click="switchForm = !switchForm">Add switch</v-btn>
+        <v-btn color="orange darken-1" dark @click="openSwitchForm('Add')">Add switch</v-btn>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -28,7 +28,7 @@
 
     <SwitchForm
       :form="switchForm"
-      :action="action"
+      :action="switchAction"
       :needLocationFields="true"
       :name="switchName"
       :ipResolveMethod="switchIPResolveMethod"
@@ -37,21 +37,21 @@
       :snmpCommunity="switchSNMPCommunity"
       :build="switchBuild"
       :floor="switchFloor"
-      @submit="addSwitch('', '')"
+      @submit="handleSubmitSwitchFromSwitchesView"
       @close="closeSwitchForm"
     />
   </div>
 </template>
 
 <script lang="ts">
-import mixins from "vue-typed-mixins";
+import { defineComponent, ref } from "@vue/composition-api";
 import { mdiMagnify } from "@mdi/js";
-
-import switchesMixin from "@/mixins/switchesMixin";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 
-export default mixins(switchesMixin).extend({
+import useSwitches from "@/helpers/useSwitches";
+
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true }
   },
@@ -60,28 +60,69 @@ export default mixins(switchesMixin).extend({
     SwitchForm
   },
 
-  data() {
+  setup() {
+    const search = ref("");
+    const headers = ref([
+      {
+        text: "Name",
+        align: "start",
+        value: "name"
+      },
+      { text: "MAC", value: "mac" },
+      { text: "IP", value: "ip" },
+      { text: "Serial", value: "serial" },
+      { text: "Location", value: "location" }
+    ]);
+
+    const {
+      switches,
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+      switchAction,
+      openSwitchForm,
+      handleSubmitSwitchFromSwitchesView,
+      closeSwitchForm,
+      switchError,
+      getAllSwitches
+    } = useSwitches();
+
     return {
-      mdiMagnify: mdiMagnify,
+      search,
+      headers,
 
-      search: "",
+      switches,
 
-      headers: [
-        {
-          text: "Name",
-          align: "start",
-          value: "name"
-        },
-        { text: "MAC", value: "mac" },
-        { text: "IP", value: "ip" },
-        { text: "Serial", value: "serial" },
-        { text: "Location", value: "location" }
-      ]
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+
+      switchAction,
+
+      openSwitchForm,
+      handleSubmitSwitchFromSwitchesView,
+      closeSwitchForm,
+
+      switchError,
+
+      getAllSwitches,
+
+      mdiMagnify
     };
   },
 
   created() {
-    this.getAllSwitches();
+    this.getAllSwitches().then(sws => (this.switches = sws));
   }
 });
 </script>

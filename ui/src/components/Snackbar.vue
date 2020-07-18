@@ -10,41 +10,49 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref, watch } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import Vue from "vue";
-
-export default Vue.extend({
+export default defineComponent({
   props: {
     snackbar: { type: Boolean, required: true },
     item: { type: String, required: true },
     action: { type: String, required: true }
   },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
+  setup(props, { emit }) {
+    const timeout = ref(3000);
 
-      timeout: 3000,
+    let selfItem = ref(props.item);
+    let selfAction = ref(props.action);
 
-      selfItem: this.item,
-      selfAction: this.action
+    watch(
+      () => props.item,
+      (value: string) => {
+        selfItem.value = value;
+      }
+    );
+    watch(
+      () => props.action,
+      (value: string) => {
+        selfAction.value = value;
+      }
+    );
+
+    const close = () => {
+      emit("update", false);
     };
-  },
 
-  watch: {
-    item: function(newItem) {
-      this.selfItem = newItem;
-    },
-    action: function(newAction) {
-      this.selfAction = newAction;
-    }
-  },
+    return {
+      timeout,
 
-  methods: {
-    close() {
-      this.$emit("update", false);
-    }
+      selfItem,
+      selfAction,
+
+      close,
+
+      mdiClose
+    };
   }
 });
 </script>

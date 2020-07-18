@@ -26,7 +26,11 @@
             single-line
           ></v-text-field>
           <v-hover v-slot:default="{ hover }">
-            <v-btn icon :color="hover ? 'orange darken-1' : ''" @click="switchForm = !switchForm">
+            <v-btn
+              icon
+              :color="hover ? 'orange darken-1' : ''"
+              @click="openSwitchForm('Add', build, floor)"
+            >
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
           </v-hover>
@@ -35,7 +39,7 @@
 
       <SwitchForm
         :form="switchForm"
-        :action="action"
+        :action="switchAction"
         :needLocationFields="false"
         :name="switchName"
         :ipResolveMethod="switchIPResolveMethod"
@@ -44,7 +48,7 @@
         :snmpCommunity="switchSNMPCommunity"
         :build="switchBuild"
         :floor="switchFloor"
-        @submit="handleSubmitSwitch"
+        @submit="handleSubmitSwitchFromFloorView"
         @close="closeSwitchForm"
       />
     </div>
@@ -52,19 +56,18 @@
 </template>
 
 <script lang="ts">
-import mixins from "vue-typed-mixins";
+import { defineComponent, ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
-
-import switchesMixin from "@/mixins/switchesMixin";
 
 import drag from "@/directives/drag";
 import zoom from "@/directives/zoom";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
-
 import PlanUpload from "@/components/PlanUpload.vue";
 
-export default mixins(switchesMixin).extend({
+import useSwitches from "@/helpers/useSwitches";
+
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
     build: { type: String, required: true },
@@ -81,47 +84,63 @@ export default mixins(switchesMixin).extend({
     zoom
   },
 
-  data() {
+  setup(props) {
+    const planPath = ref(`/plans/${props.build}f${props.floor}.png`);
+    const noPlan = ref(false);
+
+    const uploadPlan = () => {
+      console.log("ll");
+    };
+
+    const switches = ref([
+      { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
+    ]);
+
+    const {
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+      switchAction,
+      openSwitchForm,
+      handleSubmitSwitchFromFloorView,
+      closeSwitchForm
+    } = useSwitches();
+
     return {
-      mdiMagnify: mdiMagnify,
-      mdiPlus: mdiPlus,
+      planPath,
+      noPlan,
 
-      switches: [
-        { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
-      ],
+      uploadPlan,
 
-      planPath: `/plans/${this.build}f${this.floor}.png`,
-      noPlan: false
+      switches,
+
+      switchForm,
+      switchName,
+      switchIPResolveMethod,
+      switchIP,
+      switchMAC,
+      switchSNMPCommunity,
+      switchBuild,
+      switchFloor,
+
+      switchAction,
+
+      openSwitchForm,
+      handleSubmitSwitchFromFloorView,
+      closeSwitchForm,
+
+      mdiMagnify,
+      mdiPlus
     };
   },
 
   created() {
-    //this.getSwitchesOf(this.build, this.floor);
-  },
-
-  methods: {
-    uploadPlan() {
-      console.log("ll");
-    },
-    handleSubmitSwitch(
-      name: string,
-      mac: string,
-      snmpCommunity: string,
-      ipResolveMethod: string,
-      ip: string,
-      build: string,
-      floor: string
-    ) {
-      this.switchName = name;
-      this.switchMAC = mac;
-      this.switchSNMPCommunity = snmpCommunity;
-      this.switchIPResolveMethod = ipResolveMethod;
-      this.switchIP = ip;
-      this.switchBuild = build;
-      this.switchFloor = floor;
-
-      this.addSwitch(build, floor);
-    }
+    //this.getSwitchesOf(this.build, this.floor).then(sws => (this.switches = sws));
   }
 });
 </script>

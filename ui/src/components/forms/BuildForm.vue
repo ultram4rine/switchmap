@@ -9,8 +9,8 @@
         </v-btn>
       </v-toolbar>
 
-      <v-card-text>
-        <ValidationObserver ref="observer" v-slot="{ validate }">
+      <ValidationObserver ref="observer" v-slot="{ invalid }">
+        <v-card-text>
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
@@ -32,22 +32,24 @@
               ></v-text-field>
             </ValidationProvider>
           </v-form>
-        </ValidationObserver>
-      </v-card-text>
+        </v-card-text>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="submit">{{ action }}</v-btn>
-      </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">{{ action }}</v-btn>
+        </v-card-actions>
+      </ValidationObserver>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent, ref, computed, watch } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
+
+import { Build } from "@/interfaces";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -57,7 +59,7 @@ extend("required", {
   message: "{_field_} is required"
 });
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
@@ -68,42 +70,47 @@ export default Vue.extend({
 
   components: { ValidationObserver, ValidationProvider },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
+  setup(props, { emit }) {
+    const title = computed(() => {
+      if (props.action == "Add") return "New build";
+      else if (props.action == "Change") return "Change build";
+    });
 
-      inputName: this.name,
-      inputShortName: this.shortName
+    const inputName = ref(props.name);
+    const inputShortName = ref(props.shortName);
+
+    watch(
+      () => props.name,
+      val => {
+        inputName.value = val;
+      }
+    );
+    watch(
+      () => props.shortName,
+      val => {
+        inputShortName.value = val;
+      }
+    );
+
+    const submit = () => {
+      emit("submit", inputName.value, inputShortName.value);
     };
-  },
+    const close = () => {
+      inputName.value = "";
+      inputShortName.value = "";
+      emit("close");
+    };
 
-  computed: {
-    title: function() {
-      if (this.action == "Add") return "New build";
-      else if (this.action == "Change") return "Change build";
-    }
-  },
+    return {
+      title,
+      inputName,
+      inputShortName,
 
-  watch: {
-    name: function(newName) {
-      this.inputName = newName;
-    },
-    shortName: function(newShortName) {
-      this.inputShortName = newShortName;
-    }
-  },
+      submit,
+      close,
 
-  methods: {
-    submit() {
-      this.$refs.observer.validate().then((valid: boolean) => {
-        if (valid) {
-          this.$emit("submit", this.inputName, this.inputShortName);
-        }
-      });
-    },
-    close() {
-      this.$emit("close");
-    }
+      mdiClose
+    };
   }
 });
 </script>

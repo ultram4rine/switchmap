@@ -9,35 +9,38 @@
         </v-btn>
       </v-toolbar>
 
-      <v-card-text>
-        <ValidationObserver ref="observer" v-slot="{ validate }">
+      <ValidationObserver ref="observer" v-slot="{ invalid }">
+        <v-card-text>
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
               <v-text-field
                 v-model="inputNumber"
                 :error-messages="errors"
+                type="number"
                 label="Number"
                 required
                 color="orange accent-2"
               ></v-text-field>
             </ValidationProvider>
           </v-form>
-        </ValidationObserver>
-      </v-card-text>
+        </v-card-text>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="submit">Add</v-btn>
-      </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">Add</v-btn>
+        </v-card-actions>
+      </ValidationObserver>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent, ref, watch } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
+
+import { Floor } from "@/interfaces";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -47,7 +50,7 @@ extend("required", {
   message: "{_field_} is required"
 });
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
 
@@ -56,25 +59,32 @@ export default Vue.extend({
 
   components: { ValidationObserver, ValidationProvider },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
+  setup(props, { emit }) {
+    const inputNumber = ref(props.number);
 
-      inputNumber: this.number
+    watch(
+      () => props.number,
+      (val: string) => {
+        inputNumber.value = val;
+      }
+    );
+
+    const submit = () => {
+      emit("submit", inputNumber.value);
     };
-  },
+    const close = () => {
+      inputNumber.value = "";
+      emit("close");
+    };
 
-  methods: {
-    submit() {
-      this.$refs.observer.validate().then((valid: boolean) => {
-        if (valid) {
-          this.$emit("submit", this.inputNumber);
-        }
-      });
-    },
-    close() {
-      this.$emit("close");
-    }
+    return {
+      inputNumber,
+
+      submit,
+      close,
+
+      mdiClose
+    };
   }
 });
 </script>

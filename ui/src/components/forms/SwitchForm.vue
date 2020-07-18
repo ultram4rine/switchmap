@@ -9,8 +9,8 @@
         </v-btn>
       </v-toolbar>
 
-      <v-card-text>
-        <ValidationObserver ref="observer" v-slot="{ validate }">
+      <ValidationObserver ref="observer" v-slot="{ invalid }">
+        <v-card-text>
           <v-form ref="form">
             <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
               <v-text-field
@@ -96,22 +96,30 @@
               </v-col>
             </v-row>
           </v-form>
-        </ValidationObserver>
-      </v-card-text>
+        </v-card-text>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="orange darken-1" @click="submit">{{ action }}</v-btn>
-      </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">{{ action }}</v-btn>
+        </v-card-actions>
+      </ValidationObserver>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  Ref
+} from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
+
+import { Build, Floor, Switch } from "@/interfaces";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -137,7 +145,7 @@ extend("ip", {
   message: "{_value_} is not correct IP address"
 });
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
@@ -148,8 +156,8 @@ export default Vue.extend({
     ip: { type: String, required: true },
     mac: { type: String, required: true },
     snmpCommunity: { type: String, required: true },
-    build: { type: String, required: true },
-    floor: { type: String, required: true }
+    build: { type: String, required: false },
+    floor: { type: String, required: false }
   },
 
   components: {
@@ -157,77 +165,100 @@ export default Vue.extend({
     ValidationProvider
   },
 
-  data() {
-    return {
-      mdiClose: mdiClose,
+  setup(props, { emit }) {
+    const title = computed(() => {
+      if (props.action == "Add") return "New build";
+      else if (props.action == "Change") return "Change build";
+    });
 
-      inputName: this.name,
-      inputIPResolveMethod: this.ipResolveMethod,
-      inputIP: this.ip,
-      inputMAC: this.mac,
-      inputSNMPCommunity: this.snmpCommunity,
-      inputBuild: this.build,
-      inputFloor: this.floor,
+    const inputName = ref(props.name);
+    const inputIPResolveMethod = ref(props.ipResolveMethod);
+    const inputIP = ref(props.ip);
+    const inputMAC = ref(props.mac);
+    const inputSNMPCommunity = ref(props.snmpCommunity);
+    const inputBuild = ref(props.build);
+    const inputFloor = ref(props.floor);
 
-      methods: ["Direct", "DNS"],
-      types: ["Public", "Private"],
+    const methods = ["Direct", "DNS"];
+    const builds: Ref<Build[]> = ref([]);
+    const floors: Ref<Floor[]> = ref([]);
 
-      builds: [],
-      floors: []
+    watch(
+      () => props.name,
+      val => {
+        inputName.value = val;
+      }
+    );
+    watch(
+      () => props.ipResolveMethod,
+      val => {
+        inputIPResolveMethod.value = val;
+      }
+    );
+    watch(
+      () => props.ip,
+      val => {
+        inputIP.value = val;
+      }
+    );
+    watch(
+      () => props.mac,
+      val => {
+        inputMAC.value = val;
+      }
+    );
+    watch(
+      () => props.snmpCommunity,
+      val => {
+        inputSNMPCommunity.value = val;
+      }
+    );
+    watch(
+      () => props.build,
+      val => {
+        inputBuild.value = val;
+      }
+    );
+    watch(
+      () => props.floor,
+      val => {
+        inputFloor.value = val;
+      }
+    );
+
+    const submit = () => {
+      emit(
+        "submit",
+        inputName.value,
+        inputIPResolveMethod.value,
+        inputIP.value,
+        inputMAC.value,
+        inputSNMPCommunity.value,
+        inputBuild.value,
+        inputFloor.value
+      );
     };
-  },
+    const close = () => emit("close");
 
-  computed: {
-    title: function() {
-      if (this.action == "Add") return "New switch";
-      else if (this.action == "Change") return "Change switch";
-    }
-  },
+    return {
+      title,
+      inputName,
+      inputIPResolveMethod,
+      inputIP,
+      inputMAC,
+      inputSNMPCommunity,
+      inputBuild,
+      inputFloor,
 
-  watch: {
-    name: function(newName) {
-      this.inputName = newName;
-    },
-    ipResolveMethod: function(newIPResolveMethod) {
-      this.inputIPResolveMethod = newIPResolveMethod;
-    },
-    ip: function(newIP) {
-      this.inputIP = newIP;
-    },
-    mac: function(newMAC) {
-      this.inputMAC = newMAC;
-    },
-    snmpCommunity: function(newSNMPCommunity) {
-      this.inputSNMPCommunity = newSNMPCommunity;
-    },
-    build: function(newBuild) {
-      this.inputBuild = newBuild;
-    },
-    floor: function(newFloor) {
-      this.inputFloor = newFloor;
-    }
-  },
+      methods,
+      builds,
+      floors,
 
-  methods: {
-    submit() {
-      this.$refs.observer.validate().then((valid: boolean) => {
-        if (valid) {
-          this.$emit(
-            "submit",
-            this.inputName,
-            this.inputMAC,
-            this.inputSNMPCommunity,
-            this.inputIPResolveMethod,
-            this.inputIP,
-            this.inputBuild,
-            this.inputFloor
-          );
-        }
-      });
-    },
-    close() {
-      this.$emit("close");
-    }
+      submit,
+      close,
+
+      mdiClose
+    };
   }
 });
 </script>
