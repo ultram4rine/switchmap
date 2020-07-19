@@ -1,0 +1,21 @@
+{
+  "description": "Front dependencies for SwitchMap WEB Application",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ultram4rine/switchmap.git"
+  },
+  "dependencies": {
+    "datatables": "^1.10.18",
+    "jquery": "^3.5.0",
+    "jquery-ui-dist": "^1.12.1",
+    "jquery-ui-touch-punch": "^0.2.3",
+    "vis-network": "^6.5.2"
+  },
+  "devDependencies": {
+    "keycharm": "^0.2.0",
+    "moment": "^2.24.0",
+    "vis-data": "^6.3.5",
+    "vis-util": "^1.1.8"
+  }
+}
