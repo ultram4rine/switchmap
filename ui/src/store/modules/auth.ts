@@ -52,7 +52,7 @@ const actions = {
     });
   },
   [AUTH_LOGOUT]: (context: ActionContext<State, any>) => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       context.commit(AUTH_LOGOUT);
       localStorage.removeItem("user-token");
       resolve();

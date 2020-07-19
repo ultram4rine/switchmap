@@ -20,7 +20,7 @@ const defaultLayout = "default";
 export default Vue.extend({
   data() {
     return {
-      isLoading: false
+      isLoading: false,
     };
   },
 
@@ -34,13 +34,13 @@ export default Vue.extend({
     },
 
     ...mapActions("csrf", ["setToken"]),
-    ...mapGetters("csrf", ["getToken"])
+    ...mapGetters("csrf", ["getToken"]),
   },
 
   computed: {
     layout() {
       return this.$route.meta.layout || defaultLayout;
-    }
+    },
   },
 
   created() {
@@ -81,6 +81,6 @@ export default Vue.extend({
         });
       }
     );
-  }
+  },
 });
 </script>

@@ -69,7 +69,7 @@ router.beforeEach(
       to?: string | false | void | Location | ((vm: Vue) => any) | undefined
     ) => void
   ) => {
-    if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
       if (!store.getters["auth/isAuthenticated"]) {
         next({
           path: "/login",
@@ -78,7 +78,7 @@ router.beforeEach(
       } else {
         next();
       }
-    } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
+    } else if (to.matched.some(record => record.meta.skipIfAuth)) {
       if (store.getters.isAuthenticated) {
         next({ path: "/builds" });
       } else {

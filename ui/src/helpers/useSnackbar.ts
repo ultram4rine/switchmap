@@ -1,6 +1,6 @@
 import { ref } from "@vue/composition-api";
 
-export default function () {
+export default function() {
   const snackbar = ref(false);
   const item = ref("");
   const action = ref("");

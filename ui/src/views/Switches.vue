@@ -4,7 +4,9 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-btn color="orange darken-1" dark @click="openSwitchForm('Add')">Add switch</v-btn>
+        <v-btn color="orange darken-1" dark @click="openSwitchForm('Add')">
+          Add switch
+        </v-btn>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -53,11 +55,11 @@ import useSwitches from "@/helpers/useSwitches";
 
 export default defineComponent({
   props: {
-    isLoading: { type: Boolean, required: true }
+    isLoading: { type: Boolean, required: true },
   },
 
   components: {
-    SwitchForm
+    SwitchForm,
   },
 
   setup() {
@@ -66,12 +68,12 @@ export default defineComponent({
       {
         text: "Name",
         align: "start",
-        value: "name"
+        value: "name",
       },
       { text: "MAC", value: "mac" },
       { text: "IP", value: "ip" },
       { text: "Serial", value: "serial" },
-      { text: "Location", value: "location" }
+      { text: "Location", value: "location" },
     ]);
 
     const {
@@ -88,8 +90,7 @@ export default defineComponent({
       openSwitchForm,
       handleSubmitSwitchFromSwitchesView,
       closeSwitchForm,
-      switchError,
-      getAllSwitches
+      getAllSwitches,
     } = useSwitches();
 
     return {
@@ -113,16 +114,14 @@ export default defineComponent({
       handleSubmitSwitchFromSwitchesView,
       closeSwitchForm,
 
-      switchError,
-
       getAllSwitches,
 
-      mdiMagnify
+      mdiMagnify,
     };
   },
 
   created() {
     this.getAllSwitches().then(sws => (this.switches = sws));
-  }
+  },
 });
 </script>

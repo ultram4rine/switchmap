@@ -6,7 +6,7 @@ const apply = (elem: HTMLElement, transform: string) => {
 };
 
 const directive: DirectiveOptions = {
-  inserted: (el) => {
+  inserted: el => {
     const mouseDownHandler = (e: MouseEvent) => {
       if (e.preventDefault) e.preventDefault();
 

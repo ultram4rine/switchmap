@@ -47,18 +47,12 @@ import {
   mdiOfficeBuilding,
   mdiRouterNetwork,
   mdiLan,
-  mdiCopyright
+  mdiCopyright,
 } from "@mdi/js";
-
-interface Nav {
-  text: string;
-  link: string;
-  icon: string;
-}
 
 export default Vue.extend({
   props: {
-    isLoading: { type: Boolean, required: true }
+    isLoading: { type: Boolean, required: true },
   },
 
   data() {
@@ -73,8 +67,8 @@ export default Vue.extend({
       navs: [
         { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
         { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
-        { link: "/vis", text: "Visualization", icon: mdiLan }
-      ]
+        { link: "/vis", text: "Visualization", icon: mdiLan },
+      ],
     };
   },
 
@@ -83,7 +77,7 @@ export default Vue.extend({
       this.$store.dispatch("auth/AUTH_LOGOUT").then(() => {
         this.$router.push("/login");
       });
-    }
-  }
+    },
+  },
 });
 </script>

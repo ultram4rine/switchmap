@@ -30,11 +30,7 @@ export default defineComponent({
 
       switches.value.forEach(sw => {
         nodes.push({ id: sw.name, label: sw.name });
-        edges.push({
-          from: sw.upSwitchName,
-          to: sw.name,
-          label: sw.upLink
-        });
+        edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
       });
 
       let data = {

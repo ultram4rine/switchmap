@@ -20,7 +20,7 @@ import { defineComponent } from "@vue/composition-api";
 export default defineComponent({
   props: {
     confirmation: { type: Boolean, required: true },
-    name: { type: String, required: true }
-  }
+    name: { type: String, required: true },
+  },
 });
 </script>

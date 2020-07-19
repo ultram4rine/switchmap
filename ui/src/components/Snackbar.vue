@@ -17,14 +17,14 @@ export default defineComponent({
   props: {
     snackbar: { type: Boolean, required: true },
     item: { type: String, required: true },
-    action: { type: String, required: true }
+    action: { type: String, required: true },
   },
 
   setup(props, { emit }) {
     const timeout = ref(3000);
 
-    let selfItem = ref(props.item);
-    let selfAction = ref(props.action);
+    const selfItem = ref(props.item);
+    const selfAction = ref(props.action);
 
     watch(
       () => props.item,
@@ -51,8 +51,8 @@ export default defineComponent({
 
       close,
 
-      mdiClose
+      mdiClose,
     };
-  }
+  },
 });
 </script>

@@ -1,10 +1,9 @@
 {
   "name": "switchmap",
-  "description": "SwitchMap web app",
   "version": "2.0.0",
-  "author": "ultram4rine",
-  "license": "MIT",
   "private": true,
+  "description": "SwitchMap web app",
+  "author": "ultram4rine",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -24,21 +23,25 @@
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.6.1",
-    "@typescript-eslint/parser": "^3.6.1",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
     "@vue/cli-plugin-babel": "^4.4.6",
     "@vue/cli-plugin-eslint": "^4.4.6",
     "@vue/cli-plugin-router": "^4.4.6",
     "@vue/cli-plugin-typescript": "^4.4.6",
     "@vue/cli-plugin-vuex": "^4.4.6",
     "@vue/cli-service": "^4.4.6",
+    "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.2",
     "clean-webpack-plugin": "^3.0.0",
-    "eslint": "^7.5.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-vue": "^6.2.2",
+    "prettier": "^1.19.1",
     "typescript": "^3.9.7",
     "vue-cli-plugin-vuetify": "^2.0.6",
     "vue-template-compiler": "^2.6.11",
     "webpack": "^4.43.0"
-  }
+  },
+  "license": "MIT"
 }

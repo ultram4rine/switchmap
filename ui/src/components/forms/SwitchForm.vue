@@ -12,7 +12,11 @@
       <ValidationObserver ref="observer" v-slot="{ invalid }">
         <v-card-text>
           <v-form ref="form">
-            <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="Name"
+              rules="required"
+            >
               <v-text-field
                 v-model="inputName"
                 :error-messages="errors"
@@ -34,7 +38,11 @@
                 ></v-select>
               </v-col>
               <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-                <ValidationProvider v-slot="{ errors }" name="IP address" rules="required|ip">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="IP address"
+                  rules="required|ip"
+                >
                   <v-text-field
                     v-model="inputIP"
                     :error-messages="errors"
@@ -49,7 +57,11 @@
 
             <v-row dense>
               <v-col cols="12" sm="6">
-                <ValidationProvider v-slot="{ errors }" name="MAC address" rules="required|mac">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="MAC address"
+                  rules="required|mac"
+                >
                   <v-text-field
                     v-model="inputMAC"
                     :error-messages="errors"
@@ -61,7 +73,11 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" sm="6">
-                <ValidationProvider v-slot="{ errors }" name="SNMP community" rules="required">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="SNMP community"
+                  rules="required"
+                >
                   <v-text-field
                     v-model="inputSNMPCommunity"
                     :error-messages="errors"
@@ -102,7 +118,9 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">{{ action }}</v-btn>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
+            {{ action }}
+          </v-btn>
         </v-card-actions>
       </ValidationObserver>
     </v-card>
@@ -110,12 +128,13 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable no-unused-vars */
 import {
   defineComponent,
   ref,
   computed,
   watch,
-  Ref
+  Ref,
 } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
@@ -126,23 +145,23 @@ import { required } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "{_field_} is required"
+  message: "{_field_} is required",
 });
 
 extend("mac", {
   validate: (val: string) => {
-    let regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
+    const regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
     return regex.test(val);
   },
-  message: "{_value_} is not correct MAC address"
+  message: "{_value_} is not correct MAC address",
 });
 
 extend("ip", {
   validate: (val: string) => {
-    let regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+    const regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
     return regex.test(val);
   },
-  message: "{_value_} is not correct IP address"
+  message: "{_value_} is not correct IP address",
 });
 
 export default defineComponent({
@@ -157,12 +176,12 @@ export default defineComponent({
     mac: { type: String, required: true },
     snmpCommunity: { type: String, required: true },
     build: { type: String, required: false },
-    floor: { type: String, required: false }
+    floor: { type: String, required: false },
   },
 
   components: {
     ValidationObserver,
-    ValidationProvider
+    ValidationProvider,
   },
 
   setup(props, { emit }) {
@@ -257,8 +276,8 @@ export default defineComponent({
       submit,
       close,
 
-      mdiClose
+      mdiClose,
     };
-  }
+  },
 });
 </script>

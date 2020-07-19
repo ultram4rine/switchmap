@@ -2,9 +2,21 @@
   <div id="home">
     <v-row no-gutters dense>
       <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
-        <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
+        <v-skeleton-loader
+          class="mx-auto"
+          type="card-heading, list-item, actions"
+        ></v-skeleton-loader>
       </v-col>
-      <v-col v-else v-for="b in builds" :key="b.shortName" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-else
+        v-for="b in builds"
+        :key="b.shortName"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-card class="ma-1" outlined>
           <v-card-title class="headline">
             {{ b.name }}
@@ -16,32 +28,51 @@
               icon
               small
               color="red"
-              @click="buildFDN = b.name; buildFDSN = b.shortName; confirmation = !confirmation"
+              @click="
+                buildFDN = b.name;
+                buildFDSN = b.shortName;
+                confirmation = !confirmation;
+              "
             >
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
 
-          <v-card-subtitle>{{ b.floorsNumber }} floors, {{ b.switchesNumber }} switches</v-card-subtitle>
+          <v-card-subtitle>
+            {{ b.floorsNumber }} floors, {{ b.switchesNumber }} switches
+          </v-card-subtitle>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn dark small color="primary" @click="openFloorForm(b)">Add floor</v-btn>
+            <v-btn dark small color="primary" @click="openFloorForm(b)">
+              Add floor
+            </v-btn>
             <v-btn
               dark
               small
               color="primary"
-              :to="{ name: 'build', params: { build: b.shortName }}"
-            >Go</v-btn>
+              :to="{ name: 'build', params: { build: b.shortName } }"
+            >
+              Go
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && builds.length == 0" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-if="!isLoading && builds.length == 0"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
-              <v-list-item-title class="headline mb-1">No builds to show</v-list-item-title>
+              <v-list-item-title class="headline mb-1">
+                No builds to show
+              </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-card>
@@ -77,7 +108,12 @@
       @cancel="confirmation = !confirmation"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="action" @update="updateSnackbar" />
+    <Snackbar
+      :snackbar="snackbar"
+      :item="item"
+      :action="action"
+      @update="updateSnackbar"
+    />
   </div>
 </template>
 
@@ -98,14 +134,14 @@ import useSnackbar from "@/helpers/useSnackbar";
 
 export default defineComponent({
   props: {
-    isLoading: { type: Boolean, required: true }
+    isLoading: { type: Boolean, required: true },
   },
 
   components: {
     BuildForm,
     FloorForm,
     Confirmation,
-    Snackbar
+    Snackbar,
   },
 
   setup() {
@@ -121,10 +157,9 @@ export default defineComponent({
       openBuildForm,
       handleSubmitBuild,
       closeBuildForm,
-      buildError,
       getAllBuilds,
       getBuild,
-      deleteBuild
+      deleteBuild,
     } = useBuilds();
 
     const {
@@ -133,7 +168,7 @@ export default defineComponent({
       floorBuildShortName,
       openFloorForm,
       closeFloorForm,
-      addFloorTo
+      addFloorTo,
     } = useFloors();
 
     const handleSubmitFloor = (number: string) => {
@@ -190,12 +225,12 @@ export default defineComponent({
       updateSnackbar,
 
       mdiPencil,
-      mdiDelete
+      mdiDelete,
     };
   },
 
   created() {
     this.getAllBuilds().then(builds => (this.builds = builds));
-  }
+  },
 });
 </script>

@@ -14,8 +14,13 @@
             :key="sw.name"
             dark
             class="switch ma-2"
-            :style="{ top: sw.positionTop + 'px', left: sw.positionLeft + 'px' }"
-          >{{ sw.name }}</v-chip>
+            :style="{
+              top: sw.positionTop + 'px',
+              left: sw.positionLeft + 'px',
+            }"
+          >
+            {{ sw.name }}
+          </v-chip>
         </div>
 
         <v-toolbar dense floating>
@@ -71,17 +76,17 @@ export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
     build: { type: String, required: true },
-    floor: { type: String, required: true }
+    floor: { type: String, required: true },
   },
 
   components: {
     SwitchForm,
-    PlanUpload
+    PlanUpload,
   },
 
   directives: {
     drag,
-    zoom
+    zoom,
   },
 
   setup(props) {
@@ -93,7 +98,7 @@ export default defineComponent({
     };
 
     const switches = ref([
-      { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" }
+      { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" },
     ]);
 
     const {
@@ -108,7 +113,7 @@ export default defineComponent({
       switchAction,
       openSwitchForm,
       handleSubmitSwitchFromFloorView,
-      closeSwitchForm
+      closeSwitchForm,
     } = useSwitches();
 
     return {
@@ -135,13 +140,13 @@ export default defineComponent({
       closeSwitchForm,
 
       mdiMagnify,
-      mdiPlus
+      mdiPlus,
     };
   },
 
   created() {
     //this.getSwitchesOf(this.build, this.floor).then(sws => (this.switches = sws));
-  }
+  },
 });
 </script>
 

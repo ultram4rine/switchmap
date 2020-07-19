@@ -2,14 +2,31 @@
   <div id="build">
     <v-row no-gutters dense>
       <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
-        <v-skeleton-loader class="mx-auto" type="card-heading, list-item, actions"></v-skeleton-loader>
+        <v-skeleton-loader
+          class="mx-auto"
+          type="card-heading, list-item, actions"
+        ></v-skeleton-loader>
       </v-col>
-      <v-col v-else v-for="f in floors" :key="f.number" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-else
+        v-for="f in floors"
+        :key="f.number"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-card class="ma-1" outlined>
           <v-card-title class="headline">
             Floor {{ f.number }}
             <v-spacer></v-spacer>
-            <v-btn icon small color="red" @click="deleteFloorOf(build, f.number)">
+            <v-btn
+              icon
+              small
+              color="red"
+              @click="deleteFloorOf(build, f.number)"
+            >
               <v-icon>{{ mdiDelete }}</v-icon>
             </v-btn>
           </v-card-title>
@@ -18,22 +35,38 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn dark small color="primary" @click="openSwitchForm('Add', f)">Add switch</v-btn>
+            <v-btn dark small color="primary" @click="openSwitchForm('Add', f)">
+              Add switch
+            </v-btn>
             <v-btn
               dark
               small
               color="primary"
-              :to="{ name: 'floor', params: { build: build, floor: f.number.toString() }}"
-            >Go</v-btn>
+              :to="{
+                name: 'floor',
+                params: { build: build, floor: f.number.toString() },
+              }"
+            >
+              Go
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
 
-      <v-col v-if="!isLoading && floors.length === 0" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-if="!isLoading && floors.length === 0"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-card class="ma-1" outlined>
           <v-list-item>
             <v-list-item-content>
-              <v-list-item-title class="headline mb-1">No floors to show</v-list-item-title>
+              <v-list-item-title class="headline mb-1">
+                No floors to show
+              </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-card>
@@ -66,7 +99,12 @@
       @close="closeSwitchForm"
     />
 
-    <Snackbar :snackbar="snackbar" :item="item" :action="action" @update="updateSnackbar" />
+    <Snackbar
+      :snackbar="snackbar"
+      :item="item"
+      :action="action"
+      @update="updateSnackbar"
+    />
   </div>
 </template>
 
@@ -87,13 +125,13 @@ import useSnackbar from "@/helpers/useSnackbar";
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
-    build: { type: String, required: true }
+    build: { type: String, required: true },
   },
 
   components: {
     FloorForm,
     SwitchForm,
-    Snackbar
+    Snackbar,
   },
 
   setup(props) {
@@ -104,10 +142,9 @@ export default defineComponent({
       openFloorForm,
       handleSubmitFloor,
       closeFloorForm,
-      floorError,
       getFloorsOf,
       addFloorTo,
-      deleteFloorOf
+      deleteFloorOf,
     } = useFloors();
 
     const {
@@ -121,8 +158,7 @@ export default defineComponent({
       switchFloor,
       openSwitchForm,
       closeSwitchForm,
-      switchError,
-      addSwitch
+      addSwitch,
     } = useSwitches();
 
     const handleSubmitSwitch = (
@@ -184,8 +220,6 @@ export default defineComponent({
       openSwitchForm,
       closeSwitchForm,
 
-      switchError,
-
       addSwitch,
 
       confirmation,
@@ -196,12 +230,12 @@ export default defineComponent({
       action,
       updateSnackbar,
 
-      mdiDelete
+      mdiDelete,
     };
   },
 
   created() {
     this.getFloorsOf(this.build).then(floors => (this.floors = floors));
-  }
+  },
 });
 </script>

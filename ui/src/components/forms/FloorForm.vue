@@ -12,7 +12,11 @@
       <ValidationObserver ref="observer" v-slot="{ invalid }">
         <v-card-text>
           <v-form ref="form">
-            <ValidationProvider v-slot="{ errors }" name="Number of floor" rules="required">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="Number of floor"
+              rules="required"
+            >
               <v-text-field
                 v-model="inputNumber"
                 :error-messages="errors"
@@ -29,7 +33,9 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">Add</v-btn>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
+            Add
+          </v-btn>
         </v-card-actions>
       </ValidationObserver>
     </v-card>
@@ -45,14 +51,14 @@ import { required } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "{_field_} is required"
+  message: "{_field_} is required",
 });
 
 export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
 
-    number: { type: String, required: true }
+    number: { type: String, required: true },
   },
 
   components: { ValidationObserver, ValidationProvider },
@@ -81,8 +87,8 @@ export default defineComponent({
       submit,
       close,
 
-      mdiClose
+      mdiClose,
     };
-  }
+  },
 });
 </script>

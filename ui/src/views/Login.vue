@@ -57,7 +57,7 @@ export default Vue.extend({
       show: false,
 
       username: "",
-      password: ""
+      password: "",
     };
   },
 
@@ -72,7 +72,7 @@ export default Vue.extend({
         .catch((err: any) => {
           console.log(err);
         });
-    }
-  }
+    },
+  },
 });
 </script>

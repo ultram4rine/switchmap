@@ -12,7 +12,11 @@
       <ValidationObserver ref="observer" v-slot="{ invalid }">
         <v-card-text>
           <v-form ref="form">
-            <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="Name"
+              rules="required"
+            >
               <v-text-field
                 v-model="inputName"
                 :error-messages="errors"
@@ -22,7 +26,11 @@
               ></v-text-field>
             </ValidationProvider>
 
-            <ValidationProvider v-slot="{ errors }" name="Short name" rules="required">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="Short name"
+              rules="required"
+            >
               <v-text-field
                 v-model="inputShortName"
                 :error-messages="errors"
@@ -38,7 +46,9 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">{{ action }}</v-btn>
+          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
+            {{ action }}
+          </v-btn>
         </v-card-actions>
       </ValidationObserver>
     </v-card>
@@ -54,7 +64,7 @@ import { required } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "{_field_} is required"
+  message: "{_field_} is required",
 });
 
 export default defineComponent({
@@ -63,7 +73,7 @@ export default defineComponent({
     action: { type: String, required: true },
 
     name: { type: String, required: true },
-    shortName: { type: String, required: true }
+    shortName: { type: String, required: true },
   },
 
   components: { ValidationObserver, ValidationProvider },
@@ -107,8 +117,8 @@ export default defineComponent({
       submit,
       close,
 
-      mdiClose
+      mdiClose,
     };
-  }
+  },
 });
 </script>

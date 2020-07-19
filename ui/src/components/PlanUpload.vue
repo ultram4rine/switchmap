@@ -8,7 +8,9 @@
       color="orange darken-1"
       required
     ></v-file-input>
-    <v-btn dark color="orange darken-1" class="mr-4" @click="upload">Upload</v-btn>
+    <v-btn dark color="orange darken-1" class="mr-4" @click="upload">
+      Upload
+    </v-btn>
   </v-form>
 </template>
 
@@ -18,7 +20,7 @@ export default Vue.extend({
   methods: {
     upload() {
       this.$emit("upload");
-    }
-  }
+    },
+  },
 });
 </script>
