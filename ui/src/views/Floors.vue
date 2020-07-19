@@ -183,7 +183,7 @@ export default defineComponent({
         props.build,
         switchFloor.value
       ).then(() => {
-        getFloorsOf(props.build).then(fs => {
+        getFloorsOf(props.build).then((fs) => {
           floors.value = fs;
           closeSwitchForm();
         });
@@ -235,7 +235,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getFloorsOf(this.build).then(floors => (this.floors = floors));
+    this.getFloorsOf(this.build).then((floors) => (this.floors = floors));
   },
 });
 </script>

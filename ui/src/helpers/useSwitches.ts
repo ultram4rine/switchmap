@@ -15,7 +15,7 @@ const switchesOfFloorEndpoint = (build: string, floor: string) => {
   return `${config.apiURL}/builds/${build}/${floor}/switches`;
 };
 
-export default function() {
+export default function () {
   const switches: Ref<Switch[]> = ref([]);
 
   const switchForm = ref(false);
@@ -145,7 +145,7 @@ export default function() {
     switchSNMPCommunity.value = snmpCommunity;
 
     addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
-      getAllSwitches().then(sws => {
+      getAllSwitches().then((sws) => {
         switches.value = sws;
         closeSwitchForm();
       })
@@ -168,7 +168,7 @@ export default function() {
     switchSNMPCommunity.value = snmpCommunity;
 
     addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
-      getSwitchesOf(b, f).then(sws => {
+      getSwitchesOf(b, f).then((sws) => {
         switches.value = sws;
         closeSwitchForm();
       })

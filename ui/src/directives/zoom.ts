@@ -14,7 +14,7 @@ const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
 };
 
 const directive: DirectiveOptions = {
-  inserted: el => {
+  inserted: (el) => {
     let scale = el.getBoundingClientRect().width / el.offsetWidth,
       oldScale;
 

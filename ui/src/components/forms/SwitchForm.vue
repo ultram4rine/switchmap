@@ -204,43 +204,43 @@ export default defineComponent({
 
     watch(
       () => props.name,
-      val => {
+      (val) => {
         inputName.value = val;
       }
     );
     watch(
       () => props.ipResolveMethod,
-      val => {
+      (val) => {
         inputIPResolveMethod.value = val;
       }
     );
     watch(
       () => props.ip,
-      val => {
+      (val) => {
         inputIP.value = val;
       }
     );
     watch(
       () => props.mac,
-      val => {
+      (val) => {
         inputMAC.value = val;
       }
     );
     watch(
       () => props.snmpCommunity,
-      val => {
+      (val) => {
         inputSNMPCommunity.value = val;
       }
     );
     watch(
       () => props.build,
-      val => {
+      (val) => {
         inputBuild.value = val;
       }
     );
     watch(
       () => props.floor,
-      val => {
+      (val) => {
         inputFloor.value = val;
       }
     );

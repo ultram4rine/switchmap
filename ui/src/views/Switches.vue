@@ -121,7 +121,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getAllSwitches().then(sws => (this.switches = sws));
+    this.getAllSwitches().then((sws) => (this.switches = sws));
   },
 });
 </script>

@@ -28,7 +28,7 @@ export default defineComponent({
 
       const nodes = new Array<Node>();
       const edges = new Array<Edge>();
-      switches.value.forEach(sw => {
+      switches.value.forEach((sw) => {
         nodes.push({ id: sw.name, label: sw.name });
         edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
       });
@@ -66,7 +66,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getAllSwitches().then(sws => {
+    this.getAllSwitches().then((sws) => {
       this.switches = sws;
       this.displaySwitches();
     });

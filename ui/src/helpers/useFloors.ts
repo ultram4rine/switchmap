@@ -11,7 +11,7 @@ const floorEndpoint = (build: string, floor: string) => {
   return `${config.apiURL}/builds/${build}/${floor}`;
 };
 
-export default function() {
+export default function () {
   const floors: Ref<Floor[]> = ref([]);
 
   const floorForm = ref(false);
@@ -69,7 +69,7 @@ export default function() {
   const handleSubmitFloor = (build: string, number: string) => {
     floorNumber.value = number;
     addFloorTo(build, parseInt(number)).then(() =>
-      getFloorsOf(build).then(fs => {
+      getFloorsOf(build).then((fs) => {
         floors.value = fs;
         closeFloorForm();
       })

@@ -49,24 +49,24 @@ export default Vue.extend({
     this.setToken(csrfToken);
 
     axios.interceptors.request.use(
-      config => {
+      (config) => {
         this.setLoading(true);
         const csrfToken = this.getToken();
         axios.defaults.headers.common["Csrf-Token"] = csrfToken;
         return config;
       },
-      error => {
+      (error) => {
         this.setLoading(false);
         return Promise.reject(error);
       }
     );
 
     axios.interceptors.response.use(
-      response => {
+      (response) => {
         this.setLoading(false);
         return response;
       },
-      err => {
+      (err) => {
         this.setLoading(false);
         return new Promise(() => {
           if (

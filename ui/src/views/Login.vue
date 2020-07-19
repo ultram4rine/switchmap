@@ -62,7 +62,7 @@ export default Vue.extend({
   },
 
   methods: {
-    login: function() {
+    login: function () {
       const { username, password } = this;
       this.$store
         .dispatch("auth/AUTH_LOGIN", { username, password })

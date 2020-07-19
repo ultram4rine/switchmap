@@ -174,9 +174,9 @@ export default defineComponent({
     const handleSubmitFloor = (number: string) => {
       floorNumber.value = number;
       addFloorTo(floorBuildShortName.value, parseInt(number)).then(() => {
-        getBuild(floorBuildShortName.value).then(build => {
+        getBuild(floorBuildShortName.value).then((build) => {
           const i = builds.value.findIndex(
-            b => b.shortName === floorBuildShortName.value
+            (b) => b.shortName === floorBuildShortName.value
           );
           builds.value[i] = build;
           closeFloorForm();
@@ -230,7 +230,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getAllBuilds().then(builds => (this.builds = builds));
+    this.getAllBuilds().then((builds) => (this.builds = builds));
   },
 });
 </script>

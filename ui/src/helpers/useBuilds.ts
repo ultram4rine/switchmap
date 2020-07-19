@@ -9,7 +9,7 @@ const buildEndpoint = (build: string) => {
   return `${config.apiURL}/builds/${build}`;
 };
 
-export default function() {
+export default function () {
   const builds: Ref<Build[]> = ref([]);
 
   const buildForm = ref(false);
@@ -122,7 +122,7 @@ export default function() {
     switch (buildAction.value) {
       case "Add":
         addBuild(name, shortName).then(() =>
-          getAllBuilds().then(bs => {
+          getAllBuilds().then((bs) => {
             builds.value = bs;
             closeBuildForm();
           })
@@ -130,9 +130,9 @@ export default function() {
         break;
       case "Change":
         updateBuild(buildFUSN.value, name, shortName).then(() => {
-          getBuild(shortName).then(build => {
+          getBuild(shortName).then((build) => {
             const i = builds.value.findIndex(
-              b => b.shortName == build.shortName
+              (b) => b.shortName == build.shortName
             );
             builds.value[i] = build;
 

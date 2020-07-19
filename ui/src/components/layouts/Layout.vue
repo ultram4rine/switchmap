@@ -73,7 +73,7 @@ export default Vue.extend({
   },
 
   methods: {
-    logout: function() {
+    logout: function () {
       this.$store.dispatch("auth/AUTH_LOGOUT").then(() => {
         this.$router.push("/login");
       });
