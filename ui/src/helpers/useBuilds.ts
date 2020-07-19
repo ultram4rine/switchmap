@@ -9,7 +9,7 @@ const buildEndpoint = (build: string) => {
   return `${config.apiURL}/builds/${build}`;
 };
 
-export default function () {
+export default function() {
   const builds: Ref<Build[]> = ref([]);
 
   const buildForm = ref(false);
@@ -26,65 +26,6 @@ export default function () {
   const buildFUSN = ref("");
   const buildFDN = ref("");
   const buildFDSN = ref("");
-
-  const openBuildForm = (action: string, b?: Build) => {
-    buildAction.value = action;
-    switch (action) {
-      case "Add":
-        buildName.value = "";
-        buildShortName.value = "";
-        break;
-      case "Change":
-        if (b != undefined) {
-          buildFUSN.value = b.shortName;
-
-          buildName.value = b.name;
-          buildShortName.value = b.shortName;
-        }
-        break;
-      default:
-        break;
-    }
-    buildForm.value = true;
-  };
-
-  const handleSubmitBuild = (name: string, shortName: string) => {
-    buildName.value = name;
-    buildShortName.value = shortName;
-    switch (buildAction.value) {
-      case "Add":
-        addBuild(name, shortName).then(() =>
-          getAllBuilds().then((bs) => {
-            builds.value = bs;
-            closeBuildForm();
-          })
-        );
-        break;
-      case "Change":
-        updateBuild(buildFUSN.value, name, shortName).then(() => {
-          getBuild(shortName).then((build) => {
-            const i = builds.value.findIndex(
-              (b) => b.shortName == build.shortName
-            );
-            builds.value[i] = build;
-
-            closeBuildForm();
-          });
-        });
-        break;
-      default:
-        console.log("what???");
-        break;
-    }
-  };
-
-  const closeBuildForm = () => {
-    buildForm.value = false;
-    buildAction.value = "Add";
-
-    buildName.value = "";
-    buildShortName.value = "";
-  };
 
   const buildError = ref("");
 
@@ -146,6 +87,65 @@ export default function () {
     }
   };
 
+  const openBuildForm = (action: string, b?: Build) => {
+    buildAction.value = action;
+    switch (action) {
+      case "Add":
+        buildName.value = "";
+        buildShortName.value = "";
+        break;
+      case "Change":
+        if (b != undefined) {
+          buildFUSN.value = b.shortName;
+
+          buildName.value = b.name;
+          buildShortName.value = b.shortName;
+        }
+        break;
+      default:
+        break;
+    }
+    buildForm.value = true;
+  };
+
+  const closeBuildForm = () => {
+    buildForm.value = false;
+    buildAction.value = "Add";
+
+    buildName.value = "";
+    buildShortName.value = "";
+  };
+
+  const handleSubmitBuild = (name: string, shortName: string) => {
+    buildName.value = name;
+    buildShortName.value = shortName;
+    switch (buildAction.value) {
+      case "Add":
+        addBuild(name, shortName).then(() =>
+          getAllBuilds().then(bs => {
+            builds.value = bs;
+            closeBuildForm();
+          })
+        );
+        break;
+      case "Change":
+        updateBuild(buildFUSN.value, name, shortName).then(() => {
+          getBuild(shortName).then(build => {
+            const i = builds.value.findIndex(
+              b => b.shortName == build.shortName
+            );
+            builds.value[i] = build;
+
+            closeBuildForm();
+          });
+        });
+        break;
+      default:
+        console.log("what???");
+        break;
+    }
+  };
+
   return {
     builds,
 
@@ -158,10 +158,6 @@ export default function () {
     buildFDN,
     buildFDSN,
 
-    openBuildForm,
-    handleSubmitBuild,
-    closeBuildForm,
-
     buildError,
 
     getAllBuilds,
@@ -169,5 +165,9 @@ export default function () {
     addBuild,
     updateBuild,
     deleteBuild,
+
+    openBuildForm,
+    closeBuildForm,
+    handleSubmitBuild,
   };
 }

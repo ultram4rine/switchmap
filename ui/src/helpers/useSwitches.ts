@@ -15,7 +15,7 @@ const switchesOfFloorEndpoint = (build: string, floor: string) => {
   return `${config.apiURL}/builds/${build}/${floor}/switches`;
 };
 
-export default function () {
+export default function() {
   const switches: Ref<Switch[]> = ref([]);
 
   const switchForm = ref(false);
@@ -27,100 +27,6 @@ export default function () {
   const switchSNMPCommunity = ref("");
   const switchBuild = ref("");
   const switchFloor = ref("");
-
-  const openSwitchForm = (
-    action: string,
-    b?: Build,
-    f?: Floor,
-    sw?: Switch
-  ) => {
-    switchAction.value = action;
-    switch (action) {
-      case "Add":
-        switchName.value = "";
-        switchIPResolveMethod.value = "Direct";
-        switchIP.value = "";
-        switchMAC.value = "";
-        switchSNMPCommunity.value = "Public";
-        if (b != undefined) {
-          switchBuild.value = b.shortName;
-        } else {
-          switchBuild.value = "";
-        }
-        if (f != undefined) {
-          switchFloor.value = f.number.toString();
-        } else {
-          switchFloor.value = "";
-        }
-        break;
-      case "Change":
-        console.log("later");
-        break;
-      default:
-        break;
-    }
-    switchForm.value = true;
-  };
-
-  const handleSubmitSwitchFromSwitchesView = (
-    name: string,
-    ipResolveMethod: string,
-    ip: string,
-    mac: string,
-    snmpCommunity: string,
-    b?: string,
-    f?: string
-  ) => {
-    switchName.value = name;
-    switchIPResolveMethod.value = ipResolveMethod;
-    switchIP.value = ip;
-    switchMAC.value = mac;
-    switchSNMPCommunity.value = snmpCommunity;
-
-    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
-      getAllSwitches().then((sws) => {
-        switches.value = sws;
-        closeSwitchForm();
-      })
-    );
-  };
-
-  const handleSubmitSwitchFromFloorView = (
-    name: string,
-    ipResolveMethod: string,
-    ip: string,
-    mac: string,
-    snmpCommunity: string,
-    b: string,
-    f: string
-  ) => {
-    switchName.value = name;
-    switchIPResolveMethod.value = ipResolveMethod;
-    switchIP.value = ip;
-    switchMAC.value = mac;
-    switchSNMPCommunity.value = snmpCommunity;
-
-    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
-      getSwitchesOf(b, f).then((sws) => {
-        switches.value = sws;
-        closeSwitchForm();
-      })
-    );
-  };
-
-  const closeSwitchForm = () => {
-    switchForm.value = false;
-
-    switchName.value = "";
-    switchIPResolveMethod.value = "Direct";
-    switchIP.value = "";
-    switchMAC.value = "";
-    switchSNMPCommunity.value = "Public";
-    switchBuild.value = "";
-    switchFloor.value = "";
-
-    switchAction.value = "Add";
-  };
 
   const switchError = ref("");
 
@@ -175,6 +81,100 @@ export default function () {
     }
   };
 
+  const openSwitchForm = (
+    action: string,
+    b?: Build,
+    f?: Floor,
+    sw?: Switch
+  ) => {
+    switchAction.value = action;
+    switch (action) {
+      case "Add":
+        switchName.value = "";
+        switchIPResolveMethod.value = "Direct";
+        switchIP.value = "";
+        switchMAC.value = "";
+        switchSNMPCommunity.value = "Public";
+        if (b != undefined) {
+          switchBuild.value = b.shortName;
+        } else {
+          switchBuild.value = "";
+        }
+        if (f != undefined) {
+          switchFloor.value = f.number.toString();
+        } else {
+          switchFloor.value = "";
+        }
+        break;
+      case "Change":
+        console.log("later");
+        break;
+      default:
+        break;
+    }
+    switchForm.value = true;
+  };
+
+  const closeSwitchForm = () => {
+    switchForm.value = false;
+
+    switchName.value = "";
+    switchIPResolveMethod.value = "Direct";
+    switchIP.value = "";
+    switchMAC.value = "";
+    switchSNMPCommunity.value = "Public";
+    switchBuild.value = "";
+    switchFloor.value = "";
+
+    switchAction.value = "Add";
+  };
+
+  const handleSubmitSwitchFromSwitchesView = (
+    name: string,
+    ipResolveMethod: string,
+    ip: string,
+    mac: string,
+    snmpCommunity: string,
+    b?: string,
+    f?: string
+  ) => {
+    switchName.value = name;
+    switchIPResolveMethod.value = ipResolveMethod;
+    switchIP.value = ip;
+    switchMAC.value = mac;
+    switchSNMPCommunity.value = snmpCommunity;
+
+    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
+      getAllSwitches().then(sws => {
+        switches.value = sws;
+        closeSwitchForm();
+      })
+    );
+  };
+
+  const handleSubmitSwitchFromFloorView = (
+    name: string,
+    ipResolveMethod: string,
+    ip: string,
+    mac: string,
+    snmpCommunity: string,
+    b: string,
+    f: string
+  ) => {
+    switchName.value = name;
+    switchIPResolveMethod.value = ipResolveMethod;
+    switchIP.value = ip;
+    switchMAC.value = mac;
+    switchSNMPCommunity.value = snmpCommunity;
+
+    addSwitch(name, ipResolveMethod, ip, mac, snmpCommunity, b, f).then(() =>
+      getSwitchesOf(b, f).then(sws => {
+        switches.value = sws;
+        closeSwitchForm();
+      })
+    );
+  };
+
   return {
     switches,
 
@@ -188,15 +188,15 @@ export default function () {
     switchBuild,
     switchFloor,
 
-    openSwitchForm,
-    handleSubmitSwitchFromSwitchesView,
-    handleSubmitSwitchFromFloorView,
-    closeSwitchForm,
-
     switchError,
 
     getAllSwitches,
     getSwitchesOf,
     addSwitch,
+
+    openSwitchForm,
+    closeSwitchForm,
+    handleSubmitSwitchFromSwitchesView,
+    handleSubmitSwitchFromFloorView,
   };
 }

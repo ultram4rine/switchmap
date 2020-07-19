@@ -11,38 +11,13 @@ const floorEndpoint = (build: string, floor: string) => {
   return `${config.apiURL}/builds/${build}/${floor}`;
 };
 
-export default function () {
+export default function() {
   const floors: Ref<Floor[]> = ref([]);
 
   const floorForm = ref(false);
   const floorNumber = ref("");
   const floorBuildName = ref("");
   const floorBuildShortName = ref("");
-
-  const openFloorForm = (b: Build) => {
-    floorBuildName.value = b.name;
-    floorBuildShortName.value = b.shortName;
-    floorNumber.value = "";
-    floorForm.value = true;
-  };
-
-  const handleSubmitFloor = (build: string, number: string) => {
-    floorNumber.value = number;
-    addFloorTo(build, parseInt(number)).then(() =>
-      getFloorsOf(build).then((fs) => {
-        floors.value = fs;
-        closeFloorForm();
-      })
-    );
-  };
-
-  const closeFloorForm = () => {
-    floorForm.value = false;
-    floorNumber.value = "";
-
-    floorBuildName.value = "";
-    floorBuildShortName.value = "";
-  };
 
   const floorError = ref("");
 
@@ -76,6 +51,31 @@ export default function () {
     }
   };
 
+  const openFloorForm = (b: Build) => {
+    floorBuildName.value = b.name;
+    floorBuildShortName.value = b.shortName;
+    floorNumber.value = "";
+    floorForm.value = true;
+  };
+
+  const closeFloorForm = () => {
+    floorForm.value = false;
+    floorNumber.value = "";
+
+    floorBuildName.value = "";
+    floorBuildShortName.value = "";
+  };
+
+  const handleSubmitFloor = (build: string, number: string) => {
+    floorNumber.value = number;
+    addFloorTo(build, parseInt(number)).then(() =>
+      getFloorsOf(build).then(fs => {
+        floors.value = fs;
+        closeFloorForm();
+      })
+    );
+  };
+
   return {
     floors,
 
@@ -84,14 +84,14 @@ export default function () {
     floorBuildName,
     floorBuildShortName,
 
-    openFloorForm,
-    handleSubmitFloor,
-    closeFloorForm,
-
     floorError,
 
     getFloorsOf,
     addFloorTo,
     deleteFloorOf,
+
+    openFloorForm,
+    closeFloorForm,
+    handleSubmitFloor,
   };
 }
