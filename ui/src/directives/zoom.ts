@@ -5,24 +5,20 @@ const apply = (elem: HTMLElement, transform: string) => {
   elem.style.transform = transform;
 };
 
-const addOnWheel = (elem: HTMLElement, handler: any) => {
+const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
   if (elem.addEventListener) {
     if ("onwheel" in document) {
       elem.addEventListener("wheel", handler);
-    } else if ("onmousewheel" in document) {
-      elem.addEventListener("mousewheel", handler);
-    } else {
-      elem.addEventListener("MozMousePixelScroll", handler);
     }
   }
 };
 
 const directive: DirectiveOptions = {
-  inserted: (el) => {
+  inserted: el => {
     let scale = el.getBoundingClientRect().width / el.offsetWidth,
       oldScale;
 
-    let rect, parentRect;
+    let rect: DOMRect;
     setTimeout(() => {
       rect = el.getBoundingClientRect();
     }, 0);
@@ -33,7 +29,7 @@ const directive: DirectiveOptions = {
       const pgX = e.pageX,
         pgY = e.pageY;
 
-      parentRect = (<Element>el!.parentNode!).getBoundingClientRect();
+      const parentRect = (el?.parentNode as Element).getBoundingClientRect();
       rect = el.getBoundingClientRect();
 
       const delta = Math.max(-1, Math.min(1, e.deltaY || e.detail));
