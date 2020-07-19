@@ -6,6 +6,7 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable no-unused-vars */
 import { defineComponent, ref } from "@vue/composition-api";
 
 import { Node, Edge, Network } from "vis-network/standalone";
@@ -14,7 +15,7 @@ import useSwitches from "@/helpers/useSwitches";
 
 export default defineComponent({
   props: {
-    isLoading: { type: Boolean, required: true }
+    isLoading: { type: Boolean, required: true },
   },
 
   setup() {
@@ -23,36 +24,35 @@ export default defineComponent({
     const { switches, getAllSwitches } = useSwitches();
 
     const displaySwitches = () => {
-      let container = <HTMLElement>document.getElementById("container");
+      const container = document.getElementById("container") as HTMLElement;
 
-      let nodes = new Array<Node>();
-      let edges = new Array<Edge>();
-
+      const nodes = new Array<Node>();
+      const edges = new Array<Edge>();
       switches.value.forEach(sw => {
         nodes.push({ id: sw.name, label: sw.name });
         edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
       });
 
-      let data = {
+      const data = {
         nodes: nodes,
-        edges: edges
+        edges: edges,
       };
 
-      let options = {
+      const options = {
         physics: { enabled: false },
         nodes: {
           physics: false,
           color: "rgb(255, 140, 0)",
           font: { color: "#181616", face: "sans-serif" },
-          shape: "box"
+          shape: "box",
         },
         edges: {
           arrows: { to: { enabled: true } },
-          color: { color: "#181616" }
-        }
+          color: { color: "#181616" },
+        },
       };
 
-      let network = new Network(container, data, options);
+      const network = new Network(container, data, options);
     };
 
     return {
@@ -61,13 +61,15 @@ export default defineComponent({
       switches,
       getAllSwitches,
 
-      displaySwitches
+      displaySwitches,
     };
   },
 
   created() {
-    this.getAllSwitches();
-    this.displaySwitches();
-  }
+    this.getAllSwitches().then(sws => {
+      this.switches = sws;
+      this.displaySwitches();
+    });
+  },
 });
 </script>
