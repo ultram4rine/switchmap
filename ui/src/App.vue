@@ -51,7 +51,7 @@ export default Vue.extend({
     axios.interceptors.request.use(
       config => {
         this.setLoading(true);
-        const csfrToken = this.getToken();
+        const csrfToken = this.getToken();
         axios.defaults.headers.common["Csrf-Token"] = csrfToken;
         return config;
       },
@@ -68,7 +68,7 @@ export default Vue.extend({
       },
       err => {
         this.setLoading(false);
-        return new Promise((_resolve, _reject) => {
+        return new Promise(() => {
           if (
             err.status === 401 &&
             err.config &&
