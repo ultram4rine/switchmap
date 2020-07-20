@@ -1,7 +1,7 @@
 package forms
 
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.{boolean, mapping, nonEmptyText}
 
 object SignInForm {
   val form: Form[Data] = Form(
