@@ -25,7 +25,7 @@ class BuildResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
 
   def create(
-    buildInput: BuildForm
+    buildInput: BuildForm.Data
   )(implicit mc: MarkerContext): Future[BuildResource] = {
     val build = Build(buildInput.name, buildInput.shortName)
     dataRepository.createBuild(build).flatMap { _ =>
@@ -35,7 +35,7 @@ class BuildResourceHandler @Inject() (
 
   def update(
     buildShortName: String,
-    buildInput: BuildForm
+    buildInput: BuildForm.Data
   )(implicit mc: MarkerContext): Future[BuildResource] = {
     val build = Build(buildInput.name, buildInput.shortName)
     dataRepository.updateBuild(buildShortName, build).flatMap { _ =>

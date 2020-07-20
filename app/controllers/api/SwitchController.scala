@@ -17,19 +17,7 @@ class SwitchController @Inject() (
 )(implicit ec: ExecutionContext)
     extends SwitchBaseController(cc) {
 
-  private val form: Form[SwitchForm] = {
-    import play.api.data.Forms._
-
-    Form(
-      mapping(
-        "name" -> nonEmptyText,
-        "mac" -> nonEmptyText,
-        "snmpCommunity" -> nonEmptyText,
-        "ipResolveMethod" -> nonEmptyText,
-        "ip" -> optional(text)
-      )(SwitchForm.apply)(SwitchForm.unapply)
-    )
-  }
+  private val form = SwitchForm.form
 
   def addSwitch(): Action[AnyContent] =
     ApiAction.async { implicit request =>
@@ -75,11 +63,11 @@ class SwitchController @Inject() (
   private def processJson4Create[A]()(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
-    def failure(badForm: Form[SwitchForm]) = {
+    def failure(badForm: Form[SwitchForm.Data]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
     }
 
-    def success(input: SwitchForm) = {
+    def success(input: SwitchForm.Data) = {
       switchResourceHandler
         .create(input)
         .map { switch => Created(Json.toJson(switch)) }
@@ -92,11 +80,11 @@ class SwitchController @Inject() (
     buildShortName: String,
     floorNumber: String
   )(implicit request: ApiRequest[A]): Future[Result] = {
-    def failure(badForm: Form[SwitchForm]) = {
+    def failure(badForm: Form[SwitchForm.Data]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
     }
 
-    def success(input: SwitchForm) = {
+    def success(input: SwitchForm.Data) = {
       switchResourceHandler
         .createWithLocation(input, buildShortName, floorNumber)
         .map { switch => Created(Json.toJson(switch)) }

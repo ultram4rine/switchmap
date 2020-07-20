@@ -17,15 +17,7 @@ class FloorController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FloorBaseController(cc) {
 
-  private val form: Form[FloorForm] = {
-    import play.api.data.Forms._
-
-    Form(
-      mapping(
-        "number" -> number
-      )(FloorForm.apply)(FloorForm.unapply)
-    )
-  }
+  private val form = FloorForm.form
 
   def floorsOf(buildAddr: String): Action[AnyContent] =
     ApiAction.async { implicit request =>
@@ -54,11 +46,11 @@ class FloorController @Inject() (
   private def processJsonFloor[A](buildShortName: String)(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
-    def failure(badForm: Form[FloorForm]) = {
+    def failure(badForm: Form[FloorForm.Data]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
     }
 
-    def success(input: FloorForm) = {
+    def success(input: FloorForm.Data) = {
       floorResourceHandler
         .create(buildShortName, input)
         .map { floor => Created(Json.toJson(floor)) }

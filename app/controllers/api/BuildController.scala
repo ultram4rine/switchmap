@@ -17,16 +17,7 @@ class BuildController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BuildBaseController(cc) {
 
-  private val form: Form[BuildForm] = {
-    import play.api.data.Forms._
-
-    Form(
-      mapping(
-        "name" -> nonEmptyText,
-        "shortName" -> nonEmptyText
-      )(BuildForm.apply)(BuildForm.unapply)
-    )
-  }
+  private val form = BuildForm.form
 
   def addBuild(): Action[AnyContent] =
     ApiAction.async { implicit request =>
@@ -65,11 +56,11 @@ class BuildController @Inject() (
   private def processJson4Create[A]()(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
-    def failure(badForm: Form[BuildForm]) = {
+    def failure(badForm: Form[BuildForm.Data]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
     }
 
-    def success(input: BuildForm) = {
+    def success(input: BuildForm.Data) = {
       buildResourceHandler
         .create(input)
         .map { build => Created(Json.toJson(build)) }
@@ -81,11 +72,11 @@ class BuildController @Inject() (
   private def processJson4Update[A](buildShortName: String)(implicit
     request: ApiRequest[A]
   ): Future[Result] = {
-    def failure(badForm: Form[BuildForm]) = {
+    def failure(badForm: Form[BuildForm.Data]) = {
       Future.successful(BadRequest(badForm.errorsAsJson))
     }
 
-    def success(input: BuildForm) = {
+    def success(input: BuildForm.Data) = {
       buildResourceHandler
         .update(buildShortName, input)
         .map { build => Created(Json.toJson(build)) }

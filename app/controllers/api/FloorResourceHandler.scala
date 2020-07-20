@@ -24,7 +24,7 @@ class FloorResourceHandler @Inject() (
 
   def create(
     buildShortName: String,
-    floorInput: FloorForm
+    floorInput: FloorForm.Data
   )(implicit mc: MarkerContext): Future[Option[FloorResource]] = {
     dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
       maybeBuild.map { build =>

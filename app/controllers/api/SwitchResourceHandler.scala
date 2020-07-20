@@ -38,7 +38,7 @@ class SwitchResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
 
   def create(
-    switchInput: SwitchForm
+    switchInput: SwitchForm.Data
   )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
     val futureMaybeIP = switchInput.ipResolveMethod match {
       case "DNS"    => dnsUtil.getIPByHostname(switchInput.name)
@@ -85,7 +85,7 @@ class SwitchResourceHandler @Inject() (
   }
 
   def createWithLocation(
-    switchInput: SwitchForm,
+    switchInput: SwitchForm.Data,
     buildShortName: String,
     floorNumber: String
   )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
