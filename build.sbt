@@ -16,7 +16,6 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "com.typesafe.play"      %% "play-slick"                      % "5.0.0",
       "org.postgresql"          % "postgresql"                      % "42.2.14",
-      "com.pauldijou"          %% "jwt-play-json"                   % "4.3.0",
       "com.unboundid"           % "unboundid-ldapsdk"               % "5.1.0",
       "org.snmp4j"              % "snmp4j"                          % "3.4.2",
       "com.mohiva"             %% "play-silhouette"                 % SilhouetteVersion,
