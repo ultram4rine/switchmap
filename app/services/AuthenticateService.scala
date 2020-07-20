@@ -5,8 +5,8 @@ import java.time.Instant
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import auth.User
-import auth.ldap.LDAPProvider
+import utils.auth.User
+import utils.auth.ldap.LDAPProvider
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.exceptions.{
   IdentityNotFoundException,

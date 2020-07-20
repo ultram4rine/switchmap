@@ -1,6 +1,6 @@
 package controllers
 
-import auth.{DefaultEnv, User}
+import utils.auth.{DefaultEnv, User}
 import com.mohiva.play.silhouette.api.services.AuthenticatorResult
 import com.mohiva.play.silhouette.api.util.Clock
 import com.mohiva.play.silhouette.api.{LoginEvent, LoginInfo, Silhouette}

@@ -1,4 +1,4 @@
-package auth
+package utils.auth
 
 import com.mohiva.play.silhouette.api.Identity
 import play.api.libs.json.{Json, OFormat}

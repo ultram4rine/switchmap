@@ -1,6 +1,6 @@
 package modules
 
-import auth.DefaultEnv
+import utils.auth.DefaultEnv
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.crypto.{

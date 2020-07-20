@@ -1,4 +1,4 @@
-package auth.ldap
+package utils.auth.ldap
 
 import java.security.MessageDigest
 

@@ -1,7 +1,7 @@
 package services
 
-import auth.User
-import auth.ldap.LDAP
+import utils.auth.User
+import utils.auth.ldap.LDAP
 import com.mohiva.play.silhouette.api.LoginInfo
 
 import scala.concurrent.{ExecutionContext, Future}

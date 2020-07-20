@@ -1,6 +1,6 @@
 package controllers
 
-import auth.DefaultEnv
+import utils.auth.DefaultEnv
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import com.mohiva.play.silhouette.api.{LogoutEvent, Silhouette}
 import javax.inject.{Inject, Singleton}

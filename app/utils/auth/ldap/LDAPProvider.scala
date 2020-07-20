@@ -1,4 +1,4 @@
-package auth.ldap
+package utils.auth.ldap
 
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.api.{LoginInfo, Provider}
