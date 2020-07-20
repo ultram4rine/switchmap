@@ -10,20 +10,12 @@ import com.mohiva.play.silhouette.api.crypto.{
 }
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
+import com.mohiva.play.silhouette.api.util._
 import com.mohiva.play.silhouette.api.{
   Environment,
   EventBus,
   Silhouette,
   SilhouetteProvider
-}
-import com.mohiva.play.silhouette.api.util.{
-  CacheLayer,
-  Clock,
-  FingerprintGenerator,
-  HTTPLayer,
-  IDGenerator,
-  PasswordHasherRegistry,
-  PlayHTTPLayer
 }
 import com.mohiva.play.silhouette.crypto.{
   JcaCrypter,
@@ -53,6 +45,7 @@ import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.Cookie
+import services.{UserService, UserServiceImpl}
 
 import scala.concurrent.ExecutionContext
 
@@ -76,8 +69,7 @@ class SilhouetteModule @Inject() ()(implicit
 
   override def configure() {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
-    // bind[UserService].to[UserServiceImpl]
-    // bind[UserDAO].to[UserDAOImpl]
+    bind[UserService].to[UserServiceImpl]
     bind[CacheLayer].to[PlayCacheLayer]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[FingerprintGenerator].toInstance(
