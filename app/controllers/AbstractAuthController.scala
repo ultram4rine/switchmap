@@ -3,7 +3,7 @@ package controllers
 import auth.{DefaultEnv, User}
 import com.mohiva.play.silhouette.api.services.AuthenticatorResult
 import com.mohiva.play.silhouette.api.util.Clock
-import com.mohiva.play.silhouette.api._
+import com.mohiva.play.silhouette.api.{LoginEvent, LoginInfo, Silhouette}
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.libs.json.Json
