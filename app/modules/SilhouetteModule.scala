@@ -40,6 +40,8 @@ import com.mohiva.play.silhouette.impl.util.{
 }
 import com.typesafe.config.Config
 import javax.inject.Inject
+import net.ceedubs.ficus.Ficus._
+import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.ceedubs.ficus.readers.ValueReader
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
@@ -99,7 +101,7 @@ class SilhouetteModule @Inject() ()(implicit
   @Provides
   @Named("csrf-state-item-signer")
   def provideCSRFStateItemSigner(configuration: Configuration): Signer = {
-    val config = configuration.get[JcaSignerSettings](
+    val config = configuration.underlying.as[JcaSignerSettings](
       "silhouette.csrfStateItemHandler.signer"
     )
 
@@ -110,7 +112,9 @@ class SilhouetteModule @Inject() ()(implicit
   @Named("authenticator-signer")
   def provideAuthenticatorSigner(configuration: Configuration): Signer = {
     val config =
-      configuration.get[JcaSignerSettings]("silhouette.authenticator.signer")
+      configuration.underlying.as[JcaSignerSettings](
+        "silhouette.authenticator.signer"
+      )
 
     new JcaSigner(config)
   }
@@ -119,7 +123,9 @@ class SilhouetteModule @Inject() ()(implicit
   @Named("authenticator-crypter")
   def provideAuthenticatorCrypter(configuration: Configuration): Crypter = {
     val config =
-      configuration.get[JcaCrypterSettings]("silhouette.authenticator.crypter")
+      configuration.underlying.as[JcaCrypterSettings](
+        "silhouette.authenticator.crypter"
+      )
 
     new JcaCrypter(config)
   }
@@ -132,7 +138,9 @@ class SilhouetteModule @Inject() ()(implicit
     clock: Clock
   ): AuthenticatorService[JWTAuthenticator] = {
     val config =
-      configuration.get[JWTAuthenticatorSettings]("silhouette.authenticator")
+      configuration.underlying.as[JWTAuthenticatorSettings](
+        "silhouette.authenticator"
+      )
     val encoder = new CrypterAuthenticatorEncoder(crypter)
 
     new JWTAuthenticatorService(config, None, encoder, idGenerator, clock)
@@ -145,7 +153,9 @@ class SilhouetteModule @Inject() ()(implicit
     configuration: Configuration
   ): CsrfStateItemHandler = {
     val settings =
-      configuration.get[CsrfStateSettings]("silhouette.csrfStateItemHandler")
+      configuration.underlying.as[CsrfStateSettings](
+        "silhouette.csrfStateItemHandler"
+      )
     new CsrfStateItemHandler(settings, idGenerator, signer)
   }
 
