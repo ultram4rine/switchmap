@@ -1,7 +1,9 @@
-->         /api                 controllers.api.ApiRouter
+->          /api                 controllers.api.ApiRouter
 
-GET        /favicon.ico         controllers.Assets.at(path="/public", file="favicon.ico")
-GET        /plans/*file         controllers.Assets.at(path="/public/plans", file)
-GET        /images/*file        controllers.Assets.at(path="/public/images", file)
+POST        /signIn              controllers.SignInController.submit
 
-GET        /$any<.*>            controllers.FrontendController.vueApp(any)
+GET         /favicon.ico         controllers.Assets.at(path="/public", file="favicon.ico")
+GET         /plans/*file         controllers.Assets.at(path="/public/plans", file)
+GET         /images/*file        controllers.Assets.at(path="/public/images", file)
+
+GET         /$any<.*>            controllers.FrontendController.vueApp(any)
