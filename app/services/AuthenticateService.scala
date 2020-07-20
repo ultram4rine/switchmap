@@ -6,13 +6,12 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import auth.User
-import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
+import auth.ldap.LDAPProvider
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.exceptions.{
   IdentityNotFoundException,
   InvalidPasswordException
 }
-import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import javax.inject.{Inject, Named}
 import services.BruteForceDefenderActor.{
   IsSignInAllowed,
@@ -25,7 +24,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthenticateService @Inject() (
-  credentialsProvider: CredentialsProvider,
+  credentialsProvider: LDAPProvider,
   userService: UserService,
   @Named("brute-force-defender") bruteForceDefenderActor: ActorRef
 )(implicit ec: ExecutionContext) {
