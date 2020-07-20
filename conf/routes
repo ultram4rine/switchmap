@@ -1,9 +1,10 @@
 ->          /api                 controllers.api.ApiRouter
 
-POST        /signIn              controllers.SignInController.submit
+POST        /login               controllers.SignInController.submit
+GET         /logout              controllers.ApplicationController.signOut
 
 GET         /favicon.ico         controllers.Assets.at(path="/public", file="favicon.ico")
 GET         /plans/*file         controllers.Assets.at(path="/public/plans", file)
 GET         /images/*file        controllers.Assets.at(path="/public/images", file)
 
-GET         /$any<.*>            controllers.FrontendController.vueApp(any)
+GET         /$any<.*>            controllers.ApplicationController.vueApp(any)

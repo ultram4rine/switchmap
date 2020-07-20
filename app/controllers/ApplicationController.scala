@@ -1,5 +1,8 @@
 package controllers
 
+import auth.DefaultEnv
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
+import com.mohiva.play.silhouette.api.{LogoutEvent, Silhouette}
 import javax.inject.{Inject, Singleton}
 import play.api.http.ContentTypes
 import play.api.libs.ws.WSClient
@@ -10,8 +13,9 @@ import services.IndexRenderService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class FrontendController @Inject() (
+class ApplicationController @Inject() (
   cc: ControllerComponents,
+  silhouette: Silhouette[DefaultEnv],
   environment: Environment,
   ws: WSClient,
   indexRenderService: IndexRenderService
@@ -19,13 +23,20 @@ class FrontendController @Inject() (
     extends AbstractController(cc) {
 
   def vueApp(path: String): Action[AnyContent] =
-    Action.async { implicit req =>
+    silhouette.UserAwareAction.async { implicit req =>
       environment.mode match {
         case Mode.Dev =>
           fetchWebpackServer(path)
         case _ =>
           renderIndexPage()
       }
+    }
+
+  def signOut: Action[AnyContent] =
+    silhouette.SecuredAction.async {
+      implicit request: SecuredRequest[DefaultEnv, AnyContent] =>
+        silhouette.env.eventBus.publish(LogoutEvent(request.identity, request))
+        silhouette.env.authenticatorService.discard(request.authenticator, Ok)
     }
 
   private def fetchWebpackServer(
