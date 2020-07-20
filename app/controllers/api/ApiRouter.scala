@@ -6,15 +6,11 @@ import play.api.routing.SimpleRouter
 import play.api.routing.sird._
 
 class ApiRouter @Inject() (
-  authController: AuthController,
   buildController: BuildController,
   floorController: FloorController,
   switchController: SwitchController
 ) extends SimpleRouter {
   override def routes: Routes = {
-    case POST(p"/auth") =>
-      authController.login
-
     case GET(p"/builds") =>
       buildController.builds
 
