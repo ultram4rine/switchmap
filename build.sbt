@@ -1,30 +1,32 @@
+val Http4sVersion = "0.21.6"
+val CirceVersion = "0.13.0"
+val Specs2Version = "4.10.0"
+val LogbackVersion = "1.2.3"
+
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala)
   .settings(
-    organization := """ru.sgu""",
-    name := """switchmap""",
-    version := "2.0-SNAPSHOT",
+    organization := "ru.sgu",
+    name := "switchmap",
+    version := "2.0.0-SNAPSHOT",
     scalaVersion := "2.13.3",
-    resolvers ++= Seq(Classpaths.typesafeReleases, Resolver.jcenterRepo),
     libraryDependencies ++= Seq(
-      caffeine,
-      guice,
-      jdbc,
-      ws
+      "org.http4s"      %% "http4s-blaze-server" % Http4sVersion,
+      "org.http4s"      %% "http4s-blaze-client" % Http4sVersion,
+      "org.http4s"      %% "http4s-circe"        % Http4sVersion,
+      "org.http4s"      %% "http4s-dsl"          % Http4sVersion,
+      "io.circe"        %% "circe-generic"       % CirceVersion,
+      "org.specs2"      %% "specs2-core"         % Specs2Version % "test",
+      "ch.qos.logback"  %  "logback-classic"     % LogbackVersion
     ),
-    libraryDependencies ++= Seq(
-      "com.typesafe.play"      %% "play-slick"               % "5.0.0",
-      "org.postgresql"          % "postgresql"               % "42.2.14",
-      "com.pauldijou"          %% "jwt-play-json"            % "4.3.0",
-      "com.unboundid"           % "unboundid-ldapsdk"        % "5.1.0",
-      "org.snmp4j"              % "snmp4j"                   % "3.4.2",
-      "net.codingwell"         %% "scala-guice"              % "4.2.7",
-      "net.logstash.logback"    % "logstash-logback-encoder" % "6.3",
-      "org.scalatestplus.play" %% "scalatestplus-play"       % "5.1.0" % Test
-    ),
-    scalacOptions ++= Seq(
-      "-feature",
-      "-deprecation",
-      "-Xfatal-warnings"
-    )
+    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
+    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
+
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-language:higherKinds",
+  "-language:postfixOps",
+  "-feature",
+  "-Xfatal-warnings",
+)
