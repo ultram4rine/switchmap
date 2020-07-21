@@ -24,45 +24,48 @@ class SignInController @Inject() (
 
   def submit: Action[AnyContent] =
     silhouette.UnsecuredAction.async { implicit request: Request[AnyContent] =>
-      SignInForm.form.bindFromRequest.fold(
-        _ => Future.successful(BadRequest),
-        data => {
-          authenticateService
-            .credentials(data.username, data.password)
-            .flatMap {
-              case Success(user) =>
-                val loginInfo = LoginInfo(CredentialsProvider.ID, user.username)
-                authenticateUser(user, loginInfo, data.rememberMe)
-              case InvalidPassword(attemptsAllowed) =>
-                Future.successful(
-                  Forbidden(
-                    Json.obj(
-                      "errorCode" -> "InvalidPassword",
-                      "attemptsAllowed" -> attemptsAllowed
+      SignInForm.form
+        .bindFromRequest()
+        .fold(
+          _ => Future.successful(BadRequest),
+          data => {
+            authenticateService
+              .credentials(data.username, data.password)
+              .flatMap {
+                case Success(user) =>
+                  val loginInfo =
+                    LoginInfo(CredentialsProvider.ID, user.username)
+                  authenticateUser(user, loginInfo, data.rememberMe)
+                case InvalidPassword(attemptsAllowed) =>
+                  Future.successful(
+                    Forbidden(
+                      Json.obj(
+                        "errorCode" -> "InvalidPassword",
+                        "attemptsAllowed" -> attemptsAllowed
+                      )
                     )
                   )
-                )
-              case UserNotFound =>
-                Future.successful(
-                  Forbidden(Json.obj("errorCode" -> "UserNotFound"))
-                )
-              case ToManyAuthenticateRequests(nextAllowedAttemptTime) =>
-                Future.successful(
-                  TooManyRequests(
-                    Json.obj(
-                      "errorCode" -> "TooManyRequests",
-                      "nextAllowedAttemptTime" -> nextAllowedAttemptTime
+                case UserNotFound =>
+                  Future.successful(
+                    Forbidden(Json.obj("errorCode" -> "UserNotFound"))
+                  )
+                case ToManyAuthenticateRequests(nextAllowedAttemptTime) =>
+                  Future.successful(
+                    TooManyRequests(
+                      Json.obj(
+                        "errorCode" -> "TooManyRequests",
+                        "nextAllowedAttemptTime" -> nextAllowedAttemptTime
+                      )
                     )
                   )
-                )
-            }
-            .recover {
-              case e =>
-                logger.error(s"Sign in error username = ${data.username}", e)
-                InternalServerError(Json.obj("errorCode" -> "SystemError"))
-            }
-        }
-      )
+              }
+              .recover {
+                case e =>
+                  logger.error(s"Sign in error username = ${data.username}", e)
+                  InternalServerError(Json.obj("errorCode" -> "SystemError"))
+              }
+          }
+        )
     }
 
 }

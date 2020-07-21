@@ -57,7 +57,7 @@ class SwitchController @Inject() (
 
   def switches: Action[AnyContent] =
     silhouette.SecuredAction.async { implicit request =>
-      switchResourceHandler.list.map { switches => Ok(Json.toJson(switches)) }
+      switchResourceHandler.list().map { switches => Ok(Json.toJson(switches)) }
     }
 
   def switchByName(switchName: String): Action[AnyContent] =
