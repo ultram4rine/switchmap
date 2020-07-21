@@ -3,7 +3,6 @@ package controllers.api
 import forms.FloorForm
 import javax.inject.Inject
 import models.Floor
-import play.api.MarkerContext
 import play.api.libs.json.{Format, Json}
 import repositories.DataRepository
 
@@ -25,7 +24,7 @@ class FloorResourceHandler @Inject() (
   def create(
     buildShortName: String,
     floorInput: FloorForm.Data
-  )(implicit mc: MarkerContext): Future[Option[FloorResource]] = {
+  ): Future[Option[FloorResource]] = {
     dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
       maybeBuild.map { build =>
         val floor = Floor(floorInput.number, build.name, build.shortName)
@@ -39,9 +38,7 @@ class FloorResourceHandler @Inject() (
     }
   }
 
-  def delete(buildShortName: String, floorNumber: Int)(implicit
-    mc: MarkerContext
-  ): Future[Option[Int]] = {
+  def delete(buildShortName: String, floorNumber: Int): Future[Option[Int]] = {
     dataRepository
       .getFloorByShortNameAndNum(buildShortName, floorNumber)
       .flatMap { maybeFloor =>
@@ -56,7 +53,7 @@ class FloorResourceHandler @Inject() (
 
   def listOf(
     buildShortName: String
-  )(implicit mc: MarkerContext): Future[Seq[FloorResource]] = {
+  ): Future[Seq[FloorResource]] = {
     dataRepository.getFloorOf(buildShortName).flatMap { floors =>
       createFloorResourceSeq(floors)
     }

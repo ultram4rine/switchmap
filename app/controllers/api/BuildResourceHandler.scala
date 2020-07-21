@@ -3,7 +3,6 @@ package controllers.api
 import forms.BuildForm
 import javax.inject.Inject
 import models.Build
-import play.api.MarkerContext
 import play.api.libs.json.{Format, Json}
 import repositories.DataRepository
 
@@ -26,7 +25,7 @@ class BuildResourceHandler @Inject() (
 
   def create(
     buildInput: BuildForm.Data
-  )(implicit mc: MarkerContext): Future[BuildResource] = {
+  ): Future[BuildResource] = {
     val build = Build(buildInput.name, buildInput.shortName)
     dataRepository.createBuild(build).flatMap { _ =>
       createBuildResource(build)
@@ -36,7 +35,7 @@ class BuildResourceHandler @Inject() (
   def update(
     buildShortName: String,
     buildInput: BuildForm.Data
-  )(implicit mc: MarkerContext): Future[BuildResource] = {
+  ): Future[BuildResource] = {
     val build = Build(buildInput.name, buildInput.shortName)
     dataRepository.updateBuild(buildShortName, build).flatMap { _ =>
       createBuildResource(build)
@@ -45,7 +44,7 @@ class BuildResourceHandler @Inject() (
 
   def delete(
     buildShortName: String
-  )(implicit mc: MarkerContext): Future[Option[Int]] = {
+  ): Future[Option[Int]] = {
     dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
       maybeBuild.map { build =>
         dataRepository.deleteBuild(build)
@@ -56,7 +55,7 @@ class BuildResourceHandler @Inject() (
     }
   }
 
-  def list(implicit mc: MarkerContext): Future[Seq[BuildResource]] = {
+  def list(): Future[Seq[BuildResource]] = {
     dataRepository.getBuilds.flatMap { builds =>
       val sortedBuilds =
         builds.sortBy(b => b.shortName.substring(1).toIntOption.getOrElse(1000))
@@ -66,7 +65,7 @@ class BuildResourceHandler @Inject() (
 
   def findByShortName(
     buildShortName: String
-  )(implicit mc: MarkerContext): Future[Option[BuildResource]] = {
+  ): Future[Option[BuildResource]] = {
     dataRepository.getBuildByShortName(buildShortName).flatMap { maybeBuild =>
       maybeBuild.map { build => createBuildResource(build) } match {
         case Some(b) => b.map(Some(_))

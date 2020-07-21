@@ -1,5 +1,6 @@
 package controllers.api
 
+import com.mohiva.play.silhouette.api.Silhouette
 import forms.BuildForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
@@ -7,11 +8,13 @@ import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
+import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class BuildController @Inject() (
+  silhouette: Silhouette[DefaultEnv],
   cc: BuildControllerComponents,
   buildResourceHandler: BuildResourceHandler
 )(implicit ec: ExecutionContext)
@@ -19,18 +22,40 @@ class BuildController @Inject() (
 
   private val form = BuildForm.form
 
+  private def failure[A](badForm: Form[BuildForm.Data]) = {
+    Future.successful(BadRequest(Json.toJson(badForm.errors)))
+  }
+
   def addBuild(): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      processJson4Create()
+    silhouette.SecuredAction.async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          failure,
+          input => {
+            buildResourceHandler
+              .create(input)
+              .map { build => Created(Json.toJson(build)) }
+          }
+        )
     }
 
   def updateBuild(buildShortName: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      processJson4Update(buildShortName)
+    silhouette.SecuredAction.async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          failure,
+          input => {
+            buildResourceHandler
+              .update(buildShortName, input)
+              .map { build => Created(Json.toJson(build)) }
+          }
+        )
     }
 
   def deleteBuild(buildAddr: String): Action[AnyContent] = {
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       buildResourceHandler.delete(buildAddr).map {
         case Some(_) => Ok
         case None    => NoContent
@@ -39,55 +64,23 @@ class BuildController @Inject() (
   }
 
   def builds: Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      buildResourceHandler.list.map { builds =>
+    silhouette.SecuredAction.async { implicit request =>
+      buildResourceHandler.list().map { builds =>
         Ok(Json.toJson(builds))
       }
     }
 
   def buildByShortName(buildAddr: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       buildResourceHandler.findByShortName(buildAddr).map {
         case Some(b) => Ok(Json.toJson(b))
         case None    => NoContent
       }
     }
 
-  private def processJson4Create[A]()(implicit
-    request: ApiRequest[A]
-  ): Future[Result] = {
-    def failure(badForm: Form[BuildForm.Data]) = {
-      Future.successful(BadRequest(badForm.errorsAsJson))
-    }
-
-    def success(input: BuildForm.Data) = {
-      buildResourceHandler
-        .create(input)
-        .map { build => Created(Json.toJson(build)) }
-    }
-
-    form.bindFromRequest().fold(failure, success)
-  }
-
-  private def processJson4Update[A](buildShortName: String)(implicit
-    request: ApiRequest[A]
-  ): Future[Result] = {
-    def failure(badForm: Form[BuildForm.Data]) = {
-      Future.successful(BadRequest(badForm.errorsAsJson))
-    }
-
-    def success(input: BuildForm.Data) = {
-      buildResourceHandler
-        .update(buildShortName, input)
-        .map { build => Created(Json.toJson(build)) }
-    }
-
-    form.bindFromRequest().fold(failure, success)
-  }
 }
 
 case class BuildControllerComponents @Inject() (
-  apiActionBuilder: ApiActionBuilder,
   buildResourceHandler: BuildResourceHandler,
   actionBuilder: DefaultActionBuilder,
   parsers: PlayBodyParsers,
@@ -100,9 +93,8 @@ case class BuildControllerComponents @Inject() (
 class BuildBaseController @Inject() (bcc: BuildControllerComponents)
     extends BaseController
     with RequestMarkerContext {
+
   override protected def controllerComponents: ControllerComponents = bcc
-
-  def ApiAction: ApiActionBuilder = bcc.apiActionBuilder
-
   def buildResourceHandler: BuildResourceHandler = bcc.buildResourceHandler
+
 }

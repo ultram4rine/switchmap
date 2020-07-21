@@ -3,7 +3,6 @@ package controllers.api
 import forms.SwitchForm
 import javax.inject.Inject
 import models.Switch
-import play.api.MarkerContext
 import play.api.libs.json.{Format, Json}
 import repositories.DataRepository
 import utils.{DNSUtil, SNMPUtil}
@@ -39,7 +38,7 @@ class SwitchResourceHandler @Inject() (
 
   def create(
     switchInput: SwitchForm.Data
-  )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
+  ): Future[Option[SwitchResource]] = {
     val futureMaybeIP = switchInput.ipResolveMethod match {
       case "DNS"    => dnsUtil.getIPByHostname(switchInput.name)
       case "Direct" => Future { switchInput.ip }
@@ -88,7 +87,7 @@ class SwitchResourceHandler @Inject() (
     switchInput: SwitchForm.Data,
     buildShortName: String,
     floorNumber: String
-  )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
+  ): Future[Option[SwitchResource]] = {
     val futureMaybeIP = switchInput.ipResolveMethod match {
       case "DNS"    => dnsUtil.getIPByHostname(switchInput.name)
       case "Direct" => Future { switchInput.ip }
@@ -133,7 +132,7 @@ class SwitchResourceHandler @Inject() (
     }
   }
 
-  def list(implicit mc: MarkerContext): Future[Seq[SwitchResource]] = {
+  def list(): Future[Seq[SwitchResource]] = {
     dataRepository.getSwitches.flatMap { switches =>
       createSwitchResourceSeq(switches)
     }
@@ -141,7 +140,7 @@ class SwitchResourceHandler @Inject() (
 
   def findByName(
     switchName: String
-  )(implicit mc: MarkerContext): Future[Option[SwitchResource]] = {
+  ): Future[Option[SwitchResource]] = {
     dataRepository.getSwitchByName(switchName).flatMap { maybeSwitch =>
       maybeSwitch.map { switch => createSwitchResource(switch) } match {
         case Some(sw) => sw.map(Some(_))
@@ -152,14 +151,15 @@ class SwitchResourceHandler @Inject() (
 
   def listOfBuild(
     buildAddr: String
-  )(implicit mc: MarkerContext): Future[Seq[SwitchResource]] = {
+  ): Future[Seq[SwitchResource]] = {
     dataRepository.getSwitchesOfBuild(buildAddr).flatMap { switches =>
       createSwitchResourceSeq(switches)
     }
   }
 
-  def listOfFloor(buildAddr: String, floorNumber: Int)(implicit
-    mc: MarkerContext
+  def listOfFloor(
+    buildAddr: String,
+    floorNumber: Int
   ): Future[Seq[SwitchResource]] = {
     dataRepository.getSwitchesOfFloor(buildAddr, floorNumber).flatMap {
       switches =>

@@ -1,5 +1,6 @@
 package controllers.api
 
+import com.mohiva.play.silhouette.api.Silhouette
 import forms.FloorForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
@@ -7,11 +8,13 @@ import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
+import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class FloorController @Inject() (
+  silhouette: Silhouette[DefaultEnv],
   cc: FloorControllerComponents,
   floorResourceHandler: FloorResourceHandler
 )(implicit ec: ExecutionContext)
@@ -19,20 +22,26 @@ class FloorController @Inject() (
 
   private val form = FloorForm.form
 
-  def floorsOf(buildAddr: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      floorResourceHandler.listOf(buildAddr).map { floors =>
-        Ok(Json.toJson(floors))
-      }
-    }
+  private def failure(badForm: Form[FloorForm.Data]) = {
+    Future.successful(BadRequest(Json.toJson(badForm.errors)))
+  }
 
   def addFloor(buildShortName: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      processJsonFloor(buildShortName)
+    silhouette.SecuredAction.async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          failure,
+          input => {
+            floorResourceHandler
+              .create(buildShortName, input)
+              .map { floor => Created(Json.toJson(floor)) }
+          }
+        )
     }
 
   def deleteFloor(buildAddr: String, floorNumber: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       floorNumber.toIntOption match {
         case Some(num) =>
           floorResourceHandler.delete(buildAddr, num).map {
@@ -43,25 +52,16 @@ class FloorController @Inject() (
       }
     }
 
-  private def processJsonFloor[A](buildShortName: String)(implicit
-    request: ApiRequest[A]
-  ): Future[Result] = {
-    def failure(badForm: Form[FloorForm.Data]) = {
-      Future.successful(BadRequest(badForm.errorsAsJson))
+  def floorsOf(buildAddr: String): Action[AnyContent] =
+    silhouette.SecuredAction.async { implicit request =>
+      floorResourceHandler.listOf(buildAddr).map { floors =>
+        Ok(Json.toJson(floors))
+      }
     }
 
-    def success(input: FloorForm.Data) = {
-      floorResourceHandler
-        .create(buildShortName, input)
-        .map { floor => Created(Json.toJson(floor)) }
-    }
-
-    form.bindFromRequest().fold(failure, success)
-  }
 }
 
 case class FloorControllerComponents @Inject() (
-  apiActionBuilder: ApiActionBuilder,
   floorResourceHandler: FloorResourceHandler,
   actionBuilder: DefaultActionBuilder,
   parsers: PlayBodyParsers,
@@ -74,9 +74,8 @@ case class FloorControllerComponents @Inject() (
 class FloorBaseController @Inject() (fcc: FloorControllerComponents)
     extends BaseController
     with RequestMarkerContext {
+
   override protected def controllerComponents: ControllerComponents = fcc
-
-  def ApiAction: ApiActionBuilder = fcc.apiActionBuilder
-
   def floorResourceHandler: FloorResourceHandler = fcc.floorResourceHandler
+
 }

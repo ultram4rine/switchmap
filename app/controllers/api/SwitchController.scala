@@ -1,5 +1,6 @@
 package controllers.api
 
+import com.mohiva.play.silhouette.api.Silhouette
 import forms.SwitchForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
@@ -7,11 +8,13 @@ import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
+import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SwitchController @Inject() (
+  silhouette: Silhouette[DefaultEnv],
   cc: SwitchControllerComponents,
   switchResourceHandler: SwitchResourceHandler
 )(implicit ec: ExecutionContext)
@@ -19,26 +22,46 @@ class SwitchController @Inject() (
 
   private val form = SwitchForm.form
 
+  private def failure[A](badForm: Form[SwitchForm.Data]) = {
+    Future.successful(BadRequest(Json.toJson(badForm.errors)))
+  }
+
   def addSwitch(): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      processJson4Create()
+    silhouette.SecuredAction.async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          failure,
+          input =>
+            switchResourceHandler
+              .create(input)
+              .map { switch => Created(Json.toJson(switch)) }
+        )
     }
 
   def addSwitchToFloor(
     buildShortName: String,
     floorNumber: String
   ): Action[AnyContent] =
-    ApiAction.async { implicit request =>
-      processJson4CreateWithLocation(buildShortName, floorNumber)
+    silhouette.SecuredAction.async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          failure,
+          input =>
+            switchResourceHandler
+              .createWithLocation(input, buildShortName, floorNumber)
+              .map { switch => Created(Json.toJson(switch)) }
+        )
     }
 
   def switches: Action[AnyContent] =
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       switchResourceHandler.list.map { switches => Ok(Json.toJson(switches)) }
     }
 
   def switchByName(switchName: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       switchResourceHandler.findByName(switchName).map {
         case Some(b) => Ok(Json.toJson(b))
         case None    => NoContent
@@ -46,56 +69,23 @@ class SwitchController @Inject() (
     }
 
   def switchesOfBuild(buildAddr: String): Action[AnyContent] =
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       switchResourceHandler.listOfBuild(buildAddr).map { switches =>
         Ok(Json.toJson(switches))
       }
     }
 
   def switchesOfFloor(buildAddr: String, floorNumber: Int): Action[AnyContent] =
-    ApiAction.async { implicit request =>
+    silhouette.SecuredAction.async { implicit request =>
       switchResourceHandler.listOfFloor(buildAddr, floorNumber).map {
         switches =>
           Ok(Json.toJson(switches))
       }
     }
 
-  private def processJson4Create[A]()(implicit
-    request: ApiRequest[A]
-  ): Future[Result] = {
-    def failure(badForm: Form[SwitchForm.Data]) = {
-      Future.successful(BadRequest(badForm.errorsAsJson))
-    }
-
-    def success(input: SwitchForm.Data) = {
-      switchResourceHandler
-        .create(input)
-        .map { switch => Created(Json.toJson(switch)) }
-    }
-
-    form.bindFromRequest().fold(failure, success)
-  }
-
-  private def processJson4CreateWithLocation[A](
-    buildShortName: String,
-    floorNumber: String
-  )(implicit request: ApiRequest[A]): Future[Result] = {
-    def failure(badForm: Form[SwitchForm.Data]) = {
-      Future.successful(BadRequest(badForm.errorsAsJson))
-    }
-
-    def success(input: SwitchForm.Data) = {
-      switchResourceHandler
-        .createWithLocation(input, buildShortName, floorNumber)
-        .map { switch => Created(Json.toJson(switch)) }
-    }
-
-    form.bindFromRequest().fold(failure, success)
-  }
 }
 
 case class SwitchControllerComponents @Inject() (
-  apiActionBuilder: ApiActionBuilder,
   switchResourceHandler: SwitchResourceHandler,
   actionBuilder: DefaultActionBuilder,
   parsers: PlayBodyParsers,
@@ -108,9 +98,8 @@ case class SwitchControllerComponents @Inject() (
 class SwitchBaseController @Inject() (scc: SwitchControllerComponents)
     extends BaseController
     with RequestMarkerContext {
+
   override protected def controllerComponents: ControllerComponents = scc
-
-  def ApiAction: ApiActionBuilder = scc.apiActionBuilder
-
   def switchResourceHandler: SwitchResourceHandler = scc.switchResourceHandler
+
 }
