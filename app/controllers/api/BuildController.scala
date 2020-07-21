@@ -5,7 +5,7 @@ import forms.BuildForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.http.FileMimeTypes
-import play.api.i18n.{Langs, MessagesApi}
+import play.api.i18n.{Langs, MessagesApi, MessagesProvider}
 import play.api.libs.json.Json
 import play.api.mvc._
 import utils.auth.DefaultEnv
@@ -17,13 +17,13 @@ class BuildController @Inject() (
   silhouette: Silhouette[DefaultEnv],
   cc: BuildControllerComponents,
   buildResourceHandler: BuildResourceHandler
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, provider: MessagesProvider)
     extends BuildBaseController(cc) {
 
   private val form = BuildForm.form
 
   private def failure[A](badForm: Form[BuildForm.Data]) = {
-    Future.successful(BadRequest(Json.toJson(badForm.errors)))
+    Future.successful(BadRequest(badForm.errorsAsJson))
   }
 
   def addBuild(): Action[AnyContent] =

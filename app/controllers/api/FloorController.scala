@@ -5,7 +5,7 @@ import forms.FloorForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.http.FileMimeTypes
-import play.api.i18n.{Langs, MessagesApi}
+import play.api.i18n.{Langs, MessagesApi, MessagesProvider}
 import play.api.libs.json.Json
 import play.api.mvc._
 import utils.auth.DefaultEnv
@@ -17,13 +17,13 @@ class FloorController @Inject() (
   silhouette: Silhouette[DefaultEnv],
   cc: FloorControllerComponents,
   floorResourceHandler: FloorResourceHandler
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, provider: MessagesProvider)
     extends FloorBaseController(cc) {
 
   private val form = FloorForm.form
 
   private def failure(badForm: Form[FloorForm.Data]) = {
-    Future.successful(BadRequest(Json.toJson(badForm.errors)))
+    Future.successful(BadRequest(badForm.errorsAsJson))
   }
 
   def addFloor(buildShortName: String): Action[AnyContent] =
