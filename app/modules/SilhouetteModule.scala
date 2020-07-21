@@ -1,6 +1,5 @@
 package modules
 
-import utils.auth.DefaultEnv
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.crypto.{
@@ -48,6 +47,7 @@ import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.Cookie
 import services.{UserService, UserServiceImpl}
+import utils.auth.DefaultEnv
 
 import scala.concurrent.ExecutionContext
 
@@ -69,7 +69,7 @@ class SilhouetteModule @Inject() ()(implicit
       }
     }
 
-  override def configure() {
+  override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UserService].to[UserServiceImpl]
     bind[CacheLayer].to[PlayCacheLayer]
