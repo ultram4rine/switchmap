@@ -30,7 +30,7 @@ class BuildRepository(transactor: Transactor[IO]) {
   }
 
   def createBuild(build: Build): Update0 = {
-    sql"INSERT INTO build (name, short_name) VALUES (${build.name}, ${build.shortName})".update
+    sql"INSERT INTO builds (name, short_name) VALUES (${build.name}, ${build.shortName})".update
   }
 
   def updateBuild(
