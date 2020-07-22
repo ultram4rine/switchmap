@@ -2,7 +2,7 @@ val Http4sVersion = "0.21.6"
 val CirceVersion = "0.13.0"
 val Specs2Version = "4.10.0"
 val LogbackVersion = "1.2.3"
-val DoobieVersion = "0.8.8"
+val DoobieVersion = "0.9.0"
 val PureConfigVersion = "0.13.0"
 
 lazy val root = (project in file("."))
@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "org.flywaydb"           % "flyway-core"            % "6.5.1",
+      "org.flywaydb"           % "flyway-core"            % "6.5.2",
       "org.postgresql"         % "postgresql"             % "42.2.14",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
