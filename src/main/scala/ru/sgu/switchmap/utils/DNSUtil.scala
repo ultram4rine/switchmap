@@ -1,15 +1,10 @@
-package utils
+package ru.sgu.switchmap.utils
 
 import java.net.InetAddress
 
-import javax.inject.{Inject, Singleton}
-import models.Switch
-import play.api.Configuration
-
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class DNSUtil @Inject() (configuration: Configuration)(implicit
+class DNSUtil(implicit
   ec: ExecutionContext
 ) {
   private lazy val dnsSuffix =

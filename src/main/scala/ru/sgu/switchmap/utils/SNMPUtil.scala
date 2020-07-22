@@ -1,8 +1,7 @@
-package utils
+package ru.sgu.switchmap.utils
 
 import java.util
 
-import javax.inject.{Inject, Singleton}
 import org.snmp4j.mp.SnmpConstants
 import org.snmp4j.smi._
 import org.snmp4j.transport.DefaultUdpTransportMapping
@@ -11,8 +10,7 @@ import org.snmp4j.{CommunityTarget, PDU, Snmp}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class SNMPUtil @Inject() (implicit ec: ExecutionContext) {
+class SNMPUtil(implicit ec: ExecutionContext) {
   private val entPhysicalDescr = new OID(".1.3.6.1.2.1.47.1.1.1.1.2.1")
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
   private val entPhysicalName = new OID(".1.3.6.1.2.1.47.1.1.1.1.7")

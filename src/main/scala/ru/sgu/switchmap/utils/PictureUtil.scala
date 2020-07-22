@@ -1,15 +1,13 @@
-package utils
+package ru.sgu.switchmap.utils
 
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
 
 import javax.imageio.ImageIO
-import javax.inject.Singleton
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
 class PictureUtil(implicit ec: ExecutionContext) {
   def convertPNGToJPG(filePath: String): Future[Boolean] =
     Future {
