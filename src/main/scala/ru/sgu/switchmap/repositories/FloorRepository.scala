@@ -3,7 +3,6 @@ package ru.sgu.switchmap.repositories
 import cats.effect.IO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import doobie.util.update.Update0
 import fs2.Stream
 import ru.sgu.switchmap.models.{Floor, FloorNotFoundError}
 
@@ -38,12 +37,20 @@ class FloorRepository(transactor: Transactor[IO]) {
       }
   }
 
-  def createFloor(floor: Floor): Update0 = {
+  def createFloor(floor: Floor): IO[Floor] = {
     sql"""
          INSERT INTO floors
          (number, build_name, build_short_name)
          VALUES (${floor.number}, ${floor.buildName}, ${floor.buildShortName})
-         """.update
+         """.update.run
+      .transact(transactor)
+      .map { _ =>
+        floor.copy(
+          number = floor.number,
+          buildName = floor.buildName,
+          buildShortName = floor.buildShortName
+        )
+      }
   }
 
   def deleteFloor(
