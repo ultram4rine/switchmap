@@ -16,6 +16,14 @@ class FloorRepository(transactor: Transactor[IO]) {
       .transact(transactor)
   }
 
+  def getNumberOfFloorsOf(build: String): IO[Int] = {
+    sql"SELECT COUNT(number) FROM floors WHERE build_short_name = $build"
+      .query[Int]
+      .option
+      .transact(transactor)
+      .map { case Some(num) => num }
+  }
+
   def getFloorByBuildAndNumber(
     build: String,
     number: Int
