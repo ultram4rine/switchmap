@@ -3,7 +3,6 @@ package ru.sgu.switchmap.repositories
 import cats.effect.IO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import doobie.util.update.Update0
 import fs2.Stream
 import ru.sgu.switchmap.models.{Build, BuildNotFoundError}
 
@@ -29,8 +28,12 @@ class BuildRepository(transactor: Transactor[IO]) {
       }
   }
 
-  def createBuild(build: Build): Update0 = {
-    sql"INSERT INTO builds (name, short_name) VALUES (${build.name}, ${build.shortName})".update
+  def createBuild(build: Build): IO[Build] = {
+    sql"INSERT INTO builds (name, short_name) VALUES (${build.name}, ${build.shortName})".update.run
+      .transact(transactor)
+      .map { _ =>
+        build.copy(name = build.name, shortName = build.shortName)
+      }
   }
 
   def updateBuild(
