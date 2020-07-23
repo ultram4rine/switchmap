@@ -30,6 +30,14 @@ class SwitchRepository(transactor: Transactor[IO]) {
       .transact(transactor)
   }
 
+  def getNumberOfSwitchesOfBuild(build: String): IO[Int] = {
+    sql"SELECT COUNT(name) FROM switches WHERE build_short_name = $build"
+      .query[Int]
+      .option
+      .transact(transactor)
+      .map { case Some(num) => num }
+  }
+
   def getSwitchesOfFloor(build: String, floor: Int): Stream[IO, Switch] = {
     sql"""
          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
@@ -39,6 +47,14 @@ class SwitchRepository(transactor: Transactor[IO]) {
       .query[Switch]
       .stream
       .transact(transactor)
+  }
+
+  def getNumberOfSwitchesOfFloor(build: String, floor: Int): IO[Int] = {
+    sql"SELECT COUNT(name) FROM switches WHERE build_short_name = $build AND floor_number = $floor"
+      .query[Int]
+      .option
+      .transact(transactor)
+      .map { case Some(num) => num }
   }
 
   def getSwitchByName(
