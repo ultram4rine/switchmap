@@ -39,7 +39,11 @@ class FloorRepository(transactor: Transactor[IO]) {
   }
 
   def createFloor(floor: Floor): Update0 = {
-    sql"INSERT INTO floors (number, build_name, build_short_name) VALUES (${floor.number}, ${floor.buildName}, ${floor.buildShortName})".update
+    sql"""
+         INSERT INTO floors
+         (number, build_name, build_short_name)
+         VALUES (${floor.number}, ${floor.buildName}, ${floor.buildShortName})
+         """.update
   }
 
   def deleteFloor(
