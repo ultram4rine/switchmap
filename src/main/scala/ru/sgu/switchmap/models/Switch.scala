@@ -1,6 +1,4 @@
-package models
-
-import play.api.libs.json.{Json, OFormat}
+package ru.sgu.switchmap.models
 
 case class Switch(
   name: String,
@@ -17,28 +15,6 @@ case class Switch(
   upSwitchName: Option[String],
   upSwitchMAC: Option[String],
   upLink: Option[String]
-) {
-  override def equals(that: Any): Boolean = false
-}
+)
 
-object Switch {
-  def tupled: (
-    (
-      String,
-      String,
-      String,
-      String,
-      Option[String],
-      Option[String],
-      Option[Int],
-      Option[String],
-      Option[Int],
-      Option[Float],
-      Option[Float],
-      Option[String],
-      Option[String],
-      Option[String]
-    )
-  ) => Switch = (Switch.apply _).tupled
-  implicit val switchFormat: OFormat[Switch] = Json.format[Switch]
-}
+case object SwitchNotFoundError
