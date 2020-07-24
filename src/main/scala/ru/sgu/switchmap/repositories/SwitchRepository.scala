@@ -3,7 +3,6 @@ package ru.sgu.switchmap.repositories
 import cats.effect.IO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import doobie.util.update.Update0
 import fs2.Stream
 import ru.sgu.switchmap.models.{Switch, SwitchNotFoundError}
 
@@ -74,7 +73,7 @@ class SwitchRepository(transactor: Transactor[IO]) {
       }
   }
 
-  def createSwitch(switch: Switch): Update0 = {
+  def createSwitch(switch: Switch): IO[Switch] = {
     sql"""
          INSERT INTO switches
          (name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
@@ -82,7 +81,26 @@ class SwitchRepository(transactor: Transactor[IO]) {
          VALUES (${switch.name}, ${switch.ip}, ${switch.mac}, ${switch.snmpCommunity}, ${switch.revision},
          ${switch.serial}, ${switch.portsNumber}, ${switch.buildShortName}, ${switch.floorNumber},
          ${switch.positionTop}, ${switch.positionLeft}, ${switch.upSwitchName}, ${switch.upSwitchMAC}, ${switch.upLink})
-         """.update
+         """.update.run
+      .transact(transactor)
+      .map { _ =>
+        switch.copy(
+          name = switch.name,
+          ip = switch.ip,
+          mac = switch.mac,
+          snmpCommunity = switch.snmpCommunity,
+          revision = switch.revision,
+          serial = switch.serial,
+          portsNumber = switch.portsNumber,
+          buildShortName = switch.buildShortName,
+          floorNumber = switch.floorNumber,
+          positionTop = switch.positionTop,
+          positionLeft = switch.positionLeft,
+          upSwitchName = switch.upSwitchName,
+          upSwitchMAC = switch.upSwitchMAC,
+          upLink = switch.upLink
+        )
+      }
   }
 
   def updateSwitch(
