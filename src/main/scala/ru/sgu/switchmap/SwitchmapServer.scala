@@ -1,42 +1,79 @@
 package ru.sgu.switchmap
 
-import cats.effect.{ConcurrentEffect, ContextShift, Timer}
+import cats.effect.{
+  Blocker,
+  ConcurrentEffect,
+  ContextShift,
+  ExitCode,
+  IO,
+  Resource,
+  Timer
+}
 import cats.implicits._
-import fs2.Stream
-import org.http4s.client.blaze.BlazeClientBuilder
+import doobie.hikari.HikariTransactor
+import doobie.util.ExecutionContexts
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
-import org.http4s.server.middleware.Logger
-
-import scala.concurrent.ExecutionContext.global
+import ru.sgu.switchmap.config.Config.Config
+import ru.sgu.switchmap.db.Database
+import ru.sgu.switchmap.repositories.{
+  BuildRepository,
+  FloorRepository,
+  SwitchRepository
+}
+import ru.sgu.switchmap.services.{BuildService, FloorService, SwitchService}
 
 object SwitchmapServer {
 
-  def stream[F[_]: ConcurrentEffect](implicit
-    T: Timer[F],
-    C: ContextShift[F]
-  ): Stream[F, Nothing] = {
+  def create(configFile: String = "application.conf")(implicit
+    contextShift: ContextShift[IO],
+    concurrentEffect: ConcurrentEffect[IO],
+    timer: Timer[IO]
+  ): IO[ExitCode] = {
+    resources(configFile).use(create)
+  }
+
+  private def resources(
+    configFile: String
+  )(implicit contextShift: ContextShift[IO]): Resource[IO, Resources] = {
     for {
-      client <- BlazeClientBuilder[F](global).stream
-      helloWorldAlg = HelloWorld.impl[F]
-      jokeAlg = Jokes.impl[F](client)
+      config <- Config.load(configFile)
+      ec <-
+        ExecutionContexts.fixedThreadPool[IO](config.database.threadPoolSize)
+      blocker <- Blocker[IO]
+      transactor <- Database.transactor(config.database, ec, blocker)
+    } yield Resources(transactor, config)
+  }
 
-      // Combine Service Routes into an HttpApp.
-      // Can also be done via a Router if you
-      // want to extract a segments not checked
-      // in the underlying routes.
-      httpApp = (
-          SwitchmapRoutes.helloWorldRoutes[F](helloWorldAlg) <+>
-            SwitchmapRoutes.jokeRoutes[F](jokeAlg)
-      ).orNotFound
-
-      // With Middlewares in place
-      finalHttpApp = Logger.httpApp(logHeaders = true, logBody = true)(httpApp)
-
-      exitCode <- BlazeServerBuilder[F](global)
-        .bindHttp(8080, "0.0.0.0")
-        .withHttpApp(finalHttpApp)
-        .serve
+  private def create(resources: Resources)(implicit
+    concurrentEffect: ConcurrentEffect[IO],
+    timer: Timer[IO]
+  ): IO[ExitCode] = {
+    for {
+      _ <- Database.initialize(resources.transactor)
+      buildRepository = new BuildRepository(resources.transactor)
+      floorRepository = new FloorRepository(resources.transactor)
+      switchRepository = new SwitchRepository(resources.transactor)
+      exitCode <-
+        BlazeServerBuilder[IO]
+          .bindHttp(resources.config.server.port, resources.config.server.host)
+          .withHttpApp(
+            (new BuildService(
+              buildRepository,
+              floorRepository,
+              switchRepository
+            ).routes <+> new FloorService(
+              buildRepository,
+              floorRepository,
+              switchRepository
+            ).routes <+> new SwitchService(switchRepository).routes).orNotFound
+          )
+          .serve
+          .compile
+          .lastOrError
     } yield exitCode
-  }.drain
+  }
+
+  case class Resources(transactor: HikariTransactor[IO], config: Config)
+
 }
