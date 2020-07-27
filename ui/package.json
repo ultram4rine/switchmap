@@ -12,19 +12,19 @@
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
     "@mdi/js": "^5.3.45",
-    "@vue/composition-api": "^1.0.0-beta.4",
+    "@vue/composition-api": "^1.0.0-beta.6",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "vee-validate": "^3.3.7",
-    "vis-network": "^7.10.0",
+    "vis-network": "^7.10.1",
     "vue": "^2.6.11",
     "vue-router": "^3.3.4",
-    "vuetify": "^2.3.4",
+    "vuetify": "^2.3.6",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.6.1",
-    "@typescript-eslint/parser": "^3.6.1",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
     "@vue/cli-plugin-babel": "^4.4.6",
     "@vue/cli-plugin-eslint": "^4.4.6",
     "@vue/cli-plugin-router": "^4.4.6",
@@ -39,7 +39,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "prettier": "^2.0.5",
     "typescript": "^3.9.7",
-    "vue-cli-plugin-vuetify": "^2.0.6",
+    "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-template-compiler": "^2.6.11"
   },
   "license": "MIT"
