@@ -12,7 +12,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
     "@mdi/js": "^5.5.55",
-    "@vue/composition-api": "^1.0.0-beta.9",
+    "@vue/composition-api": "^1.0.0-beta.10",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "vee-validate": "^3.3.9",
@@ -34,7 +34,7 @@
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.2",
     "clean-webpack-plugin": "^3.0.0",
-    "eslint": "^7.6.0",
+    "eslint": "^7.7.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-vue": "^6.2.2",
     "prettier": "^2.0.5",
