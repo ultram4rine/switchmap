@@ -1,9 +1,9 @@
-val Http4sVersion = "0.21.6"
+val Http4sVersion = "0.21.7"
 val CirceVersion = "0.13.0"
-val Specs2Version = "4.10.0"
+val Specs2Version = "4.10.3"
 val LogbackVersion = "1.2.3"
-val DoobieVersion = "0.9.0"
-val PureConfigVersion = "0.13.0"
+val DoobieVersion = "0.9.2"
+val PureConfigVersion = "0.14.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -22,13 +22,13 @@ lazy val root = (project in file("."))
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "org.flywaydb"           % "flyway-core"            % "6.5.2",
-      "org.postgresql"         % "postgresql"             % "42.2.14",
+      "org.flywaydb"           % "flyway-core"            % "6.5.7",
+      "org.postgresql"         % "postgresql"             % "42.2.16",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
       "com.pauldijou"         %% "jwt-circe"              % "4.3.0",
-      "com.unboundid"          % "unboundid-ldapsdk"      % "5.1.0",
-      "org.snmp4j"             % "snmp4j"                 % "3.4.2"
+      "com.unboundid"          % "unboundid-ldapsdk"      % "5.1.1",
+      "org.snmp4j"             % "snmp4j"                 % "3.4.3"
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
