@@ -16,7 +16,7 @@
     "axios": "^0.20.0",
     "core-js": "^3.6.5",
     "vee-validate": "^3.4.1",
-    "vis-network": "^8.3.3",
+    "vis-network": "^8.4.0",
     "vue": "^2.6.12",
     "vue-router": "^3.4.6",
     "vuetify": "^2.3.14",
