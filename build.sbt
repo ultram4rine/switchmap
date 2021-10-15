@@ -12,6 +12,8 @@ lazy val root = (project in file("."))
     version := "2.0.0-SNAPSHOT",
     scalaVersion := "2.13.3",
     libraryDependencies ++= Seq(
+      "dev.zio"               %% "zio"                    % "1.0.1",
+      "dev.zio"               %% "zio-interop-cats"       % "2.1.4.0",
       "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
       "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion,
       "org.http4s"            %% "http4s-circe"           % Http4sVersion,
