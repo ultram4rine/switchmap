@@ -1,64 +1,105 @@
 package ru.sgu.switchmap.repositories
 
-import cats.effect.IO
+import cats.effect.Blocker
 import doobie.implicits._
-import doobie.util.transactor.Transactor
-import fs2.Stream
-import ru.sgu.switchmap.models.{Switch, SwitchNotFoundError}
+import doobie.{Query0, Transactor, Update0}
+import zio._
+import zio.blocking.Blocking
+import zio.interop.catz._
+import ru.sgu.switchmap.models.{Switch, SwitchNotFound}
 
-class SwitchRepository(transactor: Transactor[IO]) {
+object SwitchRepository {
 
-  def getSwitches: Stream[IO, Switch] = {
+  trait Service {
+    def get(): Task[List[Switch]]
+    def getOf(build: String): Task[List[Switch]]
+    def getNumberOf(build: String): Task[Int]
+    def getOf(build: String, floor: Int): Task[List[Switch]]
+    def getNumberOf(build: String, floor: Int): Task[Int]
+    def get(name: String): Task[Switch]
+    def create(switch: Switch): Task[Switch]
+    def update(name: String, switch: Switch): Task[Switch]
+    def delete(name: String): Task[Boolean]
+  }
+
+  val live: URLayer[DBTransactor, SwitchRepository] =
+    ZLayer.fromService { resource =>
+      SwitchRepository(resource.xa)
+    }
+}
+
+private[repositories] final case class SwitchRepository(xa: Transactor[Task])
+    extends SwitchRepository.Service {
+
+  def get(): Task[List[Switch]] = {
     sql"""
           SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
           floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
          """
       .query[Switch]
-      .stream
-      .transact(transactor)
+      .to[List]
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        switches => Task.succeed(switches)
+      )
   }
 
-  def getSwitchesOfBuild(build: String): Stream[IO, Switch] = {
+  def getOf(build: String): Task[List[Switch]] = {
     sql"""
           SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
           floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
           WHERE build_short_name = $build
           """
       .query[Switch]
-      .stream
-      .transact(transactor)
+      .to[List]
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        switches => Task.succeed(switches)
+      )
   }
 
-  def getNumberOfSwitchesOfBuild(build: String): IO[Int] = {
+  def getNumberOf(build: String): Task[Int] = {
     sql"SELECT COUNT(name) FROM switches WHERE build_short_name = $build"
       .query[Int]
-      .option
-      .transact(transactor)
-      .map { case Some(num) => num }
+      .unique
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        num => Task.succeed(num)
+      )
   }
 
-  def getSwitchesOfFloor(build: String, floor: Int): Stream[IO, Switch] = {
+  def getOf(build: String, floor: Int): Task[List[Switch]] = {
     sql"""
          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
          WHERE build_short_name = $build AND floor_number = $floor
          """
       .query[Switch]
-      .stream
-      .transact(transactor)
+      .to[List]
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        num => Task.succeed(num)
+      )
   }
 
-  def getNumberOfSwitchesOfFloor(build: String, floor: Int): IO[Int] = {
+  def getNumberOf(build: String, floor: Int): Task[Int] = {
     sql"SELECT COUNT(name) FROM switches WHERE build_short_name = $build AND floor_number = $floor"
       .query[Int]
-      .option
-      .transact(transactor)
-      .map { case Some(num) => num }
+      .unique
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        num => Task.succeed(num)
+      )
   }
 
-  def getSwitchByName(
+  def get(
     name: String
-  ): IO[Either[SwitchNotFoundError.type, Switch]] = {
+  ): Task[Switch] = {
     sql"""
          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
@@ -66,14 +107,15 @@ class SwitchRepository(transactor: Transactor[IO]) {
          """
       .query[Switch]
       .option
-      .transact(transactor)
-      .map {
-        case Some(switch) => Right(switch)
-        case None         => Left(SwitchNotFoundError)
-      }
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        maybeSwitch =>
+          Task.require(SwitchNotFound(name))(Task.succeed(maybeSwitch))
+      )
   }
 
-  def createSwitch(switch: Switch): IO[Switch] = {
+  def create(switch: Switch): Task[Switch] = {
     sql"""
          INSERT INTO switches
          (name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
@@ -82,31 +124,17 @@ class SwitchRepository(transactor: Transactor[IO]) {
          ${switch.serial}, ${switch.portsNumber}, ${switch.buildShortName}, ${switch.floorNumber},
          ${switch.positionTop}, ${switch.positionLeft}, ${switch.upSwitchName}, ${switch.upSwitchMAC}, ${switch.upLink})
          """.update.run
-      .transact(transactor)
-      .map { _ =>
-        switch.copy(
-          name = switch.name,
-          ip = switch.ip,
-          mac = switch.mac,
-          snmpCommunity = switch.snmpCommunity,
-          revision = switch.revision,
-          serial = switch.serial,
-          portsNumber = switch.portsNumber,
-          buildShortName = switch.buildShortName,
-          floorNumber = switch.floorNumber,
-          positionTop = switch.positionTop,
-          positionLeft = switch.positionLeft,
-          upSwitchName = switch.upSwitchName,
-          upSwitchMAC = switch.upSwitchMAC,
-          upLink = switch.upLink
-        )
-      }
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        _ => Task.succeed(switch)
+      )
   }
 
-  def updateSwitch(
+  def update(
     name: String,
     switch: Switch
-  ): IO[Either[SwitchNotFoundError.type, Switch]] = {
+  ): Task[Switch] = {
     sql"""
          UPDATE switches
          SET name = ${switch.name}, ip = ${switch.ip}, mac = ${switch.mac}, snmp_community = ${switch.snmpCommunity},
@@ -116,8 +144,9 @@ class SwitchRepository(transactor: Transactor[IO]) {
          up_switch_name = ${switch.upSwitchName}, up_switch_mac = ${switch.upSwitchMAC}, up_link = ${switch.upLink}
          WHERE name = $name
          """.update.run
-      .transact(transactor)
-      .map { affectedRows =>
+      .transact(xa)
+      .foldM(err => Task.fail(err), _ => Task.succeed(switch))
+    /* .map { affectedRows =>
         if (affectedRows == 1) {
           Right(
             switch.copy(
@@ -140,19 +169,20 @@ class SwitchRepository(transactor: Transactor[IO]) {
         } else {
           Left(SwitchNotFoundError)
         }
-      }
+      } */
   }
 
-  def deleteSwitch(name: String): IO[Either[SwitchNotFoundError.type, Unit]] = {
+  def delete(name: String): Task[Boolean] = {
     sql"DELETE FROM switches WHERE name = $name".update.run
-      .transact(transactor)
-      .map { affectedRows =>
+      .transact(xa)
+      .fold(_ => false, _ => true)
+    /* .map { affectedRows =>
         if (affectedRows == 1) {
           Right(())
         } else {
           Left(SwitchNotFoundError)
         }
-      }
+      } */
   }
 
 }

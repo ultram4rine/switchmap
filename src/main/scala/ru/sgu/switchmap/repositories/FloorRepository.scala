@@ -1,71 +1,89 @@
 package ru.sgu.switchmap.repositories
 
-import cats.effect.IO
+import cats.effect.Blocker
 import doobie.implicits._
-import doobie.util.transactor.Transactor
-import fs2.Stream
-import ru.sgu.switchmap.models.{Floor, FloorNotFoundError}
+import doobie.{Query0, Transactor, Update0}
+import zio._
+import zio.blocking.Blocking
+import zio.interop.catz._
+import ru.sgu.switchmap.models.{Floor, FloorNotFound}
 
-class FloorRepository(transactor: Transactor[IO]) {
+object FloorRepository {
 
-  def getFloorsOf(build: String): Stream[IO, Floor] = {
+  trait Service {
+    def getOf(build: String): Task[List[Floor]]
+    def getNumberOf(build: String): Task[Int]
+    def get(build: String, number: Int): Task[Floor]
+    def create(floor: Floor): Task[Floor]
+    def delete(build: String, number: Int): Task[Boolean]
+  }
+
+  val live: URLayer[DBTransactor, FloorRepository] =
+    ZLayer.fromService { resource =>
+      FloorRepository(resource.xa)
+    }
+}
+
+private[repositories] final case class FloorRepository(tnx: Transactor[Task])
+    extends FloorRepository.Service {
+
+  def getOf(build: String): Task[List[Floor]] = {
     sql"SELECT number FROM floors WHERE build_short_name = $build"
       .query[Floor]
-      .stream
-      .transact(transactor)
+      .to[List]
+      .transact(tnx)
+      .foldM(
+        err => Task.fail(err),
+        floors => Task.succeed(floors)
+      )
   }
 
-  def getNumberOfFloorsOf(build: String): IO[Int] = {
+  def getNumberOf(build: String): Task[Int] = {
     sql"SELECT COUNT(number) FROM floors WHERE build_short_name = $build"
       .query[Int]
-      .option
-      .transact(transactor)
-      .map { case Some(num) => num }
+      .unique
+      .transact(tnx)
+      .foldM(
+        err => Task.fail(err),
+        num => Task.succeed(num)
+      )
   }
 
-  def getFloorByBuildAndNumber(
+  def get(
     build: String,
     number: Int
-  ): IO[Either[FloorNotFoundError.type, Floor]] = {
+  ): Task[Floor] = {
     sql"SELECT number FROM floors WHERE build_short_name = $build AND number = $number"
       .query[Floor]
       .option
-      .transact(transactor)
-      .map {
-        case Some(floor) => Right(floor)
-        case None        => Left(FloorNotFoundError)
-      }
+      .transact(tnx)
+      .foldM(
+        err => Task.fail(err),
+        maybeFloor =>
+          Task.require(FloorNotFound(number, build))(Task.succeed(maybeFloor))
+      )
   }
 
-  def createFloor(floor: Floor): IO[Floor] = {
+  def create(floor: Floor): Task[Floor] = {
     sql"""
          INSERT INTO floors
          (number, build_name, build_short_name)
          VALUES (${floor.number}, ${floor.buildName}, ${floor.buildShortName})
          """.update.run
-      .transact(transactor)
-      .map { _ =>
-        floor.copy(
-          number = floor.number,
-          buildName = floor.buildName,
-          buildShortName = floor.buildShortName
-        )
-      }
+      .transact(tnx)
+      .foldM(
+        err => Task.fail(err),
+        _ => Task.succeed(floor)
+      )
   }
 
-  def deleteFloor(
+  def delete(
     build: String,
     number: Int
-  ): IO[Either[FloorNotFoundError.type, Unit]] = {
+  ): Task[Boolean] = {
     sql"DELETE FROM floors WHERE build_short_name = $build AND number = $number".update.run
-      .transact(transactor)
-      .map { affectedRows =>
-        if (affectedRows == 1) {
-          Right(())
-        } else {
-          Left(FloorNotFoundError)
-        }
-      }
+      .transact(tnx)
+      .fold(_ => false, _ => true)
   }
 
 }
