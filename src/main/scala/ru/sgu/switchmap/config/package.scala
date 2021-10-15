@@ -37,7 +37,7 @@ package object config {
 
   object Config {
     import pureconfig.generic.auto._
-    val live: Layer[Throwable, Config] = ZLayer.fromEffectMany(
+    val live: ULayer[Config] = ZLayer.fromEffectMany(
       Task
         .effect(ConfigSource.default.loadOrThrow[AppConfig])
         .map(c => Has(c.api) ++ Has(c.db) ++ Has(c.ldap) ++ Has(c.dnsSuffix))
