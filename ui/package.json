@@ -13,7 +13,7 @@
     "@babel/polyfill": "^7.12.1",
     "@mdi/js": "^5.8.55",
     "@vue/composition-api": "^1.2.4",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "core-js": "^3.18.3",
     "vee-validate": "^3.4.13",
     "vis-network": "^8.5.4",
