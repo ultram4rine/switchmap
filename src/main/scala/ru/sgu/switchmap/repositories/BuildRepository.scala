@@ -20,12 +20,13 @@ object BuildRepository {
 
   val live: URLayer[DBTransactor, BuildRepository] =
     ZLayer.fromService { resource =>
-      BuildRepository(resource.xa)
+      DoobieBuildRepository(resource.xa)
     }
 }
 
-private[repositories] final case class BuildRepository(xa: Transactor[Task])
-    extends BuildRepository.Service {
+private[repositories] final case class DoobieBuildRepository(
+  xa: Transactor[Task]
+) extends BuildRepository.Service {
 
   def get(): Task[List[Build]] = {
     sql"SELECT name, short_name FROM builds"

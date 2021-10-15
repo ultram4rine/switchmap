@@ -24,12 +24,13 @@ object SwitchRepository {
 
   val live: URLayer[DBTransactor, SwitchRepository] =
     ZLayer.fromService { resource =>
-      SwitchRepository(resource.xa)
+      DoobieSwitchRepository(resource.xa)
     }
 }
 
-private[repositories] final case class SwitchRepository(xa: Transactor[Task])
-    extends SwitchRepository.Service {
+private[repositories] final case class DoobieSwitchRepository(
+  xa: Transactor[Task]
+) extends SwitchRepository.Service {
 
   def get(): Task[List[Switch]] = {
     sql"""
