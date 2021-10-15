@@ -1,13 +1,9 @@
 package ru.sgu.switchmap
 
-import doobie.util.transactor.Transactor
-import zio.{Has, RIO, Task, URLayer, ZLayer}
-import zio.interop.catz._
+import zio.{Has, RIO}
 import ru.sgu.switchmap.models.{Build, Floor, Switch}
-import ru.sgu.switchmap.config.DBConfig
 
 package object repositories {
-  type DBTransactor = Has[DBTransactor.Resource]
   type BuildRepository = Has[BuildRepository.Service]
   type FloorRepository = Has[FloorRepository.Service]
   type SwitchRepository = Has[SwitchRepository.Service]
@@ -56,22 +52,4 @@ package object repositories {
     RIO.accessM(_.get.update(name, sw))
   def deleteSwitch(name: String): RIO[SwitchRepository, Boolean] =
     RIO.accessM(_.get.delete(name))
-
-  object DBTransactor {
-    trait Resource {
-      val xa: Transactor[Task]
-    }
-
-    val pg: URLayer[Has[DBConfig], DBTransactor] = ZLayer.fromService { db =>
-      new Resource {
-        val xa: Transactor[Task] =
-          Transactor.fromDriverManager(
-            "org.postgresql.Driver",
-            db.url,
-            db.user,
-            db.password
-          )
-      }
-    }
-  }
 }

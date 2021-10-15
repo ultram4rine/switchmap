@@ -16,9 +16,8 @@ import org.http4s.server.middleware.CORS
 
 import ru.sgu.switchmap.config.{Config, APIConfig}
 import ru.sgu.switchmap.api._
-import ru.sgu.switchmap.db.Database
+import ru.sgu.switchmap.db.DBTransactor
 import ru.sgu.switchmap.repositories.{
-  DBTransactor,
   BuildRepository,
   FloorRepository,
   SwitchRepository
@@ -36,7 +35,7 @@ object Main extends App {
 
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Config.live ++ Clock.live
-  val dbTransactor: ULayer[DBTransactor] = Config.live >>> DBTransactor.pg
+  val dbTransactor: ULayer[DBTransactor] = Config.live >>> DBTransactor.live
   val buildRepository: ULayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
   val floorRepository: ULayer[FloorRepository] =

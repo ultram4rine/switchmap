@@ -6,6 +6,8 @@ import doobie.{Query0, Transactor, Update0}
 import zio._
 import zio.blocking.Blocking
 import zio.interop.catz._
+
+import ru.sgu.switchmap.db.DBTransactor
 import ru.sgu.switchmap.models.{Build, BuildNotFound}
 
 object BuildRepository {
