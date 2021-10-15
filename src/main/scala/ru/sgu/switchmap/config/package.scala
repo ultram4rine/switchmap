@@ -20,7 +20,6 @@ package object config {
 
   final case class APIConfig(endpoint: String, port: Int)
   final case class DBConfig(
-    driver: String,
     url: String,
     user: String,
     password: String

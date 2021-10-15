@@ -65,7 +65,12 @@ package object repositories {
     val pg: URLayer[Has[DBConfig], DBTransactor] = ZLayer.fromService { db =>
       new Resource {
         val xa: Transactor[Task] =
-          Transactor.fromDriverManager(db.driver, db.url, db.user, db.password)
+          Transactor.fromDriverManager(
+            "org.postgresql.Driver",
+            db.url,
+            db.user,
+            db.password
+          )
       }
     }
   }
