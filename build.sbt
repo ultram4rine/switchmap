@@ -8,6 +8,10 @@ lazy val root = (project in file("."))
     name := "switchmap",
     version := "2.0.0-SNAPSHOT",
     scalaVersion := "2.13.6",
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
+    ),
     libraryDependencies ++= Seq(
       "dev.zio"               %% "zio"                    % "1.0.12",
       "dev.zio"               %% "zio-interop-cats"       % "3.1.1.0",
@@ -25,6 +29,8 @@ lazy val root = (project in file("."))
       "org.postgresql"         % "postgresql"             % "42.2.24",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
+      "io.grpc"                % "grpc-netty"             % "1.41.0",
+      "com.thesamet.scalapb"  %% "scalapb-runtime-grpc"   % scalapb.compiler.Version.scalapbVersion,
       "com.pauldijou"         %% "jwt-circe"              % "5.0.0",
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
       "org.snmp4j"             % "snmp4j"                 % "3.5.1"
