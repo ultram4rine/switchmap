@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       "ch.qos.logback"         % "logback-classic"        % "1.2.6",
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
-      "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
+      "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
       "org.flywaydb"           % "flyway-core"            % "8.0.1",
       "org.postgresql"         % "postgresql"             % "42.2.24",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
