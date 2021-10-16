@@ -8,7 +8,7 @@ import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
 import zio._
 import zio.interop.catz._
 
-import ru.sgu.switchmap.models._
+import ru.sgu.switchmap.models.Switch
 import ru.sgu.switchmap.repositories._
 
 final case class SwitchRoutes[R <: SwitchRepository]() {
