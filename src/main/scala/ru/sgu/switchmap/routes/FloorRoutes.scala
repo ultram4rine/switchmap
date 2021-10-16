@@ -12,7 +12,6 @@ import ru.sgu.switchmap.models._
 import ru.sgu.switchmap.repositories._
 
 final case class FloorRoutes[R <: FloorRepository]() {
-
   type FloorTask[A] = RIO[R, A]
 
   implicit def circeJsonDecoder[A](implicit
@@ -35,7 +34,7 @@ final case class FloorRoutes[R <: FloorRepository]() {
         getFloor(shortName, number).foldM(_ => NotFound(), Ok(_))
 
       case req @ POST -> Root / "builds" / shortName / "floors" =>
-        req.decode[Floor] { floor =>
+        req.decode[DBFloor] { floor =>
           Created(createFloor(floor))
         }
 
@@ -44,16 +43,4 @@ final case class FloorRoutes[R <: FloorRepository]() {
           .foldM(_ => NotFound(), Ok(_))
     }
   }
-
-  /* private def createFloorResource(f: Floor): IO[FloorResource] = {
-    for {
-      swNum <-
-        switchRepository.getNumberOfSwitchesOfFloor(f.buildShortName, f.number)
-    } yield FloorResource(f.number, swNum)
-  } */
 }
-
-/* case class FloorResource(
-  number: Int,
-  switchesNumber: Int
-) */

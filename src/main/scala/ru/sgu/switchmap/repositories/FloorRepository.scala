@@ -8,15 +8,14 @@ import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{Floor, FloorNotFound}
+import ru.sgu.switchmap.models.{DBFloor, Floor, FloorNotFound}
 
 object FloorRepository {
 
   trait Service {
     def getOf(build: String): Task[List[Floor]]
-    def getNumberOf(build: String): Task[Int]
     def get(build: String, number: Int): Task[Floor]
-    def create(floor: Floor): Task[Floor]
+    def create(floor: DBFloor): Task[Boolean]
     def delete(build: String, number: Int): Task[Boolean]
   }
 
@@ -31,7 +30,7 @@ private[repositories] final case class DoobieFloorRepository(
 ) extends FloorRepository.Service {
 
   def getOf(build: String): Task[List[Floor]] = {
-    sql"SELECT number FROM floors WHERE build_short_name = $build"
+    sql"SELECT f.number AS number, COUNT(sw.name) AS switchesNumber FROM floors AS f JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build"
       .query[Floor]
       .to[List]
       .transact(tnx)
@@ -41,22 +40,11 @@ private[repositories] final case class DoobieFloorRepository(
       )
   }
 
-  def getNumberOf(build: String): Task[Int] = {
-    sql"SELECT COUNT(number) FROM floors WHERE build_short_name = $build"
-      .query[Int]
-      .unique
-      .transact(tnx)
-      .foldM(
-        err => Task.fail(err),
-        num => Task.succeed(num)
-      )
-  }
-
   def get(
     build: String,
     number: Int
   ): Task[Floor] = {
-    sql"SELECT number FROM floors WHERE build_short_name = $build AND number = $number"
+    sql"SELECT f.number AS number, COUNT(sw.name) AS switchesNumber FROM floors AS f JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build AND f.number = $number"
       .query[Floor]
       .option
       .transact(tnx)
@@ -67,17 +55,14 @@ private[repositories] final case class DoobieFloorRepository(
       )
   }
 
-  def create(floor: Floor): Task[Floor] = {
+  def create(floor: DBFloor): Task[Boolean] = {
     sql"""
          INSERT INTO floors
          (number, build_name, build_short_name)
          VALUES (${floor.number}, ${floor.buildName}, ${floor.buildShortName})
          """.update.run
       .transact(tnx)
-      .foldM(
-        err => Task.fail(err),
-        _ => Task.succeed(floor)
-      )
+      .fold(_ => false, _ => true)
   }
 
   def delete(

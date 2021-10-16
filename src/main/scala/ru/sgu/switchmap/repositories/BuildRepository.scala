@@ -8,15 +8,15 @@ import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{Build, BuildNotFound}
+import ru.sgu.switchmap.models.{DBBuild, Build, BuildNotFound}
 
 object BuildRepository {
 
   trait Service {
     def get(): Task[List[Build]]
     def get(shortName: String): Task[Build]
-    def create(build: Build): Task[Build]
-    def update(shortName: String, build: Build): Task[Build]
+    def create(build: DBBuild): Task[Boolean]
+    def update(shortName: String, build: DBBuild): Task[Boolean]
     def delete(shortName: String): Task[Boolean]
   }
 
@@ -31,7 +31,7 @@ private[repositories] final case class DoobieBuildRepository(
 ) extends BuildRepository.Service {
 
   def get(): Task[List[Build]] = {
-    sql"SELECT name, short_name FROM builds"
+    sql"SELECT b.name AS name, b.short_name AS shortName, COUNT(f.number) AS floorsNumber, COUNT(sw.name) AS switchesNumber FROM builds AS b JOIN floors AS f ON f.build_short_name = b.short_name JOIN switches ON sw.build_short_name = b.short_name AND sw.floor_number = f.number"
       .query[Build]
       .to[List]
       .transact(xa)
@@ -44,7 +44,7 @@ private[repositories] final case class DoobieBuildRepository(
   def get(
     shortName: String
   ): Task[Build] = {
-    sql"SELECT name, short_name FROM builds WHERE short_name = $shortName"
+    sql"SELECT b.name AS name, b.short_name AS shortName, COUNT(f.number) AS floorsNumber, COUNT(sw.name) AS switchesNumber FROM builds AS b JOIN floors AS f ON f.build_short_name = b.short_name JOIN switches ON sw.build_short_name = b.short_name AND sw.floor_number = f.number WHERE short_name = $shortName"
       .query[Build]
       .option
       .transact(xa)
@@ -55,19 +55,19 @@ private[repositories] final case class DoobieBuildRepository(
       )
   }
 
-  def create(build: Build): Task[Build] = {
+  def create(build: DBBuild): Task[Boolean] = {
     sql"INSERT INTO builds (name, short_name) VALUES (${build.name}, ${build.shortName})".update.run
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(build))
+      .fold(_ => false, _ => true)
   }
 
   def update(
     shortName: String,
-    build: Build
-  ): Task[Build] = {
+    build: DBBuild
+  ): Task[Boolean] = {
     sql"UPDATE builds SET name = ${build.name}, shortName = ${build.shortName} WHERE short_name = $shortName".update.run
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(build))
+      .fold(_ => false, _ => true)
   }
 
   def delete(

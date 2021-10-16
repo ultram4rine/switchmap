@@ -15,9 +15,7 @@ object SwitchRepository {
   trait Service {
     def get(): Task[List[Switch]]
     def getOf(build: String): Task[List[Switch]]
-    def getNumberOf(build: String): Task[Int]
     def getOf(build: String, floor: Int): Task[List[Switch]]
-    def getNumberOf(build: String, floor: Int): Task[Int]
     def get(name: String): Task[Switch]
     def create(switch: Switch): Task[Switch]
     def update(name: String, switch: Switch): Task[Switch]
@@ -63,17 +61,6 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def getNumberOf(build: String): Task[Int] = {
-    sql"SELECT COUNT(name) FROM switches WHERE build_short_name = $build"
-      .query[Int]
-      .unique
-      .transact(xa)
-      .foldM(
-        err => Task.fail(err),
-        num => Task.succeed(num)
-      )
-  }
-
   def getOf(build: String, floor: Int): Task[List[Switch]] = {
     sql"""
          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
@@ -82,17 +69,6 @@ private[repositories] final case class DoobieSwitchRepository(
          """
       .query[Switch]
       .to[List]
-      .transact(xa)
-      .foldM(
-        err => Task.fail(err),
-        num => Task.succeed(num)
-      )
-  }
-
-  def getNumberOf(build: String, floor: Int): Task[Int] = {
-    sql"SELECT COUNT(name) FROM switches WHERE build_short_name = $build AND floor_number = $floor"
-      .query[Int]
-      .unique
       .transact(xa)
       .foldM(
         err => Task.fail(err),
