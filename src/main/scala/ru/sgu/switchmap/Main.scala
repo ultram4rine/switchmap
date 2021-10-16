@@ -12,12 +12,11 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
-import org.http4s.server.middleware.CORS
 
-import ru.sgu.switchmap.config.{Config, APIConfig}
+import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.db.flywayMigrator.FlywayMigrator
+import ru.sgu.switchmap.db.FlywayMigrator
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
@@ -30,7 +29,6 @@ object Main extends App {
 
   type HttpServerEnvironment = Config with Clock with Blocking
   type AppEnvironment = HttpServerEnvironment
-    with FlywayMigrator
     with BuildRepository
     with FloorRepository
     with SwitchRepository
@@ -39,25 +37,23 @@ object Main extends App {
     Config.live ++ Clock.live ++ Blocking.live
   val dbTransactor: ULayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-  val flywayMigrator: ULayer[FlywayMigrator] =
-    Config.live >>> FlywayMigrator.live
   val buildRepository: ULayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
   val floorRepository: ULayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: ULayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
-  val appEnvironment: ULayer[AppEnvironment] =
-    httpServerEnvironment ++ flywayMigrator ++ buildRepository ++ floorRepository ++ switchRepository
+  val appEnvironment: Layer[Throwable, AppEnvironment] =
+    httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
-    val program
-      : ZIO[FlywayMigrator with Console with AppEnvironment, Throwable, Unit] =
+    val program: ZIO[AppEnvironment, Throwable, Unit] =
       for {
         api <- config.apiConfig
-        _ <- FlywayMigrator.migrate()
+        db <- config.dbConfig
+        _ <- FlywayMigrator.migrate(db)
         httpApp = Router[AppTask](
           "/" -> BuildRoutes().route,
           "/" -> FloorRoutes().route,
