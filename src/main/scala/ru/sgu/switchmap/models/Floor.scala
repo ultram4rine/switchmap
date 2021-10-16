@@ -1,5 +1,6 @@
 package ru.sgu.switchmap.models
 
-case class Floor(number: Int, buildName: String, buildShortName: String)
+final case class Floor(number: Int, buildName: String, buildShortName: String)
 
-case object FloorNotFoundError
+final case class FloorNotFound(number: Int, buildShortName: String)
+    extends Exception

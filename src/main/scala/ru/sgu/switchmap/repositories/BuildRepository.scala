@@ -1,68 +1,81 @@
 package ru.sgu.switchmap.repositories
 
-import cats.effect.IO
+import cats.effect.Blocker
 import doobie.implicits._
-import doobie.util.transactor.Transactor
-import fs2.Stream
-import ru.sgu.switchmap.models.{Build, BuildNotFoundError}
+import doobie.{Query0, Transactor, Update0}
+import zio._
+import zio.blocking.Blocking
+import zio.interop.catz._
 
-class BuildRepository(transactor: Transactor[IO]) {
+import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.models.{Build, BuildNotFound}
 
-  def getBuilds: Stream[IO, Build] = {
-    sql"SELECT name, short_name FROM builds"
-      .query[Build]
-      .stream
-      .transact(transactor)
+object BuildRepository {
+
+  trait Service {
+    def get(): Task[List[Build]]
+    def get(shortName: String): Task[Build]
+    def create(build: Build): Task[Build]
+    def update(shortName: String, build: Build): Task[Build]
+    def delete(shortName: String): Task[Boolean]
   }
 
-  def getBuildByShortName(
+  val live: URLayer[DBTransactor, BuildRepository] =
+    ZLayer.fromService { resource =>
+      DoobieBuildRepository(resource.xa)
+    }
+}
+
+private[repositories] final case class DoobieBuildRepository(
+  xa: Transactor[Task]
+) extends BuildRepository.Service {
+
+  def get(): Task[List[Build]] = {
+    sql"SELECT name, short_name FROM builds"
+      .query[Build]
+      .to[List]
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        builds => Task.succeed(builds)
+      )
+  }
+
+  def get(
     shortName: String
-  ): IO[Either[BuildNotFoundError.type, Build]] = {
+  ): Task[Build] = {
     sql"SELECT name, short_name FROM builds WHERE short_name = $shortName"
       .query[Build]
       .option
-      .transact(transactor)
-      .map {
-        case Some(build) => Right(build)
-        case None        => Left(BuildNotFoundError)
-      }
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        maybeBuild =>
+          Task.require(BuildNotFound(shortName))(Task.succeed(maybeBuild))
+      )
   }
 
-  def createBuild(build: Build): IO[Build] = {
+  def create(build: Build): Task[Build] = {
     sql"INSERT INTO builds (name, short_name) VALUES (${build.name}, ${build.shortName})".update.run
-      .transact(transactor)
-      .map { _ =>
-        build.copy(name = build.name, shortName = build.shortName)
-      }
+      .transact(xa)
+      .foldM(err => Task.fail(err), _ => Task.succeed(build))
   }
 
-  def updateBuild(
+  def update(
     shortName: String,
     build: Build
-  ): IO[Either[BuildNotFoundError.type, Build]] = {
+  ): Task[Build] = {
     sql"UPDATE builds SET name = ${build.name}, shortName = ${build.shortName} WHERE short_name = $shortName".update.run
-      .transact(transactor)
-      .map { affectedRows =>
-        if (affectedRows == 1) {
-          Right(build.copy(name = build.name, shortName = build.shortName))
-        } else {
-          Left(BuildNotFoundError)
-        }
-      }
+      .transact(xa)
+      .foldM(err => Task.fail(err), _ => Task.succeed(build))
   }
 
-  def deleteBuild(
+  def delete(
     shortName: String
-  ): IO[Either[BuildNotFoundError.type, Unit]] = {
+  ): Task[Boolean] = {
     sql"DELETE FROM builds WHERE short_name = $shortName".update.run
-      .transact(transactor)
-      .map { affectedRows =>
-        if (affectedRows == 1) {
-          Right(())
-        } else {
-          Left(BuildNotFoundError)
-        }
-      }
+      .transact(xa)
+      .fold(_ => false, _ => true)
   }
 
 }

@@ -1,6 +1,6 @@
 package ru.sgu.switchmap.models
 
-case class Switch(
+final case class Switch(
   name: String,
   ip: String,
   mac: String,
@@ -17,4 +17,4 @@ case class Switch(
   upLink: Option[String]
 )
 
-case object SwitchNotFoundError
+final case class SwitchNotFound(name: String) extends Exception
