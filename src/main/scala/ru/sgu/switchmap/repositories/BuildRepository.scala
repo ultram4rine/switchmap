@@ -1,6 +1,5 @@
 package ru.sgu.switchmap.repositories
 
-import cats.effect.Blocker
 import doobie.implicits._
 import doobie.{Query0, Transactor, Update0}
 import zio._
