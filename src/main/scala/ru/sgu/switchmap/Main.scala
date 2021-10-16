@@ -17,6 +17,7 @@ import org.http4s.server.middleware.CORS
 import ru.sgu.switchmap.config.{Config, APIConfig}
 import ru.sgu.switchmap.api._
 import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.db.flywayMigrator.FlywayMigrator
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
@@ -29,13 +30,17 @@ object Main extends App {
 
   type HttpServerEnvironment = Config with Clock
   type AppEnvironment = HttpServerEnvironment
+    with FlywayMigrator
     with BuildRepository
     with FloorRepository
     with SwitchRepository
 
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Config.live ++ Clock.live
-  val dbTransactor: ULayer[DBTransactor] = Config.live >>> DBTransactor.live
+  val dbTransactor: ULayer[DBTransactor] =
+    Config.live >>> DBTransactor.live
+  val flywayMigrator: ULayer[FlywayMigrator] =
+    Config.live >>> FlywayMigrator.live
   val buildRepository: ULayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
   val floorRepository: ULayer[FloorRepository] =
@@ -43,14 +48,16 @@ object Main extends App {
   val switchRepository: ULayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
   val appEnvironment: ULayer[AppEnvironment] =
-    httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    httpServerEnvironment ++ flywayMigrator ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
-    val program: ZIO[AppEnvironment, Throwable, Unit] =
+    val program
+      : ZIO[FlywayMigrator with Console with AppEnvironment, Throwable, Unit] =
       for {
         api <- config.apiConfig
+        _ <- FlywayMigrator.migrate()
         httpApp = Router[AppTask](
           "/" -> BuildAPI().route,
           "/" -> FloorAPI().route,
