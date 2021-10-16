@@ -3,6 +3,7 @@ package ru.sgu.switchmap
 import doobie.Transactor
 import zio.{Managed, Task, URLayer, ZLayer, Has}
 import zio.interop.catz._
+import zio.interop.catz.implicits._
 
 import ru.sgu.switchmap.config.DBConfig
 

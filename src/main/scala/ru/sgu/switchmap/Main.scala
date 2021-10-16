@@ -10,7 +10,7 @@ import zio.interop.catz.implicits._
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
-import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
 
@@ -28,7 +28,7 @@ object Main extends App {
   private val dsl = Http4sDsl[Task]
   import dsl._
 
-  type HttpServerEnvironment = Config with Clock
+  type HttpServerEnvironment = Config with Clock with Blocking
   type AppEnvironment = HttpServerEnvironment
     with FlywayMigrator
     with BuildRepository
@@ -36,7 +36,7 @@ object Main extends App {
     with SwitchRepository
 
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
-    Config.live ++ Clock.live
+    Config.live ++ Clock.live ++ Blocking.live
   val dbTransactor: ULayer[DBTransactor] =
     Config.live >>> DBTransactor.live
   val flywayMigrator: ULayer[FlywayMigrator] =
@@ -65,11 +65,11 @@ object Main extends App {
         ).orNotFound
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
-          val ec = rts.platform.executor.asEC
+          //val ec = rts.platform.executor.asEC
 
-          BlazeServerBuilder[AppTask](ec)
+          BlazeServerBuilder[AppTask]
             .bindHttp(api.port, api.endpoint)
-            .withHttpApp(CORS(httpApp))
+            .withHttpApp(httpApp)
             .serve
             .compile[AppTask, AppTask, CatsExitCode]
             .drain
