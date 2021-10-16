@@ -5,8 +5,8 @@ final case class DBBuild(name: String, shortName: String)
 final case class Build(
   name: String,
   shortName: String,
-  floorsNumber: Int,
-  switchesNumber: Int
+  floorsNumber: Long,
+  switchesNumber: Long
 )
 
 final case class BuildNotFound(shortName: String) extends Exception

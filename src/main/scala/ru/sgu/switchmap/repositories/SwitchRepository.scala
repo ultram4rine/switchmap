@@ -16,8 +16,8 @@ object SwitchRepository {
     def getOf(build: String): Task[List[Switch]]
     def getOf(build: String, floor: Int): Task[List[Switch]]
     def get(name: String): Task[Switch]
-    def create(switch: Switch): Task[Switch]
-    def update(name: String, switch: Switch): Task[Switch]
+    def create(switch: Switch): Task[Boolean]
+    def update(name: String, switch: Switch): Task[Boolean]
     def delete(name: String): Task[Boolean]
   }
 
@@ -31,13 +31,15 @@ private[repositories] final case class DoobieSwitchRepository(
   xa: Transactor[Task]
 ) extends SwitchRepository.Service {
 
+  import Tables.ctx._
+
   def get(): Task[List[Switch]] = {
-    sql"""
-          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
-          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches ORDER BY name ASC
-         """
-      .query[Switch]
-      .to[List]
+    val q = quote {
+      Tables.switches.sortBy(sw => sw.name)
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .foldM(
         err => Task.fail(err),
@@ -46,13 +48,14 @@ private[repositories] final case class DoobieSwitchRepository(
   }
 
   def getOf(build: String): Task[List[Switch]] = {
-    sql"""
-          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
-          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
-          WHERE build_short_name = $build ORDER BY name ASC
-          """
-      .query[Switch]
-      .to[List]
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.buildShortName.getOrNull == lift(build))
+        .sortBy(sw => sw.name)
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .foldM(
         err => Task.fail(err),
@@ -61,31 +64,37 @@ private[repositories] final case class DoobieSwitchRepository(
   }
 
   def getOf(build: String, floor: Int): Task[List[Switch]] = {
-    sql"""
-         SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
-         floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
-         WHERE build_short_name = $build AND floor_number = $floor ORDER BY name ASC
-         """
-      .query[Switch]
-      .to[List]
+    val q = quote {
+      Tables.switches
+        .filter(sw =>
+          sw.buildShortName.getOrNull == lift(
+            build
+          ) && sw.floorNumber.getOrNull == lift(floor)
+        )
+        .sortBy(sw => sw.name)
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .foldM(
         err => Task.fail(err),
-        num => Task.succeed(num)
+        switches => Task.succeed(switches)
       )
   }
 
   def get(
     name: String
   ): Task[Switch] = {
-    sql"""
-         SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
-         floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
-         WHERE name = $name
-         """
-      .query[Switch]
-      .option
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.name == lift(name))
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
+      .map(_.headOption)
       .foldM(
         err => Task.fail(err),
         maybeSwitch =>
@@ -93,74 +102,44 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def create(switch: Switch): Task[Switch] = {
-    sql"""
-         INSERT INTO switches
-         (name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
-         floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link)
-         VALUES (${switch.name}, ${switch.ip}, ${switch.mac}, ${switch.snmpCommunity}, ${switch.revision},
-         ${switch.serial}, ${switch.portsNumber}, ${switch.buildShortName}, ${switch.floorNumber},
-         ${switch.positionTop}, ${switch.positionLeft}, ${switch.upSwitchName}, ${switch.upSwitchMAC}, ${switch.upLink})
-         """.update.run
+  def create(switch: Switch): Task[Boolean] = {
+    val q = quote {
+      Tables.switches.insert(lift(switch))
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
-      .foldM(
-        err => Task.fail(err),
-        _ => Task.succeed(switch)
-      )
+      .fold(_ => false, _ => true)
   }
 
   def update(
     name: String,
     switch: Switch
-  ): Task[Switch] = {
-    sql"""
-         UPDATE switches
-         SET name = ${switch.name}, ip = ${switch.ip}, mac = ${switch.mac}, snmp_community = ${switch.snmpCommunity},
-         revision = ${switch.revision}, serial = ${switch.serial}, ports_number = ${switch.portsNumber},
-         build_short_name = ${switch.buildShortName}, floor_number = ${switch.floorNumber},
-         position_top = ${switch.positionTop}, position_left = ${switch.positionLeft},
-         up_switch_name = ${switch.upSwitchName}, up_switch_mac = ${switch.upSwitchMAC}, up_link = ${switch.upLink}
-         WHERE name = $name
-         """.update.run
+  ): Task[Boolean] = {
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.name == lift(name))
+        .update(lift(switch))
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(switch))
-    /* .map { affectedRows =>
-        if (affectedRows == 1) {
-          Right(
-            switch.copy(
-              name = switch.name,
-              ip = switch.ip,
-              mac = switch.mac,
-              snmpCommunity = switch.snmpCommunity,
-              revision = switch.revision,
-              serial = switch.serial,
-              portsNumber = switch.portsNumber,
-              buildShortName = switch.buildShortName,
-              floorNumber = switch.floorNumber,
-              positionTop = switch.positionTop,
-              positionLeft = switch.positionLeft,
-              upSwitchName = switch.upSwitchName,
-              upSwitchMAC = switch.upSwitchMAC,
-              upLink = switch.upLink
-            )
-          )
-        } else {
-          Left(SwitchNotFoundError)
-        }
-      } */
+      .fold(_ => false, _ => true)
   }
 
   def delete(name: String): Task[Boolean] = {
-    sql"DELETE FROM switches WHERE name = $name".update.run
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.name == lift(name))
+        .delete
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .fold(_ => false, _ => true)
-    /* .map { affectedRows =>
-        if (affectedRows == 1) {
-          Right(())
-        } else {
-          Left(SwitchNotFoundError)
-        }
-      } */
   }
 
 }

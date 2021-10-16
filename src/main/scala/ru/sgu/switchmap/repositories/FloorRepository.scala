@@ -7,7 +7,7 @@ import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{DBFloor, Floor, FloorNotFound}
+import ru.sgu.switchmap.models.{DBFloor, Floor, FloorNotFound, Switch}
 
 object FloorRepository {
 
@@ -25,14 +25,30 @@ object FloorRepository {
 }
 
 private[repositories] final case class DoobieFloorRepository(
-  tnx: Transactor[Task]
+  xa: Transactor[Task]
 ) extends FloorRepository.Service {
 
+  import Tables.ctx._
+
   def getOf(build: String): Task[List[Floor]] = {
-    sql"SELECT f.number AS number, COUNT(sw.name) AS switches_number FROM floors AS f LEFT JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build GROUP BY f.number ORDER BY f.number ASC"
-      .query[Floor]
-      .to[List]
-      .transact(tnx)
+    val q = quote {
+      Tables.floors
+        .leftJoin(Tables.switches)
+        .on((f, sw) => f.number == sw.floorNumber.getOrNull)
+        .sortBy(_._1.number)
+        .groupBy { case (f, _) => f.number }
+        .map {
+          case (number, rows) =>
+            Floor(
+              number,
+              rows.map(_._2.map(_.name)).size
+            )
+        }
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
       .foldM(
         err => Task.fail(err),
         floors => Task.succeed(floors)
@@ -43,10 +59,29 @@ private[repositories] final case class DoobieFloorRepository(
     build: String,
     number: Int
   ): Task[Floor] = {
-    sql"SELECT f.number AS number, COUNT(sw.name) AS switchesNumber FROM floors AS f LEFT JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build AND f.number = $number GROUP BY f.number"
-      .query[Floor]
-      .option
-      .transact(tnx)
+    val q = quote {
+      Tables.floors
+        .leftJoin(Tables.switches)
+        .on((f, sw) => f.number == sw.floorNumber.getOrNull)
+        .filter {
+          case (f, _) =>
+            f.buildShortName == lift(build) && f.number == lift(number)
+        }
+        .sortBy(_._1.number)
+        .groupBy { case (f, _) => f.number }
+        .map {
+          case (number, rows) =>
+            Floor(
+              number,
+              rows.map(_._2.map(_.name)).size
+            )
+        }
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .map(_.headOption)
       .foldM(
         err => Task.fail(err),
         maybeFloor =>
@@ -55,12 +90,13 @@ private[repositories] final case class DoobieFloorRepository(
   }
 
   def create(floor: DBFloor): Task[Boolean] = {
-    sql"""
-         INSERT INTO floors
-         (number, build_name, build_short_name)
-         VALUES (${floor.number}, ${floor.buildName}, ${floor.buildShortName})
-         """.update.run
-      .transact(tnx)
+    val q = quote {
+      Tables.floors.insert(lift(floor))
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
       .fold(_ => false, _ => true)
   }
 
@@ -68,8 +104,17 @@ private[repositories] final case class DoobieFloorRepository(
     build: String,
     number: Int
   ): Task[Boolean] = {
-    sql"DELETE FROM floors WHERE build_short_name = $build AND number = $number".update.run
-      .transact(tnx)
+    val q = quote {
+      Tables.floors
+        .filter(f =>
+          f.buildShortName == lift(build) && f.number == lift(number)
+        )
+        .delete
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
       .fold(_ => false, _ => true)
   }
 

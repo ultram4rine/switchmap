@@ -7,7 +7,7 @@ import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{DBBuild, Build, BuildNotFound}
+import ru.sgu.switchmap.models.{DBBuild, Build, BuildNotFound, DBFloor, Switch}
 
 object BuildRepository {
 
@@ -29,10 +29,32 @@ private[repositories] final case class DoobieBuildRepository(
   xa: Transactor[Task]
 ) extends BuildRepository.Service {
 
+  import Tables.ctx._
+
   def get(): Task[List[Build]] = {
-    sql"SELECT b.name AS name, b.short_name AS short_name, COUNT(f.number) AS floors_number, COUNT(sw.name) AS switches_number FROM builds AS b LEFT JOIN floors AS f ON f.build_short_name = b.short_name LEFT JOIN switches AS sw ON sw.build_short_name = b.short_name AND sw.floor_number = f.number GROUP BY b.name, b.short_name ORDER BY b.short_name ASC"
-      .query[Build]
-      .to[List]
+    val q = quote {
+      Tables.builds
+        .leftJoin(Tables.floors)
+        .on((b, f) => b.shortName == f.buildShortName)
+        .leftJoin(Tables.switches)
+        .on((bf, sw) =>
+          bf._1.shortName == sw.buildShortName.getOrNull && bf._2.getOrNull.number == sw.floorNumber.getOrNull
+        )
+        .sortBy(_._1._1.shortName)
+        .groupBy { case (b, _) => (b._1.name, b._1.shortName) }
+        .map {
+          case ((name, shortName), rows) =>
+            Build(
+              name,
+              shortName,
+              rows.map(_._1._2.map(_.number)).size,
+              rows.map(_._2.map(_.name)).size
+            )
+        }
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .foldM(
         err => Task.fail(err),
@@ -40,13 +62,33 @@ private[repositories] final case class DoobieBuildRepository(
       )
   }
 
-  def get(
-    shortName: String
-  ): Task[Build] = {
-    sql"SELECT b.name AS name, b.short_name AS short_name, COUNT(f.number) AS floors_number, COUNT(sw.name) AS switches_number FROM builds AS b LEFT JOIN floors AS f ON f.build_short_name = b.short_name LEFT JOIN switches AS sw ON sw.build_short_name = b.short_name AND sw.floor_number = f.number WHERE b.short_name = $shortName GROUP BY b.name, b.short_name"
-      .query[Build]
-      .option
+  def get(shortName: String): Task[Build] = {
+    val q = quote {
+      Tables.builds
+        .leftJoin(Tables.floors)
+        .on((b, f) => b.shortName == f.buildShortName)
+        .leftJoin(Tables.switches)
+        .on((bf, sw) =>
+          bf._1.shortName == sw.buildShortName.getOrNull && bf._2.getOrNull.number == sw.floorNumber.getOrNull
+        )
+        .filter { case (bf, _) => bf._1.shortName == lift(shortName) }
+        .sortBy(_._1._1.shortName)
+        .groupBy { case (b, _) => (b._1.name, b._1.shortName) }
+        .map {
+          case ((name, shortName), rows) =>
+            Build(
+              name,
+              shortName,
+              rows.map(_._1._2.map(_.number)).size,
+              rows.map(_._2.map(_.name)).size
+            )
+        }
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
+      .map(_.headOption)
       .foldM(
         err => Task.fail(err),
         maybeBuild =>
@@ -55,7 +97,12 @@ private[repositories] final case class DoobieBuildRepository(
   }
 
   def create(build: DBBuild): Task[Boolean] = {
-    sql"INSERT INTO builds (name, short_name) VALUES (${build.name}, ${build.shortName})".update.run
+    val q = quote {
+      Tables.builds.insert(lift(build))
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .fold(_ => false, _ => true)
   }
@@ -64,7 +111,14 @@ private[repositories] final case class DoobieBuildRepository(
     shortName: String,
     build: DBBuild
   ): Task[Boolean] = {
-    sql"UPDATE builds SET name = ${build.name}, shortName = ${build.shortName} WHERE short_name = $shortName".update.run
+    val q = quote {
+      Tables.builds
+        .filter(_.shortName == lift(shortName))
+        .update(lift(build))
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .fold(_ => false, _ => true)
   }
@@ -72,7 +126,14 @@ private[repositories] final case class DoobieBuildRepository(
   def delete(
     shortName: String
   ): Task[Boolean] = {
-    sql"DELETE FROM builds WHERE short_name = $shortName".update.run
+    val q = quote {
+      Tables.builds
+        .filter(_.shortName == lift(shortName))
+        .delete
+    }
+
+    Tables.ctx
+      .run(q)
       .transact(xa)
       .fold(_ => false, _ => true)
   }
