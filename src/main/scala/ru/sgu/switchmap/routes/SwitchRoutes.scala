@@ -1,4 +1,4 @@
-package ru.sgu.switchmap.api
+package ru.sgu.switchmap.routes
 
 import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
@@ -11,7 +11,7 @@ import zio.interop.catz._
 import ru.sgu.switchmap.models._
 import ru.sgu.switchmap.repositories._
 
-final case class SwitchAPI[R <: SwitchRepository]() {
+final case class SwitchRoutes[R <: SwitchRepository]() {
 
   type SwitchTask[A] = RIO[R, A]
 

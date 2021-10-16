@@ -15,7 +15,7 @@ import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
 
 import ru.sgu.switchmap.config.{Config, APIConfig}
-import ru.sgu.switchmap.api._
+import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
 import ru.sgu.switchmap.db.flywayMigrator.FlywayMigrator
 import ru.sgu.switchmap.repositories.{
@@ -59,9 +59,9 @@ object Main extends App {
         api <- config.apiConfig
         _ <- FlywayMigrator.migrate()
         httpApp = Router[AppTask](
-          "/" -> BuildAPI().route,
-          "/" -> FloorAPI().route,
-          "/" -> SwitchAPI().route
+          "/" -> BuildRoutes().route,
+          "/" -> FloorRoutes().route,
+          "/" -> SwitchRoutes().route
         ).orNotFound
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
