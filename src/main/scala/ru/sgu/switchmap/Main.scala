@@ -12,6 +12,8 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
+import io.grpc.ManagedChannelBuilder
+import scalapb.zio_grpc.ZManagedChannel
 
 import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
@@ -27,14 +29,15 @@ object Main extends App {
   private val dsl = Http4sDsl[Task]
   import dsl._
 
-  type HttpServerEnvironment = Config with Clock with Blocking
-  type AppEnvironment = HttpServerEnvironment
+  type HttpServerEnvironment = Clock with Blocking
+  type AppEnvironment = Config
+    with HttpServerEnvironment
     with BuildRepository
     with FloorRepository
     with SwitchRepository
 
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
-    Config.live ++ Clock.live ++ Blocking.live
+    Clock.live ++ Blocking.live
   val dbTransactor: ULayer[DBTransactor] =
     Config.live >>> DBTransactor.live
   val buildRepository: ULayer[BuildRepository] =
@@ -44,7 +47,7 @@ object Main extends App {
   val switchRepository: ULayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
   val appEnvironment: Layer[Throwable, AppEnvironment] =
-    httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
