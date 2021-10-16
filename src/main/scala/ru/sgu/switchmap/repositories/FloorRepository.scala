@@ -29,7 +29,7 @@ private[repositories] final case class DoobieFloorRepository(
 ) extends FloorRepository.Service {
 
   def getOf(build: String): Task[List[Floor]] = {
-    sql"SELECT f.number AS number, COUNT(sw.name) AS switchesNumber FROM floors AS f JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build"
+    sql"SELECT f.number AS number, COUNT(sw.name) AS switches_number FROM floors AS f LEFT JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build GROUP BY f.number ORDER BY f.number ASC"
       .query[Floor]
       .to[List]
       .transact(tnx)
@@ -43,7 +43,7 @@ private[repositories] final case class DoobieFloorRepository(
     build: String,
     number: Int
   ): Task[Floor] = {
-    sql"SELECT f.number AS number, COUNT(sw.name) AS switchesNumber FROM floors AS f JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build AND f.number = $number"
+    sql"SELECT f.number AS number, COUNT(sw.name) AS switchesNumber FROM floors AS f LEFT JOIN switches AS sw ON sw.floor_number = f.number WHERE f.build_short_name = $build AND f.number = $number GROUP BY f.number"
       .query[Floor]
       .option
       .transact(tnx)

@@ -34,7 +34,7 @@ private[repositories] final case class DoobieSwitchRepository(
   def get(): Task[List[Switch]] = {
     sql"""
           SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
-          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
+          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches ORDER BY name ASC
          """
       .query[Switch]
       .to[List]
@@ -49,7 +49,7 @@ private[repositories] final case class DoobieSwitchRepository(
     sql"""
           SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
           floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
-          WHERE build_short_name = $build
+          WHERE build_short_name = $build ORDER BY name ASC
           """
       .query[Switch]
       .to[List]
@@ -64,7 +64,7 @@ private[repositories] final case class DoobieSwitchRepository(
     sql"""
          SELECT name, ip, mac, snmp_community, revision, serial, ports_number, build_short_name,
          floor_number, position_top, position_left, up_switch_name, up_switch_mac, up_link FROM switches
-         WHERE build_short_name = $build AND floor_number = $floor
+         WHERE build_short_name = $build AND floor_number = $floor ORDER BY name ASC
          """
       .query[Switch]
       .to[List]

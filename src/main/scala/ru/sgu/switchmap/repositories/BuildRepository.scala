@@ -30,7 +30,7 @@ private[repositories] final case class DoobieBuildRepository(
 ) extends BuildRepository.Service {
 
   def get(): Task[List[Build]] = {
-    sql"SELECT b.name AS name, b.short_name AS shortName, COUNT(f.number) AS floorsNumber, COUNT(sw.name) AS switchesNumber FROM builds AS b JOIN floors AS f ON f.build_short_name = b.short_name JOIN switches ON sw.build_short_name = b.short_name AND sw.floor_number = f.number"
+    sql"SELECT b.name AS name, b.short_name AS short_name, COUNT(f.number) AS floors_number, COUNT(sw.name) AS switches_number FROM builds AS b LEFT JOIN floors AS f ON f.build_short_name = b.short_name LEFT JOIN switches AS sw ON sw.build_short_name = b.short_name AND sw.floor_number = f.number GROUP BY b.name, b.short_name ORDER BY b.short_name ASC"
       .query[Build]
       .to[List]
       .transact(xa)
@@ -43,7 +43,7 @@ private[repositories] final case class DoobieBuildRepository(
   def get(
     shortName: String
   ): Task[Build] = {
-    sql"SELECT b.name AS name, b.short_name AS shortName, COUNT(f.number) AS floorsNumber, COUNT(sw.name) AS switchesNumber FROM builds AS b JOIN floors AS f ON f.build_short_name = b.short_name JOIN switches ON sw.build_short_name = b.short_name AND sw.floor_number = f.number WHERE short_name = $shortName"
+    sql"SELECT b.name AS name, b.short_name AS short_name, COUNT(f.number) AS floors_number, COUNT(sw.name) AS switches_number FROM builds AS b LEFT JOIN floors AS f ON f.build_short_name = b.short_name LEFT JOIN switches AS sw ON sw.build_short_name = b.short_name AND sw.floor_number = f.number WHERE b.short_name = $shortName GROUP BY b.name, b.short_name"
       .query[Build]
       .option
       .transact(xa)
