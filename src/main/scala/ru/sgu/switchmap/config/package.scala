@@ -25,10 +25,12 @@ package object config {
     password: String
   )
   final case class LDAPConfig(
-    url: String,
-    baseDN: String,
+    host: String,
+    port: Int,
+    domain: String,
     bindUser: String,
-    bindPass: String
+    bindPass: String,
+    baseDN: String
   )
 
   val apiConfig: URIO[Has[APIConfig], APIConfig] = ZIO.access(_.get)
