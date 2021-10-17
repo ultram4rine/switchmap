@@ -19,7 +19,7 @@ import scalapb.zio_grpc.ZManagedChannel
 import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.db.flywayMigrator.FlywayMigrator
+import ru.sgu.switchmap.db.{FlywayMigrator, FlywayMigratorLive}
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
@@ -32,8 +32,8 @@ object Main extends App {
 
   type HttpServerEnvironment = Clock with Blocking
   type AppEnvironment = Config
-  //with LDAP
-    with FlywayMigrator
+  //with Has[LDAP]
+    with Has[FlywayMigrator]
     with HttpServerEnvironment
     with BuildRepository
     with FloorRepository
@@ -41,9 +41,9 @@ object Main extends App {
 
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-  //val ldapEnvironment: TaskLayer[LDAP] = Config.live >>> LDAPLive.layer
-  val flywayMigrator: TaskLayer[FlywayMigrator] =
-    dbTransactor >>> FlywayMigrator.live
+  //val ldapEnvironment: TaskLayer[Has[LDAP]] = Config.live >>> LDAPLive.layer
+  val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
+    Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Clock.live ++ Blocking.live
   val buildRepository: TaskLayer[BuildRepository] =

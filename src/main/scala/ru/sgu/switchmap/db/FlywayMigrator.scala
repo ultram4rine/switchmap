@@ -4,37 +4,38 @@ import doobie.hikari.HikariTransactor
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 import zio.console.{Console, putStrLn}
-import zio.{ZIO, Task, Has, URLayer, ZLayer}
+import zio.{ZIO, RIO, Task, Has, RLayer}
 
 import ru.sgu.switchmap.config.DBConfig
 
-object flywayMigrator {
-  type FlywayMigrator = Has[FlywayMigrator.Service]
+trait FlywayMigrator {
+  def migrate(): RIO[Console, MigrateResult]
+}
 
-  object FlywayMigrator {
-    trait Service {
-      def migrate(): ZIO[Console, Throwable, MigrateResult]
-    }
-
-    val live: URLayer[DBTransactor, FlywayMigrator] =
-      ZLayer.fromService { res =>
-        new Service {
-          override def migrate(): ZIO[Console, Throwable, MigrateResult] =
-            for {
-              _ <- putStrLn("Starting Flyway migration")
-              res <- res.xa.configure(ds =>
-                ZIO.effect {
-                  Flyway.configure().dataSource(ds).load().migrate()
-                }
-              )
-              _ <- putStrLn("Finished Flyway migration")
-            } yield res
+case class FlywayMigratorLive(
+  console: Console.Service,
+  res: DBTransactor.Resource
+) extends FlywayMigrator {
+  override def migrate(): RIO[Console, MigrateResult] =
+    for {
+      _ <- putStrLn("Starting Flyway migration")
+      res <- res.xa.configure(ds =>
+        ZIO.effect {
+          Flyway.configure().dataSource(ds).load().migrate()
         }
-      }
-
-    def migrate(): ZIO[FlywayMigrator with Console, Throwable, MigrateResult] =
-      ZIO.accessM[FlywayMigrator with Console](
-        _.get.migrate()
       )
-  }
+      _ <- putStrLn("Finished Flyway migration")
+    } yield res
+}
+
+object FlywayMigratorLive {
+  val layer: RLayer[Has[Console.Service] with Has[DBTransactor.Resource], Has[
+    FlywayMigrator
+  ]] =
+    (FlywayMigratorLive(_, _)).toLayer
+}
+
+object FlywayMigrator {
+  def migrate(): RIO[Has[FlywayMigrator] with Console, MigrateResult] =
+    ZIO.accessM[Has[FlywayMigrator] with Console](_.get.migrate())
 }
