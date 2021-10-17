@@ -15,6 +15,7 @@ import org.http4s.server.Router
 import io.grpc.ManagedChannelBuilder
 import scalapb.zio_grpc.ZManagedChannel
 
+//import ru.sgu.switchmap.auth.ldap.LDAP
 import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
@@ -31,6 +32,7 @@ object Main extends App {
 
   type HttpServerEnvironment = Clock with Blocking
   type AppEnvironment = Config
+  //with LDAP
     with FlywayMigrator
     with HttpServerEnvironment
     with BuildRepository
@@ -41,6 +43,7 @@ object Main extends App {
     Clock.live ++ Blocking.live
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
+  //val ldapEnvironment: TaskLayer[LDAP] = Config.live >>> LDAP.live
   val flywayMigrator: TaskLayer[FlywayMigrator] =
     dbTransactor >>> FlywayMigrator.live
   val buildRepository: TaskLayer[BuildRepository] =
@@ -50,7 +53,7 @@ object Main extends App {
   val switchRepository: TaskLayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live /* ++ ldapEnvironment */ ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
