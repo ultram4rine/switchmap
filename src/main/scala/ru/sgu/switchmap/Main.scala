@@ -15,7 +15,7 @@ import org.http4s.server.Router
 import io.grpc.ManagedChannelBuilder
 import scalapb.zio_grpc.ZManagedChannel
 
-//import ru.sgu.switchmap.auth.ldap.LDAP
+//import ru.sgu.switchmap.auth.{LDAP, LDAPLive}
 import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
@@ -39,13 +39,13 @@ object Main extends App {
     with FloorRepository
     with SwitchRepository
 
-  val httpServerEnvironment: ULayer[HttpServerEnvironment] =
-    Clock.live ++ Blocking.live
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-  //val ldapEnvironment: TaskLayer[LDAP] = Config.live >>> LDAP.live
+  //val ldapEnvironment: TaskLayer[LDAP] = Config.live >>> LDAPLive.layer
   val flywayMigrator: TaskLayer[FlywayMigrator] =
     dbTransactor >>> FlywayMigrator.live
+  val httpServerEnvironment: ULayer[HttpServerEnvironment] =
+    Clock.live ++ Blocking.live
   val buildRepository: TaskLayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
   val floorRepository: TaskLayer[FloorRepository] =
