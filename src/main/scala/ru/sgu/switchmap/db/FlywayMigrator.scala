@@ -13,26 +13,26 @@ object flywayMigrator {
 
   object FlywayMigrator {
     trait Service {
-      def migrate(): ZIO[Console, Throwable, Unit]
+      def migrate(): ZIO[Console, Throwable, MigrateResult]
     }
 
     val live: URLayer[DBTransactor, FlywayMigrator] =
       ZLayer.fromService { res =>
         new Service {
-          override def migrate(): ZIO[Console, Throwable, Unit] =
+          override def migrate(): ZIO[Console, Throwable, MigrateResult] =
             for {
               _ <- putStrLn("Starting Flyway migration")
-              _ <- res.xa.configure(ds =>
+              res <- res.xa.configure(ds =>
                 ZIO.effect {
                   Flyway.configure().dataSource(ds).load().migrate()
                 }
               )
               _ <- putStrLn("Finished Flyway migration")
-            } yield ()
+            } yield res
         }
       }
 
-    def migrate(): ZIO[FlywayMigrator with Console, Throwable, Unit] =
+    def migrate(): ZIO[FlywayMigrator with Console, Throwable, MigrateResult] =
       ZIO.accessM[FlywayMigrator with Console](
         _.get.migrate()
       )
