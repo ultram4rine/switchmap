@@ -24,6 +24,7 @@ import ru.sgu.switchmap.repositories.{
   FloorRepository,
   SwitchRepository
 }
+import ru.sgu.switchmap.config.DBConfig
 
 object Main extends App {
   private val dsl = Http4sDsl[Task]
@@ -38,15 +39,15 @@ object Main extends App {
 
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Clock.live ++ Blocking.live
-  val dbTransactor: ULayer[DBTransactor] =
+  val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-  val buildRepository: ULayer[BuildRepository] =
+  val buildRepository: TaskLayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
-  val floorRepository: ULayer[FloorRepository] =
+  val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
-  val switchRepository: ULayer[SwitchRepository] =
+  val switchRepository: TaskLayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
-  val appEnvironment: Layer[Throwable, AppEnvironment] =
+  val appEnvironment: TaskLayer[AppEnvironment] =
     Config.live ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
