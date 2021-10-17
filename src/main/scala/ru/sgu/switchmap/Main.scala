@@ -24,7 +24,6 @@ import ru.sgu.switchmap.repositories.{
   FloorRepository,
   SwitchRepository
 }
-import ru.sgu.switchmap.config.DBConfig
 
 object Main extends App {
   private val dsl = Http4sDsl[Task]
