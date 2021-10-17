@@ -1,7 +1,8 @@
 package ru.sgu.switchmap.repositories
 
 import doobie.implicits._
-import doobie.{Query0, Transactor, Update0}
+import doobie.{Query0, Update0}
+import doobie.hikari.HikariTransactor
 import zio._
 import zio.blocking.Blocking
 import zio.interop.catz._
@@ -28,7 +29,7 @@ object SwitchRepository {
 }
 
 private[repositories] final case class DoobieSwitchRepository(
-  xa: Transactor[Task]
+  xa: HikariTransactor[Task]
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._

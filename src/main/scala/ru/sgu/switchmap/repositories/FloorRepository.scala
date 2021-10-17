@@ -1,7 +1,8 @@
 package ru.sgu.switchmap.repositories
 
 import doobie.implicits._
-import doobie.{Query0, Transactor, Update0}
+import doobie.{Query0, Update0}
+import doobie.hikari.HikariTransactor
 import zio._
 import zio.blocking.Blocking
 import zio.interop.catz._
@@ -25,7 +26,7 @@ object FloorRepository {
 }
 
 private[repositories] final case class DoobieFloorRepository(
-  xa: Transactor[Task]
+  xa: HikariTransactor[Task]
 ) extends FloorRepository.Service {
 
   import Tables.ctx._
