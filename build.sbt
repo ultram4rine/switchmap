@@ -25,6 +25,7 @@ lazy val root = (project in file("."))
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
+      "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
       "org.flywaydb"           % "flyway-core"            % "8.0.1",
       "org.postgresql"         % "postgresql"             % "42.2.24",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
@@ -34,6 +35,9 @@ lazy val root = (project in file("."))
       "com.pauldijou"         %% "jwt-circe"              % "5.0.0",
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
       "org.snmp4j"             % "snmp4j"                 % "3.5.1"
+    ),
+    dependencyOverrides ++= Seq(
+      "org.slf4j" % "slf4j-api" % "1.7.32" // doobie-hikari@1.0.0-RC1 -> HikariCP@4.0.3 -> slf4j-api@2.0.0-alpha.1
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
