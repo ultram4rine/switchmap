@@ -15,7 +15,14 @@ import org.http4s.server.Router
 import io.grpc.ManagedChannelBuilder
 import scalapb.zio_grpc.ZManagedChannel
 
-//import ru.sgu.switchmap.auth.{LDAP, LDAPLive}
+import ru.sgu.switchmap.auth.{
+  LDAP,
+  LDAPLive,
+  Authenticator,
+  AuthenticatorLive,
+  JWT,
+  JWTLive
+}
 import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
@@ -25,6 +32,8 @@ import ru.sgu.switchmap.repositories.{
   FloorRepository,
   SwitchRepository
 }
+import ru.sgu.switchmap.config.AppConfig
+import ru.sgu.switchmap.config.LDAPConfig
 
 object Main extends App {
   private val dsl = Http4sDsl[Task]
@@ -32,7 +41,7 @@ object Main extends App {
 
   type HttpServerEnvironment = Clock with Blocking
   type AppEnvironment = Config
-  //with Has[LDAP]
+    with Has[Authenticator]
     with Has[FlywayMigrator]
     with HttpServerEnvironment
     with BuildRepository
@@ -41,7 +50,9 @@ object Main extends App {
 
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-  //val ldapEnvironment: TaskLayer[Has[LDAP]] = Config.live >>> LDAPLive.layer
+
+  val authEnvironment: TaskLayer[Has[Authenticator]] =
+    Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
@@ -53,7 +64,7 @@ object Main extends App {
   val switchRepository: TaskLayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live /* ++ ldapEnvironment */ ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live ++ authEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
@@ -63,6 +74,7 @@ object Main extends App {
         api <- config.apiConfig
         _ <- FlywayMigrator.migrate()
         httpApp = Router[AppTask](
+          "/api/v2/" -> AuthRoutes().route,
           "/api/v2/" -> BuildRoutes().route,
           "/api/v2/" -> FloorRoutes().route,
           "/api/v2/" -> SwitchRoutes().route
