@@ -1,9 +1,11 @@
 package ru.sgu.switchmap.auth
 
 import zio._
-import com.unboundid.ldap.sdk.{LDAPConnection, SearchScope}
+import com.unboundid.ldap.sdk.{LDAPConnection, LDAPException, SearchScope}
 
 import ru.sgu.switchmap.config.LDAPConfig
+
+import scala.util.Try
 
 trait LDAP {
   def connect(username: String, password: String): Task[LDAPConnection]
@@ -15,13 +17,15 @@ case class LDAPLive(cfg: LDAPConfig) extends LDAP {
     username: String,
     password: String
   ): Task[LDAPConnection] =
-    IO.succeed(
-      new LDAPConnection(
-        cfg.host,
-        cfg.port,
-        "%s@%s".format(username, cfg.domain),
-        password
-      )
+    Task.fromTry(
+      Try {
+        new LDAPConnection(
+          cfg.host,
+          cfg.port,
+          "%s@%s".format(username, cfg.domain),
+          password
+        )
+      }
     )
 
   override def findUser(
