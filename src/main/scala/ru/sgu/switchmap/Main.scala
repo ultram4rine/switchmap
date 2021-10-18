@@ -63,9 +63,9 @@ object Main extends App {
         api <- config.apiConfig
         _ <- FlywayMigrator.migrate()
         httpApp = Router[AppTask](
-          "/" -> BuildRoutes().route,
-          "/" -> FloorRoutes().route,
-          "/" -> SwitchRoutes().route
+          "/api/v2/" -> BuildRoutes().route,
+          "/api/v2/" -> FloorRoutes().route,
+          "/api/v2/" -> SwitchRoutes().route
         ).orNotFound
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
