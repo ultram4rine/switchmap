@@ -1,25 +1,34 @@
 package ru.sgu.switchmap.auth
 
 import zio._
-import zio.console._
-import com.unboundid.ldap.sdk._
+import com.unboundid.ldap.sdk.{LDAPConnection, SearchScope}
 
 import ru.sgu.switchmap.config.LDAPConfig
 
 trait LDAP {
-  val conn: LDAPConnection
-  def findUser(username: String): UIO[Boolean]
+  def connect(username: String, password: String): Task[LDAPConnection]
+  def findUser(conn: LDAPConnection, username: String): UIO[Boolean]
 }
 
 case class LDAPLive(cfg: LDAPConfig) extends LDAP {
-  override val conn: LDAPConnection = new LDAPConnection(
-    cfg.host,
-    cfg.port,
-    "%s@%s".format(cfg.bindUser, cfg.domain),
-    cfg.bindPass
-  )
-  override def findUser(username: String): UIO[Boolean] = {
-    val result = this.conn.search(
+  override def connect(
+    username: String,
+    password: String
+  ): Task[LDAPConnection] =
+    IO.succeed(
+      new LDAPConnection(
+        cfg.host,
+        cfg.port,
+        "%s@%s".format(username, cfg.domain),
+        password
+      )
+    )
+
+  override def findUser(
+    conn: LDAPConnection,
+    username: String
+  ): UIO[Boolean] = {
+    val result = conn.search(
       cfg.baseDN,
       SearchScope.SUB,
       "(&(sAMAccountName=%s)(memberOf=%s))".format(
@@ -40,6 +49,15 @@ object LDAPLive {
 }
 
 object LDAP {
-  def findUser(username: String): URIO[Has[LDAP], Boolean] =
-    ZIO.serviceWith[LDAP](_.findUser(username))
+  def connect(
+    username: String,
+    password: String
+  ): RIO[Has[LDAP], LDAPConnection] =
+    ZIO.serviceWith[LDAP](_.connect(username, password))
+
+  def findUser(
+    conn: LDAPConnection,
+    username: String
+  ): RIO[Has[LDAP], Boolean] =
+    ZIO.serviceWith[LDAP](_.findUser(conn, username))
 }
