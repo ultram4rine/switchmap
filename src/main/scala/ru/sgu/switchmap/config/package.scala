@@ -9,11 +9,13 @@ package object config {
     with Has[LDAPConfig]
     with Has[String]
     with Has[String]
+    with Has[String]
 
   final case class AppConfig(
     api: APIConfig,
     db: DBConfig,
     ldap: LDAPConfig,
+    jwtKey: String,
     netdataServer: String,
     dnsSuffix: String
   )
@@ -36,6 +38,7 @@ package object config {
   val apiConfig: URIO[Has[APIConfig], APIConfig] = ZIO.access(_.get)
   val dbConfig: URIO[Has[DBConfig], DBConfig] = ZIO.access(_.get)
   val ldapConfig: URIO[Has[LDAPConfig], LDAPConfig] = ZIO.access(_.get)
+  val jwtKey: URIO[Has[String], String] = ZIO.access(_.get)
   val netdataServer: URIO[Has[String], String] = ZIO.access(_.get)
   val dnsSuffix: URIO[Has[String], String] = ZIO.access(_.get)
 
@@ -45,7 +48,9 @@ package object config {
       Task
         .effect(ConfigSource.default.loadOrThrow[AppConfig])
         .map(c =>
-          Has(c.api) ++ Has(c.db) ++ Has(c.ldap) ++ Has(c.netdataServer) ++ Has(
+          Has(c.api) ++ Has(c.db) ++ Has(c.ldap) ++ Has(c.jwtKey) ++ Has(
+            c.netdataServer
+          ) ++ Has(
             c.dnsSuffix
           )
         )
