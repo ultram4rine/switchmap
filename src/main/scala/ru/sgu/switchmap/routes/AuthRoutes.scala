@@ -4,7 +4,8 @@ import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
+import org.http4s.headers.`WWW-Authenticate`
+import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes, Challenge}
 import zio._
 import zio.interop.catz._
 
@@ -34,7 +35,19 @@ final case class AuthRoutes[R <: Has[Authenticator]]() {
         req.decode[User] { user =>
           Authenticator
             .authenticate(user.username, user.password)
-            .foldM(_ => Forbidden(), Ok(_))
+            .foldM(
+              _ =>
+                Unauthorized(
+                  `WWW-Authenticate`(
+                    Challenge(
+                      "Authentication: Bearer",
+                      "SwitchMap",
+                      Map.empty
+                    )
+                  )
+                ),
+              Ok(_)
+            )
         }
     }
   }
