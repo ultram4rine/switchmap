@@ -15,14 +15,7 @@ import org.http4s.server.Router
 import io.grpc.ManagedChannelBuilder
 import scalapb.zio_grpc.ZManagedChannel
 
-import ru.sgu.switchmap.auth.{
-  LDAP,
-  LDAPLive,
-  Authenticator,
-  AuthenticatorLive,
-  JWT,
-  JWTLive
-}
+import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.Config
 import ru.sgu.switchmap.routes._
 import ru.sgu.switchmap.db.DBTransactor
@@ -36,12 +29,13 @@ import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.config.LDAPConfig
 
 object Main extends App {
-  private val dsl = Http4sDsl[Task]
-  import dsl._
+  /* private val dsl = Http4sDsl[Task]
+  import dsl._ */
 
   type HttpServerEnvironment = Clock with Blocking
+  type AuthEnvironment = Has[Authenticator] with Has[Authorizer]
   type AppEnvironment = Config
-    with Has[Authenticator]
+    with AuthEnvironment
     with Has[FlywayMigrator]
     with HttpServerEnvironment
     with BuildRepository
@@ -51,8 +45,8 @@ object Main extends App {
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
 
-  val authEnvironment: TaskLayer[Has[Authenticator]] =
-    Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer
+  val authEnvironment: TaskLayer[Has[Authenticator] with Has[Authorizer]] =
+    Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
@@ -73,11 +67,12 @@ object Main extends App {
       for {
         api <- config.apiConfig
         _ <- FlywayMigrator.migrate()
+
         httpApp = Router[AppTask](
-          "/api/v2/" -> AuthRoutes().route,
-          "/api/v2/" -> BuildRoutes().route,
-          "/api/v2/" -> FloorRoutes().route,
-          "/api/v2/" -> SwitchRoutes().route
+          "/api/v2/auth" -> AuthRoutes().route,
+          "/api/v2/" -> Middleware.middleware(BuildRoutes().route),
+          "/api/v2/" -> Middleware.middleware(FloorRoutes().route),
+          "/api/v2/" -> Middleware.middleware(SwitchRoutes().route)
         ).orNotFound
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
