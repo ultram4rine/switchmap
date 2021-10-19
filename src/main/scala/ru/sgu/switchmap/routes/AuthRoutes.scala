@@ -6,6 +6,7 @@ import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`WWW-Authenticate`
 import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes, Challenge}
+import org.http4s.rho.RhoRoutes
 import zio._
 import zio.interop.catz._
 
@@ -23,32 +24,28 @@ final case class AuthRoutes[R <: Has[Authenticator]]() {
   ): EntityEncoder[AuthTask, A] =
     jsonEncoderOf[AuthTask, A]
 
-  private def unauthenticated =
-    IO.succeed(Left(new Exception("bad format authentication")))
+  val api: RhoRoutes[AuthTask] =
+    new RhoRoutes[AuthTask] {
+      val swaggerIO = org.http4s.rho.swagger.SwaggerSupport[AuthTask]
+      import swaggerIO._
 
-  val dsl: Http4sDsl[AuthTask] = Http4sDsl[AuthTask]
-  import dsl._
-
-  def route: HttpRoutes[AuthTask] = {
-    HttpRoutes.of[AuthTask] {
-      case req @ POST -> Root / "login" =>
-        req.decode[User] { user =>
-          Authenticator
-            .authenticate(user.username, user.password)
-            .foldM(
-              _ =>
-                Unauthorized(
-                  `WWW-Authenticate`(
-                    Challenge(
-                      "Authorization: Bearer",
-                      "SwitchMap",
-                      Map.empty
-                    )
+      "Authenticates user" **
+        POST / "login" ^ jsonOf[AuthTask, User] |>> { (user: User) =>
+        Authenticator
+          .authenticate(user.username, user.password)
+          .foldM(
+            _ =>
+              Unauthorized(
+                `WWW-Authenticate`(
+                  Challenge(
+                    "Authorization: Bearer",
+                    "SwitchMap",
+                    Map.empty
                   )
-                ),
-              Ok(_)
-            )
-        }
+                )
+              ),
+            Ok(_)
+          )
+      }
     }
-  }
 }

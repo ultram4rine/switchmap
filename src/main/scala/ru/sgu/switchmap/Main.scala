@@ -12,6 +12,15 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
+import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
+import com.http4s.rho.swagger.ui.SwaggerUi
+import org.http4s.rho.swagger.models.{
+  Info,
+  Scheme,
+  SecurityRequirement,
+  ApiKeyAuthDefinition,
+  In
+}
 import io.grpc.ManagedChannelBuilder
 import scalapb.zio_grpc.ZManagedChannel
 
@@ -27,6 +36,8 @@ import ru.sgu.switchmap.repositories.{
 }
 import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.config.LDAPConfig
+import org.http4s.rho.swagger.SwaggerMetadata
+import org.http4s.rho.swagger
 
 object Main extends App {
   /* private val dsl = Http4sDsl[Task]
@@ -61,16 +72,34 @@ object Main extends App {
     Config.live ++ authEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
+  object Auth extends org.http4s.rho.AuthedContext[AppTask, AuthInfo]
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
     val program: ZIO[AppEnvironment with Console, Throwable, Unit] =
       for {
         api <- config.apiConfig
+        app <- config.appConfig
         _ <- FlywayMigrator.migrate()
 
+        swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
+          swaggerFormats = DefaultSwaggerFormats,
+          swaggerMetadata = SwaggerMetadata(
+            apiInfo = Info(title = "SwitchMap API", version = "2.0.0-SNAPSHOT"),
+            host = Some(app.hostname),
+            basePath = Some("/api/v2"),
+            schemes = List(Scheme.HTTPS),
+            security = List(SecurityRequirement("bearer", List())),
+            securityDefinitions = Map(
+              "bearer" -> ApiKeyAuthDefinition("Authorization", In.HEADER)
+            )
+          )
+        )
+
         httpApp = Router[AppTask](
-          "/api/v2/auth" -> AuthRoutes().route,
-          "/api/v2/" -> Middleware.middleware(BuildRoutes().route),
+          "/api/v2/auth" -> AuthRoutes().api.toRoutes(swaggerMiddleware),
+          "/api/v2/" -> Middleware.middleware(
+            Auth.toService(BuildRoutes().api.toRoutes(swaggerMiddleware))
+          ),
           "/api/v2/" -> Middleware.middleware(FloorRoutes().route),
           "/api/v2/" -> Middleware.middleware(SwitchRoutes().route)
         ).orNotFound
