@@ -4,7 +4,8 @@ import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, EntityEncoder, AuthedRoutes}
+import org.http4s.{EntityDecoder, EntityEncoder}
+import org.http4s.rho.RhoRoutes
 import zio._
 import zio.interop.catz._
 
@@ -23,29 +24,44 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
   ): EntityEncoder[FloorTask, A] =
     jsonEncoderOf[FloorTask, A]
 
-  val dsl: Http4sDsl[FloorTask] = Http4sDsl[FloorTask]
-  import dsl._
+  object Auth extends org.http4s.rho.AuthedContext[FloorTask, AuthInfo]
 
-  def route: AuthedRoutes[AuthInfo, FloorTask] = {
-    AuthedRoutes.of[AuthInfo, FloorTask] {
-      case GET -> Root / "builds" / shortName / "floors" as authToken =>
-        getFloorsOf(shortName).foldM(_ => NotFound(), Ok(_))
+  val api: RhoRoutes[FloorTask] = new RhoRoutes[FloorTask] {
+    val swaggerIO = org.http4s.rho.swagger.SwaggerSupport[FloorTask]
+    import swaggerIO._
 
-      case GET -> Root / "builds" / shortName / "floors" / IntVar(
-            number
-          ) as authToken =>
-        getFloor(shortName, number).foldM(_ => NotFound(), Ok(_))
+    "Get all floors of build" **
+      GET / "builds" / pv"shortName" / "floors" >>> Auth.auth |>> {
+      (shortName: String, au: AuthInfo) =>
+        getFloorsOf(shortName).foldM(_ => NotFound(()), Ok(_))
+    }
 
-      case req @ POST -> Root / "builds" / shortName / "floors" as authToken =>
-        req.req.decode[DBFloor] { floor =>
-          Created(createFloor(floor))
-        }
+    "Get floor of build by number" **
+      POST / "builds" / pv"shortName" / "floors" / pathVar[Int](
+      "number",
+      "Number of floor"
+    ) >>> Auth.auth |>> { (shortName: String, number: Int, au: AuthInfo) =>
+      getFloor(shortName, number).foldM(_ => NotFound(()), Ok(_))
+    }
 
-      case DELETE -> Root / "builds" / shortName / "floors" / IntVar(
-            number
-          ) as authToken =>
-        (getFloor(shortName, number) *> deleteFloor(shortName, number))
-          .foldM(_ => NotFound(), Ok(_))
+    "Add floor to build" **
+      POST / "builds" / pv"shortName" >>> Auth.auth ^ jsonOf[
+      FloorTask,
+      DBFloor
+    ] |>> { (shortName: String, au: AuthInfo, floor: DBFloor) =>
+      createFloor(floor).foldM(
+        e => InternalServerError(e.getMessage()),
+        Created(_)
+      )
+    }
+
+    "Delete floor of build by number" **
+      DELETE / "builds" / pv"shortName" / "floors" / pathVar[Int](
+      "number",
+      "Number of floor"
+    ) >>> Auth.auth |>> { (shortName: String, number: Int, au: AuthInfo) =>
+      (getFloor(shortName, number) *> deleteFloor(shortName, number))
+        .foldM(_ => NotFound(()), Ok(_))
     }
   }
 }

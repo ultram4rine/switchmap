@@ -100,8 +100,12 @@ object Main extends App {
           "/api/v2/" -> Middleware.middleware(
             Auth.toService(BuildRoutes().api.toRoutes(swaggerMiddleware))
           ),
-          "/api/v2/" -> Middleware.middleware(FloorRoutes().route),
-          "/api/v2/" -> Middleware.middleware(SwitchRoutes().route)
+          "/api/v2/" -> Middleware.middleware(
+            Auth.toService(FloorRoutes().api.toRoutes(swaggerMiddleware))
+          ),
+          "/api/v2/" -> Middleware.middleware(
+            Auth.toService(SwitchRoutes().api.toRoutes(swaggerMiddleware))
+          )
         ).orNotFound
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
