@@ -14,16 +14,8 @@ trait LDAP {
 }
 
 case class LDAPLive(cfg: LDAPConfig) extends LDAP {
-  override val conn: Task[LDAPConnection] = Task.fromTry(
-    Try {
-      new LDAPConnection(
-        cfg.host,
-        cfg.port,
-        "%s@%s".format(cfg.bindUser, cfg.domain),
-        cfg.bindPass
-      )
-    }
-  )
+  override val conn: Task[LDAPConnection] =
+    this.connect(cfg.bindUser, cfg.bindPass)
 
   override def connect(
     username: String,
