@@ -23,20 +23,23 @@ case class AuthenticatorLive(ldap: LDAP, jwt: JWT) extends Authenticator {
     username: String,
     password: String
   ): Task[AuthToken] =
-    ldap.connect(username, password).flatMap { conn =>
-      ldap.findUser(conn, username).flatMap {
-        case true =>
-          for {
-            token <- jwt.create(
-              JwtClaim(
-                expiration =
-                  Some(Instant.now.plusSeconds(157784760).getEpochSecond),
-                issuedAt = Some(Instant.now.getEpochSecond)
+    ldap.findUser(username).flatMap {
+      case true =>
+        val conn = ldap.connect(username, password)
+        conn.foldM(
+          _ => IO.fail(authenticationError),
+          _ =>
+            for {
+              token <- jwt.create(
+                JwtClaim(
+                  expiration =
+                    Some(Instant.now.plusSeconds(157784760).getEpochSecond),
+                  issuedAt = Some(Instant.now.getEpochSecond)
+                )
               )
-            )
-          } yield AuthToken(token)
-        case false => IO.fail(authenticationError)
-      }
+            } yield AuthToken(token)
+        )
+      case false => IO.fail(authenticationError)
     }
 }
 
