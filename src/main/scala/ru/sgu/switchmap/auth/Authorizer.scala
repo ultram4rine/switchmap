@@ -11,7 +11,7 @@ case class AuthInfo(status: String)
 case class AuthorizerLive(jwt: JWT) extends Authorizer {
   override def authorize(token: AuthToken): Task[AuthInfo] =
     for {
-      claims <- jwt.validate(token.token)
+      _ <- jwt.validate(token.token)
     } yield new AuthInfo("succeed")
 }
 
