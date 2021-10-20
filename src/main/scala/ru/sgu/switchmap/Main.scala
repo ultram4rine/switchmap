@@ -88,9 +88,13 @@ object Main extends App {
             host = Some(app.hostname),
             basePath = Some("/api/v2"),
             schemes = List(Scheme.HTTPS),
-            security = List(SecurityRequirement("bearer", List())),
+            security = List(SecurityRequirement("JWT", List())),
             securityDefinitions = Map(
-              "bearer" -> ApiKeyAuthDefinition("Authorization", In.HEADER)
+              "JWT" -> ApiKeyAuthDefinition(
+                "X-Auth-Token",
+                In.HEADER,
+                Some("JWT")
+              )
             )
           )
         )

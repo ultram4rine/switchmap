@@ -38,7 +38,7 @@ final case class AuthRoutes[R <: Has[Authenticator]]() {
               Unauthorized(
                 `WWW-Authenticate`(
                   Challenge(
-                    "Authorization: Bearer",
+                    "X-Auth-Token",
                     "SwitchMap",
                     Map.empty
                   )

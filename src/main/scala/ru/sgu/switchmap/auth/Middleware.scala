@@ -47,7 +47,7 @@ object Middleware {
       Unauthorized(
         `WWW-Authenticate`(
           Challenge(
-            "Authorization: Bearer",
+            "X-Auth-Token",
             "SwitchMap",
             Map.empty
           )
