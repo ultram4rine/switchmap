@@ -1,47 +1,29 @@
 package ru.sgu.switchmap
 
 import cats.effect.{ExitCode => CatsExitCode}
-import zio._
-import zio.blocking.Blocking
-import zio.console._
-import zio.clock.Clock
-import zio.interop.catz._
-import zio.interop.catz.implicits._
-import org.http4s._
-import org.http4s.dsl.Http4sDsl
-import org.http4s.implicits._
+import com.http4s.rho.swagger.ui.SwaggerUi
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.implicits._
+import org.http4s.rho.swagger.models._
+import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
-import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
-import com.http4s.rho.swagger.ui.SwaggerUi
-import org.http4s.rho.swagger.models.{
-  Info,
-  Scheme,
-  SecurityRequirement,
-  ApiKeyAuthDefinition,
-  In
-}
-import io.grpc.ManagedChannelBuilder
-import scalapb.zio_grpc.ZManagedChannel
-
 import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.Config
-import ru.sgu.switchmap.routes._
-import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.db.{FlywayMigrator, FlywayMigratorLive}
+import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
   SwitchRepository
 }
-import ru.sgu.switchmap.config.AppConfig
-import ru.sgu.switchmap.config.LDAPConfig
+import ru.sgu.switchmap.routes._
+import zio._
+import zio.blocking.Blocking
+import zio.clock.Clock
+import zio.console._
+import zio.interop.catz._
 
 object Main extends App {
-  /* private val dsl = Http4sDsl[Task]
-  import dsl._ */
-
   type HttpServerEnvironment = Clock with Blocking
   type AuthEnvironment = Has[Authenticator] with Has[Authorizer]
   type AppEnvironment = Config
@@ -68,10 +50,9 @@ object Main extends App {
   val switchRepository: TaskLayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live ++ authEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live ++ Console.live ++ authEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
-  object Auth extends org.http4s.rho.AuthedContext[AppTask, AuthInfo]
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
     val program: ZIO[AppEnvironment with Console, Throwable, Unit] =
@@ -99,15 +80,14 @@ object Main extends App {
         )
 
         httpApp = Router[AppTask](
-          "/api/v2/auth" -> AuthRoutes().api.toRoutes(swaggerMiddleware),
-          "/api/v2/" -> Middleware.middleware(
-            Auth.toService(BuildRoutes().api.toRoutes(swaggerMiddleware))
-          ),
-          "/api/v2/" -> Middleware.middleware(
-            Auth.toService(FloorRoutes().api.toRoutes(swaggerMiddleware))
-          ),
-          "/api/v2/" -> Middleware.middleware(
-            Auth.toService(SwitchRoutes().api.toRoutes(swaggerMiddleware))
+          "/api/v2" -> Middleware.middleware(
+            AuthContext.toService(
+              AuthRoutes().api
+                .and(BuildRoutes().api)
+                .and(FloorRoutes().api)
+                .and(SwitchRoutes().api)
+                .toRoutes(swaggerMiddleware)
+            )
           )
         ).orNotFound
 

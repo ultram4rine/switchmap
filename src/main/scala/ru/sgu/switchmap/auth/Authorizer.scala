@@ -3,16 +3,19 @@ package ru.sgu.switchmap.auth
 import zio._
 
 trait Authorizer {
-  def authorize(token: AuthToken): Task[AuthInfo]
+  def authorize(token: AuthToken): Task[AuthStatus.Status]
 }
 
-case class AuthInfo(status: String)
+object AuthStatus extends Enumeration {
+  type Status = Value
+  val Succeed, Failed, NoToken = Value
+}
 
 case class AuthorizerLive(jwt: JWT) extends Authorizer {
-  override def authorize(token: AuthToken): Task[AuthInfo] =
-    for {
-      _ <- jwt.validate(token.token)
-    } yield new AuthInfo("succeed")
+  override def authorize(token: AuthToken): Task[AuthStatus.Status] =
+    jwt
+      .validate(token.token)
+      .fold(_ => AuthStatus.Failed, _ => AuthStatus.Succeed)
 }
 
 object AuthorizerLive {
@@ -21,6 +24,6 @@ object AuthorizerLive {
 }
 
 object Authorizer {
-  def authorize(token: AuthToken): RIO[Has[Authorizer], AuthInfo] =
+  def authorize(token: AuthToken): RIO[Has[Authorizer], AuthStatus.Status] =
     ZIO.serviceWith[Authorizer](_.authorize(token))
 }

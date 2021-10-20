@@ -1,17 +1,22 @@
 package ru.sgu.switchmap.auth
 
+import io.circe.generic.auto._
+import io.circe.{Decoder, Encoder}
+import org.http4s.circe._
 import cats.data.{Kleisli, OptionT}
-import org.http4s.{AuthedRoutes, Request, Challenge}
-import org.http4s.syntax.header._
-import org.http4s.headers.{Authorization, `WWW-Authenticate`}
-import org.http4s.server.AuthMiddleware
-import org.http4s._
 import org.http4s.dsl.Http4sDsl
+import org.http4s.{EntityDecoder, EntityEncoder}
+import org.http4s.headers.`WWW-Authenticate`
+import org.http4s.{AuthedRequest, Response, Status}
+import org.http4s.server.AuthMiddleware
+import org.http4s.Request /* AuthedRoutes, Challenge, */
+import org.http4s.Challenge
 import org.typelevel.ci.CIString
-import zio._
-import zio.interop.catz._
-
 import ru.sgu.switchmap.Main.AppTask
+import zio._
+import zio.console.putStrLn
+import zio.interop.catz._
+import org.http4s.AuthedRoutes
 
 object Middleware {
   val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
@@ -19,37 +24,23 @@ object Middleware {
 
   private def getToken(
     request: Request[AppTask]
-  ): AppTask[Either[Throwable, AuthInfo]] = {
-    val header = request.headers
-      .get(CIString("X-Auth-Token"))
-    header
-      .map { value =>
-        val tok = Authorizer.authorize(AuthToken(value.head.value))
-        tok.either
-      }
-      .getOrElse(IO.succeed(Left(new Exception("Unauthenticated"))))
-  }
+  ): AppTask[AuthStatus.Status] =
+    request.headers.get(CIString("X-Auth-Token")) match {
+      case Some(token) =>
+        Authorizer
+          .authorize(AuthToken(token.head.value))
+      case None => ZIO.succeed(AuthStatus.NoToken)
+    }
 
-  def authUser: Kleisli[AppTask, Request[AppTask], Either[String, AuthInfo]] = {
-    Kleisli({ request =>
-      getToken(request).map { e => e.left.map(_.toString()) }
-    })
-  }
-
-  val onFailure: AuthedRoutes[String, AppTask] = Kleisli(req =>
-    OptionT.liftF {
-      Unauthorized(
-        `WWW-Authenticate`(
-          Challenge(
-            "X-Auth-Token",
-            "SwitchMap",
-            Map.empty
-          )
-        )
+  def authUser
+    : Kleisli[OptionT[AppTask, *], Request[AppTask], AuthStatus.Status] = {
+    Kleisli { request =>
+      OptionT.liftF(
+        getToken(request)
       )
     }
-  )
+  }
 
-  val middleware: AuthMiddleware[AppTask, AuthInfo] =
-    AuthMiddleware(authUser, onFailure)
+  val middleware: AuthMiddleware[AppTask, AuthStatus.Status] =
+    AuthMiddleware.withFallThrough(authUser)
 }

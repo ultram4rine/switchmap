@@ -4,71 +4,84 @@ import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, EntityEncoder, AuthedRoutes}
 import org.http4s.rho.RhoRoutes
-import zio._
-import zio.interop.catz._
-
-import ru.sgu.switchmap.auth.{AuthInfo, Authorizer}
+import org.http4s.rho.swagger.SwaggerSupport
+import org.http4s.{EntityDecoder, EntityEncoder}
+import ru.sgu.switchmap.auth.{Authorizer, AuthContext, AuthStatus}
+import ru.sgu.switchmap.Main.AppTask
 import ru.sgu.switchmap.models.DBBuild
 import ru.sgu.switchmap.repositories._
+import zio._
+import zio.interop.catz._
 
 final case class BuildRoutes[
   R <: Has[Authorizer] with BuildRepository
 ]() {
-  type BuildTask[A] = RIO[R, A]
-
   implicit def circeJsonDecoder[A](implicit
     decoder: Decoder[A]
-  ): EntityDecoder[BuildTask, A] = jsonOf[BuildTask, A]
+  ): EntityDecoder[AppTask, A] = jsonOf[AppTask, A]
   implicit def circeJsonEncoder[A](implicit
     decoder: Encoder[A]
-  ): EntityEncoder[BuildTask, A] =
-    jsonEncoderOf[BuildTask, A]
+  ): EntityEncoder[AppTask, A] =
+    jsonEncoderOf[AppTask, A]
 
-  val dsl: Http4sDsl[BuildTask] = Http4sDsl[BuildTask]
-  import dsl._
-
-  object Auth extends org.http4s.rho.AuthedContext[BuildTask, AuthInfo]
-
-  val api: RhoRoutes[BuildTask] =
-    new RhoRoutes[BuildTask] {
-      val swaggerIO = org.http4s.rho.swagger.SwaggerSupport[BuildTask]
+  val api: RhoRoutes[AppTask] =
+    new RhoRoutes[AppTask] {
+      val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
       import swaggerIO._
 
       "Get all builds" **
-        GET / "builds" >>> Auth.auth |>> { au: AuthInfo =>
-        getBuilds().foldM(_ => NotFound(()), Ok(_))
+        GET / "builds" >>> AuthContext.auth |>> { auth: AuthStatus.Status =>
+        auth match {
+          case AuthStatus.Succeed => getBuilds().foldM(_ => NotFound(()), Ok(_))
+          case _                  => Unauthorized(())
+        }
       }
 
       "Get build by short name" **
-        GET / "builds" / pv"shortName" >>> Auth.auth |>> {
-        (shortName: String, au: AuthInfo) =>
-          getBuild(shortName).foldM(_ => NotFound(()), Ok(_))
+        GET / "builds" / pv"shortName" >>> AuthContext.auth |>> {
+        (shortName: String, auth: AuthStatus.Status) =>
+          auth match {
+            case AuthStatus.Succeed =>
+              getBuild(shortName).foldM(_ => NotFound(()), Ok(_))
+            case _ => Unauthorized(())
+          }
       }
 
       "Add build" **
-        POST / "builds" >>> Auth.auth ^ jsonOf[BuildTask, DBBuild] |>> {
-        (au: AuthInfo, build: DBBuild) =>
-          createBuild(build).foldM(
-            e => InternalServerError(e.getMessage()),
-            Created(_)
-          )
+        POST / "builds" >>> AuthContext.auth ^ jsonOf[AppTask, DBBuild] |>> {
+        (auth: AuthStatus.Status, build: DBBuild) =>
+          auth match {
+            case AuthStatus.Succeed =>
+              createBuild(build).foldM(
+                e => InternalServerError(e.getMessage),
+                Created(_)
+              )
+            case _ => Unauthorized(())
+          }
       }
 
       "Update build" **
-        PUT / "builds" / pv"shortName" >>> Auth.auth ^ jsonOf[
-        BuildTask,
+        PUT / "builds" / pv"shortName" >>> AuthContext.auth ^ jsonOf[
+        AppTask,
         DBBuild
-      ] |>> { (shortName: String, au: AuthInfo, build: DBBuild) =>
-        updateBuild(shortName, build).foldM(_ => NotFound(()), Ok(_))
+      ] |>> { (shortName: String, auth: AuthStatus.Status, build: DBBuild) =>
+        auth match {
+          case AuthStatus.Succeed =>
+            updateBuild(shortName, build).foldM(_ => NotFound(()), Ok(_))
+          case _ => Unauthorized(())
+        }
       }
 
       "Delete build" **
-        DELETE / "builds" / pv"shortName" >>> Auth.auth |>> {
-        (shortName: String, au: AuthInfo) =>
-          (getBuild(shortName) *> deleteBuild(shortName))
-            .foldM(_ => NotFound(()), Ok(_))
+        DELETE / "builds" / pv"shortName" >>> AuthContext.auth |>> {
+        (shortName: String, auth: AuthStatus.Status) =>
+          auth match {
+            case AuthStatus.Succeed =>
+              (getBuild(shortName) *> deleteBuild(shortName))
+                .foldM(_ => NotFound(()), Ok(_))
+            case _ => Unauthorized(())
+          }
       }
     }
 }

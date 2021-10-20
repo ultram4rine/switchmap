@@ -30,7 +30,7 @@ final case class AuthRoutes[R <: Has[Authenticator]]() {
       import swaggerIO._
 
       "Authenticates user" **
-        POST / "login" ^ jsonOf[AuthTask, User] |>> { (user: User) =>
+        POST / "auth" / "login" ^ jsonOf[AuthTask, User] |>> { (user: User) =>
         Authenticator
           .authenticate(user.username, user.password)
           .foldM(
