@@ -1,9 +1,9 @@
 package ru.sgu.switchmap
 
-import zio.{Has, RIO}
 import doobie.quill.DoobieContext
 import io.getquill._
-import ru.sgu.switchmap.models.{DBBuild, Build, DBFloor, Floor, Switch}
+import ru.sgu.switchmap.models._
+import zio.{Has, RIO}
 
 package object repositories {
   type BuildRepository = Has[BuildRepository.Service]

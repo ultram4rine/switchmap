@@ -1,12 +1,9 @@
 package ru.sgu.switchmap.db
 
-import doobie.hikari.HikariTransactor
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 import zio.console.{Console, putStrLn}
-import zio.{ZIO, RIO, Task, Has, RLayer}
-
-import ru.sgu.switchmap.config.DBConfig
+import zio.{Has, RIO, RLayer, ZIO}
 
 trait FlywayMigrator {
   def migrate(): RIO[Console, MigrateResult]

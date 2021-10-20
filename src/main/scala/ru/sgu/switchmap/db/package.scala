@@ -1,17 +1,9 @@
 package ru.sgu.switchmap
 
-import doobie.Transactor
 import doobie.hikari.HikariTransactor
-import zio.{ZManaged, Managed, Task, URLayer, ZLayer, Has}
-import zio.interop.catz._
-import zio.interop.catz.implicits._
-
 import ru.sgu.switchmap.config.DBConfig
-import doobie.util.ExecutionContexts
-import zio.blocking.Blocking
-import com.zaxxer.hikari.HikariDataSource
-import com.zaxxer.hikari.HikariConfig
-import zio.ZIO
+import zio.interop.catz._
+import zio.{Has, Task, ZIO, ZLayer}
 
 package object db {
   type DBTransactor = Has[DBTransactor.Resource]
