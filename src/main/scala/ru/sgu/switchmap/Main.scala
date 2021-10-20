@@ -12,6 +12,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
+import org.http4s.server.middleware.CORS
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import com.http4s.rho.swagger.ui.SwaggerUi
 import org.http4s.rho.swagger.models.{
@@ -36,8 +37,6 @@ import ru.sgu.switchmap.repositories.{
 }
 import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.config.LDAPConfig
-import org.http4s.rho.swagger.SwaggerMetadata
-import org.http4s.rho.swagger
 
 object Main extends App {
   /* private val dsl = Http4sDsl[Task]
@@ -117,7 +116,11 @@ object Main extends App {
 
           BlazeServerBuilder[AppTask]
             .bindHttp(api.port, api.endpoint)
-            .withHttpApp(httpApp)
+            .withHttpApp(
+              CORS.policy.withAllowOriginAll
+                .withAllowCredentials(false)
+                .apply(httpApp)
+            )
             .serve
             .compile[AppTask, AppTask, CatsExitCode]
             .drain
