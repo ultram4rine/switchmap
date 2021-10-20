@@ -7,6 +7,7 @@ import org.http4s.headers.{Authorization, `WWW-Authenticate`}
 import org.http4s.server.AuthMiddleware
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
+import org.typelevel.ci.CIString
 import zio._
 import zio.interop.catz._
 
@@ -19,18 +20,11 @@ object Middleware {
   private def getToken(
     request: Request[AppTask]
   ): AppTask[Either[Throwable, AuthInfo]] = {
-    val token =
-      for {
-        header <-
-          request.headers
-            .get[Authorization]
-            .map(_.value)
-        asSplit = header.split(" ")
-        if asSplit.size == 2
-      } yield asSplit(1)
-    token
+    val header = request.headers
+      .get(CIString("X-Auth-Token"))
+    header
       .map { value =>
-        val tok = Authorizer.authorize(AuthToken(value))
+        val tok = Authorizer.authorize(AuthToken(value.head.value))
         tok.either
       }
       .getOrElse(IO.succeed(Left(new Exception("Unauthenticated"))))
