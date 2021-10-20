@@ -65,7 +65,7 @@ final case class BuildRoutes[
       }
 
       "Delete build" **
-        DELETE / "build" / pv"shortName" >>> Auth.auth |>> {
+        DELETE / "builds" / pv"shortName" >>> Auth.auth |>> {
         (shortName: String, au: AuthInfo) =>
           (getBuild(shortName) *> deleteBuild(shortName))
             .foldM(_ => NotFound(()), Ok(_))
