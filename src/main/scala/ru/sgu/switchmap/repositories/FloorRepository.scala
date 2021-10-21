@@ -36,6 +36,10 @@ private[repositories] final case class DoobieFloorRepository(
       Tables.floors
         .leftJoin(Tables.switches)
         .on((f, sw) => f.number == sw.floorNumber.getOrNull)
+        .filter {
+          case (f, _) =>
+            f.buildShortName == lift(build)
+        }
         .sortBy(_._1.number)
         .groupBy { case (f, _) => f.number }
         .map {
