@@ -102,7 +102,7 @@ private[repositories] final case class DoobieFloorRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .fold(_ => false, _ => true)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def delete(
@@ -120,7 +120,7 @@ private[repositories] final case class DoobieFloorRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .fold(_ => false, _ => true)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
 }

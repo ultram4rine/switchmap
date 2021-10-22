@@ -105,7 +105,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .fold(_ => false, _ => true)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def update(
@@ -121,7 +121,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .fold(_ => false, _ => true)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def delete(
@@ -136,7 +136,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .fold(_ => false, _ => true)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
 }
