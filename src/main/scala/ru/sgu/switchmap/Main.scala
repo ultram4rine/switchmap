@@ -3,6 +3,7 @@ package ru.sgu.switchmap
 import cats.effect.{ExitCode => CatsExitCode}
 import com.http4s.rho.swagger.ui.SwaggerUi
 import io.grpc.{ManagedChannelBuilder, Status}
+import org.http4s.server.staticcontent.{fileService, FileService}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import org.http4s.rho.swagger.models._
@@ -162,7 +163,8 @@ object Main extends App {
                 .and(StaticRoutes().api)
                 .toRoutes(swaggerMiddleware)
             )
-          )
+          ),
+          "/" -> fileService(FileService.Config("./ui/dist"))
         ).orNotFound
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
