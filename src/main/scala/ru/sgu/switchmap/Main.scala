@@ -159,6 +159,7 @@ object Main extends App {
                 .and(BuildRoutes().api)
                 .and(FloorRoutes().api)
                 .and(SwitchRoutes().api)
+                .and(StaticRoutes().api)
                 .toRoutes(swaggerMiddleware)
             )
           )
