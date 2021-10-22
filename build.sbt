@@ -1,30 +1,56 @@
+val Http4sVersion = "0.23.6"
+val DoobieVersion = "1.0.0-RC1"
+val PureConfigVersion = "0.17.0"
+
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala)
   .settings(
-    organization := """ru.sgu""",
-    name := """switchmap""",
-    version := "2.0-SNAPSHOT",
-    scalaVersion := "2.13.3",
-    resolvers ++= Seq(Classpaths.typesafeReleases, Resolver.jcenterRepo),
-    libraryDependencies ++= Seq(
-      caffeine,
-      guice,
-      jdbc,
-      ws
+    organization := "ru.sgu",
+    name := "switchmap",
+    version := "2.0.0-SNAPSHOT",
+    scalaVersion := "2.13.6",
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies ++= Seq(
-      "com.typesafe.play"      %% "play-slick"               % "5.0.0",
-      "org.postgresql"          % "postgresql"               % "42.2.16",
-      "com.pauldijou"          %% "jwt-play-json"            % "4.3.0",
-      "com.unboundid"           % "unboundid-ldapsdk"        % "5.1.1",
-      "org.snmp4j"              % "snmp4j"                   % "3.4.2",
-      "net.codingwell"         %% "scala-guice"              % "4.2.11",
-      "net.logstash.logback"    % "logstash-logback-encoder" % "6.3",
-      "org.scalatestplus.play" %% "scalatestplus-play"       % "5.1.0" % Test
+      "dev.zio"               %% "zio"                    % "1.0.12",
+      "dev.zio"               %% "zio-interop-cats"       % "3.1.1.0",
+      "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
+      "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion,
+      "org.http4s"            %% "http4s-circe"           % Http4sVersion,
+      "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
+      "org.http4s"            %% "rho-swagger"            % "0.23.0-RC1",
+      "org.http4s"            %% "rho-swagger-ui"         % "0.23.0-RC1",
+      "io.circe"              %% "circe-generic"          % "0.14.1",
+      "org.specs2"            %% "specs2-core"            % "4.13.0" % "test",
+      "ch.qos.logback"         % "logback-classic"        % "1.2.6",
+      "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
+      "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
+      "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
+      "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
+      "org.flywaydb"           % "flyway-core"            % "8.0.1",
+      "org.postgresql"         % "postgresql"             % "42.2.24",
+      "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
+      "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
+      "io.grpc"                % "grpc-netty"             % "1.41.0",
+      "com.thesamet.scalapb"  %% "scalapb-runtime-grpc"   % scalapb.compiler.Version.scalapbVersion,
+      "com.pauldijou"         %% "jwt-circe"              % "5.0.0",
+      "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
+      "org.snmp4j"             % "snmp4j"                 % "3.5.1"
     ),
-    scalacOptions ++= Seq(
-      "-feature",
-      "-deprecation",
-      "-Xfatal-warnings"
-    )
+    dependencyOverrides ++= Seq(
+      "org.slf4j" % "slf4j-api" % "1.7.32" // doobie-hikari@1.0.0-RC1 -> HikariCP@4.0.3 -> slf4j-api@2.0.0-alpha.1
+    ),
+    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
+    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
+
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding",
+  "UTF-8",
+  "-language:higherKinds",
+  "-language:postfixOps",
+  "-feature",
+  "-Xfatal-warnings"
+)

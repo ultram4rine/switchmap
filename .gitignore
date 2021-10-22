@@ -53,6 +53,7 @@ modules.xml
 ### Metals ###
 .metals/
 project/metals.sbt
+project/project
 
 ### Node ###
 # Logs
@@ -172,6 +173,7 @@ project/boot/
 project/plugins/project/
 .history
 .lib/
+.bsp/
 
 ### Scala ###
 *.class

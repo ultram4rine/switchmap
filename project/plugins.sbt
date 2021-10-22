@@ -1,6 +1,9 @@
-// Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2")
-
-// Dev plugins
+//addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.3")
 addSbtPlugin("org.jmotor.sbt" % "sbt-dependency-updates" % "1.2.2")
-addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"           % "0.9.19")
+addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"           % "0.9.31")
+addSbtPlugin("io.spray"       % "sbt-revolver"           % "0.9.1")
+addSbtPlugin("com.eed3si9n"   % "sbt-assembly"           % "1.1.0")
+addSbtPlugin("com.thesamet"   % "sbt-protoc"             % "1.0.4")
+
+libraryDependencies +=
+  "com.thesamet.scalapb.zio-grpc" %% "zio-grpc-codegen" % "0.5.1"
