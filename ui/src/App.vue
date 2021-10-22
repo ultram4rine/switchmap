@@ -10,9 +10,8 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { mapActions, mapGetters } from "vuex";
-import axios from "axios";
 
+import api from "./api";
 import { AUTH_LOGOUT } from "./store/actions";
 
 const defaultLayout = "default";
@@ -32,9 +31,6 @@ export default Vue.extend({
         this.isLoading = false;
       }
     },
-
-    ...mapActions("csrf", ["setToken"]),
-    ...mapGetters("csrf", ["getToken"]),
   },
 
   computed: {
@@ -44,15 +40,9 @@ export default Vue.extend({
   },
 
   created() {
-    const bodyHtmlTag = document.getElementsByTagName("body")[0];
-    const csrfToken = bodyHtmlTag.getAttribute("csrf-token-value");
-    this.setToken(csrfToken);
-
-    axios.interceptors.request.use(
+    api.interceptors.request.use(
       (config) => {
         this.setLoading(true);
-        const csrfToken = this.getToken();
-        axios.defaults.headers.common["Csrf-Token"] = csrfToken;
         return config;
       },
       (error) => {
@@ -61,23 +51,20 @@ export default Vue.extend({
       }
     );
 
-    axios.interceptors.response.use(
+    api.interceptors.response.use(
       (response) => {
         this.setLoading(false);
         return response;
       },
-      (err) => {
+      (error) => {
         this.setLoading(false);
         return new Promise(() => {
-          if (
-            err.status === 401 &&
-            err.config &&
-            !err.config.__isRetryRequest
-          ) {
+          if (error.response.status && error.response.status === 401) {
             this.$store.dispatch(AUTH_LOGOUT);
             this.$router.push("/login");
+          } else {
+            return Promise.reject(error);
           }
-          throw err;
         });
       }
     );
