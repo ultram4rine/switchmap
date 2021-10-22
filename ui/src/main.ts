@@ -1,11 +1,9 @@
 import Vue from "vue";
 import VueCompositionAPI from "@vue/composition-api";
 
-import axios from "axios";
-
 import vuetify from "@/plugins/vuetify";
 import router from "@/routes/router";
-import store from "@/store/store";
+import store from "@/store";
 
 import App from "@/App.vue";
 
@@ -18,11 +16,6 @@ Vue.use(VueCompositionAPI);
 
 Vue.component("default", Layout);
 Vue.component("empty", Empty);
-
-const token = localStorage.getItem("user-token");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = token;
-}
 
 new Vue({
   vuetify,
