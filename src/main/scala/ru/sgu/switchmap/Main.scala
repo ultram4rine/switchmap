@@ -2,26 +2,51 @@ package ru.sgu.switchmap
 
 import cats.effect.{ExitCode => CatsExitCode}
 import com.http4s.rho.swagger.ui.SwaggerUi
+import io.grpc.{ManagedChannelBuilder, Status}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import org.http4s.rho.swagger.models._
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
+import ru.sgu.git.netdataserv.netdataproto.{
+  GetNetworkSwitchesRequest,
+  GetNetworkSwitchesResponse,
+  NetworkSwitch,
+  GetMatchingHostRequest,
+  Match,
+  StaticHost
+}
+import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
-import ru.sgu.switchmap.config.Config
+import ru.sgu.switchmap.config.{Config, AppConfig}
 import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
+import ru.sgu.switchmap.models.Switch
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
   SwitchRepository
 }
 import ru.sgu.switchmap.routes._
+import scalapb.zio_grpc.ZManagedChannel
 import zio._
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.console._
 import zio.interop.catz._
+
+private object NetDataClientLive {
+  val layer: RLayer[Has[AppConfig], NetDataClient] =
+    ZLayer.fromServiceManaged { cfg =>
+      NetDataClient.managed(
+        ZManagedChannel(
+          ManagedChannelBuilder
+            .forAddress(cfg.netdataHost, cfg.netdataPort)
+            .usePlaintext()
+        )
+      )
+    }
+}
 
 object Main extends App {
   type HttpServerEnvironment = Clock with Blocking
@@ -29,6 +54,7 @@ object Main extends App {
   type AppEnvironment = Config
     with AuthEnvironment
     with Has[FlywayMigrator]
+    with NetDataClient
     with HttpServerEnvironment
     with BuildRepository
     with FloorRepository
@@ -41,6 +67,8 @@ object Main extends App {
     Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
+  val netdataEnvironment: TaskLayer[NetDataClient] =
+    Config.live >>> NetDataClientLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Clock.live ++ Blocking.live
   val buildRepository: TaskLayer[BuildRepository] =
@@ -50,16 +78,61 @@ object Main extends App {
   val switchRepository: TaskLayer[SwitchRepository] =
     dbTransactor >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live ++ Console.live ++ authEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live ++ Console.live ++ authEnvironment ++ netdataEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
-    val program: ZIO[AppEnvironment with Console, Throwable, Unit] =
+    val program: ZIO[AppEnvironment with Console, Object, Unit] =
       for {
         api <- config.apiConfig
         app <- config.appConfig
         _ <- FlywayMigrator.migrate()
+
+        _ <- putStrLn("Retrieving switches")
+        switches <- for {
+          resp <-
+            NetDataClient
+              .getNetworkSwitches(GetNetworkSwitchesRequest())
+        } yield resp.switch
+
+        _ <- putStrLn("Adding switches to database")
+        _ <- ZIO.foreach(switches)(sw =>
+          for {
+            switch <- (for {
+                resp <-
+                  NetDataClient
+                    .getMatchingHost(
+                      GetMatchingHostRequest(
+                        Some(Match(Match.Match.HostName(sw.name)))
+                      )
+                    )
+              } yield resp.host.headOption).catchSome {
+              case status => {
+                putStrLn(s"${status.toString()} for switch ${sw.name}") *> ZIO
+                  .succeed(None)
+              }
+            }
+            res <- switch match {
+              case Some(value) =>
+                repositories
+                  .createSwitch(
+                    Switch(
+                      value.name,
+                      value.ipv4Address.mkString,
+                      value.macAddressString,
+                      "public"
+                    )
+                  )
+                  .catchAll(e => {
+                    putStrLn(e.getMessage()) *> ZIO.succeed(false)
+                  })
+              case None => ZIO.succeed(false)
+            }
+            _ <- putStrLn(s"${sw.name} -> ${res.toString()}")
+          } yield ()
+        )
+        _ <- putStrLn("Switches added")
 
         swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
           swaggerFormats = DefaultSwaggerFormats,
