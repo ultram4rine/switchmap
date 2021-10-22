@@ -39,7 +39,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
     }
 
     "Get floor of build by number" **
-      POST / "builds" / pv"shortName" / "floors" / pathVar[Int](
+      GET / "builds" / pv"shortName" / "floors" / pathVar[Int](
       "number",
       "Number of floor"
     ) >>> AuthContext.auth |>> {
