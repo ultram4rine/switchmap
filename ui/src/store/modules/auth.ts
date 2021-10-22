@@ -1,89 +1,78 @@
-import { ActionContext, Module } from "vuex";
-import axios from "axios";
+import { ActionContext } from "vuex";
 
-import { config } from "@/config";
 import {
   AUTH_LOGIN,
   AUTH_LOGOUT,
   AUTH_SUCCESS,
   AUTH_ERROR,
 } from "@/store/actions";
+import { login, logout } from "@/api/auth";
+import { User } from "@/types/user";
 
-interface User {
-  username: string;
-  password: string;
-}
-
-interface State {
+type State = {
   token: string;
+  username: string;
   status: string;
   hasLoadedOnce: boolean;
-}
+};
 
-const state: State = {
-  token: localStorage.getItem("user-token") || "",
+export const state: State = {
+  token: localStorage.getItem("token") || "",
+  username: localStorage.getItem("username") || "",
   status: "",
   hasLoadedOnce: false,
 };
 
-const getters = {
-  isAuthenticated: (state: State) => {
-    return !!state.token;
-  },
-  authStatus: (state: State) => state.status,
+export const getters = {
+  getLoggedIn: (state: State): boolean => !!state.token,
+  getUsername: (state: State): string => state.username,
+  getStatus: (state: State): string => state.status,
 };
 
-const actions = {
-  [AUTH_LOGIN]: (context: ActionContext<State, any>, user: User) => {
+export const actions = {
+  [AUTH_LOGIN]: (
+    context: ActionContext<State, State>,
+    user: User
+  ): Promise<void> => {
     return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGIN);
-      axios
-        .post(`${config.apiURL}/auth`, user)
-        .then((resp: any) => {
-          localStorage.setItem("user-token", resp.data);
-          context.commit(AUTH_SUCCESS, resp);
+      try {
+        login(user.username, user.password).then((resp) => {
+          localStorage.setItem("username", user.username);
+          context.commit(AUTH_SUCCESS, user);
           resolve(resp);
-        })
-        .catch((err: any) => {
-          context.commit(AUTH_ERROR, err);
-          localStorage.removeItem("user-token");
-          reject(err);
         });
+      } catch (err) {
+        context.commit(AUTH_ERROR, err);
+        localStorage.removeItem("token");
+        reject(err);
+      }
     });
   },
-  [AUTH_LOGOUT]: (context: ActionContext<State, any>) => {
+  [AUTH_LOGOUT]: (context: ActionContext<State, State>): Promise<void> => {
     return new Promise((resolve) => {
       context.commit(AUTH_LOGOUT);
-      localStorage.removeItem("user-token");
-      resolve();
+      localStorage.removeItem("username");
+      logout().then(() => resolve());
     });
   },
 };
 
-const mutations = {
-  [AUTH_LOGIN]: (state: State) => {
+export const mutations = {
+  [AUTH_LOGIN]: (state: State): void => {
     state.status = "loading";
   },
-  [AUTH_SUCCESS]: (state: State, resp: any) => {
+  [AUTH_SUCCESS]: (state: State, username: string): void => {
     state.status = "success";
-    state.token = resp.data;
+    state.token = localStorage.getItem("token") || "";
+    state.username = username;
     state.hasLoadedOnce = true;
   },
-  [AUTH_ERROR]: (state: State) => {
+  [AUTH_ERROR]: (state: State): void => {
     state.status = "error";
     state.hasLoadedOnce = true;
   },
-  [AUTH_LOGOUT]: (state: State) => {
+  [AUTH_LOGOUT]: (state: State): void => {
     state.token = "";
   },
 };
-
-const auth: Module<State, any> = {
-  namespaced: true,
-  state,
-  getters,
-  actions,
-  mutations,
-};
-
-export default auth;
