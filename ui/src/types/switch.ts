@@ -1,16 +1,4 @@
-export interface Build {
-  name: string;
-  shortName: string;
-  floorsNumber: number;
-  switchesNumber: number;
-}
-
-export interface Floor {
-  number: number;
-  switchesNumber: number;
-}
-
-export interface Switch {
+export type Switch = {
   name: string;
   ip: string;
   mac: string;
@@ -25,4 +13,4 @@ export interface Switch {
   upSwitchName: string;
   upSwitchMAC: string;
   upLink: string;
-}
+};
