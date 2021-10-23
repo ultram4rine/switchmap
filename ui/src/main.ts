@@ -7,8 +7,8 @@ import store from "@/store";
 
 import App from "@/App.vue";
 
-import Layout from "@/components/layouts/Layout.vue";
-import Empty from "@/components/layouts/Empty.vue";
+import Layout from "@/views/layouts/Layout.vue";
+import Empty from "@/views/layouts/Empty.vue";
 
 Vue.config.productionTip = false;
 
