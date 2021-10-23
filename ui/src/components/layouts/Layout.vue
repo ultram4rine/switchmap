@@ -50,6 +50,8 @@ import {
   mdiCopyright,
 } from "@mdi/js";
 
+import { AUTH_LOGOUT } from "../../store/actions";
+
 export default Vue.extend({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -74,7 +76,7 @@ export default Vue.extend({
 
   methods: {
     logout: function () {
-      this.$store.dispatch("auth/AUTH_LOGOUT").then(() => {
+      this.$store.dispatch(AUTH_LOGOUT).then(() => {
         this.$router.push("/login");
       });
     },
