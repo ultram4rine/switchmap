@@ -162,7 +162,7 @@ export default defineComponent({
       try {
         switch (retrieveFromNetdata) {
           case false:
-            addSwitch({});
+            addSwitch({} as Switch);
             break;
           default:
             break;
