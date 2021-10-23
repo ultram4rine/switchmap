@@ -11,8 +11,8 @@ export const login = async (
     password,
   });
   if (resp.data.token) {
+    api.defaults.headers.common["X-Auth-Token"] = resp.data.token;
     localStorage.setItem("token", resp.data.token);
-    api.defaults.headers.common["X-Auth-Token"] = authHeader();
   }
 };
 
