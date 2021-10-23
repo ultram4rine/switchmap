@@ -17,40 +17,12 @@
         lg="3"
         xl="2"
       >
-        <v-card class="ma-1" outlined>
-          <v-card-title class="headline">
-            Floor {{ f.number }}
-            <v-spacer></v-spacer>
-            <v-btn
-              icon
-              small
-              color="red"
-              @click="deleteFloorOf(build, f.number)"
-            >
-              <v-icon>{{ mdiDelete }}</v-icon>
-            </v-btn>
-          </v-card-title>
-
-          <v-card-subtitle>{{ f.switchesNumber }} switches</v-card-subtitle>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn dark small color="primary" @click="openSwitchForm('Add', f)">
-              Add switch
-            </v-btn>
-            <v-btn
-              dark
-              small
-              color="primary"
-              :to="{
-                name: 'floor',
-                params: { build: build, floor: f.number.toString() },
-              }"
-            >
-              Go
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+        <floor-card
+          :build="shortName"
+          :floor="f"
+          @handleDelete="handleDelete"
+          @handleAddSwitch="handleAddSwitch"
+        />
       </v-col>
 
       <v-col
@@ -79,17 +51,30 @@
       </v-card>
     </v-row>
 
-    <FloorForm
+    <confirmation
+      :confirmation="confirmation"
+      :name="name"
+      @confirm="
+        deleteFloor(shortName, floorNumber),
+          (confirmation = !confirmation),
+          (name = ''),
+          (floorNumber = 0)
+      "
+      @cancel="(confirmation = !confirmation), (name = ''), (floorNumber = 0)"
+    />
+
+    <floor-form
       :form="floorForm"
       :number="floorNumber"
       @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
 
-    <SwitchForm
+    <switch-form
       :form="switchForm"
-      :action="switchAction"
+      :action="switchFormAction"
       :needLocationFields="false"
+      :retrieveFromNetdata="true"
       :name="switchName"
       :ipResolveMethod="switchIPResolveMethod"
       :ip="switchIP"
@@ -98,144 +83,157 @@
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
-
-    <Snackbar
-      :snackbar="snackbar"
-      :item="item"
-      :action="action"
-      @update="updateSnackbar"
-    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
-import { mdiDelete } from "@mdi/js";
+import { defineComponent, ref, Ref } from "@vue/composition-api";
 
-import FloorForm from "@/components/forms/FloorForm.vue";
-import SwitchForm from "@/components/forms/SwitchForm.vue";
+import FloorCard from "../components/cards/FloorCard.vue";
+import Confirmation from "../components/Confirmation.vue";
+import FloorForm from "../components/forms/FloorForm.vue";
+import SwitchForm from "../components/forms/SwitchForm.vue";
 
-import Snackbar from "@/components/Snackbar.vue";
-
-import useFloors from "@/helpers/useFloors";
-import useSwitches from "@/helpers/useSwitches";
-import useConfirmation from "@/helpers/useConfirmation";
-import useSnackbar from "@/helpers/useSnackbar";
+import { Floor } from "../types/floor";
+import { Switch } from "../types/switch";
+import { getFloorsOf, addFloor, deleteFloor } from "../api/floors";
+import { getBuild } from "../api/builds";
+import { addSwitch } from "../api/switches";
 
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
-    build: { type: String, required: true },
+    shortName: { type: String, required: true },
   },
 
   components: {
+    FloorCard,
+    Confirmation,
     FloorForm,
     SwitchForm,
-    Snackbar,
   },
 
-  setup(props) {
-    const {
-      floors,
-      floorForm,
-      floorNumber,
-      openFloorForm,
-      handleSubmitFloor,
-      closeFloorForm,
-      getFloorsOf,
-      addFloorTo,
-      deleteFloorOf,
-    } = useFloors();
-
-    const {
-      switchForm,
-      switchAction,
-      switchName,
-      switchIPResolveMethod,
-      switchIP,
-      switchMAC,
-      switchSNMPCommunity,
-      switchFloor,
-      openSwitchForm,
-      closeSwitchForm,
-      addSwitch,
-    } = useSwitches();
-
-    const handleSubmitSwitch = (
+  methods: {
+    handleDelete(floor: Floor) {
+      this.deleteName = `Floor ${floor.number}`;
+      this.floorNumber = floor.number;
+      this.confirmation = true;
+    },
+    handleAddSwitch(shortName: string, floor: Floor) {
+      this.sw = {
+        name: "",
+        ip: "",
+        mac: "",
+        buildShortName: shortName,
+        floorNumber: floor.number,
+      } as Switch;
+      this.switchFormAction = "Add";
+      this.switchForm = true;
+    },
+    openFloorForm() {
+      this.floorForm = true;
+    },
+    handleSubmitFloor(number: number) {
+      try {
+        getBuild(this.shortName).then((b) => {
+          addFloor(b.name, this.shortName, number);
+          this.floorNumber = 0;
+          this.floorForm = false;
+        });
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+    closeFloorForm() {
+      this.floorNumber = 0;
+      this.floorForm = false;
+    },
+    handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
       ip: string,
       mac: string,
-      snmpCommunity: string
-    ) => {
-      switchName.value = name;
-      switchIPResolveMethod.value = ipResolveMethod;
-      switchIP.value = ip;
-      switchMAC.value = mac;
-      switchSNMPCommunity.value = snmpCommunity;
+      snmpCommunity: string,
+      _build: string,
+      _floor: string,
+      retrieveFromNetdata: boolean,
+      action: string
+    ) {
+      try {
+        switch (retrieveFromNetdata) {
+          case false:
+            addSwitch({});
+            break;
+          default:
+            break;
+        }
+        console.log(name);
+        console.log(ipResolveMethod);
+        console.log(ip);
+        console.log(mac);
+        console.log(snmpCommunity);
+        console.log(_build);
+        console.log(_floor);
+        console.log(retrieveFromNetdata);
+        console.log(action);
+        this.switchForm = false;
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+    closeSwitchForm() {
+      this.switchFormAction = "";
+      this.switchForm = false;
+      this.switchName = "";
+      this.switchIPResolveMethod = "DNS";
+      this.switchIP = "";
+      this.switchMAC = "";
+      this.switchSNMPCommunity = "public";
+    },
+  },
 
-      addSwitch(
-        name,
-        ipResolveMethod,
-        ip,
-        mac,
-        snmpCommunity,
-        props.build,
-        switchFloor.value
-      ).then(() => {
-        getFloorsOf(props.build).then((fs) => {
-          floors.value = fs;
-          closeSwitchForm();
-        });
-      });
-    };
+  setup() {
+    const floors: Ref<Floor[]> = ref([]);
 
-    const { confirmation, name } = useConfirmation();
-    const { snackbar, item, action, updateSnackbar } = useSnackbar();
+    const confirmation = ref(false);
+    const deleteName = ref("");
+
+    const floorForm = ref(false);
+    const floorNumber = ref(0);
+
+    const sw = ref({} as Switch);
+    const switchForm = ref(false);
+    const switchFormAction = ref("");
+    const switchName = ref("");
+    const switchIPResolveMethod = ref("DNS");
+    const switchIP = ref("");
+    const switchMAC = ref("");
+    const switchSNMPCommunity = ref("public");
 
     return {
       floors,
 
+      confirmation,
+      deleteName,
+
       floorForm,
       floorNumber,
 
-      openFloorForm,
-      handleSubmitFloor,
-      closeFloorForm,
-
-      getFloorsOf,
-      addFloorTo,
-      deleteFloorOf,
-
+      sw,
       switchForm,
+      switchFormAction,
       switchName,
       switchIPResolveMethod,
       switchIP,
       switchMAC,
       switchSNMPCommunity,
 
-      switchAction,
-
-      handleSubmitSwitch,
-      openSwitchForm,
-      closeSwitchForm,
-
-      addSwitch,
-
-      confirmation,
-      name,
-
-      snackbar,
-      item,
-      action,
-      updateSnackbar,
-
-      mdiDelete,
+      deleteFloor,
     };
   },
 
   created() {
-    this.getFloorsOf(this.build).then((floors) => (this.floors = floors));
+    getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
   },
 });
 </script>

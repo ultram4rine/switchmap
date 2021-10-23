@@ -12,6 +12,10 @@
       <ValidationObserver ref="observer" v-slot="{ invalid }">
         <v-card-text>
           <v-form ref="form">
+            <v-checkbox
+              v-model="localRetrieveFromNetdata"
+              label="Retrieve switch data from netdata"
+            ></v-checkbox>
             <ValidationProvider
               v-slot="{ errors }"
               name="Name"
@@ -26,91 +30,97 @@
               ></v-text-field>
             </ValidationProvider>
 
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="inputIPResolveMethod"
-                  :items="methods"
-                  hide-details
-                  label="IP resolve method"
-                  color="orange accent-2"
-                  required
-                ></v-select>
-              </v-col>
-              <v-col v-if="inputIPResolveMethod === 'Direct'" cols="12" sm="6">
-                <ValidationProvider
-                  v-slot="{ errors }"
-                  name="IP address"
-                  rules="required|ip"
-                >
-                  <v-text-field
-                    v-model="inputIP"
-                    :error-messages="errors"
-                    label="IP"
-                    placeholder="e.g. 192.168.1.1"
-                    required
+            <template v-if="!localRetrieveFromNetdata">
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="inputIPResolveMethod"
+                    :items="methods"
+                    hide-details
+                    label="IP resolve method"
                     color="orange accent-2"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
+                    required
+                  ></v-select>
+                </v-col>
+                <v-col
+                  v-if="inputIPResolveMethod === 'Direct'"
+                  cols="12"
+                  sm="6"
+                >
+                  <ValidationProvider
+                    v-slot="{ errors }"
+                    name="IP address"
+                    rules="required|ip"
+                  >
+                    <v-text-field
+                      v-model="inputIP"
+                      :error-messages="errors"
+                      label="IP"
+                      placeholder="e.g. 192.168.1.1"
+                      required
+                      color="orange accent-2"
+                    ></v-text-field>
+                  </ValidationProvider>
+                </v-col>
+              </v-row>
 
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <ValidationProvider
-                  v-slot="{ errors }"
-                  name="MAC address"
-                  rules="required|mac"
-                >
-                  <v-text-field
-                    v-model="inputMAC"
-                    :error-messages="errors"
-                    label="MAC"
-                    placeholder="XX:XX:XX:XX:XX:XX"
-                    required
-                    color="orange accent-2"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <ValidationProvider
-                  v-slot="{ errors }"
-                  name="SNMP community"
-                  rules="required"
-                >
-                  <v-text-field
-                    v-model="inputSNMPCommunity"
-                    :error-messages="errors"
-                    label="SNMP community"
-                    required
-                    color="orange accent-2"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <ValidationProvider
+                    v-slot="{ errors }"
+                    name="MAC address"
+                    rules="required|mac"
+                  >
+                    <v-text-field
+                      v-model="inputMAC"
+                      :error-messages="errors"
+                      label="MAC"
+                      placeholder="XX:XX:XX:XX:XX:XX"
+                      required
+                      color="orange accent-2"
+                    ></v-text-field>
+                  </ValidationProvider>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <ValidationProvider
+                    v-slot="{ errors }"
+                    name="SNMP community"
+                    rules="required"
+                  >
+                    <v-text-field
+                      v-model="inputSNMPCommunity"
+                      :error-messages="errors"
+                      label="SNMP community"
+                      required
+                      color="orange accent-2"
+                    ></v-text-field>
+                  </ValidationProvider>
+                </v-col>
+              </v-row>
 
-            <v-row v-if="needLocationFields" dense>
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="inputBuild"
-                  :items="builds"
-                  hide-details
-                  label="Build"
-                  color="orange accent-2"
-                  required
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="inputFloor"
-                  :items="floors"
-                  hide-details
-                  label="Floor"
-                  color="orange accent-2"
-                  required
-                ></v-select>
-              </v-col>
-            </v-row>
+              <v-row v-if="needLocationFields" dense>
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="inputBuild"
+                    :items="builds"
+                    hide-details
+                    label="Build"
+                    color="orange accent-2"
+                    required
+                  ></v-select>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="inputFloor"
+                    :items="floors"
+                    hide-details
+                    label="Floor"
+                    color="orange accent-2"
+                    required
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </template>
           </v-form>
         </v-card-text>
 
@@ -128,7 +138,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable no-unused-vars */
 import {
   defineComponent,
   ref,
@@ -138,7 +147,8 @@ import {
 } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import { Build, Floor } from "@/interfaces";
+import { Build } from "../../types/build";
+import { Floor } from "../../types/floor";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
@@ -158,7 +168,8 @@ extend("mac", {
 
 extend("ip", {
   validate: (val: string) => {
-    const regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+    const regex =
+      /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
     return regex.test(val);
   },
   message: "{_value_} is not correct IP address",
@@ -169,7 +180,7 @@ export default defineComponent({
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
     needLocationFields: { type: Boolean, required: true },
-
+    retrieveFromNetdata: { type: Boolean, required: true },
     name: { type: String, required: true },
     ipResolveMethod: { type: String, required: true },
     ip: { type: String, required: true },
@@ -186,9 +197,10 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const title = computed(() => {
-      if (props.action == "Add") return "New build";
-      else if (props.action == "Change") return "Change build";
+      return props.action == "Add" ? "New switch" : "Change switch";
     });
+
+    const localRetrieveFromNetdata = ref(props.retrieveFromNetdata);
 
     const inputName = ref(props.name);
     const inputIPResolveMethod = ref(props.ipResolveMethod);
@@ -254,13 +266,16 @@ export default defineComponent({
         inputMAC.value,
         inputSNMPCommunity.value,
         inputBuild.value,
-        inputFloor.value
+        inputFloor.value,
+        localRetrieveFromNetdata.value,
+        props.action
       );
     };
     const close = () => emit("close");
 
     return {
       title,
+      localRetrieveFromNetdata,
       inputName,
       inputIPResolveMethod,
       inputIP,
