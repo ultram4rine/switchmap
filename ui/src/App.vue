@@ -35,7 +35,7 @@ export default Vue.extend({
 
   computed: {
     layout() {
-      return this.$route.meta.layout || defaultLayout;
+      return this.$route.meta ? this.$route.meta.layout : defaultLayout;
     },
   },
 
