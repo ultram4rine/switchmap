@@ -6,8 +6,8 @@
           <v-toolbar dark flat>
             <v-toolbar-title>Login to SwitchMap</v-toolbar-title>
           </v-toolbar>
-          <v-card-text>
-            <v-form>
+          <v-form>
+            <v-card-text>
               <v-text-field
                 v-model="username"
                 label="Name"
@@ -26,15 +26,15 @@
                 :append-icon="show ? this.mdiEye : this.mdiEyeOff"
                 @click:append="show = !show"
               ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="orange darken-1" class="mr-4" @click="login">
-              Sign in
-              <v-icon right>{{ mdiLogin }}</v-icon>
-            </v-btn>
-          </v-card-actions>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn color="orange darken-1" class="mr-4" @click="login">
+                Sign in
+                <v-icon right>{{ mdiLogin }}</v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-form>
         </v-card>
       </v-col>
     </v-row>
@@ -42,36 +42,36 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent, ref } from "@vue/composition-api";
 import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
-export default Vue.extend({
-  data() {
+import { AUTH_LOGIN } from "../store/actions";
+
+export default defineComponent({
+  setup() {
+    const username = ref("");
+    const password = ref("");
+
+    const show = ref(false);
+
     return {
-      mdiEye: mdiEye,
-      mdiEyeOff: mdiEyeOff,
-      mdiAccount: mdiAccount,
-      mdiKey: mdiKey,
-      mdiLogin: mdiLogin,
+      mdiEye,
+      mdiEyeOff,
+      mdiAccount,
+      mdiKey,
+      mdiLogin,
 
-      show: false,
+      username,
+      password,
 
-      username: "",
-      password: "",
+      show,
     };
   },
-
   methods: {
-    login: function () {
+    async login() {
       const { username, password } = this;
-      this.$store
-        .dispatch("auth/AUTH_LOGIN", { username, password })
-        .then(() => {
-          this.$router.push("/");
-        })
-        .catch((err: any) => {
-          console.log(err);
-        });
+      await this.$store.dispatch(AUTH_LOGIN, { username, password });
+      this.$router.push("/");
     },
   },
 });
