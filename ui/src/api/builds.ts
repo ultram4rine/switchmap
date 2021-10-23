@@ -39,9 +39,10 @@ export const addBuild = async (
 
 export const editBuild = async (
   name: string,
-  shortName: string
+  shortName: string,
+  oldShortName: string
 ): Promise<void> => {
-  await api.put(`/builds/${shortName}`, {
+  await api.put(`/builds/${oldShortName}`, {
     name,
     shortName,
   });
