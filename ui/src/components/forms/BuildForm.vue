@@ -56,11 +56,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from "@vue/composition-api";
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  PropType,
+} from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
+
+import { Build } from "../../types/build";
 
 extend("required", {
   ...required,
@@ -72,36 +80,34 @@ export default defineComponent({
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
 
-    name: { type: String, required: true },
-    shortName: { type: String, required: true },
+    build: { type: Object as PropType<Build>, required: true },
   },
 
   components: { ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
     const title = computed(() => {
-      if (props.action == "Add") return "New build";
-      else if (props.action == "Change") return "Change build";
+      return props.action == "Add" ? "New build" : "Change build";
     });
 
-    const inputName = ref(props.name);
-    const inputShortName = ref(props.shortName);
+    const inputName = ref(props.build.name);
+    const inputShortName = ref(props.build.shortName);
 
     watch(
-      () => props.name,
+      () => props.build.name,
       (val) => {
         inputName.value = val;
       }
     );
     watch(
-      () => props.shortName,
+      () => props.build.shortName,
       (val) => {
         inputShortName.value = val;
       }
     );
 
     const submit = () => {
-      emit("submit", inputName.value, inputShortName.value);
+      emit("submit", inputName.value, inputShortName.value, props.action);
     };
     const close = () => {
       inputName.value = "";

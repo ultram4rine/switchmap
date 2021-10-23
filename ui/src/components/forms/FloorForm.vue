@@ -58,7 +58,7 @@ export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
 
-    number: { type: String, required: true },
+    number: { type: Number, required: true },
   },
 
   components: { ValidationObserver, ValidationProvider },
@@ -68,7 +68,7 @@ export default defineComponent({
 
     watch(
       () => props.number,
-      (val: string) => {
+      (val: number) => {
         inputNumber.value = val;
       }
     );
@@ -77,7 +77,7 @@ export default defineComponent({
       emit("submit", inputNumber.value);
     };
     const close = () => {
-      inputNumber.value = "";
+      inputNumber.value = 0;
       emit("close");
     };
 

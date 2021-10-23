@@ -17,46 +17,12 @@
         lg="3"
         xl="2"
       >
-        <v-card class="ma-1" outlined>
-          <v-card-title class="headline">
-            {{ b.name }}
-            <v-spacer></v-spacer>
-            <v-btn icon small color="grey" @click="openBuildForm('Change', b)">
-              <v-icon>{{ mdiPencil }}</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              small
-              color="red"
-              @click="
-                buildFDN = b.name;
-                buildFDSN = b.shortName;
-                confirmation = !confirmation;
-              "
-            >
-              <v-icon>{{ mdiDelete }}</v-icon>
-            </v-btn>
-          </v-card-title>
-
-          <v-card-subtitle>
-            {{ b.floorsNumber }} floors, {{ b.switchesNumber }} switches
-          </v-card-subtitle>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn dark small color="primary" @click="openFloorForm(b)">
-              Add floor
-            </v-btn>
-            <v-btn
-              dark
-              small
-              color="primary"
-              :to="{ name: 'build', params: { build: b.shortName } }"
-            >
-              Go
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+        <build-card
+          :build="b"
+          @handleEdit="handleEdit"
+          @handleDelete="handleDelete"
+          @handleAddFloor="handleAddFloor"
+        />
       </v-col>
 
       <v-col
@@ -85,52 +51,46 @@
       </v-card>
     </v-row>
 
-    <BuildForm
+    <confirmation
+      :confirmation="confirmation"
+      :name="name"
+      @confirm="
+        deleteBuild(shortName),
+          (confirmation = !confirmation),
+          (name = ''),
+          (shortName = '')
+      "
+      @cancel="(confirmation = !confirmation), (name = ''), (shortName = '')"
+    />
+
+    <build-form
       :form="buildForm"
-      :action="buildAction"
-      :name="buildName"
-      :shortName="buildShortName"
+      :action="buildFormAction"
+      :build="build"
       @submit="handleSubmitBuild"
       @close="closeBuildForm"
     />
 
-    <FloorForm
+    <floor-form
       :form="floorForm"
       :number="floorNumber"
       @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
-
-    <Confirmation
-      :confirmation="confirmation"
-      :name="'build ' + buildFDN"
-      @confirm="deleteBuild(buildFDSN)"
-      @cancel="confirmation = !confirmation"
-    />
-
-    <Snackbar
-      :snackbar="snackbar"
-      :item="item"
-      :action="action"
-      @update="updateSnackbar"
-    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
-import { mdiPencil, mdiDelete } from "@mdi/js";
+import { defineComponent, ref, Ref } from "@vue/composition-api";
 
-import BuildForm from "@/components/forms/BuildForm.vue";
-import FloorForm from "@/components/forms/FloorForm.vue";
+import BuildCard from "../components/cards/BuildCard.vue";
+import Confirmation from "../components/Confirmation.vue";
+import BuildForm from "../components/forms/BuildForm.vue";
+import FloorForm from "../components/forms/FloorForm.vue";
 
-import Confirmation from "@/components/Confirmation.vue";
-import Snackbar from "@/components/Snackbar.vue";
-
-import useBuilds from "@/helpers/useBuilds";
-import useFloors from "@/helpers/useFloors";
-import useConfirmation from "@/helpers/useConfirmation";
-import useSnackbar from "@/helpers/useSnackbar";
+import { Build } from "../types/build";
+import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
+import { addFloor } from "../api/floors";
 
 export default defineComponent({
   props: {
@@ -138,99 +98,120 @@ export default defineComponent({
   },
 
   components: {
+    BuildCard,
+    Confirmation,
     BuildForm,
     FloorForm,
-    Confirmation,
-    Snackbar,
+  },
+
+  methods: {
+    handleEdit(b: Build) {
+      this.build = b;
+      this.oldBuild = b.shortName;
+      this.buildFormAction = "Change";
+      this.buildForm = true;
+    },
+    handleDelete(b: Build) {
+      this.name = b.name;
+      this.shortName = b.shortName;
+      this.confirmation = true;
+    },
+    handleAddFloor(b: Build) {
+      this.build = b;
+      this.floorNumber = 0;
+      this.floorForm = true;
+    },
+    openBuildForm(action: string) {
+      this.build = {} as Build;
+      this.buildFormAction = action;
+      this.buildForm = true;
+    },
+    handleSubmitBuild(name: string, shortName: string, action: string) {
+      switch (action) {
+        case "Add":
+          try {
+            addBuild(name, shortName);
+            this.build = {} as Build;
+            this.buildFormAction = "";
+            this.buildForm = false;
+          } catch (error: any) {
+            console.log(error);
+          }
+          break;
+        case "Change":
+          try {
+            editBuild(name, shortName, this.oldBuild);
+            this.build = {} as Build;
+            this.oldBuild = "";
+            this.buildFormAction = "";
+            this.buildForm = false;
+          } catch (error: any) {
+            console.log(error);
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    closeBuildForm() {
+      this.build = {} as Build;
+      this.oldBuild = "";
+      this.buildFormAction = "";
+      this.buildForm = false;
+    },
+    handleSubmitFloor(number: number) {
+      try {
+        addFloor(this.build.name, this.build.shortName, number);
+        this.build = {} as Build;
+        this.floorNumber = 0;
+        this.floorForm = false;
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+    closeFloorForm() {
+      this.build = {} as Build;
+      this.floorNumber = 0;
+      this.floorForm = false;
+    },
   },
 
   setup() {
-    const {
-      builds,
-      buildForm,
-      buildAction,
-      buildName,
-      buildShortName,
-      buildFUSN,
-      buildFDN,
-      buildFDSN,
-      openBuildForm,
-      handleSubmitBuild,
-      closeBuildForm,
-      getAllBuilds,
-      getBuild,
-      deleteBuild,
-    } = useBuilds();
+    const builds: Ref<Build[]> = ref([]);
 
-    const {
-      floorForm,
-      floorNumber,
-      floorBuildShortName,
-      openFloorForm,
-      closeFloorForm,
-      addFloorTo,
-    } = useFloors();
+    const confirmation = ref(false);
+    const name = ref("");
+    const shortName = ref("");
 
-    const handleSubmitFloor = (number: string) => {
-      floorNumber.value = number;
-      addFloorTo(floorBuildShortName.value, parseInt(number)).then(() => {
-        getBuild(floorBuildShortName.value).then((build) => {
-          const i = builds.value.findIndex(
-            (b) => b.shortName === floorBuildShortName.value
-          );
-          builds.value[i] = build;
-          closeFloorForm();
-        });
-      });
-    };
+    const buildForm = ref(false);
+    const buildFormAction = ref("");
+    const build: Ref<Build> = ref({} as Build);
+    const oldBuild = ref("");
 
-    const { confirmation, name } = useConfirmation();
-    const { snackbar, item, action, updateSnackbar } = useSnackbar();
+    const floorForm = ref(false);
+    const floorNumber = ref(-1);
 
     return {
       builds,
 
+      confirmation,
+      name,
+      shortName,
+
       buildForm,
-      buildAction,
-      buildName,
-      buildShortName,
-
-      buildFUSN,
-      buildFDN,
-      buildFDSN,
-
-      openBuildForm,
-      handleSubmitBuild,
-      closeBuildForm,
-
-      getAllBuilds,
-      deleteBuild,
+      buildFormAction,
+      build,
+      oldBuild,
 
       floorForm,
       floorNumber,
-      floorBuildShortName,
 
-      handleSubmitFloor,
-      openFloorForm,
-      closeFloorForm,
-
-      addFloorTo,
-
-      confirmation,
-      name,
-
-      snackbar,
-      item,
-      action,
-      updateSnackbar,
-
-      mdiPencil,
-      mdiDelete,
+      deleteBuild,
     };
   },
 
   created() {
-    this.getAllBuilds().then((builds) => (this.builds = builds));
+    getBuilds().then((builds) => (this.builds = builds));
   },
 });
 </script>

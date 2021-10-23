@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Router, { Route, Location } from "vue-router";
 
-import store from "@/store/store";
+import store from "../store";
 
 import Login from "@/views/Login.vue";
 import Builds from "@/views/Builds.vue";
@@ -33,14 +33,14 @@ const router = new Router({
       meta: { requiresAuth: true, layout: "default" },
     },
     {
-      path: "/builds/:build",
+      path: "/builds/:shortName",
       name: "build",
       component: Floors,
       props: true,
       meta: { requiresAuth: true, layout: "default" },
     },
     {
-      path: "/builds/:build/f:floor",
+      path: "/builds/:shortName/f:floor",
       name: "floor",
       component: Floor,
       props: true,
@@ -70,7 +70,7 @@ router.beforeEach(
     ) => void
   ) => {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-      if (!store.getters["auth/isAuthenticated"]) {
+      if (!store.getters.getLoggedIn) {
         next({
           path: "/login",
           query: { redirect: to.fullPath },
@@ -79,7 +79,7 @@ router.beforeEach(
         next();
       }
     } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
-      if (store.getters.isAuthenticated) {
+      if (store.getters.getLoggedIn) {
         next({ path: "/builds" });
       } else {
         next();
