@@ -9,8 +9,6 @@ import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.{EntityDecoder, EntityEncoder}
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
-import ru.sgu.switchmap.models.DBFloor
-import ru.sgu.switchmap.repositories._
 import zio._
 import zio.interop.catz._
 
@@ -24,9 +22,9 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
 
     "Get static file. Note that plans requires authorization" **
       GET / "static" / * >>> AuthContext.auth |>> {
-      (req: Request[AppTask], _: List[String], auth: AuthStatus.Status) =>
-        fetchResource(req.pathInfo.toString(), req, auth)
-    }
+        (req: Request[AppTask], _: List[String], auth: AuthStatus.Status) =>
+          fetchResource(req.pathInfo.toString(), req, auth)
+      }
   }
 
   private def fetchResource(
