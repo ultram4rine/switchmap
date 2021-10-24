@@ -22,7 +22,7 @@ import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.{Config, AppConfig}
 import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
-import ru.sgu.switchmap.models.Switch
+import ru.sgu.switchmap.models.SwitchRequest
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
@@ -77,7 +77,7 @@ object Main extends App {
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    dbTransactor >>> SwitchRepository.live
+    dbTransactor ++ netdataEnvironment >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
     Config.live ++ Console.live ++ authEnvironment ++ netdataEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
@@ -99,16 +99,17 @@ object Main extends App {
 
         _ <- putStrLn("Adding switches to database")
         _ <- ZIO.foreach(switches)(sw =>
-          for {
+          repositories.createSwitch(SwitchRequest(true, sw.name))
+        /* for {
             switch <- (for {
-                resp <-
-                  NetDataClient
-                    .getMatchingHost(
-                      GetMatchingHostRequest(
-                        Some(Match(Match.Match.HostName(sw.name)))
-                      )
+              resp <-
+                NetDataClient
+                  .getMatchingHost(
+                    GetMatchingHostRequest(
+                      Some(Match(Match.Match.HostName(sw.name)))
                     )
-              } yield resp.host.headOption).catchSome {
+                  )
+            } yield resp.host.headOption).catchSome {
               case status => {
                 putStrLn(s"${status.toString()} for switch ${sw.name}") *> ZIO
                   .succeed(None)
@@ -118,12 +119,7 @@ object Main extends App {
               case Some(value) =>
                 repositories
                   .createSwitch(
-                    Switch(
-                      value.name,
-                      value.ipv4Address.mkString,
-                      value.macAddressString,
-                      "public"
-                    )
+                    SwitchRequest(true, value.name)
                   )
                   .catchAll(e => {
                     putStrLn(e.getMessage()) *> ZIO.succeed(false)
@@ -131,7 +127,7 @@ object Main extends App {
               case None => ZIO.succeed(false)
             }
             _ <- putStrLn(s"${sw.name} -> ${res.toString()}")
-          } yield ()
+          } yield () */
         )
         _ <- putStrLn("Switches added")
 
