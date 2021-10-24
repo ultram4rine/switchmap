@@ -1,5 +1,6 @@
 package ru.sgu.switchmap.repositories
 
+import io.grpc.Status
 import doobie.implicits._
 import doobie.{Query0, Update0}
 import doobie.hikari.HikariTransactor
@@ -7,34 +8,47 @@ import zio._
 import zio.blocking.Blocking
 import zio.interop.catz._
 
+import ru.sgu.git.netdataserv.netdataproto.{
+  GetNetworkSwitchesResponse,
+  NetworkSwitch,
+  GetMatchingHostRequest,
+  Match,
+  StaticHost
+}
+import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{Switch, SwitchNotFound}
+import ru.sgu.switchmap.models.{SwitchRequest, SwitchResponse, SwitchNotFound}
 
 object SwitchRepository {
 
   trait Service {
-    def get(): Task[List[Switch]]
-    def getOf(build: String): Task[List[Switch]]
-    def getOf(build: String, floor: Int): Task[List[Switch]]
-    def get(name: String): Task[Switch]
-    def create(switch: Switch): Task[Boolean]
-    def update(name: String, switch: Switch): Task[Boolean]
+    def get(): Task[List[SwitchResponse]]
+    def getOf(build: String): Task[List[SwitchResponse]]
+    def getOf(build: String, floor: Int): Task[List[SwitchResponse]]
+    def get(name: String): Task[SwitchResponse]
+    def create(switch: SwitchRequest): Task[Boolean]
+    def update(name: String, switch: SwitchRequest): Task[Boolean]
     def delete(name: String): Task[Boolean]
   }
 
-  val live: URLayer[DBTransactor, SwitchRepository] =
-    ZLayer.fromService { resource =>
-      DoobieSwitchRepository(resource.xa)
+  val live: URLayer[DBTransactor with NetDataClient, SwitchRepository] =
+    ZLayer.fromServices[
+      DBTransactor.Resource,
+      NetDataClient.Service,
+      SwitchRepository.Service
+    ] { (resource, client) =>
+      DoobieSwitchRepository(resource.xa, client)
     }
 }
 
 private[repositories] final case class DoobieSwitchRepository(
-  xa: HikariTransactor[Task]
+  xa: HikariTransactor[Task],
+  ndc: NetDataClient.Service
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
 
-  def get(): Task[List[Switch]] = {
+  def get(): Task[List[SwitchResponse]] = {
     val q = quote {
       Tables.switches.sortBy(sw => sw.name)
     }
@@ -48,7 +62,7 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def getOf(build: String): Task[List[Switch]] = {
+  def getOf(build: String): Task[List[SwitchResponse]] = {
     val q = quote {
       Tables.switches
         .filter(sw => sw.buildShortName.getOrNull == lift(build))
@@ -64,7 +78,7 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def getOf(build: String, floor: Int): Task[List[Switch]] = {
+  def getOf(build: String, floor: Int): Task[List[SwitchResponse]] = {
     val q = quote {
       Tables.switches
         .filter(sw =>
@@ -86,7 +100,7 @@ private[repositories] final case class DoobieSwitchRepository(
 
   def get(
     name: String
-  ): Task[Switch] = {
+  ): Task[SwitchResponse] = {
     val q = quote {
       Tables.switches
         .filter(sw => sw.name == lift(name))
@@ -103,25 +117,63 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def create(switch: Switch): Task[Boolean] = {
-    val q = quote {
-      Tables.switches.insert(lift(switch))
+  def create(switch: SwitchRequest): Task[Boolean] = {
+    val sw: IO[Status, SwitchResponse] = switch.retrieveFromNetData match {
+      case true => {
+        val sw = for {
+          resp <- ndc.getMatchingHost(
+            GetMatchingHostRequest(
+              Some(Match(Match.Match.HostName(switch.name)))
+            )
+          )
+          sw = resp.host.head
+        } yield SwitchResponse(
+          sw.name,
+          sw.ipv4Address.mkString("."),
+          sw.macAddressString,
+          "public"
+        )
+        sw
+      }
+      case false =>
+        IO.succeed(
+          SwitchResponse(
+            switch.name,
+            switch.ip.getOrElse(""),
+            switch.mac.getOrElse(""),
+            "public"
+          )
+        )
     }
 
-    Tables.ctx
-      .run(q)
-      .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+    sw.flatMap { s =>
+      {
+        val q = quote {
+          Tables.switches.insert(lift(s))
+        }
+
+        Tables.ctx
+          .run(q)
+          .transact(xa)
+          .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      }
+    }.mapError(s => new Exception(s.toString()))
   }
 
   def update(
     name: String,
-    switch: Switch
+    switch: SwitchRequest
   ): Task[Boolean] = {
+    val s = SwitchResponse(
+      switch.name,
+      switch.ip.getOrElse(""),
+      switch.mac.getOrElse(""),
+      "public"
+    )
     val q = quote {
       Tables.switches
         .filter(sw => sw.name == lift(name))
-        .update(lift(switch))
+        .update(lift(s))
     }
 
     Tables.ctx
