@@ -46,12 +46,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, Ref, ref } from "@vue/composition-api";
 import { mdiMagnify } from "@mdi/js";
 
-import SwitchForm from "@/components/forms/SwitchForm.vue";
+import SwitchForm from "../components/forms/SwitchForm.vue";
 
-import useSwitches from "@/helpers/useSwitches";
+import { Switch } from "../types/switch";
+import { getSwitches } from "../api/switches";
 
 export default defineComponent({
   props: {
@@ -63,6 +64,7 @@ export default defineComponent({
   },
 
   setup() {
+    const switches: Ref<Switch[]> = ref([]);
     const search = ref("");
     const headers = ref([
       {
@@ -76,52 +78,18 @@ export default defineComponent({
       { text: "Location", value: "location" },
     ]);
 
-    const {
-      switches,
-      switchForm,
-      switchName,
-      switchIPResolveMethod,
-      switchIP,
-      switchMAC,
-      switchSNMPCommunity,
-      switchBuild,
-      switchFloor,
-      switchAction,
-      openSwitchForm,
-      handleSubmitSwitchFromSwitchesView,
-      closeSwitchForm,
-      getAllSwitches,
-    } = useSwitches();
-
     return {
+      switches,
+
       search,
       headers,
-
-      switches,
-
-      switchForm,
-      switchName,
-      switchIPResolveMethod,
-      switchIP,
-      switchMAC,
-      switchSNMPCommunity,
-      switchBuild,
-      switchFloor,
-
-      switchAction,
-
-      openSwitchForm,
-      handleSubmitSwitchFromSwitchesView,
-      closeSwitchForm,
-
-      getAllSwitches,
 
       mdiMagnify,
     };
   },
 
   created() {
-    this.getAllSwitches().then((sws) => (this.switches = sws));
+    getSwitches().then((sws: Switch[]) => (this.switches = sws));
   },
 });
 </script>
