@@ -32,7 +32,7 @@ package object repositories {
     )
 
     val switches = quote(
-      querySchema[Switch](
+      querySchema[SwitchResponse](
         "switches",
         _.name -> "name",
         _.ip -> "ip",
@@ -78,20 +78,25 @@ package object repositories {
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))
 
-  def getSwitches(): RIO[SwitchRepository, List[Switch]] =
+  def getSwitches(): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.get())
-  def getSwitchesOf(build: String): RIO[SwitchRepository, List[Switch]] =
+  def getSwitchesOf(
+    build: String
+  ): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.getOf(build))
   def getSwitchesOf(
     build: String,
     floor: Int
-  ): RIO[SwitchRepository, List[Switch]] =
+  ): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.getOf(build, floor))
-  def getSwitch(name: String): RIO[SwitchRepository, Switch] =
+  def getSwitch(name: String): RIO[SwitchRepository, SwitchResponse] =
     RIO.accessM(_.get.get(name))
-  def createSwitch(sw: Switch): RIO[SwitchRepository, Boolean] =
+  def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, Boolean] =
     RIO.accessM(_.get.create(sw))
-  def updateSwitch(name: String, sw: Switch): RIO[SwitchRepository, Boolean] =
+  def updateSwitch(
+    name: String,
+    sw: SwitchRequest
+  ): RIO[SwitchRepository, Boolean] =
     RIO.accessM(_.get.update(name, sw))
   def deleteSwitch(name: String): RIO[SwitchRepository, Boolean] =
     RIO.accessM(_.get.delete(name))
