@@ -15,7 +15,7 @@ package object repositories {
     import ctx._
 
     val builds = quote(
-      querySchema[DBBuild](
+      querySchema[BuildRequest](
         "builds",
         _.name -> "name",
         _.shortName -> "short_name"
@@ -23,7 +23,7 @@ package object repositories {
     )
 
     val floors = quote(
-      querySchema[DBFloor](
+      querySchema[FloorRequest](
         "floors",
         _.number -> "number",
         _.buildName -> "build_name",
@@ -52,24 +52,28 @@ package object repositories {
     )
   }
 
-  def getBuilds(): RIO[BuildRepository, List[Build]] = RIO.accessM(_.get.get())
-  def getBuild(shortName: String): RIO[BuildRepository, Build] =
+  def getBuilds(): RIO[BuildRepository, List[BuildResponse]] =
+    RIO.accessM(_.get.get())
+  def getBuild(shortName: String): RIO[BuildRepository, BuildResponse] =
     RIO.accessM(_.get.get(shortName))
-  def createBuild(b: DBBuild): RIO[BuildRepository, Boolean] =
+  def createBuild(b: BuildRequest): RIO[BuildRepository, Boolean] =
     RIO.accessM(_.get.create(b))
   def updateBuild(
     shortName: String,
-    b: DBBuild
+    b: BuildRequest
   ): RIO[BuildRepository, Boolean] =
     RIO.accessM(_.get.update(shortName, b))
   def deleteBuild(shortName: String): RIO[BuildRepository, Boolean] =
     RIO.accessM(_.get.delete(shortName))
 
-  def getFloorsOf(build: String): RIO[FloorRepository, List[Floor]] =
+  def getFloorsOf(build: String): RIO[FloorRepository, List[FloorResponse]] =
     RIO.accessM(_.get.getOf(build))
-  def getFloor(build: String, number: Int): RIO[FloorRepository, Floor] =
+  def getFloor(
+    build: String,
+    number: Int
+  ): RIO[FloorRepository, FloorResponse] =
     RIO.accessM(_.get.get(build, number))
-  def createFloor(f: DBFloor): RIO[FloorRepository, Boolean] =
+  def createFloor(f: FloorRequest): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.create(f))
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))

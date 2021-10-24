@@ -8,15 +8,15 @@ import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{DBBuild, Build, BuildNotFound, DBFloor, Switch}
+import ru.sgu.switchmap.models.{BuildRequest, BuildResponse, BuildNotFound}
 
 object BuildRepository {
 
   trait Service {
-    def get(): Task[List[Build]]
-    def get(shortName: String): Task[Build]
-    def create(build: DBBuild): Task[Boolean]
-    def update(shortName: String, build: DBBuild): Task[Boolean]
+    def get(): Task[List[BuildResponse]]
+    def get(shortName: String): Task[BuildResponse]
+    def create(build: BuildRequest): Task[Boolean]
+    def update(shortName: String, build: BuildRequest): Task[Boolean]
     def delete(shortName: String): Task[Boolean]
   }
 
@@ -32,7 +32,7 @@ private[repositories] final case class DoobieBuildRepository(
 
   import Tables.ctx._
 
-  def get(): Task[List[Build]] = {
+  def get(): Task[List[BuildResponse]] = {
     val q = quote {
       Tables.builds
         .leftJoin(Tables.floors)
@@ -43,14 +43,13 @@ private[repositories] final case class DoobieBuildRepository(
         )
         .sortBy(_._1._1.shortName)
         .groupBy { case (b, _) => (b._1.name, b._1.shortName) }
-        .map {
-          case ((name, shortName), rows) =>
-            Build(
-              name,
-              shortName,
-              rows.map(_._1._2.map(_.number)).size,
-              rows.map(_._2.map(_.name)).size
-            )
+        .map { case ((name, shortName), rows) =>
+          BuildResponse(
+            name,
+            shortName,
+            rows.map(_._1._2.map(_.number)).size,
+            rows.map(_._2.map(_.name)).size
+          )
         }
     }
 
@@ -63,7 +62,7 @@ private[repositories] final case class DoobieBuildRepository(
       )
   }
 
-  def get(shortName: String): Task[Build] = {
+  def get(shortName: String): Task[BuildResponse] = {
     val q = quote {
       Tables.builds
         .leftJoin(Tables.floors)
@@ -75,14 +74,13 @@ private[repositories] final case class DoobieBuildRepository(
         .filter { case (bf, _) => bf._1.shortName == lift(shortName) }
         .sortBy(_._1._1.shortName)
         .groupBy { case (b, _) => (b._1.name, b._1.shortName) }
-        .map {
-          case ((name, shortName), rows) =>
-            Build(
-              name,
-              shortName,
-              rows.map(_._1._2.map(_.number)).size,
-              rows.map(_._2.map(_.name)).size
-            )
+        .map { case ((name, shortName), rows) =>
+          BuildResponse(
+            name,
+            shortName,
+            rows.map(_._1._2.map(_.number)).size,
+            rows.map(_._2.map(_.name)).size
+          )
         }
     }
 
@@ -97,7 +95,7 @@ private[repositories] final case class DoobieBuildRepository(
       )
   }
 
-  def create(build: DBBuild): Task[Boolean] = {
+  def create(build: BuildRequest): Task[Boolean] = {
     val q = quote {
       Tables.builds.insert(lift(build))
     }
@@ -110,7 +108,7 @@ private[repositories] final case class DoobieBuildRepository(
 
   def update(
     shortName: String,
-    build: DBBuild
+    build: BuildRequest
   ): Task[Boolean] = {
     val q = quote {
       Tables.builds

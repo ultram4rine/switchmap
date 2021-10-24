@@ -8,14 +8,14 @@ import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{DBFloor, Floor, FloorNotFound, Switch}
+import ru.sgu.switchmap.models.{FloorRequest, FloorResponse, FloorNotFound}
 
 object FloorRepository {
 
   trait Service {
-    def getOf(build: String): Task[List[Floor]]
-    def get(build: String, number: Int): Task[Floor]
-    def create(floor: DBFloor): Task[Boolean]
+    def getOf(build: String): Task[List[FloorResponse]]
+    def get(build: String, number: Int): Task[FloorResponse]
+    def create(floor: FloorRequest): Task[Boolean]
     def delete(build: String, number: Int): Task[Boolean]
   }
 
@@ -31,23 +31,21 @@ private[repositories] final case class DoobieFloorRepository(
 
   import Tables.ctx._
 
-  def getOf(build: String): Task[List[Floor]] = {
+  def getOf(build: String): Task[List[FloorResponse]] = {
     val q = quote {
       Tables.floors
         .leftJoin(Tables.switches)
         .on((f, sw) => f.number == sw.floorNumber.getOrNull)
-        .filter {
-          case (f, _) =>
-            f.buildShortName == lift(build)
+        .filter { case (f, _) =>
+          f.buildShortName == lift(build)
         }
         .sortBy(_._1.number)
         .groupBy { case (f, _) => f.number }
-        .map {
-          case (number, rows) =>
-            Floor(
-              number,
-              rows.map(_._2.map(_.name)).size
-            )
+        .map { case (number, rows) =>
+          FloorResponse(
+            number,
+            rows.map(_._2.map(_.name)).size
+          )
         }
     }
 
@@ -63,23 +61,21 @@ private[repositories] final case class DoobieFloorRepository(
   def get(
     build: String,
     number: Int
-  ): Task[Floor] = {
+  ): Task[FloorResponse] = {
     val q = quote {
       Tables.floors
         .leftJoin(Tables.switches)
         .on((f, sw) => f.number == sw.floorNumber.getOrNull)
-        .filter {
-          case (f, _) =>
-            f.buildShortName == lift(build) && f.number == lift(number)
+        .filter { case (f, _) =>
+          f.buildShortName == lift(build) && f.number == lift(number)
         }
         .sortBy(_._1.number)
         .groupBy { case (f, _) => f.number }
-        .map {
-          case (number, rows) =>
-            Floor(
-              number,
-              rows.map(_._2.map(_.name)).size
-            )
+        .map { case (number, rows) =>
+          FloorResponse(
+            number,
+            rows.map(_._2.map(_.name)).size
+          )
         }
     }
 
@@ -94,7 +90,7 @@ private[repositories] final case class DoobieFloorRepository(
       )
   }
 
-  def create(floor: DBFloor): Task[Boolean] = {
+  def create(floor: FloorRequest): Task[Boolean] = {
     val q = quote {
       Tables.floors.insert(lift(floor))
     }

@@ -1,8 +1,8 @@
 package ru.sgu.switchmap.models
 
-final case class DBBuild(name: String = "", shortName: String = "")
+final case class BuildRequest(name: String = "", shortName: String = "")
 
-final case class Build(
+final case class BuildResponse(
   name: String = "",
   shortName: String = "",
   floorsNumber: Long = -1,
