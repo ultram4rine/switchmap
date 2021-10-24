@@ -9,7 +9,7 @@ import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.{EntityDecoder, EntityEncoder}
 import ru.sgu.switchmap.auth.{Authorizer, AuthContext, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
-import ru.sgu.switchmap.models.DBBuild
+import ru.sgu.switchmap.models.BuildRequest
 import ru.sgu.switchmap.repositories._
 import zio._
 import zio.interop.catz._
@@ -32,25 +32,28 @@ final case class BuildRoutes[
 
       "Get all builds" **
         GET / "builds" >>> AuthContext.auth |>> { auth: AuthStatus.Status =>
-        auth match {
-          case AuthStatus.Succeed => getBuilds().foldM(_ => NotFound(()), Ok(_))
-          case _                  => Unauthorized(())
+          auth match {
+            case AuthStatus.Succeed =>
+              getBuilds().foldM(_ => NotFound(()), Ok(_))
+            case _ => Unauthorized(())
+          }
         }
-      }
 
       "Get build by short name" **
         GET / "builds" / pv"shortName" >>> AuthContext.auth |>> {
-        (shortName: String, auth: AuthStatus.Status) =>
-          auth match {
-            case AuthStatus.Succeed =>
-              getBuild(shortName).foldM(_ => NotFound(()), Ok(_))
-            case _ => Unauthorized(())
-          }
-      }
+          (shortName: String, auth: AuthStatus.Status) =>
+            auth match {
+              case AuthStatus.Succeed =>
+                getBuild(shortName).foldM(_ => NotFound(()), Ok(_))
+              case _ => Unauthorized(())
+            }
+        }
 
       "Add build" **
-        POST / "builds" >>> AuthContext.auth ^ jsonOf[AppTask, DBBuild] |>> {
-        (auth: AuthStatus.Status, build: DBBuild) =>
+        POST / "builds" >>> AuthContext.auth ^ jsonOf[
+          AppTask,
+          BuildRequest
+        ] |>> { (auth: AuthStatus.Status, build: BuildRequest) =>
           auth match {
             case AuthStatus.Succeed =>
               createBuild(build).foldM(
@@ -59,29 +62,30 @@ final case class BuildRoutes[
               )
             case _ => Unauthorized(())
           }
-      }
+        }
 
       "Update build" **
         PUT / "builds" / pv"shortName" >>> AuthContext.auth ^ jsonOf[
-        AppTask,
-        DBBuild
-      ] |>> { (shortName: String, auth: AuthStatus.Status, build: DBBuild) =>
-        auth match {
-          case AuthStatus.Succeed =>
-            updateBuild(shortName, build).foldM(_ => NotFound(()), Ok(_))
-          case _ => Unauthorized(())
+          AppTask,
+          BuildRequest
+        ] |>> {
+          (shortName: String, auth: AuthStatus.Status, build: BuildRequest) =>
+            auth match {
+              case AuthStatus.Succeed =>
+                updateBuild(shortName, build).foldM(_ => NotFound(()), Ok(_))
+              case _ => Unauthorized(())
+            }
         }
-      }
 
       "Delete build" **
         DELETE / "builds" / pv"shortName" >>> AuthContext.auth |>> {
-        (shortName: String, auth: AuthStatus.Status) =>
-          auth match {
-            case AuthStatus.Succeed =>
-              (getBuild(shortName) *> deleteBuild(shortName))
-                .foldM(_ => NotFound(()), Ok(_))
-            case _ => Unauthorized(())
-          }
-      }
+          (shortName: String, auth: AuthStatus.Status) =>
+            auth match {
+              case AuthStatus.Succeed =>
+                (getBuild(shortName) *> deleteBuild(shortName))
+                  .foldM(_ => NotFound(()), Ok(_))
+              case _ => Unauthorized(())
+            }
+        }
     }
 }
