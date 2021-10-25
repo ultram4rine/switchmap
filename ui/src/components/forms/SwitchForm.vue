@@ -281,6 +281,9 @@ export default defineComponent({
 
     return {
       title,
+
+      communitites,
+
       localRetrieveFromNetdata,
       inputName,
       inputIPResolveMethod,
