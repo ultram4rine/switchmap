@@ -15,7 +15,9 @@
             <v-checkbox
               v-model="localRetrieveFromNetdata"
               label="Retrieve switch data from netdata"
+              color="orange accent-2"
             ></v-checkbox>
+
             <ValidationProvider
               v-slot="{ errors }"
               name="Name"
@@ -28,6 +30,21 @@
                 required
                 color="orange accent-2"
               ></v-text-field>
+            </ValidationProvider>
+
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="SNMP community"
+              rules="required"
+            >
+              <v-select
+                v-model="inputSNMPCommunity"
+                :error-messages="errors"
+                :items="communitites"
+                label="SNMP community"
+                required
+                color="orange accent-2"
+              ></v-select>
             </ValidationProvider>
 
             <template v-if="!localRetrieveFromNetdata">
@@ -65,7 +82,7 @@
               </v-row>
 
               <v-row dense>
-                <v-col cols="12" sm="6">
+                <v-col cols="12" sm="12">
                   <ValidationProvider
                     v-slot="{ errors }"
                     name="MAC address"
@@ -76,21 +93,6 @@
                       :error-messages="errors"
                       label="MAC"
                       placeholder="XX:XX:XX:XX:XX:XX"
-                      required
-                      color="orange accent-2"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <ValidationProvider
-                    v-slot="{ errors }"
-                    name="SNMP community"
-                    rules="required"
-                  >
-                    <v-text-field
-                      v-model="inputSNMPCommunity"
-                      :error-messages="errors"
-                      label="SNMP community"
                       required
                       color="orange accent-2"
                     ></v-text-field>
@@ -147,6 +149,8 @@ import {
 } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
+import { getSNMPCommunities } from "../../api/switches";
+
 import { Build } from "../../types/build";
 import { Floor } from "../../types/floor";
 
@@ -199,6 +203,8 @@ export default defineComponent({
     const title = computed(() => {
       return props.action == "Add" ? "New switch" : "Change switch";
     });
+
+    const communitites: Ref<string[]> = ref([]);
 
     const localRetrieveFromNetdata = ref(props.retrieveFromNetdata);
 
@@ -293,6 +299,10 @@ export default defineComponent({
 
       mdiClose,
     };
+  },
+
+  created() {
+    getSNMPCommunities().then((comms: string[]) => (this.communitites = comms));
   },
 });
 </script>
