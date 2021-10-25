@@ -45,7 +45,7 @@ private[repositories] final case class DoobieBuildRepository(
           BuildResponse(
             name,
             shortName,
-            rows.map(_._1._2.map(_.number)).size,
+            rows.map(_._1._2.map(_.number)).distinct.size,
             rows.map(_._2.map(_.name)).size
           )
         }
@@ -74,7 +74,7 @@ private[repositories] final case class DoobieBuildRepository(
           BuildResponse(
             name,
             shortName,
-            rows.map(_._1._2.map(_.number)).size,
+            rows.map(_._1._2.map(_.number)).distinct.size,
             rows.map(_._2.map(_.name)).size
           )
         }
