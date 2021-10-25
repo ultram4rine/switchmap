@@ -162,6 +162,8 @@ import { SwitchRequest } from "../../types/switch";
 import { BuildResponse } from "../../types/build";
 import { FloorResponse } from "../../types/floor";
 
+import { macNormalization } from "../../helpers";
+
 extend("required", {
   ...required,
   message: "{_field_} is required",
@@ -273,7 +275,7 @@ export default defineComponent({
         name.value,
         ipResolveMethod.value,
         ip.value,
-        mac.value,
+        mac.value.length === 12 ? mac.value : macNormalization(mac.value),
         snmpCommunity.value,
         build.value,
         floor.value,
