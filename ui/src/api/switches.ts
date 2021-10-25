@@ -4,6 +4,13 @@ import api from ".";
 
 import { Switch } from "@/types/switch";
 
+export const getSNMPCommunities = async (): Promise<string[]> => {
+  const resp = await api.get<string, AxiosResponse<string[]>>(
+    "/switches/snmp/communities"
+  );
+  return resp.data;
+};
+
 export const getSwitches = async (): Promise<Switch[]> => {
   const resp = await api.get<Switch, AxiosResponse<Switch[]>>("/switches");
   return resp.data;
