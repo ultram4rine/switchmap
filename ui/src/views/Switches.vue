@@ -28,18 +28,12 @@
       ></v-data-table>
     </v-card>
 
-    <SwitchForm
+    <switch-form
       :form="switchForm"
-      :action="switchAction"
+      :action="switchFormAction"
       :needLocationFields="true"
-      :name="switchName"
-      :ipResolveMethod="switchIPResolveMethod"
-      :ip="switchIP"
-      :mac="switchMAC"
-      :snmpCommunity="switchSNMPCommunity"
-      :build="switchBuild"
-      :floor="switchFloor"
-      @submit="handleSubmitSwitchFromSwitchesView"
+      :sw="sw"
+      @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
   </div>
@@ -51,8 +45,8 @@ import { mdiMagnify } from "@mdi/js";
 
 import SwitchForm from "../components/forms/SwitchForm.vue";
 
-import { SwitchResponse } from "../types/switch";
-import { getSwitches } from "../api/switches";
+import { SwitchRequest, SwitchResponse } from "../types/switch";
+import { getSwitches, addSwitch } from "../api/switches";
 import { macDenormalization } from "../helpers";
 
 export default defineComponent({
@@ -66,6 +60,11 @@ export default defineComponent({
 
   setup() {
     const switches: Ref<SwitchResponse[]> = ref([]);
+
+    const switchForm = ref(false);
+    const switchFormAction = ref("");
+    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+
     const search = ref("");
     const headers = ref([
       {
@@ -82,11 +81,65 @@ export default defineComponent({
     return {
       switches,
 
+      switchForm,
+      switchFormAction,
+      sw,
+
       search,
       headers,
 
       mdiMagnify,
     };
+  },
+
+  methods: {
+    openSwitchForm(action: string) {
+      this.sw = {
+        retrieveFromNetData: true,
+        name: "",
+        ip: "",
+        mac: "",
+        buildShortName: "",
+        floorNumber: 0,
+      } as SwitchRequest;
+      this.switchFormAction = action;
+      this.switchForm = true;
+    },
+
+    handleSubmitSwitch(
+      name: string,
+      ipResolveMethod: string,
+      ip: string,
+      mac: string,
+      snmpCommunity: string,
+      build: string,
+      floor: number,
+      retrieveFromNetData: boolean,
+      _action: string
+    ) {
+      try {
+        addSwitch({
+          snmpCommunity,
+          retrieveFromNetData,
+          ipResolveMethod,
+          name,
+          ip,
+          mac,
+          buildShortName: build,
+          floorNumber: floor,
+        } as SwitchRequest);
+        this.closeSwitchForm();
+        this.switchForm = false;
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+
+    closeSwitchForm() {
+      this.sw = {} as SwitchRequest;
+      this.switchFormAction = "";
+      this.switchForm = false;
+    },
   },
 
   created() {
