@@ -61,21 +61,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, ref, computed } from "@vue/composition-api";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
-import drag from "@/directives/drag";
-import zoom from "@/directives/zoom";
+import drag from "../directives/drag";
+import zoom from "../directives/zoom";
 
-import SwitchForm from "@/components/forms/SwitchForm.vue";
-import PlanUpload from "@/components/PlanUpload.vue";
+import { getFile } from "../api/plans";
 
-import useSwitches from "@/helpers/useSwitches";
+import SwitchForm from "../components/forms/SwitchForm.vue";
+import PlanUpload from "../components/PlanUpload.vue";
 
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
-    build: { type: String, required: true },
+    shortName: { type: String, required: true },
     floor: { type: String, required: true },
   },
 
@@ -89,8 +89,9 @@ export default defineComponent({
     zoom,
   },
 
-  setup(props) {
-    const planPath = ref(`/plans/${props.build}f${props.floor}.png`);
+  setup() {
+    const planPath = ref("");
+
     const noPlan = ref(false);
 
     const uploadPlan = () => {
@@ -101,21 +102,6 @@ export default defineComponent({
       { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" },
     ]);
 
-    const {
-      switchForm,
-      switchName,
-      switchIPResolveMethod,
-      switchIP,
-      switchMAC,
-      switchSNMPCommunity,
-      switchBuild,
-      switchFloor,
-      switchAction,
-      openSwitchForm,
-      handleSubmitSwitchFromFloorView,
-      closeSwitchForm,
-    } = useSwitches();
-
     return {
       planPath,
       noPlan,
@@ -124,27 +110,15 @@ export default defineComponent({
 
       switches,
 
-      switchForm,
-      switchName,
-      switchIPResolveMethod,
-      switchIP,
-      switchMAC,
-      switchSNMPCommunity,
-      switchBuild,
-      switchFloor,
-
-      switchAction,
-
-      openSwitchForm,
-      handleSubmitSwitchFromFloorView,
-      closeSwitchForm,
-
       mdiMagnify,
       mdiPlus,
     };
   },
 
   created() {
+    getFile(`/static/plans/${this.shortName}f${this.floor}.png`).then((uri) => {
+      this.planPath = uri;
+    });
     //this.getSwitchesOf(this.build, this.floor).then(sws => (this.switches = sws));
   },
 });
