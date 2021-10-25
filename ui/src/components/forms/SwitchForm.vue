@@ -103,9 +103,12 @@
                   v-model="build"
                   :items="builds"
                   hide-details
+                  item-text="name"
+                  item-value="shortName"
                   label="Build"
                   color="orange accent-2"
                   required
+                  @change="getFloors(build)"
                 ></v-select>
               </v-col>
               <v-col cols="12" sm="6">
@@ -113,6 +116,8 @@
                   v-model="floor"
                   :items="floors"
                   hide-details
+                  item-text="number"
+                  item-value="number"
                   label="Floor"
                   color="orange accent-2"
                   required
@@ -150,6 +155,8 @@ import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
 import { getSNMPCommunities } from "../../api/switches";
+import { getBuilds } from "../../api/builds";
+import { getFloorsOf } from "../../api/floors";
 
 import { SwitchRequest } from "../../types/switch";
 import { BuildResponse } from "../../types/build";
@@ -300,8 +307,17 @@ export default defineComponent({
     };
   },
 
+  methods: {
+    getFloors(build: string) {
+      getFloorsOf(build).then((floors) => (this.floors = floors));
+    },
+  },
+
   created() {
     getSNMPCommunities().then((comms: string[]) => (this.communitites = comms));
+    if (this.needLocationFields) {
+      getBuilds().then((builds) => (this.builds = builds));
+    }
   },
 });
 </script>
