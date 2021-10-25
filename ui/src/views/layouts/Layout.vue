@@ -17,7 +17,10 @@
 
     <v-app-bar app dark clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>SwitchMap</v-toolbar-title>
+      <v-toolbar-title>
+        SwitchMap
+        <!-- <v-breadcrumbs :items="breadcrumbs" large></v-breadcrumbs> -->
+      </v-toolbar-title>
       <v-spacer />
       <v-btn color="orange darken-1" @click="logout">
         Sign out
@@ -66,6 +69,8 @@ export default Vue.extend({
       fab: false,
       overlay: false,
 
+      //breadcrumbs: [],
+
       navs: [
         { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
         { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
@@ -81,5 +86,42 @@ export default Vue.extend({
       });
     },
   },
+
+  /* created() {
+    console.log(this.$route.path.split("/"));
+    this.breadcrumbs = [
+      {
+        text: "SwitchMap",
+        disabled: true,
+      },
+    ];
+    const arr = this.$route.path.split("/");
+    let href = `/${arr[1]}`;
+    if (arr.length > 2) {
+      for (let i = 2; i < arr.length; i++) {
+        href = `${href}/${arr[i]}`;
+        this.breadcrumbs.push({
+          text: arr[i],
+          disabled: href === this.$route.path,
+          href: href,
+        });
+      }
+    }
+  }, */
 });
 </script>
+
+<style>
+/* .v-application ol,
+.v-application ul {
+  padding-left: 0;
+}
+.theme--dark.v-breadcrumbs .v-breadcrumbs__divider,
+.theme--dark.v-breadcrumbs .v-breadcrumbs__item--disabled {
+  color: white;
+}
+.v-breadcrumbs--large li,
+.v-breadcrumbs--large li .v-icon {
+  font-size: 1.25rem;
+} */
+</style>
