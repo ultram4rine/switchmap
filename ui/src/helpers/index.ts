@@ -3,10 +3,10 @@ export const authHeader = (): string => {
   return token ? token : "";
 };
 
-export const macNormalization = (mac: string): string | undefined => {
+export const macNormalization = (mac: string): string => {
   if (mac.length === 17) {
     return mac.toLowerCase().replace(/:|-/g, "");
-  } else if (mac.length === 12) {
+  } else {
     return mac.toLowerCase();
   }
 };
