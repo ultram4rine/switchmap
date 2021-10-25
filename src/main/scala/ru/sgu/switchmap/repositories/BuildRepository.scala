@@ -38,9 +38,7 @@ private[repositories] final case class DoobieBuildRepository(
         .leftJoin(Tables.floors)
         .on((b, f) => b.shortName == f.buildShortName)
         .leftJoin(Tables.switches)
-        .on((bf, sw) =>
-          bf._1.shortName == sw.buildShortName.getOrNull && bf._2.getOrNull.number == sw.floorNumber.getOrNull
-        )
+        .on((bf, sw) => bf._1.shortName == sw.buildShortName.getOrNull)
         .sortBy(_._1._1.shortName)
         .groupBy { case (b, _) => (b._1.name, b._1.shortName) }
         .map { case ((name, shortName), rows) =>
@@ -68,9 +66,7 @@ private[repositories] final case class DoobieBuildRepository(
         .leftJoin(Tables.floors)
         .on((b, f) => b.shortName == f.buildShortName)
         .leftJoin(Tables.switches)
-        .on((bf, sw) =>
-          bf._1.shortName == sw.buildShortName.getOrNull && bf._2.getOrNull.number == sw.floorNumber.getOrNull
-        )
+        .on((bf, sw) => bf._1.shortName == sw.buildShortName.getOrNull)
         .filter { case (bf, _) => bf._1.shortName == lift(shortName) }
         .sortBy(_._1._1.shortName)
         .groupBy { case (b, _) => (b._1.name, b._1.shortName) }
