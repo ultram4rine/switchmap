@@ -7,11 +7,12 @@
 
 <script lang="ts">
 /* eslint-disable no-unused-vars */
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, Ref, ref } from "@vue/composition-api";
 
 import { Node, Edge, Network } from "vis-network/standalone";
 
-import useSwitches from "@/helpers/useSwitches";
+import { SwitchResponse } from "../types/switch";
+import { getSwitches } from "../api/switches";
 
 export default defineComponent({
   props: {
@@ -19,9 +20,8 @@ export default defineComponent({
   },
 
   setup() {
+    const switches: Ref<SwitchResponse[]> = ref([]);
     const showAll = ref(false);
-
-    const { switches, getAllSwitches } = useSwitches();
 
     const displaySwitches = () => {
       const container = document.getElementById("container") as HTMLElement;
@@ -58,15 +58,12 @@ export default defineComponent({
     return {
       showAll,
 
-      switches,
-      getAllSwitches,
-
       displaySwitches,
     };
   },
 
   created() {
-    this.getAllSwitches().then((sws) => {
+    getSwitches().then((sws: SwitchResponse[]) => {
       this.switches = sws;
       this.displaySwitches();
     });

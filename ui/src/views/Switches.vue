@@ -51,8 +51,9 @@ import { mdiMagnify } from "@mdi/js";
 
 import SwitchForm from "../components/forms/SwitchForm.vue";
 
-import { Switch } from "../types/switch";
+import { SwitchResponse } from "../types/switch";
 import { getSwitches } from "../api/switches";
+import { macDenormalization } from "../helpers";
 
 export default defineComponent({
   props: {
@@ -64,7 +65,7 @@ export default defineComponent({
   },
 
   setup() {
-    const switches: Ref<Switch[]> = ref([]);
+    const switches: Ref<SwitchResponse[]> = ref([]);
     const search = ref("");
     const headers = ref([
       {
@@ -89,7 +90,10 @@ export default defineComponent({
   },
 
   created() {
-    getSwitches().then((sws: Switch[]) => (this.switches = sws));
+    getSwitches().then((sws) => {
+      sws.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
+      this.switches = sws;
+    });
   },
 });
 </script>

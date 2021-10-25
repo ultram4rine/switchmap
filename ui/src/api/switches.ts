@@ -2,7 +2,8 @@ import { AxiosResponse } from "axios";
 
 import api from ".";
 
-import { Switch } from "@/types/switch";
+import { SwitchRequest, SwitchResponse } from "@/types/switch";
+import { macDenormalization } from "@/helpers";
 
 export const getSNMPCommunities = async (): Promise<string[]> => {
   const resp = await api.get<string, AxiosResponse<string[]>>(
@@ -11,42 +12,47 @@ export const getSNMPCommunities = async (): Promise<string[]> => {
   return resp.data;
 };
 
-export const getSwitches = async (): Promise<Switch[]> => {
-  const resp = await api.get<Switch, AxiosResponse<Switch[]>>("/switches");
+export const getSwitches = async (): Promise<SwitchResponse[]> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
+    "/switches"
+  );
   return resp.data;
 };
 
 export const getSwitchesOfBuild = async (
   shortName: string
-): Promise<Switch[]> => {
-  const resp = await api.get<Switch, AxiosResponse<Switch[]>>(
+): Promise<SwitchResponse[]> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
     `/builds/${shortName}/switches`
   );
+  resp.data.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
   return resp.data;
 };
 
 export const getSwitchesOfFloor = async (
   shortName: string,
   number: number
-): Promise<Switch[]> => {
-  const resp = await api.get<Switch, AxiosResponse<Switch[]>>(
+): Promise<SwitchResponse[]> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
     `/builds/${shortName}/floors/${number}/switches`
   );
+  resp.data.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
   return resp.data;
 };
 
-export const getSwitch = async (name: string): Promise<Switch> => {
-  const resp = await api.get<Switch, AxiosResponse<Switch>>(
+export const getSwitch = async (name: string): Promise<SwitchResponse> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse>>(
     `/switches/${name}`
   );
+  resp.data.mac = macDenormalization(resp.data.mac);
   return resp.data;
 };
 
-export const addSwitch = async (sw: Switch): Promise<void> => {
+export const addSwitch = async (sw: SwitchRequest): Promise<void> => {
   await api.post("/switches", sw);
 };
 
-export const editSwitch = async (sw: Switch): Promise<void> => {
+export const editSwitch = async (sw: SwitchRequest): Promise<void> => {
   await api.put(`/switches/${sw.name}`, sw);
 };
 

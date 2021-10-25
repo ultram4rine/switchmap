@@ -2,21 +2,23 @@ import { AxiosResponse } from "axios";
 
 import api from ".";
 
-import { Build } from "@/types/build";
+import { BuildRequest, BuildResponse } from "@/types/build";
 
-export const getBuilds = async (): Promise<Build[]> => {
-  const resp = await api.get<Build, AxiosResponse<Build[]>>("/builds");
+export const getBuilds = async (): Promise<BuildResponse[]> => {
+  const resp = await api.get<BuildResponse, AxiosResponse<BuildResponse[]>>(
+    "/builds"
+  );
   return resp.data;
 };
 
-export const getBuild = async (shortName: string): Promise<Build> => {
-  const resp = await api.get<Build, AxiosResponse<Build>>(
+export const getBuild = async (shortName: string): Promise<BuildResponse> => {
+  const resp = await api.get<BuildResponse, AxiosResponse<BuildResponse>>(
     `/builds/${shortName}`
   );
   return resp.data;
 };
 
-export const searchBuilds = async (s: string): Promise<Build[]> => {
+export const searchBuilds = async (s: string): Promise<BuildResponse[]> => {
   const builds = await getBuilds();
   s = s.toLowerCase();
   return builds.filter((b) => {
@@ -27,25 +29,15 @@ export const searchBuilds = async (s: string): Promise<Build[]> => {
   });
 };
 
-export const addBuild = async (
-  name: string,
-  shortName: string
-): Promise<void> => {
-  await api.post("/builds", {
-    name,
-    shortName,
-  });
+export const addBuild = async (build: BuildRequest): Promise<void> => {
+  await api.post("/builds", build);
 };
 
 export const editBuild = async (
-  name: string,
-  shortName: string,
+  build: BuildRequest,
   oldShortName: string
 ): Promise<void> => {
-  await api.put(`/builds/${oldShortName}`, {
-    name,
-    shortName,
-  });
+  await api.put(`/builds/${oldShortName}`, build);
 };
 
 export const deleteBuild = async (shortName: string): Promise<void> => {

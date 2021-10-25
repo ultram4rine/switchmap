@@ -36,11 +36,11 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import { mdiPencil, mdiDelete } from "@mdi/js";
 
-import { Build } from "../../types/build";
+import { BuildResponse } from "../../types/build";
 
 export default defineComponent({
   props: {
-    build: { type: Object as PropType<Build>, required: true },
+    build: { type: Object as PropType<BuildResponse>, required: true },
   },
   setup() {
     return { mdiPencil, mdiDelete };

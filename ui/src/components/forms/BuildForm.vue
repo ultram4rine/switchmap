@@ -18,7 +18,7 @@
               rules="required"
             >
               <v-text-field
-                v-model="inputName"
+                v-model="name"
                 :error-messages="errors"
                 label="Name"
                 required
@@ -32,7 +32,7 @@
               rules="required"
             >
               <v-text-field
-                v-model="inputShortName"
+                v-model="shortName"
                 :error-messages="errors"
                 label="Short name"
                 required
@@ -68,7 +68,7 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { Build } from "../../types/build";
+import { BuildRequest } from "../../types/build";
 
 extend("required", {
   ...required,
@@ -80,7 +80,7 @@ export default defineComponent({
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
 
-    build: { type: Object as PropType<Build>, required: true },
+    build: { type: Object as PropType<BuildRequest>, required: true },
   },
 
   components: { ValidationObserver, ValidationProvider },
@@ -90,35 +90,36 @@ export default defineComponent({
       return props.action == "Add" ? "New build" : "Change build";
     });
 
-    const inputName = ref(props.build.name);
-    const inputShortName = ref(props.build.shortName);
+    const name = ref(props.build.name);
+    const shortName = ref(props.build.shortName);
 
     watch(
       () => props.build.name,
       (val) => {
-        inputName.value = val;
+        name.value = val;
       }
     );
     watch(
       () => props.build.shortName,
       (val) => {
-        inputShortName.value = val;
+        shortName.value = val;
       }
     );
 
     const submit = () => {
-      emit("submit", inputName.value, inputShortName.value, props.action);
+      emit("submit", name.value, shortName.value, props.action);
     };
     const close = () => {
-      inputName.value = "";
-      inputShortName.value = "";
+      name.value = "";
+      shortName.value = "";
       emit("close");
     };
 
     return {
       title,
-      inputName,
-      inputShortName,
+
+      name,
+      shortName,
 
       submit,
       close,

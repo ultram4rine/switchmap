@@ -18,7 +18,7 @@
               rules="required"
             >
               <v-text-field
-                v-model="inputNumber"
+                v-model="number"
                 :error-messages="errors"
                 type="number"
                 label="Number"
@@ -43,11 +43,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "@vue/composition-api";
+import { defineComponent, ref, watch, PropType } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
+
+import { FloorRequest } from "../../types/floor";
 
 extend("required", {
   ...required,
@@ -58,31 +60,31 @@ export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
 
-    number: { type: Number, required: true },
+    floor: { type: Object as PropType<FloorRequest>, required: true },
   },
 
   components: { ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
-    const inputNumber = ref(props.number);
+    const number = ref(props.floor.number);
 
     watch(
-      () => props.number,
+      () => props.floor.number,
       (val: number) => {
-        inputNumber.value = val;
+        number.value = val;
       }
     );
 
     const submit = () => {
-      emit("submit", inputNumber.value);
+      emit("submit", number.value);
     };
     const close = () => {
-      inputNumber.value = 0;
+      number.value = 0;
       emit("close");
     };
 
     return {
-      inputNumber,
+      number,
 
       submit,
       close,

@@ -1,8 +1,13 @@
-export type Switch = {
+export type SwitchRequest = SwitchResponse & {
+  snmpCommunity: string;
+  retrieveFromNetData: boolean;
+  ipResolveMethod: string;
+};
+
+export type SwitchResponse = {
   name: string;
   ip: string;
   mac: string;
-  snmpCommunity: string;
   revision: string;
   serial: string;
   portsNumber: number;

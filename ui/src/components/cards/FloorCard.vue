@@ -34,12 +34,12 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import { mdiDelete } from "@mdi/js";
 
-import { Floor } from "../../types/floor";
+import { FloorResponse } from "../../types/floor";
 
 export default defineComponent({
   props: {
     shortName: { type: String, required: true },
-    floor: { type: Object as PropType<Floor>, required: true },
+    floor: { type: Object as PropType<FloorResponse>, required: true },
   },
   setup() {
     return { mdiDelete };

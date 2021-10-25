@@ -13,7 +13,7 @@
         <v-card-text>
           <v-form ref="form">
             <v-checkbox
-              v-model="localRetrieveFromNetdata"
+              v-model="retrieveFromNetData"
               label="Retrieve switch data from netdata"
               color="orange accent-2"
             ></v-checkbox>
@@ -38,7 +38,7 @@
               rules="required"
             >
               <v-select
-                v-model="inputSNMPCommunity"
+                v-model="snmpCommunity"
                 :error-messages="errors"
                 :items="communitites"
                 label="SNMP community"
@@ -47,11 +47,11 @@
               ></v-select>
             </ValidationProvider>
 
-            <template v-if="!localRetrieveFromNetdata">
+            <template v-if="!retrieveFromNetData">
               <v-row dense>
                 <v-col cols="12" sm="6">
                   <v-select
-                    v-model="inputIPResolveMethod"
+                    v-model="ipResolveMethod"
                     :items="methods"
                     hide-details
                     label="IP resolve method"
@@ -59,18 +59,14 @@
                     required
                   ></v-select>
                 </v-col>
-                <v-col
-                  v-if="inputIPResolveMethod === 'Direct'"
-                  cols="12"
-                  sm="6"
-                >
+                <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
                   <ValidationProvider
                     v-slot="{ errors }"
                     name="IP address"
                     rules="required|ip"
                   >
                     <v-text-field
-                      v-model="inputIP"
+                      v-model="ip"
                       :error-messages="errors"
                       label="IP"
                       placeholder="e.g. 192.168.1.1"
@@ -89,7 +85,7 @@
                     rules="required|mac"
                   >
                     <v-text-field
-                      v-model="inputMAC"
+                      v-model="mac"
                       :error-messages="errors"
                       label="MAC"
                       placeholder="XX:XX:XX:XX:XX:XX"
@@ -103,7 +99,7 @@
               <v-row v-if="needLocationFields" dense>
                 <v-col cols="12" sm="6">
                   <v-select
-                    v-model="inputBuild"
+                    v-model="build"
                     :items="builds"
                     hide-details
                     label="Build"
@@ -113,7 +109,7 @@
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-select
-                    v-model="inputFloor"
+                    v-model="floor"
                     :items="floors"
                     hide-details
                     label="Floor"
@@ -146,16 +142,18 @@ import {
   computed,
   watch,
   Ref,
+  PropType,
 } from "@vue/composition-api";
 import { mdiClose } from "@mdi/js";
 
-import { getSNMPCommunities } from "../../api/switches";
-
-import { Build } from "../../types/build";
-import { Floor } from "../../types/floor";
-
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
+
+import { getSNMPCommunities } from "../../api/switches";
+
+import { SwitchRequest } from "../../types/switch";
+import { BuildResponse } from "../../types/build";
+import { FloorResponse } from "../../types/floor";
 
 extend("required", {
   ...required,
@@ -183,15 +181,10 @@ export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
     action: { type: String, required: true },
+
+    sw: { type: Object as PropType<SwitchRequest>, required: true },
+
     needLocationFields: { type: Boolean, required: true },
-    retrieveFromNetdata: { type: Boolean, required: true },
-    name: { type: String, required: true },
-    ipResolveMethod: { type: String, required: true },
-    ip: { type: String, required: true },
-    mac: { type: String, required: true },
-    snmpCommunity: { type: String, required: true },
-    build: { type: String, required: false },
-    floor: { type: String, required: false },
   },
 
   components: {
@@ -204,76 +197,74 @@ export default defineComponent({
       return props.action == "Add" ? "New switch" : "Change switch";
     });
 
-    const communitites: Ref<string[]> = ref([]);
-
-    const localRetrieveFromNetdata = ref(props.retrieveFromNetdata);
-
-    const inputName = ref(props.name);
-    const inputIPResolveMethod = ref(props.ipResolveMethod);
-    const inputIP = ref(props.ip);
-    const inputMAC = ref(props.mac);
-    const inputSNMPCommunity = ref(props.snmpCommunity);
-    const inputBuild = ref(props.build);
-    const inputFloor = ref(props.floor);
+    const retrieveFromNetData = ref(props.sw.retrieveFromNetData);
+    const name = ref(props.sw.name);
+    const ipResolveMethod = ref(props.sw.ipResolveMethod);
+    const ip = ref(props.sw.ip);
+    const mac = ref(props.sw.mac);
+    const snmpCommunity = ref(props.sw.snmpCommunity);
+    const build = ref(props.sw.buildShortName);
+    const floor = ref(props.sw.floorNumber);
 
     const methods = ["Direct", "DNS"];
-    const builds: Ref<Build[]> = ref([]);
-    const floors: Ref<Floor[]> = ref([]);
+    const communitites: Ref<string[]> = ref([]);
+    const builds: Ref<BuildResponse[]> = ref([]);
+    const floors: Ref<FloorResponse[]> = ref([]);
 
     watch(
-      () => props.name,
+      () => props.sw.name,
       (val) => {
-        inputName.value = val;
+        name.value = val;
       }
     );
     watch(
-      () => props.ipResolveMethod,
+      () => props.sw.ipResolveMethod,
       (val) => {
-        inputIPResolveMethod.value = val;
+        ipResolveMethod.value = val;
       }
     );
     watch(
-      () => props.ip,
+      () => props.sw.ip,
       (val) => {
-        inputIP.value = val;
+        ip.value = val;
       }
     );
     watch(
-      () => props.mac,
+      () => props.sw.mac,
       (val) => {
-        inputMAC.value = val;
+        mac.value = val;
       }
     );
     watch(
-      () => props.snmpCommunity,
+      () => props.sw.snmpCommunity,
       (val) => {
-        inputSNMPCommunity.value = val;
+        snmpCommunity.value = val;
       }
     );
     watch(
-      () => props.build,
+      () => props.sw.buildShortName,
       (val) => {
-        inputBuild.value = val;
+        build.value = val;
       }
     );
     watch(
-      () => props.floor,
+      () => props.sw.floorNumber,
       (val) => {
-        inputFloor.value = val;
+        floor.value = val;
       }
     );
 
     const submit = () => {
       emit(
         "submit",
-        inputName.value,
-        inputIPResolveMethod.value,
-        inputIP.value,
-        inputMAC.value,
-        inputSNMPCommunity.value,
-        inputBuild.value,
-        inputFloor.value,
-        localRetrieveFromNetdata.value,
+        name.value,
+        ipResolveMethod.value,
+        ip.value,
+        mac.value,
+        snmpCommunity.value,
+        build.value,
+        floor.value,
+        retrieveFromNetData.value,
         props.action
       );
     };
@@ -282,18 +273,17 @@ export default defineComponent({
     return {
       title,
 
-      communitites,
-
-      localRetrieveFromNetdata,
-      inputName,
-      inputIPResolveMethod,
-      inputIP,
-      inputMAC,
-      inputSNMPCommunity,
-      inputBuild,
-      inputFloor,
+      retrieveFromNetData,
+      name,
+      ipResolveMethod,
+      ip,
+      mac,
+      snmpCommunity,
+      build,
+      floor,
 
       methods,
+      communitites,
       builds,
       floors,
 

@@ -73,7 +73,7 @@
 
     <floor-form
       :form="floorForm"
-      :number="floorNumber"
+      :floor="floor"
       @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
@@ -88,7 +88,8 @@ import Confirmation from "../components/Confirmation.vue";
 import BuildForm from "../components/forms/BuildForm.vue";
 import FloorForm from "../components/forms/FloorForm.vue";
 
-import { Build } from "../types/build";
+import { BuildRequest, BuildResponse } from "../types/build";
+import { FloorRequest } from "../types/floor";
 import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
 import { addFloor } from "../api/floors";
 
@@ -105,24 +106,24 @@ export default defineComponent({
   },
 
   methods: {
-    handleEdit(b: Build) {
+    handleEdit(b: BuildResponse) {
       this.build = b;
       this.oldBuild = b.shortName;
       this.buildFormAction = "Change";
       this.buildForm = true;
     },
-    handleDelete(b: Build) {
+    handleDelete(b: BuildResponse) {
       this.name = b.name;
       this.shortName = b.shortName;
       this.confirmation = true;
     },
-    handleAddFloor(b: Build) {
+    handleAddFloor(b: BuildResponse) {
       this.build = b;
       this.floorNumber = 0;
       this.floorForm = true;
     },
     openBuildForm(action: string) {
-      this.build = {} as Build;
+      this.build = {} as BuildRequest;
       this.buildFormAction = action;
       this.buildForm = true;
     },
@@ -130,21 +131,16 @@ export default defineComponent({
       switch (action) {
         case "Add":
           try {
-            addBuild(name, shortName);
-            this.build = {} as Build;
-            this.buildFormAction = "";
-            this.buildForm = false;
+            addBuild({ name, shortName } as BuildRequest);
+            this.closeBuildForm();
           } catch (error: any) {
             console.log(error);
           }
           break;
         case "Change":
           try {
-            editBuild(name, shortName, this.oldBuild);
-            this.build = {} as Build;
-            this.oldBuild = "";
-            this.buildFormAction = "";
-            this.buildForm = false;
+            editBuild({ name, shortName } as BuildRequest, this.oldBuild);
+            this.closeBuildForm();
           } catch (error: any) {
             console.log(error);
           }
@@ -154,30 +150,32 @@ export default defineComponent({
       }
     },
     closeBuildForm() {
-      this.build = {} as Build;
+      this.build = {} as BuildRequest;
       this.oldBuild = "";
       this.buildFormAction = "";
       this.buildForm = false;
     },
     handleSubmitFloor(number: number) {
       try {
-        addFloor(this.build.name, this.build.shortName, number);
-        this.build = {} as Build;
-        this.floorNumber = 0;
-        this.floorForm = false;
+        addFloor({
+          number,
+          buildName: this.build.name,
+          buildShortName: this.build.shortName,
+        } as FloorRequest);
+        this.closeFloorForm();
       } catch (error: any) {
         console.log(error);
       }
     },
     closeFloorForm() {
-      this.build = {} as Build;
+      this.build = {} as BuildRequest;
       this.floorNumber = 0;
       this.floorForm = false;
     },
   },
 
   setup() {
-    const builds: Ref<Build[]> = ref([]);
+    const builds: Ref<BuildResponse[]> = ref([]);
 
     const confirmation = ref(false);
     const name = ref("");
@@ -185,11 +183,11 @@ export default defineComponent({
 
     const buildForm = ref(false);
     const buildFormAction = ref("");
-    const build: Ref<Build> = ref({} as Build);
+    const build: Ref<BuildRequest> = ref({} as BuildRequest);
     const oldBuild = ref("");
 
     const floorForm = ref(false);
-    const floorNumber = ref(-1);
+    const floor: Ref<FloorRequest> = ref({} as FloorRequest);
 
     return {
       builds,
@@ -204,7 +202,7 @@ export default defineComponent({
       oldBuild,
 
       floorForm,
-      floorNumber,
+      floor,
 
       deleteBuild,
     };

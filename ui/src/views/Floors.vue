@@ -67,7 +67,7 @@
 
     <floor-form
       :form="floorForm"
-      :number="floorNumber"
+      :floor="floor"
       @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
@@ -96,8 +96,8 @@ import Confirmation from "../components/Confirmation.vue";
 import FloorForm from "../components/forms/FloorForm.vue";
 import SwitchForm from "../components/forms/SwitchForm.vue";
 
-import { Floor } from "../types/floor";
-import { Switch } from "../types/switch";
+import { FloorRequest, FloorResponse } from "../types/floor";
+import { SwitchRequest } from "../types/switch";
 import { getFloorsOf, addFloor, deleteFloor } from "../api/floors";
 import { getBuild } from "../api/builds";
 import { addSwitch } from "../api/switches";
@@ -116,19 +116,19 @@ export default defineComponent({
   },
 
   methods: {
-    handleDelete(floor: Floor) {
+    handleDelete(floor: FloorResponse) {
       this.deleteName = `Floor ${floor.number}`;
       this.floorNumber = floor.number;
       this.confirmation = true;
     },
-    handleAddSwitch(shortName: string, floor: Floor) {
+    handleAddSwitch(shortName: string, floor: FloorResponse) {
       this.sw = {
         name: "",
         ip: "",
         mac: "",
         buildShortName: shortName,
         floorNumber: floor.number,
-      } as Switch;
+      } as SwitchRequest;
       this.switchFormAction = "Add";
       this.switchForm = true;
     },
@@ -138,9 +138,12 @@ export default defineComponent({
     handleSubmitFloor(number: number) {
       try {
         getBuild(this.shortName).then((b) => {
-          addFloor(b.name, this.shortName, number);
-          this.floorNumber = 0;
-          this.floorForm = false;
+          addFloor({
+            number,
+            buildName: b.name,
+            buildShortName: this.shortName,
+          } as FloorRequest);
+          this.closeFloorForm();
         });
       } catch (error: any) {
         console.log(error);
@@ -164,7 +167,7 @@ export default defineComponent({
       try {
         switch (retrieveFromNetdata) {
           case false:
-            addSwitch({} as Switch);
+            addSwitch({} as SwitchRequest);
             break;
           default:
             break;
@@ -195,15 +198,15 @@ export default defineComponent({
   },
 
   setup() {
-    const floors: Ref<Floor[]> = ref([]);
+    const floors: Ref<FloorResponse[]> = ref([]);
 
     const confirmation = ref(false);
     const deleteName = ref("");
 
     const floorForm = ref(false);
-    const floorNumber = ref(0);
+    const floor: Ref<FloorRequest> = ref({} as FloorRequest);
 
-    const sw = ref({} as Switch);
+    const sw = ref({} as SwitchRequest);
     const switchForm = ref(false);
     const switchFormAction = ref("");
     const switchName = ref("");
@@ -219,7 +222,7 @@ export default defineComponent({
       deleteName,
 
       floorForm,
-      floorNumber,
+      floor,
 
       sw,
       switchForm,
