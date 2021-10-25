@@ -95,30 +95,30 @@
                   </ValidationProvider>
                 </v-col>
               </v-row>
-
-              <v-row v-if="needLocationFields" dense>
-                <v-col cols="12" sm="6">
-                  <v-select
-                    v-model="build"
-                    :items="builds"
-                    hide-details
-                    label="Build"
-                    color="orange accent-2"
-                    required
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-select
-                    v-model="floor"
-                    :items="floors"
-                    hide-details
-                    label="Floor"
-                    color="orange accent-2"
-                    required
-                  ></v-select>
-                </v-col>
-              </v-row>
             </template>
+
+            <v-row v-if="needLocationFields" dense>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="build"
+                  :items="builds"
+                  hide-details
+                  label="Build"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="floor"
+                  :items="floors"
+                  hide-details
+                  label="Floor"
+                  color="orange accent-2"
+                  required
+                ></v-select>
+              </v-col>
+            </v-row>
           </v-form>
         </v-card-text>
 
