@@ -76,12 +76,7 @@
       :form="switchForm"
       :action="switchFormAction"
       :needLocationFields="false"
-      :retrieveFromNetdata="true"
-      :name="switchName"
-      :ipResolveMethod="switchIPResolveMethod"
-      :ip="switchIP"
-      :mac="switchMAC"
-      :snmpCommunity="switchSNMPCommunity"
+      :sw="sw"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
@@ -124,14 +119,9 @@ export default defineComponent({
     const floorForm = ref(false);
     const floor: Ref<FloorRequest> = ref({} as FloorRequest);
 
-    const sw = ref({} as SwitchRequest);
     const switchForm = ref(false);
     const switchFormAction = ref("");
-    const switchName = ref("");
-    const switchIPResolveMethod = ref("DNS");
-    const switchIP = ref("");
-    const switchMAC = ref("");
-    const switchSNMPCommunity = ref("public");
+    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
 
     return {
       floors,
@@ -142,14 +132,9 @@ export default defineComponent({
       floorForm,
       floor,
 
-      sw,
       switchForm,
       switchFormAction,
-      switchName,
-      switchIPResolveMethod,
-      switchIP,
-      switchMAC,
-      switchSNMPCommunity,
+      sw,
 
       deleteFloor,
     };
@@ -164,6 +149,7 @@ export default defineComponent({
 
     handleAddSwitch(shortName: string, floor: FloorResponse) {
       this.sw = {
+        retrieveFromNetData: true,
         name: "",
         ip: "",
         mac: "",
@@ -205,28 +191,23 @@ export default defineComponent({
       ip: string,
       mac: string,
       snmpCommunity: string,
-      _build: string,
-      _floor: string,
-      retrieveFromNetdata: boolean,
-      action: string
+      build: string,
+      floor: number,
+      retrieveFromNetData: boolean,
+      _action: string
     ) {
       try {
-        switch (retrieveFromNetdata) {
-          case false:
-            addSwitch({} as SwitchRequest);
-            break;
-          default:
-            break;
-        }
-        console.log(name);
-        console.log(ipResolveMethod);
-        console.log(ip);
-        console.log(mac);
-        console.log(snmpCommunity);
-        console.log(_build);
-        console.log(_floor);
-        console.log(retrieveFromNetdata);
-        console.log(action);
+        addSwitch({
+          snmpCommunity,
+          retrieveFromNetData,
+          ipResolveMethod,
+          name,
+          ip,
+          mac,
+          buildShortName: build,
+          floorNumber: floor,
+        } as SwitchRequest);
+        this.closeSwitchForm();
         this.switchForm = false;
       } catch (error: any) {
         console.log(error);
@@ -234,13 +215,9 @@ export default defineComponent({
     },
 
     closeSwitchForm() {
+      this.sw = {} as SwitchRequest;
       this.switchFormAction = "";
       this.switchForm = false;
-      this.switchName = "";
-      this.switchIPResolveMethod = "DNS";
-      this.switchIP = "";
-      this.switchMAC = "";
-      this.switchSNMPCommunity = "public";
     },
   },
 

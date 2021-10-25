@@ -212,6 +212,12 @@ export default defineComponent({
     const floors: Ref<FloorResponse[]> = ref([]);
 
     watch(
+      () => props.sw.retrieveFromNetData,
+      (val) => {
+        retrieveFromNetData.value = val;
+      }
+    );
+    watch(
       () => props.sw.name,
       (val) => {
         name.value = val;

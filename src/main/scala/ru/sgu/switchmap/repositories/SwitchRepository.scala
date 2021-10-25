@@ -140,7 +140,9 @@ private[repositories] final case class DoobieSwitchRepository(
         } yield SwitchResponse(
           sw.name,
           sw.ipv4Address.mkString("."),
-          sw.macAddressString
+          sw.macAddressString,
+          buildShortName = switch.buildShortName,
+          floorNumber = switch.floorNumber
         )
         sw
       }
@@ -149,7 +151,9 @@ private[repositories] final case class DoobieSwitchRepository(
           SwitchResponse(
             switch.name,
             switch.ip.getOrElse(""),
-            switch.mac.getOrElse("")
+            switch.mac.getOrElse(""),
+            buildShortName = switch.buildShortName,
+            floorNumber = switch.floorNumber
           )
         )
     }
