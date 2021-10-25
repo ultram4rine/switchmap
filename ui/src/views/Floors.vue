@@ -18,7 +18,7 @@
         xl="2"
       >
         <floor-card
-          :build="shortName"
+          :shortName="shortName"
           :floor="f"
           @handleDelete="handleDelete"
           @handleAddSwitch="handleAddSwitch"
@@ -53,14 +53,16 @@
 
     <confirmation
       :confirmation="confirmation"
-      :name="name"
+      :name="deleteName"
       @confirm="
         deleteFloor(shortName, floorNumber),
           (confirmation = !confirmation),
-          (name = ''),
+          (deleteName = ''),
           (floorNumber = 0)
       "
-      @cancel="(confirmation = !confirmation), (name = ''), (floorNumber = 0)"
+      @cancel="
+        (confirmation = !confirmation), (deleteName = ''), (floorNumber = 0)
+      "
     />
 
     <floor-form
