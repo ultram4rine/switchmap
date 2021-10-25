@@ -24,7 +24,7 @@
               rules="required"
             >
               <v-text-field
-                v-model="inputName"
+                v-model="name"
                 :error-messages="errors"
                 label="Name"
                 required
