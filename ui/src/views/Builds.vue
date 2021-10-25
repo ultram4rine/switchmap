@@ -105,75 +105,6 @@ export default defineComponent({
     FloorForm,
   },
 
-  methods: {
-    handleEdit(b: BuildResponse) {
-      this.build = b;
-      this.oldBuild = b.shortName;
-      this.buildFormAction = "Change";
-      this.buildForm = true;
-    },
-    handleDelete(b: BuildResponse) {
-      this.name = b.name;
-      this.shortName = b.shortName;
-      this.confirmation = true;
-    },
-    handleAddFloor(b: BuildResponse) {
-      this.build = b;
-      this.floorNumber = 0;
-      this.floorForm = true;
-    },
-    openBuildForm(action: string) {
-      this.build = {} as BuildRequest;
-      this.buildFormAction = action;
-      this.buildForm = true;
-    },
-    handleSubmitBuild(name: string, shortName: string, action: string) {
-      switch (action) {
-        case "Add":
-          try {
-            addBuild({ name, shortName } as BuildRequest);
-            this.closeBuildForm();
-          } catch (error: any) {
-            console.log(error);
-          }
-          break;
-        case "Change":
-          try {
-            editBuild({ name, shortName } as BuildRequest, this.oldBuild);
-            this.closeBuildForm();
-          } catch (error: any) {
-            console.log(error);
-          }
-          break;
-        default:
-          break;
-      }
-    },
-    closeBuildForm() {
-      this.build = {} as BuildRequest;
-      this.oldBuild = "";
-      this.buildFormAction = "";
-      this.buildForm = false;
-    },
-    handleSubmitFloor(number: number) {
-      try {
-        addFloor({
-          number,
-          buildName: this.build.name,
-          buildShortName: this.build.shortName,
-        } as FloorRequest);
-        this.closeFloorForm();
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-    closeFloorForm() {
-      this.build = {} as BuildRequest;
-      this.floorNumber = 0;
-      this.floorForm = false;
-    },
-  },
-
   setup() {
     const builds: Ref<BuildResponse[]> = ref([]);
 
@@ -206,6 +137,82 @@ export default defineComponent({
 
       deleteBuild,
     };
+  },
+
+  methods: {
+    handleEdit(b: BuildResponse) {
+      this.build = b;
+      this.oldBuild = b.shortName;
+      this.buildFormAction = "Change";
+      this.buildForm = true;
+    },
+
+    handleDelete(b: BuildResponse) {
+      this.name = b.name;
+      this.shortName = b.shortName;
+      this.confirmation = true;
+    },
+
+    handleAddFloor(b: BuildResponse) {
+      this.build = b;
+      this.floorNumber = 0;
+      this.floorForm = true;
+    },
+
+    openBuildForm(action: string) {
+      this.build = {} as BuildRequest;
+      this.buildFormAction = action;
+      this.buildForm = true;
+    },
+
+    handleSubmitBuild(name: string, shortName: string, action: string) {
+      switch (action) {
+        case "Add":
+          try {
+            addBuild({ name, shortName } as BuildRequest);
+            this.closeBuildForm();
+          } catch (error: any) {
+            console.log(error);
+          }
+          break;
+        case "Change":
+          try {
+            editBuild({ name, shortName } as BuildRequest, this.oldBuild);
+            this.closeBuildForm();
+          } catch (error: any) {
+            console.log(error);
+          }
+          break;
+        default:
+          break;
+      }
+    },
+
+    closeBuildForm() {
+      this.build = {} as BuildRequest;
+      this.oldBuild = "";
+      this.buildFormAction = "";
+      this.buildForm = false;
+    },
+
+    handleSubmitFloor(number: number) {
+      try {
+        addFloor({
+          number,
+          buildName: this.build.name,
+          buildShortName: this.build.shortName,
+        } as FloorRequest);
+        this.closeFloorForm();
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+
+    closeFloorForm() {
+      this.build = {} as BuildRequest;
+      this.floorNumber = 0;
+      this.floorForm = false;
+    },
   },
 
   created() {

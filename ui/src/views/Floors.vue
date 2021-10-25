@@ -115,88 +115,6 @@ export default defineComponent({
     SwitchForm,
   },
 
-  methods: {
-    handleDelete(floor: FloorResponse) {
-      this.deleteName = `Floor ${floor.number}`;
-      this.floorNumber = floor.number;
-      this.confirmation = true;
-    },
-    handleAddSwitch(shortName: string, floor: FloorResponse) {
-      this.sw = {
-        name: "",
-        ip: "",
-        mac: "",
-        buildShortName: shortName,
-        floorNumber: floor.number,
-      } as SwitchRequest;
-      this.switchFormAction = "Add";
-      this.switchForm = true;
-    },
-    openFloorForm() {
-      this.floorForm = true;
-    },
-    handleSubmitFloor(number: number) {
-      try {
-        getBuild(this.shortName).then((b) => {
-          addFloor({
-            number,
-            buildName: b.name,
-            buildShortName: this.shortName,
-          } as FloorRequest);
-          this.closeFloorForm();
-        });
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-    closeFloorForm() {
-      this.floorNumber = 0;
-      this.floorForm = false;
-    },
-    handleSubmitSwitch(
-      name: string,
-      ipResolveMethod: string,
-      ip: string,
-      mac: string,
-      snmpCommunity: string,
-      _build: string,
-      _floor: string,
-      retrieveFromNetdata: boolean,
-      action: string
-    ) {
-      try {
-        switch (retrieveFromNetdata) {
-          case false:
-            addSwitch({} as SwitchRequest);
-            break;
-          default:
-            break;
-        }
-        console.log(name);
-        console.log(ipResolveMethod);
-        console.log(ip);
-        console.log(mac);
-        console.log(snmpCommunity);
-        console.log(_build);
-        console.log(_floor);
-        console.log(retrieveFromNetdata);
-        console.log(action);
-        this.switchForm = false;
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-    closeSwitchForm() {
-      this.switchFormAction = "";
-      this.switchForm = false;
-      this.switchName = "";
-      this.switchIPResolveMethod = "DNS";
-      this.switchIP = "";
-      this.switchMAC = "";
-      this.switchSNMPCommunity = "public";
-    },
-  },
-
   setup() {
     const floors: Ref<FloorResponse[]> = ref([]);
 
@@ -235,6 +153,95 @@ export default defineComponent({
 
       deleteFloor,
     };
+  },
+
+  methods: {
+    handleDelete(floor: FloorResponse) {
+      this.deleteName = `Floor ${floor.number}`;
+      this.floor = { number: floor.number } as FloorRequest;
+      this.confirmation = true;
+    },
+
+    handleAddSwitch(shortName: string, floor: FloorResponse) {
+      this.sw = {
+        name: "",
+        ip: "",
+        mac: "",
+        buildShortName: shortName,
+        floorNumber: floor.number,
+      } as SwitchRequest;
+      this.switchFormAction = "Add";
+      this.switchForm = true;
+    },
+
+    openFloorForm() {
+      this.floorForm = true;
+      this.floor = {} as FloorRequest;
+    },
+
+    handleSubmitFloor(number: number) {
+      try {
+        getBuild(this.shortName).then((b) => {
+          addFloor({
+            number,
+            buildName: b.name,
+            buildShortName: this.shortName,
+          } as FloorRequest);
+          this.closeFloorForm();
+        });
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+
+    closeFloorForm() {
+      this.floor = {} as FloorRequest;
+      this.floorForm = false;
+    },
+
+    handleSubmitSwitch(
+      name: string,
+      ipResolveMethod: string,
+      ip: string,
+      mac: string,
+      snmpCommunity: string,
+      _build: string,
+      _floor: string,
+      retrieveFromNetdata: boolean,
+      action: string
+    ) {
+      try {
+        switch (retrieveFromNetdata) {
+          case false:
+            addSwitch({} as SwitchRequest);
+            break;
+          default:
+            break;
+        }
+        console.log(name);
+        console.log(ipResolveMethod);
+        console.log(ip);
+        console.log(mac);
+        console.log(snmpCommunity);
+        console.log(_build);
+        console.log(_floor);
+        console.log(retrieveFromNetdata);
+        console.log(action);
+        this.switchForm = false;
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+
+    closeSwitchForm() {
+      this.switchFormAction = "";
+      this.switchForm = false;
+      this.switchName = "";
+      this.switchIPResolveMethod = "DNS";
+      this.switchIP = "";
+      this.switchMAC = "";
+      this.switchSNMPCommunity = "public";
+    },
   },
 
   created() {
