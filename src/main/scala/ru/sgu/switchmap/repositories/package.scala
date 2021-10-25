@@ -37,7 +37,6 @@ package object repositories {
         _.name -> "name",
         _.ip -> "ip",
         _.mac -> "mac",
-        _.snmpCommunity -> "snmp_community",
         _.revision -> "revision",
         _.serial -> "serial",
         _.portsNumber -> "ports_number",
@@ -78,6 +77,8 @@ package object repositories {
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))
 
+  def snmpCommunities(): RIO[SwitchRepository, List[String]] =
+    RIO.accessM(_.get.snmp())
   def getSwitches(): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.get())
   def getSwitchesOf(

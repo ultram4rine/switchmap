@@ -23,7 +23,6 @@ final case class SwitchResponse(
   name: String = "",
   ip: String = "",
   mac: String = "",
-  snmpCommunity: String = "",
   revision: Option[String] = None,
   serial: Option[String] = None,
   portsNumber: Option[Int] = None,

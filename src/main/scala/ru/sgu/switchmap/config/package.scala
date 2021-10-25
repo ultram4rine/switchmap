@@ -21,6 +21,7 @@ package object config {
     jwtKey: String,
     netdataHost: String,
     netdataPort: Int,
+    snmpCommunities: List[String],
     dnsSuffix: String
   )
 

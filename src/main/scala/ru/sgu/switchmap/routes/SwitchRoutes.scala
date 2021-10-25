@@ -29,6 +29,16 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
       val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
       import swaggerIO._
 
+      "Get SNMP communitites" **
+        GET / "switches" / "snmp" / "communities" >>> AuthContext.auth |>> {
+          auth: AuthStatus.Status =>
+            auth match {
+              case AuthStatus.Succeed =>
+                snmpCommunities().foldM(_ => NotFound(()), Ok(_))
+              case _ => Unauthorized(())
+            }
+        }
+
       "Get all switches" **
         GET / "switches" >>> AuthContext.auth |>> { auth: AuthStatus.Status =>
           auth match {

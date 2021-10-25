@@ -77,7 +77,7 @@ object Main extends App {
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    dbTransactor ++ netdataEnvironment >>> SwitchRepository.live
+    dbTransactor ++ Config.live ++ netdataEnvironment >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
     Config.live ++ Console.live ++ authEnvironment ++ netdataEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 

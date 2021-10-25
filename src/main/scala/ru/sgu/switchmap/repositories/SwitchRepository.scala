@@ -17,11 +17,13 @@ import ru.sgu.git.netdataserv.netdataproto.{
 }
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.models.{SwitchRequest, SwitchResponse, SwitchNotFound}
 
 object SwitchRepository {
 
   trait Service {
+    def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
     def getOf(build: String, floor: Int): Task[List[SwitchResponse]]
@@ -31,22 +33,30 @@ object SwitchRepository {
     def delete(name: String): Task[Boolean]
   }
 
-  val live: URLayer[DBTransactor with NetDataClient, SwitchRepository] =
+  val live: URLayer[DBTransactor with Has[
+    AppConfig
+  ] with NetDataClient, SwitchRepository] =
     ZLayer.fromServices[
       DBTransactor.Resource,
+      AppConfig,
       NetDataClient.Service,
       SwitchRepository.Service
-    ] { (resource, client) =>
-      DoobieSwitchRepository(resource.xa, client)
+    ] { (resource, cfg, client) =>
+      DoobieSwitchRepository(resource.xa, cfg, client)
     }
 }
 
 private[repositories] final case class DoobieSwitchRepository(
   xa: HikariTransactor[Task],
+  cfg: AppConfig,
   ndc: NetDataClient.Service
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
+
+  def snmp(): Task[List[String]] = {
+    Task.succeed(cfg.snmpCommunities)
+  }
 
   def get(): Task[List[SwitchResponse]] = {
     val q = quote {
@@ -130,8 +140,7 @@ private[repositories] final case class DoobieSwitchRepository(
         } yield SwitchResponse(
           sw.name,
           sw.ipv4Address.mkString("."),
-          sw.macAddressString,
-          "public"
+          sw.macAddressString
         )
         sw
       }
@@ -140,8 +149,7 @@ private[repositories] final case class DoobieSwitchRepository(
           SwitchResponse(
             switch.name,
             switch.ip.getOrElse(""),
-            switch.mac.getOrElse(""),
-            "public"
+            switch.mac.getOrElse("")
           )
         )
     }
@@ -167,8 +175,7 @@ private[repositories] final case class DoobieSwitchRepository(
     val s = SwitchResponse(
       switch.name,
       switch.ip.getOrElse(""),
-      switch.mac.getOrElse(""),
-      "public"
+      switch.mac.getOrElse("")
     )
     val q = quote {
       Tables.switches
