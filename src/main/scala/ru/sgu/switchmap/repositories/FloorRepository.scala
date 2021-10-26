@@ -35,7 +35,11 @@ private[repositories] final case class DoobieFloorRepository(
     val q = quote {
       Tables.floors
         .leftJoin(Tables.switches)
-        .on((f, sw) => f.number == sw.floorNumber.getOrNull)
+        .on((f, sw) =>
+          sw.buildShortName.getOrNull == lift(
+            build
+          ) && sw.floorNumber.getOrNull == f.number
+        )
         .filter { case (f, _) =>
           f.buildShortName == lift(build)
         }
@@ -65,7 +69,11 @@ private[repositories] final case class DoobieFloorRepository(
     val q = quote {
       Tables.floors
         .leftJoin(Tables.switches)
-        .on((f, sw) => f.number == sw.floorNumber.getOrNull)
+        .on((f, sw) =>
+          sw.buildShortName.getOrNull == lift(
+            build
+          ) && sw.floorNumber.getOrNull == f.number
+        )
         .filter { case (f, _) =>
           f.buildShortName == lift(build) && f.number == lift(number)
         }
