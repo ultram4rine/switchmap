@@ -99,35 +99,11 @@ object Main extends App {
 
         _ <- putStrLn("Adding switches to database")
         _ <- ZIO.foreach(switches)(sw =>
-          repositories.createSwitch(SwitchRequest(true, sw.name))
-        /* for {
-            switch <- (for {
-              resp <-
-                NetDataClient
-                  .getMatchingHost(
-                    GetMatchingHostRequest(
-                      Some(Match(Match.Match.HostName(sw.name)))
-                    )
-                  )
-            } yield resp.host.headOption).catchSome {
-              case status => {
-                putStrLn(s"${status.toString()} for switch ${sw.name}") *> ZIO
-                  .succeed(None)
-              }
-            }
-            res <- switch match {
-              case Some(value) =>
-                repositories
-                  .createSwitch(
-                    SwitchRequest(true, value.name)
-                  )
-                  .catchAll(e => {
-                    putStrLn(e.getMessage()) *> ZIO.succeed(false)
-                  })
-              case None => ZIO.succeed(false)
-            }
-            _ <- putStrLn(s"${sw.name} -> ${res.toString()}")
-          } yield () */
+          repositories
+            .createSwitch(SwitchRequest(true, sw.name))
+            .catchAll(e => {
+              putStrLn(e.getMessage()) *> ZIO.succeed(false)
+            })
         )
         _ <- putStrLn("Switches added")
 

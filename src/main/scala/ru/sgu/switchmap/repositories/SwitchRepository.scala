@@ -128,23 +128,29 @@ private[repositories] final case class DoobieSwitchRepository(
   }
 
   def create(switch: SwitchRequest): Task[Boolean] = {
-    val sw: IO[Status, SwitchResponse] = switch.retrieveFromNetData match {
+    val sw: IO[Object, SwitchResponse] = switch.retrieveFromNetData match {
       case true => {
-        val sw = for {
+        for {
           resp <- ndc.getMatchingHost(
             GetMatchingHostRequest(
               Some(Match(Match.Match.HostName(switch.name)))
             )
           )
-          sw = resp.host.head
-        } yield SwitchResponse(
-          sw.name,
-          sw.ipv4Address.mkString("."),
-          sw.macAddressString,
-          buildShortName = switch.buildShortName,
-          floorNumber = switch.floorNumber
-        )
-        sw
+          maybeSwitch = resp.host.headOption
+          sw <- maybeSwitch match {
+            case Some(value) =>
+              IO.succeed(
+                SwitchResponse(
+                  value.name,
+                  value.ipv4Address.mkString("."),
+                  value.macAddressString,
+                  buildShortName = switch.buildShortName,
+                  floorNumber = switch.floorNumber
+                )
+              )
+            case None => IO.fail(new Exception("no such switch"))
+          }
+        } yield sw
       }
       case false =>
         IO.succeed(
