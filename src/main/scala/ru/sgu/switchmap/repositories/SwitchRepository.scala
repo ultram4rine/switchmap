@@ -167,24 +167,24 @@ private[repositories] final case class DoobieSwitchRepository(
         )
     }
 
-    val a = sw
+    val withSeens = sw
       .flatMap { s =>
         for {
           seens <- seensClient.get(s.mac)
           seen = seens.headOption
-          _ = s.upSwitchName = seen match {
-            case Some(value) => Some(value.Switch)
-            case None        => None
+          newSw = seen match {
+            case None => s
+            case Some(value) =>
+              s.copy(
+                upSwitchName = Some(value.Switch),
+                upLink = Some(value.PortName)
+              )
           }
-          _ = s.upLink = seen match {
-            case Some(value) => Some(value.PortName)
-            case None        => None
-          }
-        } yield true
+        } yield newSw
       }
-      .mapError(_ => new Exception("seen not found"))
+      .mapError(_ => new Exception(s"seen not found for ${switch.name}"))
 
-    a *> sw
+    withSeens
       .flatMap { s =>
         {
           val q = quote {

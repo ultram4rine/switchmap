@@ -30,9 +30,9 @@ final case class SwitchResponse(
   floorNumber: Option[Int] = None,
   positionTop: Option[Float] = None,
   positionLeft: Option[Float] = None,
-  var upSwitchName: Option[String] = None,
-  var upSwitchMAC: Option[String] = None,
-  var upLink: Option[String] = None
+  upSwitchName: Option[String] = None,
+  upSwitchMAC: Option[String] = None,
+  upLink: Option[String] = None
 )
 
 final case class SwitchNotFound(name: String) extends Exception
