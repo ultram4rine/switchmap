@@ -19,6 +19,7 @@ import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
 import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.models.{SwitchRequest, SwitchResponse, SwitchNotFound}
+import ru.sgu.switchmap.utils.seens.SeensUtil
 
 object SwitchRepository {
 
@@ -35,21 +36,23 @@ object SwitchRepository {
 
   val live: URLayer[DBTransactor with Has[
     AppConfig
-  ] with NetDataClient, SwitchRepository] =
+  ] with NetDataClient with SeensUtil, SwitchRepository] =
     ZLayer.fromServices[
       DBTransactor.Resource,
       AppConfig,
       NetDataClient.Service,
+      SeensUtil.Service,
       SwitchRepository.Service
-    ] { (resource, cfg, client) =>
-      DoobieSwitchRepository(resource.xa, cfg, client)
+    ] { (resource, cfg, ndc, seensClient) =>
+      DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient)
     }
 }
 
 private[repositories] final case class DoobieSwitchRepository(
   xa: HikariTransactor[Task],
   cfg: AppConfig,
-  ndc: NetDataClient.Service
+  ndc: NetDataClient.Service,
+  seensClient: SeensUtil.Service
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
@@ -164,18 +167,37 @@ private[repositories] final case class DoobieSwitchRepository(
         )
     }
 
-    sw.flatMap { s =>
-      {
-        val q = quote {
-          Tables.switches.insert(lift(s))
-        }
-
-        Tables.ctx
-          .run(q)
-          .transact(xa)
-          .foldM(err => Task.fail(err), _ => Task.succeed(true))
+    val a = sw
+      .flatMap { s =>
+        for {
+          seens <- seensClient.get(s.mac)
+          seen = seens.headOption
+          _ = s.upSwitchName = seen match {
+            case Some(value) => Some(value.Switch)
+            case None        => None
+          }
+          _ = s.upLink = seen match {
+            case Some(value) => Some(value.PortName)
+            case None        => None
+          }
+        } yield true
       }
-    }.mapError(s => new Exception(s.toString()))
+      .mapError(_ => new Exception("seen not found"))
+
+    a *> sw
+      .flatMap { s =>
+        {
+          val q = quote {
+            Tables.switches.insert(lift(s))
+          }
+
+          Tables.ctx
+            .run(q)
+            .transact(xa)
+            .foldM(err => Task.fail(err), _ => Task.succeed(true))
+        }
+      }
+      .mapError(s => new Exception(s.toString()))
   }
 
   def update(
