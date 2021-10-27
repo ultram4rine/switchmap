@@ -205,7 +205,9 @@ private[repositories] final case class DoobieSwitchRepository(
     val s = SwitchResponse(
       switch.name,
       switch.ip.getOrElse(""),
-      switch.mac.getOrElse("")
+      switch.mac.getOrElse(""),
+      buildShortName = switch.buildShortName,
+      floorNumber = switch.floorNumber
     )
     val q = quote {
       Tables.switches
