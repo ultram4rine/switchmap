@@ -170,7 +170,7 @@ private[repositories] final case class DoobieSwitchRepository(
     val withSeens = sw
       .flatMap { s =>
         for {
-          seens <- seensClient.get(s.mac)
+          seens <- seensClient.get(s.mac).catchAll(e => UIO.succeed(List()))
           seen = seens.headOption
           newSw = seen match {
             case None => s
@@ -182,7 +182,6 @@ private[repositories] final case class DoobieSwitchRepository(
           }
         } yield newSw
       }
-      .mapError(_ => new Exception(s"seen not found for ${switch.name}"))
 
     withSeens
       .flatMap { s =>
