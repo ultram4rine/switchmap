@@ -49,6 +49,10 @@ import { SwitchRequest, SwitchResponse } from "../types/switch";
 import { getSwitches, addSwitch } from "../api/switches";
 import { macDenormalization } from "../helpers";
 
+type TableSwitch = SwitchResponse & {
+  location: string;
+};
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -59,7 +63,7 @@ export default defineComponent({
   },
 
   setup() {
-    const switches: Ref<SwitchResponse[]> = ref([]);
+    const switches: Ref<TableSwitch[]> = ref([]);
 
     const switchForm = ref(false);
     const switchFormAction = ref("");
@@ -143,9 +147,17 @@ export default defineComponent({
   },
 
   created() {
-    getSwitches().then((sws) => {
-      sws.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
-      this.switches = sws;
+    getSwitches().then((switches) => {
+      this.switches = switches.map((sw) => {
+        sw.mac = macDenormalization(sw.mac);
+        let tableSwitch = sw as TableSwitch;
+        tableSwitch.location = sw.buildShortName
+          ? `${sw.buildShortName}`
+          : "" + sw.floorNumber === null
+          ? `f${sw.floorNumber}`
+          : "";
+        return tableSwitch;
+      });
     });
   },
 });
