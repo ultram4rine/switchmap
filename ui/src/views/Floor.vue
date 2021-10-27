@@ -12,6 +12,7 @@
           <v-chip
             v-for="sw in switches"
             :key="sw.name"
+            :id="sw.name"
             dark
             class="switch ma-2"
             :style="{
