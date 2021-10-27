@@ -20,7 +20,7 @@
     "vis-network": "^9.1.0",
     "vis-util": "^5.0.2",
     "vue": "^2.6.14",
-    "vue-router": "^3.5.2",
+    "vue-router": "^3.5.3",
     "vuetify": "^2.5.10",
     "vuex": "^3.6.2"
   },
