@@ -25,8 +25,22 @@
         sort-by="name"
         multi-sort
         class="elevation-1"
-      ></v-data-table>
+      >
+        <template v-slot:[`item.actions`]="{ item }">
+          <v-icon small class="mr-2" @click="openSwitchForm('Change', item)">
+            {{ mdiPencil }}
+          </v-icon>
+          <v-icon small @click="handleDelete(item)">{{ mdiDelete }}</v-icon>
+        </template>
+      </v-data-table>
     </v-card>
+
+    <confirmation
+      :confirmation="confirmation"
+      :name="name"
+      @confirm="deleteSwitch(name), (confirmation = !confirmation), (name = '')"
+      @cancel="(confirmation = !confirmation), (name = '')"
+    />
 
     <switch-form
       :form="switchForm"
@@ -41,12 +55,18 @@
 
 <script lang="ts">
 import { defineComponent, Ref, ref } from "@vue/composition-api";
-import { mdiMagnify } from "@mdi/js";
+import { mdiMagnify, mdiPencil, mdiDelete } from "@mdi/js";
 
 import SwitchForm from "../components/forms/SwitchForm.vue";
+import Confirmation from "../components/Confirmation.vue";
 
 import { SwitchRequest, SwitchResponse } from "../types/switch";
-import { getSwitches, addSwitch } from "../api/switches";
+import {
+  getSwitches,
+  addSwitch,
+  editSwitch,
+  deleteSwitch,
+} from "../api/switches";
 import { macDenormalization } from "../helpers";
 
 type TableSwitch = SwitchResponse & {
@@ -60,6 +80,7 @@ export default defineComponent({
 
   components: {
     SwitchForm,
+    Confirmation,
   },
 
   setup() {
@@ -68,6 +89,9 @@ export default defineComponent({
     const switchForm = ref(false);
     const switchFormAction = ref("");
     const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+
+    const confirmation = ref(false);
+    const name = ref("");
 
     const search = ref("");
     const headers = ref([
@@ -80,6 +104,7 @@ export default defineComponent({
       { text: "IP", value: "ip" },
       { text: "Serial", value: "serial" },
       { text: "Location", value: "location" },
+      { text: "Actions", value: "actions", sortable: false },
     ]);
 
     return {
@@ -89,23 +114,41 @@ export default defineComponent({
       switchFormAction,
       sw,
 
+      confirmation,
+      name,
+
+      deleteSwitch,
+
       search,
       headers,
 
       mdiMagnify,
+      mdiPencil,
+      mdiDelete,
     };
   },
 
   methods: {
-    openSwitchForm(action: string) {
-      this.sw = {
-        retrieveFromNetData: true,
-        name: "",
-        ip: "",
-        mac: "",
-        buildShortName: "",
-        floorNumber: 0,
-      } as SwitchRequest;
+    handleDelete(sw: TableSwitch) {
+      this.name = sw.name;
+      this.confirmation = true;
+    },
+
+    openSwitchForm(action: string, sw?: TableSwitch) {
+      if (sw) {
+        this.sw = sw as unknown as SwitchRequest;
+        this.sw.ipResolveMethod = "Direct";
+        this.sw.retrieveFromNetData = false;
+      } else {
+        this.sw = {
+          retrieveFromNetData: true,
+          name: "",
+          ip: "",
+          mac: "",
+          buildShortName: "",
+          floorNumber: 0,
+        } as SwitchRequest;
+      }
       this.switchFormAction = action;
       this.switchForm = true;
     },
@@ -119,21 +162,41 @@ export default defineComponent({
       build: string,
       floor: number,
       retrieveFromNetData: boolean,
-      _action: string
+      action: string
     ) {
       try {
-        addSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          ipResolveMethod,
-          name,
-          ip,
-          mac,
-          buildShortName: build,
-          floorNumber: floor,
-        } as SwitchRequest);
-        this.closeSwitchForm();
-        this.switchForm = false;
+        switch (action) {
+          case "Add": {
+            addSwitch({
+              snmpCommunity,
+              retrieveFromNetData,
+              ipResolveMethod,
+              name,
+              ip,
+              mac,
+              buildShortName: build,
+              floorNumber: floor,
+            } as SwitchRequest);
+            this.closeSwitchForm();
+            break;
+          }
+          case "Change": {
+            editSwitch({
+              snmpCommunity,
+              retrieveFromNetData,
+              ipResolveMethod,
+              name,
+              ip,
+              mac,
+              buildShortName: build,
+              floorNumber: floor,
+            } as SwitchRequest);
+            this.closeSwitchForm();
+            break;
+          }
+          default:
+            break;
+        }
       } catch (error: any) {
         console.log(error);
       }

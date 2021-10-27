@@ -260,6 +260,7 @@ export default defineComponent({
       () => props.sw.buildShortName,
       (val) => {
         build.value = val;
+        if (val) getFloorsOf(build.value).then((fs) => (floors.value = fs));
       }
     );
     watch(
@@ -316,7 +317,10 @@ export default defineComponent({
   },
 
   created() {
-    getSNMPCommunities().then((comms: string[]) => (this.communitites = comms));
+    getSNMPCommunities().then((comms: string[]) => {
+      this.communitites = comms;
+      if (!this.sw.snmpCommunity) this.snmpCommunity = this.communitites[0];
+    });
     if (this.needLocationFields) {
       getBuilds().then((builds) => (this.builds = builds));
     }
