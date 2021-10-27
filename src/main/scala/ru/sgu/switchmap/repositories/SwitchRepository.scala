@@ -170,8 +170,7 @@ private[repositories] final case class DoobieSwitchRepository(
     val withSeens = sw
       .flatMap { s =>
         for {
-          seens <- seensClient.get(s.mac).catchAll(e => UIO.succeed(List()))
-          seen = seens.headOption
+          seen <- seensClient.get(s.mac).catchAll(e => UIO.succeed(None))
           newSw = seen match {
             case None => s
             case Some(value) =>

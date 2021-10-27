@@ -48,13 +48,13 @@ object seens {
     ): EntityDecoder[Task, A] = jsonOf[Task, A]
 
     trait Service {
-      def get(mac: String): Task[List[SeenResponse]]
+      def get(mac: String): Task[Option[SeenResponse]]
     }
 
     val live: ZLayer[Has[AppConfig], Nothing, SeensUtil] =
       ZLayer.fromService { cfg =>
         new Service {
-          override def get(mac: String): Task[List[SeenResponse]] = {
+          override def get(mac: String): Task[Option[SeenResponse]] = {
             val dsl: Http4sClientDsl[Task] = new Http4sClientDsl[Task] {}
             import dsl._
 
@@ -69,13 +69,17 @@ object seens {
                     value
                   )
                   for {
-                    seens <- BlazeClientBuilder[Task]
+                    seensAll <- BlazeClientBuilder[Task]
                       .withExecutionContext(global)
                       .resource
                       .use { client =>
                         client.expect[List[SeenResponse]](req)
                       }
-                  } yield seens.sortBy(seen => seen.Metric)
+                    seensNow = seensAll.filter(seen =>
+                      seen.Name.contains("(now)")
+                    )
+                    seens = if (seensNow.isEmpty) seensAll else seensNow
+                  } yield seens.sortBy(seen => seen.Metric).headOption
                 }
               }
               case Left(value) =>
@@ -85,7 +89,7 @@ object seens {
         }
       }
 
-    def get(mac: String): RIO[SeensUtil, List[SeenResponse]] =
+    def get(mac: String): RIO[SeensUtil, Option[SeenResponse]] =
       ZIO.accessM(_.get.get(mac))
   }
 }
