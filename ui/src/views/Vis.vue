@@ -1,6 +1,18 @@
 <template>
   <div id="vis">
-    <v-toolbar dense></v-toolbar>
+    <v-toolbar>
+      <v-select
+        v-model="show"
+        :items="builds"
+        hide-details
+        item-text="name"
+        item-value="shortName"
+        label="Build"
+        color="orange accent-2"
+        required
+        @change="displaySwitches()"
+      ></v-select>
+    </v-toolbar>
     <div id="container"></div>
   </div>
 </template>
@@ -12,7 +24,9 @@ import { defineComponent, Ref, ref } from "@vue/composition-api";
 import { Node, Edge, Network } from "vis-network/standalone";
 
 import { SwitchResponse } from "../types/switch";
+import { BuildResponse } from "../types/build";
 import { getSwitches } from "../api/switches";
+import { getBuilds } from "../api/builds";
 
 export default defineComponent({
   props: {
@@ -20,17 +34,39 @@ export default defineComponent({
   },
 
   setup() {
+    const switchesAll: Ref<SwitchResponse[]> = ref([]);
     const switches: Ref<SwitchResponse[]> = ref([]);
-    const showAll = ref(false);
+    const show = ref("all");
+    const builds: Ref<BuildResponse[]> = ref([
+      { name: "All", shortName: "all" } as BuildResponse,
+    ]);
 
-    const displaySwitches = () => {
+    return {
+      switchesAll,
+      switches,
+      show,
+      builds,
+    };
+  },
+
+  methods: {
+    displaySwitches() {
       const container = document.getElementById("container") as HTMLElement;
 
       const nodes = new Array<Node>();
       const edges = new Array<Edge>();
-      switches.value.forEach((sw) => {
+      if (this.show == "all") {
+        this.switches = this.switchesAll;
+      } else {
+        this.switches = this.switchesAll.filter(
+          (sw) => sw.buildShortName === this.show
+        );
+      }
+      this.switches.forEach((sw) => {
         nodes.push({ id: sw.name, label: sw.name });
-        edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
+        if (sw.upSwitchName) {
+          edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
+        }
       });
 
       const data = {
@@ -39,9 +75,13 @@ export default defineComponent({
       };
 
       const options = {
-        physics: { enabled: false },
+        physics: false,
+        layout: {
+          hierarchical: {
+            direction: "UD",
+          },
+        },
         nodes: {
-          physics: false,
           color: "rgb(255, 140, 0)",
           font: { color: "#181616", face: "sans-serif" },
           shape: "box",
@@ -53,20 +93,23 @@ export default defineComponent({
       };
 
       const network = new Network(container, data, options);
-    };
-
-    return {
-      showAll,
-
-      displaySwitches,
-    };
+    },
   },
 
   created() {
     getSwitches().then((sws: SwitchResponse[]) => {
-      this.switches = sws;
+      this.switchesAll = sws;
       this.displaySwitches();
+    });
+    getBuilds().then((builds) => {
+      this.builds = this.builds.concat(builds);
     });
   },
 });
 </script>
+
+<style>
+#container {
+  height: calc(100vh - 64px - 64px - 12px - 12px);
+}
+</style>
