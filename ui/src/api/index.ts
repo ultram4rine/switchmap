@@ -14,18 +14,4 @@ const api = axios.create({
 
 api.defaults.headers.common["X-Auth-Token"] = authHeader();
 
-api.interceptors.response.use(
-  (resp) => {
-    return resp;
-  },
-  async (err) => {
-    if (err.response.status === 401) {
-      await logout();
-      window.location.replace("/login");
-    } else {
-      return Promise.reject(err);
-    }
-  }
-);
-
 export default api;

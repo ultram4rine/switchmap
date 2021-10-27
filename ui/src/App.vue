@@ -58,14 +58,11 @@ export default Vue.extend({
       },
       (error) => {
         this.setLoading(false);
-        return new Promise(() => {
-          if (error.response.status && error.response.status === 401) {
-            this.$store.dispatch(AUTH_LOGOUT);
-            this.$router.push("/login");
-          } else {
-            return Promise.reject(error);
-          }
-        });
+        if (error.response.status && error.response.status === 401) {
+          this.$store.dispatch(AUTH_LOGOUT);
+          this.$router.push("/login");
+        }
+        return Promise.reject(error);
       }
     );
   },
