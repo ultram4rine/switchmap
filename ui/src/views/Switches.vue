@@ -151,11 +151,9 @@ export default defineComponent({
       this.switches = switches.map((sw) => {
         sw.mac = macDenormalization(sw.mac);
         let tableSwitch = sw as TableSwitch;
-        tableSwitch.location = sw.buildShortName
-          ? `${sw.buildShortName}`
-          : "" + sw.floorNumber === null
-          ? `f${sw.floorNumber}`
-          : "";
+        tableSwitch.location =
+          (sw.buildShortName ? `${sw.buildShortName}` : "") +
+          (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
         return tableSwitch;
       });
     });
