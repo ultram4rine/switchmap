@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="plan_upload" v-if="noPlan">
-      <PlanUpload @upload="uploadPlan" />
+      <plan-upload @upload="uploadPlan" />
     </div>
 
     <div v-else>
@@ -34,7 +34,7 @@
             <v-btn
               icon
               :color="hover ? 'orange darken-1' : ''"
-              @click="openSwitchForm('Add', build, floor)"
+              @click="openSwitchForm('Add')"
             >
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
@@ -44,16 +44,10 @@
 
       <SwitchForm
         :form="switchForm"
-        :action="switchAction"
+        :action="switchFormAction"
         :needLocationFields="false"
-        :name="switchName"
-        :ipResolveMethod="switchIPResolveMethod"
-        :ip="switchIP"
-        :mac="switchMAC"
-        :snmpCommunity="switchSNMPCommunity"
-        :build="switchBuild"
-        :floor="switchFloor"
-        @submit="handleSubmitSwitchFromFloorView"
+        :sw="sw"
+        @submit="handleSubmitSwitch"
         @close="closeSwitchForm"
       />
     </div>
@@ -61,16 +55,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import { defineComponent, ref, Ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 import drag from "../directives/drag";
 import zoom from "../directives/zoom";
 
-import { getFile } from "../api/plans";
-
 import SwitchForm from "../components/forms/SwitchForm.vue";
 import PlanUpload from "../components/PlanUpload.vue";
+
+import { SwitchRequest } from "../types/switch";
+import { getSwitches, addSwitch } from "../api/switches";
+import { getPlan } from "../api/plans";
 
 export default defineComponent({
   props: {
@@ -98,6 +94,10 @@ export default defineComponent({
       console.log("ll");
     };
 
+    const switchForm = ref(false);
+    const switchFormAction = ref("");
+    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+
     const switches = ref([
       { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" },
     ]);
@@ -110,15 +110,77 @@ export default defineComponent({
 
       switches,
 
+      switchForm,
+      switchFormAction,
+      sw,
+
       mdiMagnify,
       mdiPlus,
     };
   },
 
+  methods: {
+    openSwitchForm(action: string) {
+      this.sw = {
+        retrieveFromNetData: true,
+        name: "",
+        ip: "",
+        mac: "",
+        buildShortName: this.shortName,
+        floorNumber: this.floor,
+      } as unknown as SwitchRequest;
+      this.switchFormAction = action;
+      this.switchForm = true;
+    },
+
+    handleSubmitSwitch(
+      name: string,
+      ipResolveMethod: string,
+      ip: string,
+      mac: string,
+      snmpCommunity: string,
+      build: string,
+      floor: number,
+      retrieveFromNetData: boolean,
+      _action: string
+    ) {
+      try {
+        addSwitch({
+          snmpCommunity,
+          retrieveFromNetData,
+          ipResolveMethod,
+          name,
+          ip,
+          mac,
+          buildShortName: build,
+          floorNumber: floor,
+        } as SwitchRequest);
+        this.closeSwitchForm();
+        this.switchForm = false;
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+
+    closeSwitchForm() {
+      this.sw = {} as SwitchRequest;
+      this.switchFormAction = "";
+      this.switchForm = false;
+    },
+  },
+
   created() {
-    getFile(`/static/plans/${this.shortName}f${this.floor}.png`).then((uri) => {
-      this.planPath = uri;
-    });
+    getPlan(`/static/plans/${this.shortName}f${this.floor}.png`)
+      .then((uri) => {
+        if (uri) {
+          this.planPath = uri;
+        } else {
+          this.noPlan = true;
+        }
+      })
+      .catch((_err: any) => {
+        this.noPlan = true;
+      });
     //this.getSwitchesOf(this.build, this.floor).then(sws => (this.switches = sws));
   },
 });
