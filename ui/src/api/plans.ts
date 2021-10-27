@@ -1,7 +1,7 @@
 import api from ".";
 
-// Returns new URL for file.
-export const getFile = async (url: string): Promise<string | undefined> => {
+// Returns new URL for plan.
+export const getPlan = async (url: string): Promise<string | undefined> => {
   const resp = await api.get(url, {
     responseType: "blob",
   });
