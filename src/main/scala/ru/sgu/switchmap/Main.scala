@@ -110,6 +110,8 @@ object Main extends App {
             .createSwitch(
               SwitchRequest(
                 true,
+                true,
+                true,
                 sw.name,
                 snmpCommunity = app.snmpCommunities.headOption.getOrElse("")
               )
