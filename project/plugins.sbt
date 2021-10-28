@@ -2,7 +2,7 @@
 addSbtPlugin("org.jmotor.sbt" % "sbt-dependency-updates" % "1.2.2")
 addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"           % "0.9.31")
 addSbtPlugin("io.spray"       % "sbt-revolver"           % "0.9.1")
-addSbtPlugin("com.eed3si9n"   % "sbt-assembly"           % "1.1.0")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager"    % "1.9.6")
 addSbtPlugin("com.thesamet"   % "sbt-protoc"             % "1.0.4")
 
 libraryDependencies +=
