@@ -161,7 +161,6 @@ export default defineComponent({
 
         const plan = document.getElementById("plan");
         if (plan) {
-          console.log(switchToPlace);
           switchToPlace.positionTop = plan.offsetHeight / 2;
           switchToPlace.positionLeft = plan.offsetWidth / 2;
         }
@@ -251,11 +250,9 @@ export default defineComponent({
       sws.forEach((sw) => {
         this.switches.push(sw);
         if (!sw.positionTop && !sw.positionLeft) {
-          console.log(sw);
           this.switchesWithoutPosition.push(sw);
         }
       });
-      console.log(this.switchesWithoutPosition);
       this.planKey += 1;
     });
   },
