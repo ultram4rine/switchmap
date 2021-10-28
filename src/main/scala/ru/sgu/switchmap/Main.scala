@@ -107,7 +107,13 @@ object Main extends App {
         _ <- putStrLn("Adding switches to database")
         _ <- ZIO.foreach(switches)(sw =>
           repositories
-            .createSwitch(SwitchRequest(true, sw.name))
+            .createSwitch(
+              SwitchRequest(
+                true,
+                sw.name,
+                snmpCommunity = app.snmpCommunities.headOption.getOrElse("")
+              )
+            )
             .catchAll(e => {
               putStrLn(e.getMessage()) *> ZIO.succeed(false)
             })
