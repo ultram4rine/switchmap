@@ -29,6 +29,7 @@ import ru.sgu.switchmap.repositories.{
   SwitchRepository
 }
 import ru.sgu.switchmap.utils.seens.SeensUtil
+import ru.sgu.switchmap.utils.dns.DNSUtil
 import ru.sgu.switchmap.routes._
 import scalapb.zio_grpc.ZManagedChannel
 import zio._
@@ -57,7 +58,6 @@ object Main extends App {
     with AuthEnvironment
     with Has[FlywayMigrator]
     with NetDataClient
-    with SeensUtil
     with HttpServerEnvironment
     with BuildRepository
     with FloorRepository
@@ -67,6 +67,7 @@ object Main extends App {
     Config.live >>> DBTransactor.live
 
   val seensClient: TaskLayer[SeensUtil] = Config.live >>> SeensUtil.live
+  val dnsEnvironment: TaskLayer[DNSUtil] = Config.live >>> DNSUtil.live
 
   val authEnvironment: TaskLayer[Has[Authenticator] with Has[Authorizer]] =
     Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
@@ -81,9 +82,9 @@ object Main extends App {
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    dbTransactor ++ Config.live ++ netdataEnvironment ++ seensClient >>> SwitchRepository.live
+    dbTransactor ++ Config.live ++ netdataEnvironment ++ seensClient ++ dnsEnvironment >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live ++ Console.live ++ authEnvironment ++ netdataEnvironment ++ seensClient ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live ++ Console.live ++ authEnvironment ++ netdataEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 

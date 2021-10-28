@@ -25,6 +25,7 @@ import ru.sgu.switchmap.models.{
   SwitchNotFound
 }
 import ru.sgu.switchmap.utils.seens.SeensUtil
+import ru.sgu.switchmap.utils.dns.DNSUtil
 
 object SwitchRepository {
 
@@ -42,15 +43,16 @@ object SwitchRepository {
 
   val live: URLayer[DBTransactor with Has[
     AppConfig
-  ] with NetDataClient with SeensUtil, SwitchRepository] =
+  ] with NetDataClient with SeensUtil with DNSUtil, SwitchRepository] =
     ZLayer.fromServices[
       DBTransactor.Resource,
       AppConfig,
       NetDataClient.Service,
       SeensUtil.Service,
+      DNSUtil.Service,
       SwitchRepository.Service
-    ] { (resource, cfg, ndc, seensClient) =>
-      DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient)
+    ] { (resource, cfg, ndc, seensClient, dns) =>
+      DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient, dns)
     }
 }
 
@@ -58,7 +60,8 @@ private[repositories] final case class DoobieSwitchRepository(
   xa: HikariTransactor[Task],
   cfg: AppConfig,
   ndc: NetDataClient.Service,
-  seensClient: SeensUtil.Service
+  seensClient: SeensUtil.Service,
+  dns: DNSUtil.Service
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
@@ -161,16 +164,28 @@ private[repositories] final case class DoobieSwitchRepository(
           }
         } yield sw
       }
-      case false =>
-        IO.succeed(
-          SwitchResponse(
-            switch.name,
-            switch.ip.getOrElse(""),
-            switch.mac.getOrElse(""),
-            buildShortName = switch.buildShortName,
-            floorNumber = switch.floorNumber
+      case false => {
+        val ip = switch.ipResolveMethod match {
+          case "DNS" =>
+            for {
+              ip <- dns.getIPByHostname(switch.name)
+            } yield ip
+          case "Direct" => Task.succeed(switch.ip.getOrElse(""))
+          case _        => Task.fail(new Exception("unknown IP resolve method"))
+        }
+
+        ip.flatMap { ipVal =>
+          IO.succeed(
+            SwitchResponse(
+              switch.name,
+              ipVal,
+              switch.mac.getOrElse(""),
+              buildShortName = switch.buildShortName,
+              floorNumber = switch.floorNumber
+            )
           )
-        )
+        }
+      }
     }
 
     val withSeens = sw
