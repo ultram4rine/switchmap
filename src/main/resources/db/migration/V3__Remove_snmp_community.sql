@@ -1,0 +1,1 @@
+ALTER TABLE switches DROP COLUMN snmp_community;

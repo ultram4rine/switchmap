@@ -1,0 +1,24 @@
+[Unit]
+Description=${{descr}}
+Requires=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${{chdir}}
+RuntimeDirectory=${{app_name}}
+RuntimeDirectoryMode=0755
+Environment="JAVA_HOME=/usr/lib/jvm/java-15"
+EnvironmentFile=-/etc/sysconfig/${{app_name}}
+PIDFile=/run/${{app_name}}/${{app_name}}.pid
+ExecStart=/usr/share/${{app_name}}/bin/${{app_name}} -Dpidfile.path=/run/${{app_name}}/${{app_name}}.pid
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=30
+TimeoutStopSec=10
+User=${{daemon_user}}
+Group=${{daemon_group}}
+LimitNOFILE=10240
+
+[Install]
+WantedBy=multi-user.target

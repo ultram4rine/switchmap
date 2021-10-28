@@ -1,0 +1,1 @@
+ALTER TABLE switches DROP CONSTRAINT switches_serial_key;
