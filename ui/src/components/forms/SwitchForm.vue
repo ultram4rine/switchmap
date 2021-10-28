@@ -32,21 +32,6 @@
               ></v-text-field>
             </ValidationProvider>
 
-            <ValidationProvider
-              v-slot="{ errors }"
-              name="SNMP community"
-              rules="required"
-            >
-              <v-select
-                v-model="snmpCommunity"
-                :error-messages="errors"
-                :items="communitites"
-                label="SNMP community"
-                required
-                color="orange accent-2"
-              ></v-select>
-            </ValidationProvider>
-
             <template v-if="!retrieveFromNetData">
               <v-row dense>
                 <v-col cols="12" sm="6">
@@ -96,6 +81,71 @@
                 </v-col>
               </v-row>
             </template>
+
+            <v-checkbox
+              v-model="retrieveUpLinkFromSeens"
+              label="Retrieve uplink from seens"
+              color="orange accent-2"
+            ></v-checkbox>
+            <v-row v-if="!retrieveUpLinkFromSeens">
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="upSwitchName"
+                  :items="switches"
+                  hide-details
+                  item-text="name"
+                  item-value="name"
+                  label="Up switch"
+                  color="orange accent-2"
+                  required
+                  @change="getFloors(build)"
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="upLink"
+                  label="Up link"
+                  color="orange accent-2"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-checkbox
+              v-model="retrieveTechDataFromSNMP"
+              label="Retrieve tech data from SNMP"
+              color="orange accent-2"
+            ></v-checkbox>
+            <v-row v-if="!retrieveTechDataFromSNMP">
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="revision"
+                  label="Revision"
+                  color="orange accent-2"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="serial"
+                  label="Serial"
+                  color="orange accent-2"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <ValidationProvider
+              v-slot="{ errors }"
+              v-else
+              name="SNMP community"
+              rules="required"
+            >
+              <v-select
+                v-model="snmpCommunity"
+                :error-messages="errors"
+                :items="communitites"
+                label="SNMP community"
+                required
+                color="orange accent-2"
+              ></v-select>
+            </ValidationProvider>
 
             <v-row v-if="needLocationFields" dense>
               <v-col cols="12" sm="6">
@@ -154,11 +204,11 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { getSNMPCommunities } from "../../api/switches";
+import { getSNMPCommunities, getSwitches } from "../../api/switches";
 import { getBuilds } from "../../api/builds";
 import { getFloorsOf } from "../../api/floors";
 
-import { SwitchRequest } from "../../types/switch";
+import { SwitchRequest, SwitchResponse } from "../../types/switch";
 import { BuildResponse } from "../../types/build";
 import { FloorResponse } from "../../types/floor";
 
@@ -207,16 +257,23 @@ export default defineComponent({
     });
 
     const retrieveFromNetData = ref(props.sw.retrieveFromNetData);
+    const retrieveUpLinkFromSeens = ref(props.sw.retrieveUpLinkFromSeens);
+    const retrieveTechDataFromSNMP = ref(props.sw.retrieveTechDataFromSNMP);
     const name = ref(props.sw.name);
     const ipResolveMethod = ref(props.sw.ipResolveMethod);
     const ip = ref(props.sw.ip);
     const mac = ref(props.sw.mac);
-    const snmpCommunity = ref(props.sw.snmpCommunity);
+    const upSwitchName = ref(props.sw.upSwitchName);
+    const upLink = ref(props.sw.upLink);
     const build = ref(props.sw.buildShortName);
     const floor = ref(props.sw.floorNumber);
+    const snmpCommunity = ref(props.sw.snmpCommunity);
+    const revision = ref(props.sw.revision);
+    const serial = ref(props.sw.serial);
 
     const methods = ["Direct", "DNS"];
     const communitites: Ref<string[]> = ref([]);
+    const switches: Ref<SwitchResponse[]> = ref([]);
     const builds: Ref<BuildResponse[]> = ref([]);
     const floors: Ref<FloorResponse[]> = ref([]);
 
@@ -224,6 +281,18 @@ export default defineComponent({
       () => props.sw.retrieveFromNetData,
       (val) => {
         retrieveFromNetData.value = val;
+      }
+    );
+    watch(
+      () => props.sw.retrieveUpLinkFromSeens,
+      (val) => {
+        retrieveUpLinkFromSeens.value = val;
+      }
+    );
+    watch(
+      () => props.sw.retrieveTechDataFromSNMP,
+      (val) => {
+        retrieveTechDataFromSNMP.value = val;
       }
     );
     watch(
@@ -251,9 +320,15 @@ export default defineComponent({
       }
     );
     watch(
-      () => props.sw.snmpCommunity,
+      () => props.sw.upSwitchName,
       (val) => {
-        snmpCommunity.value = val;
+        upSwitchName.value = val;
+      }
+    );
+    watch(
+      () => props.sw.upLink,
+      (val) => {
+        upLink.value = val;
       }
     );
     watch(
@@ -269,6 +344,24 @@ export default defineComponent({
         floor.value = val;
       }
     );
+    watch(
+      () => props.sw.snmpCommunity,
+      (val) => {
+        snmpCommunity.value = val;
+      }
+    );
+    watch(
+      () => props.sw.revision,
+      (val) => {
+        revision.value = val;
+      }
+    );
+    watch(
+      () => props.sw.serial,
+      (val) => {
+        serial.value = val;
+      }
+    );
 
     const submit = () => {
       emit(
@@ -277,10 +370,16 @@ export default defineComponent({
         ipResolveMethod.value,
         ip.value,
         mac.value.length === 12 ? mac.value : macNormalization(mac.value),
+        upSwitchName.value,
+        upLink.value,
         snmpCommunity.value,
+        revision.value,
+        serial.value,
         build.value,
         floor.value,
         retrieveFromNetData.value,
+        retrieveUpLinkFromSeens.value,
+        retrieveTechDataFromSNMP.value,
         props.action
       );
     };
@@ -290,16 +389,23 @@ export default defineComponent({
       title,
 
       retrieveFromNetData,
+      retrieveUpLinkFromSeens,
+      retrieveTechDataFromSNMP,
       name,
       ipResolveMethod,
       ip,
       mac,
-      snmpCommunity,
+      upSwitchName,
+      upLink,
       build,
       floor,
+      snmpCommunity,
+      revision,
+      serial,
 
       methods,
       communitites,
+      switches,
       builds,
       floors,
 
@@ -321,6 +427,7 @@ export default defineComponent({
       this.communitites = comms;
       if (!this.sw.snmpCommunity) this.snmpCommunity = this.communitites[0];
     });
+    getSwitches().then((switches) => (this.switches = switches));
     if (this.needLocationFields) {
       getBuilds().then((builds) => (this.builds = builds));
     }

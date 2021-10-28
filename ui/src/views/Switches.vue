@@ -139,12 +139,20 @@ export default defineComponent({
         this.sw = sw as unknown as SwitchRequest;
         this.sw.ipResolveMethod = "Direct";
         this.sw.retrieveFromNetData = false;
+        this.sw.retrieveUpLinkFromSeens = false;
+        this.sw.retrieveTechDataFromSNMP = false;
       } else {
         this.sw = {
           retrieveFromNetData: true,
+          retrieveUpLinkFromSeens: true,
+          retrieveTechDataFromSNMP: true,
           name: "",
           ip: "",
           mac: "",
+          upSwitchName: "",
+          upLink: "",
+          revision: "",
+          serial: "",
           buildShortName: "",
           floorNumber: 0,
         } as SwitchRequest;
@@ -158,10 +166,16 @@ export default defineComponent({
       ipResolveMethod: string,
       ip: string,
       mac: string,
+      upSwitchName: string,
+      upLink: string,
       snmpCommunity: string,
+      revision: string,
+      serial: string,
       build: string,
       floor: number,
       retrieveFromNetData: boolean,
+      retrieveUpLinkFromSeens: boolean,
+      retrieveTechDataFromSNMP: boolean,
       action: string
     ) {
       try {
@@ -170,12 +184,18 @@ export default defineComponent({
             addSwitch({
               snmpCommunity,
               retrieveFromNetData,
+              retrieveUpLinkFromSeens,
+              retrieveTechDataFromSNMP,
               ipResolveMethod,
               name,
               ip,
               mac,
+              upSwitchName,
+              upLink,
               buildShortName: build,
               floorNumber: floor,
+              revision,
+              serial,
             } as SwitchRequest);
             this.closeSwitchForm();
             break;
@@ -184,12 +204,18 @@ export default defineComponent({
             editSwitch({
               snmpCommunity,
               retrieveFromNetData,
+              retrieveUpLinkFromSeens,
+              retrieveTechDataFromSNMP,
               ipResolveMethod,
               name,
               ip,
               mac,
+              upSwitchName,
+              upLink,
               buildShortName: build,
               floorNumber: floor,
+              revision,
+              serial,
             } as SwitchRequest);
             this.closeSwitchForm();
             break;

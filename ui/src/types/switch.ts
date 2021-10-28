@@ -1,6 +1,8 @@
 export type SwitchRequest = SwitchResponse & {
   snmpCommunity: string;
   retrieveFromNetData: boolean;
+  retrieveUpLinkFromSeens: boolean;
+  retrieveTechDataFromSNMP: boolean;
   ipResolveMethod: string;
 };
 

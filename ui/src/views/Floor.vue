@@ -171,9 +171,15 @@ export default defineComponent({
     openSwitchForm(action: string) {
       this.sw = {
         retrieveFromNetData: true,
+        retrieveUpLinkFromSeens: true,
+        retrieveTechDataFromSNMP: true,
         name: "",
         ip: "",
         mac: "",
+        upSwitchName: "",
+        upLink: "",
+        revision: "",
+        serial: "",
         buildShortName: this.shortName,
         floorNumber: this.floor,
       } as unknown as SwitchRequest;
@@ -186,22 +192,34 @@ export default defineComponent({
       ipResolveMethod: string,
       ip: string,
       mac: string,
+      upSwitchName: string,
+      upLink: string,
       snmpCommunity: string,
+      revision: string,
+      serial: string,
       build: string,
       floor: number,
       retrieveFromNetData: boolean,
+      retrieveUpLinkFromSeens: boolean,
+      retrieveTechDataFromSNMP: boolean,
       _action: string
     ) {
       try {
         addSwitch({
           snmpCommunity,
           retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
           ipResolveMethod,
           name,
           ip,
           mac,
+          upSwitchName,
+          upLink,
           buildShortName: build,
           floorNumber: floor,
+          revision,
+          serial,
         } as SwitchRequest);
         this.closeSwitchForm();
         this.switchForm = false;
