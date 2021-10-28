@@ -1,5 +1,7 @@
 package ru.sgu.switchmap.auth
 
+import java.time.Instant
+
 import zio._
 
 trait Authorizer {
@@ -8,14 +10,20 @@ trait Authorizer {
 
 object AuthStatus extends Enumeration {
   type Status = Value
-  val Succeed, Failed, NoToken = Value
+  val Succeed, Failed, Expired, NoToken = Value
 }
 
 case class AuthorizerLive(jwt: JWT) extends Authorizer {
-  override def authorize(token: AuthToken): Task[AuthStatus.Status] =
-    jwt
-      .validate(token.token)
-      .fold(_ => AuthStatus.Failed, _ => AuthStatus.Succeed)
+  override def authorize(token: AuthToken): Task[AuthStatus.Status] = {
+    for {
+      claims <- jwt
+        .validate(token.token)
+      exp = claims.expiration.getOrElse(-1.toLong)
+    } yield
+      if (exp == -1) AuthStatus.NoToken
+      else if (exp < Instant.now().getEpochSecond()) AuthStatus.Expired
+      else AuthStatus.Succeed
+  }.fold(_ => AuthStatus.Failed, ok => ok)
 }
 
 object AuthorizerLive {

@@ -37,7 +37,7 @@ export const actions = {
     return new Promise((resolve, reject) => {
       context.commit(AUTH_LOGIN);
       try {
-        login(user.username, user.password).then((resp) => {
+        login(user.username, user.password, user.rememberMe).then((resp) => {
           localStorage.setItem("username", user.username);
           context.commit(AUTH_SUCCESS, user);
           resolve(resp);

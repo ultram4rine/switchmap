@@ -31,21 +31,21 @@ final case class AuthRoutes[R <: Has[Authenticator]]() {
 
       "Authenticates user" **
         POST / "auth" / "login" ^ jsonOf[AuthTask, User] |>> { (user: User) =>
-        Authenticator
-          .authenticate(user.username, user.password)
-          .foldM(
-            _ =>
-              Unauthorized(
-                `WWW-Authenticate`(
-                  Challenge(
-                    "X-Auth-Token",
-                    "SwitchMap",
-                    Map.empty
+          Authenticator
+            .authenticate(user.username, user.password, user.rememberMe)
+            .foldM(
+              _ =>
+                Unauthorized(
+                  `WWW-Authenticate`(
+                    Challenge(
+                      "X-Auth-Token",
+                      "SwitchMap",
+                      Map.empty
+                    )
                   )
-                )
-              ),
-            Ok(_)
-          )
-      }
+                ),
+              Ok(_)
+            )
+        }
     }
 }

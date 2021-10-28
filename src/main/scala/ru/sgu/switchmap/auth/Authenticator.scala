@@ -6,7 +6,11 @@ import zio._
 import pdi.jwt.JwtClaim
 
 trait Authenticator {
-  def authenticate(username: String, password: String): Task[AuthToken]
+  def authenticate(
+    username: String,
+    password: String,
+    rememberMe: Boolean
+  ): Task[AuthToken]
 }
 
 case class AuthToken(token: String)
@@ -21,7 +25,8 @@ case class AuthenticatorLive(ldap: LDAP, jwt: JWT) extends Authenticator {
 
   override def authenticate(
     username: String,
-    password: String
+    password: String,
+    rememberMe: Boolean
   ): Task[AuthToken] =
     ldap.findUser(username).flatMap {
       case true =>
@@ -32,8 +37,12 @@ case class AuthenticatorLive(ldap: LDAP, jwt: JWT) extends Authenticator {
             for {
               token <- jwt.create(
                 JwtClaim(
-                  expiration =
-                    Some(Instant.now.plusSeconds(157784760).getEpochSecond),
+                  issuer = Some("SwitchMap"),
+                  expiration = Some(
+                    Instant.now
+                      .plusSeconds(if (!rememberMe) 259200 else 864000)
+                      .getEpochSecond
+                  ),
                   issuedAt = Some(Instant.now.getEpochSecond)
                 )
               )
@@ -51,7 +60,10 @@ object AuthenticatorLive {
 object Authenticator {
   def authenticate(
     username: String,
-    password: String
+    password: String,
+    rememberMe: Boolean
   ): RIO[Has[Authenticator], AuthToken] =
-    ZIO.serviceWith[Authenticator](_.authenticate(username, password))
+    ZIO.serviceWith[Authenticator](
+      _.authenticate(username, password, rememberMe)
+    )
 }

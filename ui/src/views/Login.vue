@@ -26,6 +26,11 @@
                 :append-icon="show ? this.mdiEye : this.mdiEyeOff"
                 @click:append="show = !show"
               ></v-text-field>
+              <v-checkbox
+                v-model="rememberMe"
+                label="Remember me"
+                color="orange darken-1"
+              ></v-checkbox>
             </v-card-text>
             <v-card-actions>
               <v-spacer />
@@ -51,6 +56,7 @@ export default defineComponent({
   setup() {
     const username = ref("");
     const password = ref("");
+    const rememberMe = ref(false);
 
     const show = ref(false);
 
@@ -63,14 +69,19 @@ export default defineComponent({
 
       username,
       password,
+      rememberMe,
 
       show,
     };
   },
   methods: {
     async login() {
-      const { username, password } = this;
-      await this.$store.dispatch(AUTH_LOGIN, { username, password });
+      const { username, password, rememberMe } = this;
+      await this.$store.dispatch(AUTH_LOGIN, {
+        username,
+        password,
+        rememberMe,
+      });
       this.$router.push("/");
     },
   },
