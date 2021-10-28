@@ -70,8 +70,10 @@ object snmp {
                     val revision = responsePDU.getVariable(entPhysicalDescr)
                     val serial = responsePDU.getVariable(entPhysicalSerialNum)
                     if (
-                      revision.toString() == "noSuchInstance" || serial
-                        .toString() == "noSuchInstance"
+                      revision.toString() == "noSuchInstance" ||
+                      revision.toString() == "noSuchObject" ||
+                      serial.toString() == "noSuchInstance" ||
+                      serial.toString() == "noSuchObject"
                     ) {
                       None
                     } else {
