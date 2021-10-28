@@ -69,7 +69,14 @@ object snmp {
                   if (errorStatus == PDU.noError) {
                     val revision = responsePDU.getVariable(entPhysicalDescr)
                     val serial = responsePDU.getVariable(entPhysicalSerialNum)
-                    Some(SwitchInfo(revision.toString, serial.toString))
+                    if (
+                      revision.toString() == "noSuchInstance" || serial
+                        .toString() == "noSuchInstance"
+                    ) {
+                      None
+                    } else {
+                      Some(SwitchInfo(revision.toString, serial.toString))
+                    }
                   } else {
                     None
                   }
