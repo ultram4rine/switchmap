@@ -35,6 +35,11 @@ final case class SwitchResponse(
   upLink: Option[String] = None
 )
 
+final case class SavePositionRequest(
+  top: Float = 0,
+  left: Float = 0
+)
+
 final case class SwitchNotFound(name: String) extends Exception
 
 final case class SeenRequest(

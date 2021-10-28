@@ -8,7 +8,7 @@ import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.{EntityDecoder, EntityEncoder}
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
-import ru.sgu.switchmap.models.SwitchRequest
+import ru.sgu.switchmap.models.{SwitchRequest, SavePositionRequest}
 import ru.sgu.switchmap.repositories._
 import zio._
 import zio.interop.catz._
@@ -105,6 +105,26 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
             auth match {
               case AuthStatus.Succeed =>
                 updateSwitch(name, switch).foldM(_ => NotFound(()), Ok(_))
+              case _ => Unauthorized(())
+            }
+        }
+
+      "Update switch position" **
+        PATCH / "switches" / pv"name" >>> AuthContext.auth ^ jsonOf[
+          AppTask,
+          SavePositionRequest
+        ] |>> {
+          (
+            name: String,
+            auth: AuthStatus.Status,
+            position: SavePositionRequest
+          ) =>
+            auth match {
+              case AuthStatus.Succeed =>
+                updateSwitchPosition(name, position).foldM(
+                  _ => NotFound(()),
+                  Ok(_)
+                )
               case _ => Unauthorized(())
             }
         }

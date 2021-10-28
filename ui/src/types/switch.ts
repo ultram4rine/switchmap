@@ -19,3 +19,8 @@ export type SwitchResponse = {
   upSwitchMAC: string;
   upLink: string;
 };
+
+export type SavePositionRequest = {
+  top: number;
+  left: number;
+};

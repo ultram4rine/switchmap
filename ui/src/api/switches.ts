@@ -2,7 +2,11 @@ import { AxiosResponse } from "axios";
 
 import api from ".";
 
-import { SwitchRequest, SwitchResponse } from "@/types/switch";
+import {
+  SavePositionRequest,
+  SwitchRequest,
+  SwitchResponse,
+} from "@/types/switch";
 import { macDenormalization } from "@/helpers";
 
 export const getSNMPCommunities = async (): Promise<string[]> => {
@@ -54,6 +58,13 @@ export const addSwitch = async (sw: SwitchRequest): Promise<void> => {
 
 export const editSwitch = async (sw: SwitchRequest): Promise<void> => {
   await api.put(`/switches/${sw.name}`, sw);
+};
+
+export const updatePosition = async (
+  name: string,
+  position: SavePositionRequest
+): Promise<void> => {
+  await api.patch(`/switches/${name}`, position);
 };
 
 export const deleteSwitch = async (name: string): Promise<void> => {

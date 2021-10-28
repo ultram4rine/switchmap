@@ -99,6 +99,10 @@ package object repositories {
     sw: SwitchRequest
   ): RIO[SwitchRepository, Boolean] =
     RIO.accessM(_.get.update(name, sw))
+  def updateSwitchPosition(
+    name: String,
+    position: SavePositionRequest
+  ): RIO[SwitchRepository, Boolean] = RIO.accessM(_.get.update(name, position))
   def deleteSwitch(name: String): RIO[SwitchRepository, Boolean] =
     RIO.accessM(_.get.delete(name))
 }

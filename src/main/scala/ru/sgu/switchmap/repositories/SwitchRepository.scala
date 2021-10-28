@@ -18,7 +18,12 @@ import ru.sgu.git.netdataserv.netdataproto.{
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
 import ru.sgu.switchmap.config.AppConfig
-import ru.sgu.switchmap.models.{SwitchRequest, SwitchResponse, SwitchNotFound}
+import ru.sgu.switchmap.models.{
+  SwitchRequest,
+  SwitchResponse,
+  SavePositionRequest,
+  SwitchNotFound
+}
 import ru.sgu.switchmap.utils.seens.SeensUtil
 
 object SwitchRepository {
@@ -31,6 +36,7 @@ object SwitchRepository {
     def get(name: String): Task[SwitchResponse]
     def create(switch: SwitchRequest): Task[Boolean]
     def update(name: String, switch: SwitchRequest): Task[Boolean]
+    def update(name: String, position: SavePositionRequest): Task[Boolean]
     def delete(name: String): Task[Boolean]
   }
 
@@ -208,6 +214,24 @@ private[repositories] final case class DoobieSwitchRepository(
       switch.mac.getOrElse(""),
       buildShortName = switch.buildShortName,
       floorNumber = switch.floorNumber
+    )
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.name == lift(name))
+        .update(lift(s))
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+  }
+
+  def update(name: String, position: SavePositionRequest): Task[Boolean] = {
+    val s = SwitchResponse(
+      name,
+      positionTop = Some(position.top),
+      positionLeft = Some(position.left)
     )
     val q = quote {
       Tables.switches
