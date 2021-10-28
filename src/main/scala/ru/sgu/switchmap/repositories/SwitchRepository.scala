@@ -26,6 +26,7 @@ import ru.sgu.switchmap.models.{
 }
 import ru.sgu.switchmap.utils.seens.SeensUtil
 import ru.sgu.switchmap.utils.dns.DNSUtil
+import ru.sgu.switchmap.utils.snmp.{SNMPUtil, SwitchInfo}
 
 object SwitchRepository {
 
@@ -43,16 +44,17 @@ object SwitchRepository {
 
   val live: URLayer[DBTransactor with Has[
     AppConfig
-  ] with NetDataClient with SeensUtil with DNSUtil, SwitchRepository] =
+  ] with NetDataClient with SeensUtil with DNSUtil with SNMPUtil, SwitchRepository] =
     ZLayer.fromServices[
       DBTransactor.Resource,
       AppConfig,
       NetDataClient.Service,
       SeensUtil.Service,
       DNSUtil.Service,
+      SNMPUtil.Service,
       SwitchRepository.Service
-    ] { (resource, cfg, ndc, seensClient, dns) =>
-      DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient, dns)
+    ] { (resource, cfg, ndc, seensClient, dns, snmp) =>
+      DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient, dns, snmp)
     }
 }
 
@@ -61,7 +63,8 @@ private[repositories] final case class DoobieSwitchRepository(
   cfg: AppConfig,
   ndc: NetDataClient.Service,
   seensClient: SeensUtil.Service,
-  dns: DNSUtil.Service
+  dns: DNSUtil.Service,
+  snmpClient: SNMPUtil.Service
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
@@ -188,7 +191,19 @@ private[repositories] final case class DoobieSwitchRepository(
       }
     }
 
-    val withSeens = sw
+    val withSNMP = sw.flatMap { s =>
+      for {
+        maybeSwInfo <- snmpClient
+          .getSwitchInfo(s.ip, switch.snmpCommunity)
+          .catchAll(e => UIO.succeed(None))
+        swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
+      } yield s.copy(
+        revision = Some(swInfo.revision),
+        serial = Some(swInfo.serial)
+      )
+    }
+
+    val withSeens = withSNMP
       .flatMap { s =>
         for {
           seen <- seensClient.get(s.mac).catchAll(e => UIO.succeed(None))
