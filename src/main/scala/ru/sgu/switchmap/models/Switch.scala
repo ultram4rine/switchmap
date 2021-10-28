@@ -2,6 +2,8 @@ package ru.sgu.switchmap.models
 
 final case class SwitchRequest(
   retrieveFromNetData: Boolean = false,
+  retrieveUpLinkFromSeens: Boolean = false,
+  retrieveTechDataFromSNMP: Boolean = false,
   name: String = "",
   ipResolveMethod: String = "",
   ip: Option[String] = None,

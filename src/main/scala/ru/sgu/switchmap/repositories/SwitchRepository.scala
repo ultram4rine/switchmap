@@ -142,7 +142,7 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def create(switch: SwitchRequest): Task[Boolean] = {
+  private def makeSwitch(switch: SwitchRequest): IO[Object, SwitchResponse] = {
     val sw: IO[Object, SwitchResponse] = switch.retrieveFromNetData match {
       case true => {
         for {
@@ -160,7 +160,9 @@ private[repositories] final case class DoobieSwitchRepository(
                   value.ipv4Address.mkString("."),
                   value.macAddressString,
                   buildShortName = switch.buildShortName,
-                  floorNumber = switch.floorNumber
+                  floorNumber = switch.floorNumber,
+                  positionTop = switch.positionTop,
+                  positionLeft = switch.positionLeft
                 )
               )
             case None => IO.fail(new Exception("no such switch"))
@@ -184,41 +186,61 @@ private[repositories] final case class DoobieSwitchRepository(
               ipVal,
               switch.mac.getOrElse(""),
               buildShortName = switch.buildShortName,
-              floorNumber = switch.floorNumber
+              floorNumber = switch.floorNumber,
+              positionTop = switch.positionTop,
+              positionLeft = switch.positionLeft
             )
           )
         }
       }
     }
 
-    val withSNMP = sw.flatMap { s =>
-      for {
-        maybeSwInfo <- snmpClient
-          .getSwitchInfo(s.ip, switch.snmpCommunity)
-          .catchAll(e => UIO.succeed(None))
-        swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
-      } yield s.copy(
-        revision = Some(swInfo.revision),
-        serial = Some(swInfo.serial)
-      )
+    val withSNMP = switch.retrieveTechDataFromSNMP match {
+      case true =>
+        sw.flatMap { s =>
+          for {
+            maybeSwInfo <- snmpClient
+              .getSwitchInfo(s.ip, switch.snmpCommunity)
+              .catchAll(e => UIO.succeed(None))
+            swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
+          } yield s.copy(
+            revision = Some(swInfo.revision),
+            serial = Some(swInfo.serial)
+          )
+        }
+      case false =>
+        sw.map { s =>
+          s.copy(revision = switch.revision, serial = switch.serial)
+        }
     }
 
-    val withSeens = withSNMP
-      .flatMap { s =>
-        for {
-          seen <- seensClient.get(s.mac).catchAll(e => UIO.succeed(None))
-          newSw = seen match {
-            case None => s
-            case Some(value) =>
-              s.copy(
-                upSwitchName = Some(value.Switch),
-                upLink = Some(value.PortName)
-              )
+    val withSeens = switch.retrieveUpLinkFromSeens match {
+      case true =>
+        withSNMP
+          .flatMap { s =>
+            for {
+              seen <- seensClient.get(s.mac).catchAll(e => UIO.succeed(None))
+              newSw = seen match {
+                case None => s
+                case Some(value) =>
+                  s.copy(
+                    upSwitchName = Some(value.Switch),
+                    upLink = Some(value.PortName)
+                  )
+              }
+            } yield newSw
           }
-        } yield newSw
-      }
+      case false =>
+        withSNMP.map { s =>
+          s.copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink)
+        }
+    }
 
     withSeens
+  }
+
+  def create(switch: SwitchRequest): Task[Boolean] = {
+    makeSwitch(switch)
       .flatMap { s =>
         {
           val q = quote {
@@ -238,31 +260,22 @@ private[repositories] final case class DoobieSwitchRepository(
     name: String,
     switch: SwitchRequest
   ): Task[Boolean] = {
-    val s = SwitchResponse(
-      switch.name,
-      switch.ip.getOrElse(""),
-      switch.mac.getOrElse(""),
-      switch.revision,
-      switch.serial,
-      switch.portsNumber,
-      switch.buildShortName,
-      switch.floorNumber,
-      switch.positionTop,
-      switch.positionLeft,
-      switch.upSwitchName,
-      switch.upSwitchMAC,
-      switch.upLink
-    )
-    val q = quote {
-      Tables.switches
-        .filter(sw => sw.name == lift(name))
-        .update(lift(s))
-    }
+    makeSwitch(switch)
+      .flatMap { s =>
+        {
+          val q = quote {
+            Tables.switches
+              .filter(sw => sw.name == lift(name))
+              .update(lift(s))
+          }
 
-    Tables.ctx
-      .run(q)
-      .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+          Tables.ctx
+            .run(q)
+            .transact(xa)
+            .foldM(err => Task.fail(err), _ => Task.succeed(true))
+        }
+      }
+      .mapError(s => new Exception(s.toString()))
   }
 
   def update(name: String, position: SavePositionRequest): Task[Boolean] = {
