@@ -228,15 +228,13 @@ private[repositories] final case class DoobieSwitchRepository(
   }
 
   def update(name: String, position: SavePositionRequest): Task[Boolean] = {
-    val s = SwitchResponse(
-      name,
-      positionTop = Some(position.top),
-      positionLeft = Some(position.left)
-    )
     val q = quote {
       Tables.switches
         .filter(sw => sw.name == lift(name))
-        .update(lift(s))
+        .update(
+          _.positionTop -> lift(Option(position.top)),
+          _.positionLeft -> lift(Option(position.left))
+        )
     }
 
     Tables.ctx
