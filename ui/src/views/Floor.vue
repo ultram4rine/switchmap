@@ -6,7 +6,7 @@
 
     <div v-else>
       <div id="floor">
-        <div v-drag v-zoom id="plan">
+        <div v-drag v-zoom id="plan" :key="planKey">
           <v-img :src="planPath" class="image" @error="noPlan = true"></v-img>
 
           <v-chip
@@ -15,22 +15,29 @@
             :id="sw.name"
             dark
             class="switch ma-2"
-            :style="{
-              top: sw.positionTop + 'px',
-              left: sw.positionLeft + 'px',
-            }"
+            :style="
+              sw.positionTop && sw.positionLeft
+                ? {
+                    top: sw.positionTop + 'px',
+                    left: sw.positionLeft + 'px',
+                  }
+                : { display: 'none' }
+            "
           >
             {{ sw.name }}
           </v-chip>
         </div>
 
-        <v-toolbar dense floating>
-          <v-text-field
+        <v-toolbar floating>
+          <v-select
+            v-model="swName"
+            :items="switchesWithoutPosition"
             hide-details
-            color="orange darken-1"
-            :prepend-icon="this.mdiMagnify"
-            single-line
-          ></v-text-field>
+            item-text="name"
+            item-value="name"
+            label="Switch"
+            color="orange accent-2"
+          ></v-select>
           <v-hover v-slot:default="{ hover }">
             <v-btn
               icon
@@ -40,6 +47,13 @@
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
           </v-hover>
+          <v-btn
+            v-if="swName !== ''"
+            color="orange darken-1"
+            @click="place(swName)"
+          >
+            Place
+          </v-btn>
         </v-toolbar>
       </div>
 
@@ -65,8 +79,12 @@ import zoom from "../directives/zoom";
 import SwitchForm from "../components/forms/SwitchForm.vue";
 import PlanUpload from "../components/PlanUpload.vue";
 
-import { SwitchRequest } from "../types/switch";
-import { getSwitches, addSwitch } from "../api/switches";
+import {
+  SwitchRequest,
+  SwitchResponse,
+  SavePositionRequest,
+} from "../types/switch";
+import { getSwitchesOfFloor, addSwitch } from "../api/switches";
 import { getPlan } from "../api/plans";
 
 export default defineComponent({
@@ -91,6 +109,8 @@ export default defineComponent({
 
     const noPlan = ref(false);
 
+    const planKey = ref(0);
+
     const uploadPlan = () => {
       console.log("ll");
     };
@@ -99,17 +119,20 @@ export default defineComponent({
     const switchFormAction = ref("");
     const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
 
-    const switches = ref([
-      { name: "b9f1r108", positionTop: "2673.33", positionLeft: "2828.33" },
-    ]);
+    const swName = ref("");
+    const switches: Ref<SwitchResponse[]> = ref([]);
+    const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
 
     return {
       planPath,
       noPlan,
+      planKey,
 
       uploadPlan,
 
+      swName,
       switches,
+      switchesWithoutPosition,
 
       switchForm,
       switchFormAction,
@@ -121,6 +144,19 @@ export default defineComponent({
   },
 
   methods: {
+    place(name: string) {
+      const switchToPlace = this.switchesWithoutPosition.find((sw) => {
+        return (sw.name = name);
+      });
+      const index = this.switchesWithoutPosition.indexOf(switchToPlace);
+      if (index > -1) {
+        this.switchesWithoutPosition.splice(index, 1);
+      }
+      this.swName = "";
+      switchToPlace.positionTop = "2673";
+      switchToPlace.positionLeft = "2828";
+    },
+
     openSwitchForm(action: string) {
       this.sw = {
         retrieveFromNetData: true,
@@ -182,7 +218,15 @@ export default defineComponent({
       .catch((_err: any) => {
         this.noPlan = true;
       });
-    //this.getSwitchesOf(this.build, this.floor).then(sws => (this.switches = sws));
+    getSwitchesOfFloor(this.shortName, this.floor).then((sws) => {
+      sws.forEach((sw) => {
+        this.switches.push(sw);
+        if (sw.positionTop == null && sw.positionLeft == null) {
+          this.switchesWithoutPosition.push(sw);
+        }
+      });
+      this.planKey += 1;
+    });
   },
 });
 </script>
