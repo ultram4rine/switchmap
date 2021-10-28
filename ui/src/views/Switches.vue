@@ -214,6 +214,8 @@ export default defineComponent({
               upLink,
               buildShortName: build,
               floorNumber: floor,
+              positionTop: this.sw.positionTop,
+              positionLeft: this.sw.positionLeft,
               revision,
               serial,
             } as SwitchRequest);
