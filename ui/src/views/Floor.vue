@@ -11,6 +11,7 @@
 
           <v-chip
             v-for="sw in switches"
+            v-drag-switch="sw"
             :key="sw.name"
             :id="sw.name"
             dark
@@ -74,6 +75,7 @@ import { defineComponent, ref, Ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 import drag from "../directives/drag";
+import dragSwitch from "../directives/dragSwitch";
 import zoom from "../directives/zoom";
 
 import SwitchForm from "../components/forms/SwitchForm.vue";
@@ -101,6 +103,7 @@ export default defineComponent({
 
   directives: {
     drag,
+    dragSwitch,
     zoom,
   },
 
@@ -146,15 +149,23 @@ export default defineComponent({
   methods: {
     place(name: string) {
       const switchToPlace = this.switchesWithoutPosition.find((sw) => {
-        return (sw.name = name);
+        return sw.name == name;
       });
-      const index = this.switchesWithoutPosition.indexOf(switchToPlace);
-      if (index > -1) {
-        this.switchesWithoutPosition.splice(index, 1);
+
+      if (switchToPlace) {
+        this.switchesWithoutPosition = this.switchesWithoutPosition.filter(
+          (sw) => sw.name !== name
+        );
+
+        this.swName = "";
+
+        const plan = document.getElementById("plan");
+        if (plan) {
+          console.log(switchToPlace);
+          switchToPlace.positionTop = plan.offsetHeight / 2;
+          switchToPlace.positionLeft = plan.offsetWidth / 2;
+        }
       }
-      this.swName = "";
-      switchToPlace.positionTop = "2673";
-      switchToPlace.positionLeft = "2828";
     },
 
     openSwitchForm(action: string) {
@@ -218,13 +229,15 @@ export default defineComponent({
       .catch((_err: any) => {
         this.noPlan = true;
       });
-    getSwitchesOfFloor(this.shortName, this.floor).then((sws) => {
+    getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
       sws.forEach((sw) => {
         this.switches.push(sw);
-        if (sw.positionTop == null && sw.positionLeft == null) {
+        if (!sw.positionTop && !sw.positionLeft) {
+          console.log(sw);
           this.switchesWithoutPosition.push(sw);
         }
       });
+      console.log(this.switchesWithoutPosition);
       this.planKey += 1;
     });
   },
