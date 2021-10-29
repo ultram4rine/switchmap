@@ -39,13 +39,11 @@ package object repositories {
         _.mac -> "mac",
         _.revision -> "revision",
         _.serial -> "serial",
-        _.portsNumber -> "ports_number",
         _.buildShortName -> "build_short_name",
         _.floorNumber -> "floor_number",
         _.positionTop -> "position_top",
         _.positionLeft -> "position_left",
         _.upSwitchName -> "up_switch_name",
-        _.upSwitchMAC -> "up_switch_mac",
         _.upLink -> "up_link"
       )
     )
