@@ -2,14 +2,16 @@ name: CI back
 on:
   push:
     paths:
+      - ".github/workflows/**"
       - "build.sbt"
-      - "./project/**"
-      - "./src/**"
+      - "project/**"
+      - "src/**"
   pull_request:
     paths:
+      - ".github/workflows/**"
       - "build.sbt"
-      - "./project/**"
-      - "./src/**"
+      - "project/**"
+      - "src/**"
 
 jobs:
   build:

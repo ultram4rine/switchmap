@@ -2,10 +2,12 @@ name: CI front
 on:
   push:
     paths:
-      - "./ui/**"
+      - ".github/workflows/**"
+      - "ui/**"
   pull_request:
     paths:
-      - "./ui/**"
+      - ".github/workflows/**"
+      - "ui/**"
 
 jobs:
   build:
