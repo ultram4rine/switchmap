@@ -1,5 +1,11 @@
-name: CI
-on: [push, pull_request]
+name: CI front
+on:
+  push:
+    paths:
+      - "./ui/**"
+  pull_request:
+    paths:
+      - "./ui/**"
 
 jobs:
   build:
