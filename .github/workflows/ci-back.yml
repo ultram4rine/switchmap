@@ -25,7 +25,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 8
-      - name: Install dependencies
-        run: npm install
+      - name: Coursier cache
+        uses: coursier/cache-action@v6
       - name: Build
         run: sbt +compile
