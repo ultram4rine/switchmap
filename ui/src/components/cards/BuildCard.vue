@@ -12,7 +12,10 @@
     </v-card-title>
 
     <v-card-subtitle>
-      {{ build.floorsNumber }} floors, {{ build.switchesNumber }} switches
+      {{ build.floorsNumber }}
+      {{ build.floorsNumber > 1 ? "floors" : "floor" }},
+      {{ build.switchesNumber }}
+      {{ build.switchesNumber > 1 ? "switches" : "switch" }},
     </v-card-subtitle>
 
     <v-card-actions>
