@@ -129,6 +129,19 @@ export default defineComponent({
   },
 
   methods: {
+    displaySwitches() {
+      getSwitches().then((switches) => {
+        this.switches = switches.map((sw) => {
+          sw.mac = macDenormalization(sw.mac);
+          let tableSwitch = sw as TableSwitch;
+          tableSwitch.location =
+            (sw.buildShortName ? `${sw.buildShortName}` : "") +
+            (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
+          return tableSwitch;
+        });
+      });
+    },
+
     handleDelete(sw: TableSwitch) {
       this.name = sw.name;
       this.confirmation = true;
@@ -196,7 +209,7 @@ export default defineComponent({
               floorNumber: floor,
               revision,
               serial,
-            } as SwitchRequest);
+            } as SwitchRequest).then(() => this.displaySwitches());
             this.closeSwitchForm();
             break;
           }
@@ -218,7 +231,7 @@ export default defineComponent({
               positionLeft: this.sw.positionLeft,
               revision,
               serial,
-            } as SwitchRequest);
+            } as SwitchRequest).then(() => this.displaySwitches());
             this.closeSwitchForm();
             break;
           }
@@ -238,16 +251,7 @@ export default defineComponent({
   },
 
   created() {
-    getSwitches().then((switches) => {
-      this.switches = switches.map((sw) => {
-        sw.mac = macDenormalization(sw.mac);
-        let tableSwitch = sw as TableSwitch;
-        tableSwitch.location =
-          (sw.buildShortName ? `${sw.buildShortName}` : "") +
-          (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
-        return tableSwitch;
-      });
-    });
+    this.displaySwitches();
   },
 });
 </script>
