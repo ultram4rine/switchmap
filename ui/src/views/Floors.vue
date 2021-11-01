@@ -141,6 +141,10 @@ export default defineComponent({
   },
 
   methods: {
+    displayFloors() {
+      getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
+    },
+
     handleDelete(floor: FloorResponse) {
       this.deleteName = `Floor ${floor.number}`;
       this.floor = { number: floor.number } as FloorRequest;
@@ -178,7 +182,7 @@ export default defineComponent({
             number,
             buildName: b.name,
             buildShortName: this.shortName,
-          } as FloorRequest);
+          } as FloorRequest).then(() => this.displayFloors());
           this.closeFloorForm();
         });
       } catch (error: any) {
@@ -224,7 +228,7 @@ export default defineComponent({
           floorNumber: floor,
           revision,
           serial,
-        } as SwitchRequest);
+        } as SwitchRequest).then(() => this.displayFloors());
         this.closeSwitchForm();
         this.switchForm = false;
       } catch (error: any) {
@@ -240,7 +244,7 @@ export default defineComponent({
   },
 
   created() {
-    getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
+    this.displayFloors();
   },
 });
 </script>
