@@ -151,7 +151,7 @@ export default defineComponent({
       this.confirmation = true;
     },
 
-    handleAddSwitch(shortName: string, floor: FloorResponse) {
+    handleAddSwitch(_shortName: string, floor: FloorResponse) {
       this.sw = {
         retrieveFromNetData: true,
         retrieveUpLinkFromSeens: true,
@@ -163,7 +163,6 @@ export default defineComponent({
         upLink: "",
         revision: "",
         serial: "",
-        buildShortName: shortName,
         floorNumber: floor.number,
       } as SwitchRequest;
       this.switchFormAction = "Add";
@@ -205,7 +204,7 @@ export default defineComponent({
       snmpCommunity: string,
       revision: string,
       serial: string,
-      build: string,
+      _build: string,
       floor: number,
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
@@ -224,7 +223,7 @@ export default defineComponent({
           mac,
           upSwitchName,
           upLink,
-          buildShortName: build,
+          buildShortName: this.shortName,
           floorNumber: floor,
           revision,
           serial,
