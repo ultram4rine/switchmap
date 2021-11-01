@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="plan_upload" v-if="noPlan">
-      <plan-upload @upload="uploadPlan" />
+      <plan-upload @upload="handlePlanUpload" />
     </div>
 
     <div v-else>
@@ -87,7 +87,7 @@ import {
   SavePositionRequest,
 } from "../types/switch";
 import { getSwitchesOfFloor, addSwitch } from "../api/switches";
-import { getPlan } from "../api/plans";
+import { getPlan, uploadPlan } from "../api/plans";
 
 export default defineComponent({
   props: {
@@ -113,10 +113,6 @@ export default defineComponent({
     const noPlan = ref(false);
 
     const planKey = ref(0);
-
-    const uploadPlan = () => {
-      console.log("ll");
-    };
 
     const switchForm = ref(false);
     const switchFormAction = ref("");
@@ -147,6 +143,11 @@ export default defineComponent({
   },
 
   methods: {
+    handlePlanUpload(plan: File) {
+      console.log(plan);
+      uploadPlan(this.shortName, this.floor, plan);
+    },
+
     place(name: string) {
       const switchToPlace = this.switchesWithoutPosition.find((sw) => {
         return sw.name == name;

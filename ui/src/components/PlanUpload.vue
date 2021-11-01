@@ -2,6 +2,7 @@
   <v-form>
     <v-banner>Can't find plan for with floor, please upload</v-banner>
     <v-file-input
+      v-model="plan"
       show-size
       label="File input"
       accept=".png, .jpg, .jpeg"
@@ -15,11 +16,19 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-export default Vue.extend({
+import { defineComponent, ref } from "@vue/composition-api";
+export default defineComponent({
+  setup() {
+    const plan = ref({} as File);
+
+    return {
+      plan,
+    };
+  },
+
   methods: {
     upload() {
-      this.$emit("upload");
+      this.$emit("upload", this.plan);
     },
   },
 });
