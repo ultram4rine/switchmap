@@ -145,7 +145,7 @@ export default defineComponent({
   methods: {
     handlePlanUpload(plan: File) {
       console.log(plan);
-      uploadPlan(this.shortName, this.floor, plan);
+      uploadPlan(this.shortName, parseInt(this.floor), plan);
     },
 
     place(name: string) {
