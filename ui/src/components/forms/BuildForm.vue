@@ -108,6 +108,8 @@ export default defineComponent({
 
     const submit = () => {
       emit("submit", name.value, shortName.value, props.action);
+      name.value = "";
+      shortName.value = "";
     };
     const close = () => {
       name.value = "";
