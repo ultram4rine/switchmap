@@ -4,6 +4,9 @@
       <v-select
         v-model="show"
         :items="builds"
+        :disabled="showAll"
+        multiple
+        chips
         hide-details
         item-text="name"
         item-value="shortName"
@@ -12,13 +15,18 @@
         required
         @change="displaySwitches()"
       ></v-select>
+      <v-checkbox
+        v-model="showAll"
+        label="Show all"
+        color="orange darken-1"
+        @change="displaySwitches()"
+      ></v-checkbox>
     </v-toolbar>
     <div id="container"></div>
   </div>
 </template>
 
 <script lang="ts">
-/* eslint-disable no-unused-vars */
 import { defineComponent, Ref, ref } from "@vue/composition-api";
 
 import { Node, Edge, Network } from "vis-network/standalone";
@@ -36,15 +44,15 @@ export default defineComponent({
   setup() {
     const switchesAll: Ref<SwitchResponse[]> = ref([]);
     const switches: Ref<SwitchResponse[]> = ref([]);
-    const show = ref("all");
-    const builds: Ref<BuildResponse[]> = ref([
-      { name: "All", shortName: "all" } as BuildResponse,
-    ]);
+    const show: Ref<string[]> = ref([]);
+    const showAll = ref(true);
+    const builds: Ref<BuildResponse[]> = ref([]);
 
     return {
       switchesAll,
       switches,
       show,
+      showAll,
       builds,
     };
   },
@@ -55,11 +63,11 @@ export default defineComponent({
 
       const nodes = new Array<Node>();
       const edges = new Array<Edge>();
-      if (this.show == "all") {
+      if (this.showAll) {
         this.switches = this.switchesAll;
       } else {
         this.switches = this.switchesAll.filter(
-          (sw) => sw.buildShortName === this.show
+          (sw) => this.show.indexOf(sw.buildShortName) !== -1
         );
       }
       this.switches.forEach((sw) => {
@@ -92,6 +100,7 @@ export default defineComponent({
         },
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const network = new Network(container, data, options);
     },
   },
