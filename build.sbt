@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
     organization := "ru.sgu",
     name := "switchmap",
     version := "2.0.0-SNAPSHOT",
-    scalaVersion := "2.13.7",
+    scalaVersion := "2.13.6",
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
@@ -28,8 +28,8 @@ lazy val root = (project in file("."))
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "org.flywaydb"           % "flyway-core"            % "8.0.1",
-      "org.postgresql"         % "postgresql"             % "42.2.24",
+      "org.flywaydb"           % "flyway-core"            % "8.0.3",
+      "org.postgresql"         % "postgresql"             % "42.3.1",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
       "io.grpc"                % "grpc-netty"             % "1.41.0",

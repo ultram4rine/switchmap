@@ -1,0 +1,29 @@
+name: Format check
+on:
+  push:
+    paths:
+      - ".github/workflows/format.yml"
+      - ".scalafmt.conf"
+      - "src/**.scala"
+  pull_request:
+    paths:
+      - ".github/workflows/format.yml"
+      - ".scalafmt.conf"
+      - "src/**.scala"
+
+jobs:
+  format:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Coursier cache
+        uses: coursier/cache-action@v6
+      - name: Format check
+        run: sbt +scalafmtCheck
