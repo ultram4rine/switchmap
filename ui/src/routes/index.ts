@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter, { Route, Location, RouteConfig } from "vue-router";
 
-import store from "../store";
+import store from "@/store";
 
 import Login from "@/views/Login.vue";
 import Builds from "@/views/Builds.vue";
@@ -70,6 +70,7 @@ router.beforeEach(
     to: Route,
     _from: Route,
     next: (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       to?: string | false | void | Location | ((vm: Vue) => any) | undefined
     ) => void
   ) => {
