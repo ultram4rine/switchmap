@@ -1,3 +1,5 @@
+import NativePackagerHelper._
+
 val Http4sVersion = "0.23.6"
 val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.0"
@@ -44,16 +46,18 @@ lazy val root = (project in file("."))
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
-  .enablePlugins(RpmPlugin, SystemdPlugin)
+  .enablePlugins(JavaServerAppPackaging, RpmPlugin, SystemdPlugin)
   .settings(
-    Linux / packageName := "SwitchMap",
+    Linux / packageName := "switchmap",
     Linux / maintainer := "SGU <sts@sgu.ru>",
     Linux / packageSummary := "Interactive map of SSU switches",
     Linux / packageDescription := "Interactive map of SSU switches",
     rpmRelease := "1",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
-    rpmLicense := Some("MIT")
+    rpmLicense := Some("MIT"),
+    Universal / mappings ++= directory("src/main/resources/public"),
+    Universal / mappings ++= directory("src/main/resources/static")
   )
 
 scalacOptions ++= Seq(
