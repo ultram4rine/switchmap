@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
     organization := "ru.sgu",
     name := "switchmap",
     version := "2.0.0-SNAPSHOT",
-    scalaVersion := "2.13.6",
+    scalaVersion := "2.13.7",
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
