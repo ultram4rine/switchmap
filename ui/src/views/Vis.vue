@@ -29,7 +29,12 @@
 <script lang="ts">
 import { defineComponent, Ref, ref } from "@vue/composition-api";
 
-import { Node, Edge, Network } from "vis-network/standalone";
+import {
+  Network,
+  DataSet,
+  DataSetNodes,
+  DataSetEdges,
+} from "vis-network/standalone";
 
 import { SwitchResponse } from "../types/switch";
 import { BuildResponse } from "../types/build";
@@ -61,8 +66,8 @@ export default defineComponent({
     displaySwitches() {
       const container = document.getElementById("container") as HTMLElement;
 
-      const nodes = new Array<Node>();
-      const edges = new Array<Edge>();
+      const nodes: DataSetNodes = new DataSet();
+      const edges: DataSetEdges = new DataSet();
       if (this.showAll) {
         this.switches = this.switchesAll;
       } else {
@@ -71,9 +76,9 @@ export default defineComponent({
         );
       }
       this.switches.forEach((sw) => {
-        nodes.push({ id: sw.name, label: sw.name });
+        nodes.add({ id: sw.name, label: sw.name });
         if (sw.upSwitchName) {
-          edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
+          edges.add({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
         }
       });
 
