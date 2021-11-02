@@ -7,7 +7,7 @@ import com.http4s.rho.swagger.ui.SwaggerUi
 import io.grpc.{ManagedChannelBuilder, Status}
 import fs2.io.file.{Files, Path}
 import org.http4s
-import org.http4s.server.staticcontent.{fileService, FileService}
+import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import org.http4s.{
@@ -190,9 +190,7 @@ object Main extends App {
         )
 
         spa = Router[AppTask](
-          "/" -> fileService[AppTask](
-            FileService.Config("./src/main/resources/public")
-          )
+          "/" -> resourceServiceBuilder[AppTask]("/public").toRoutes
         )
 
         routes = orRedirectToRoot(spa <+> httpAPI)
