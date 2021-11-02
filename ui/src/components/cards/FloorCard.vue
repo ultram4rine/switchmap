@@ -8,7 +8,10 @@
       </v-btn>
     </v-card-title>
 
-    <v-card-subtitle>{{ floor.switchesNumber }} switches</v-card-subtitle>
+    <v-card-subtitle>
+      {{ floor.switchesNumber }}
+      {{ floor.switchesNumber > 1 ? "switches" : "switch" }}
+    </v-card-subtitle>
 
     <v-card-actions>
       <v-spacer></v-spacer>

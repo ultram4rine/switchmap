@@ -1,11 +1,25 @@
 package ru.sgu.switchmap
 
+import cats.syntax.semigroupk._
 import cats.effect.{ExitCode => CatsExitCode}
+import cats.data.Kleisli
 import com.http4s.rho.swagger.ui.SwaggerUi
 import io.grpc.{ManagedChannelBuilder, Status}
+import fs2.io.file.{Files, Path}
+import org.http4s
 import org.http4s.server.staticcontent.{fileService, FileService}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
+import org.http4s.{
+  HttpRoutes,
+  HttpApp,
+  Headers,
+  MediaType,
+  Request,
+  Response,
+  Uri
+}
+import org.http4s.headers.{`Content-Type`, Location}
 import org.http4s.rho.swagger.models._
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
@@ -38,6 +52,7 @@ import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.console._
 import zio.interop.catz._
+import scala.io.Source
 
 private object NetDataClientLive {
   val layer: RLayer[Has[AppConfig], NetDataClient] =
@@ -90,6 +105,26 @@ object Main extends App {
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
+  def redirectToRootResponse(request: Request[AppTask]): Response[AppTask] = {
+    if (!request.pathInfo.startsWithString("/api/v2")) {
+      Response[AppTask]()
+        .withStatus(http4s.Status.Found)
+        .withEntity(
+          Source
+            .fromResource("public/index.html")
+            .getLines()
+            .mkString
+        )
+        .withHeaders(request.headers)
+    } else {
+      Response[AppTask]()
+        .withStatus(http4s.Status.NotFound)
+    }
+  }
+
+  def orRedirectToRoot(routes: HttpRoutes[AppTask]): HttpApp[AppTask] =
+    Kleisli(req => routes.run(req).getOrElse(redirectToRootResponse(req)))
+
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
     val program: ZIO[AppEnvironment with Console, Object, Unit] =
       for {
@@ -140,19 +175,27 @@ object Main extends App {
           )
         )
 
-        httpApp = Router[AppTask](
+        httpAPI = Router[AppTask](
           "/api/v2" -> Middleware.middleware(
-            AuthContext.toService(
-              AuthRoutes().api
-                .and(BuildRoutes().api)
-                .and(FloorRoutes().api)
-                .and(SwitchRoutes().api)
-                .and(StaticRoutes().api)
-                .toRoutes(swaggerMiddleware)
-            )
-          ),
-          "/" -> fileService(FileService.Config("./ui/dist"))
-        ).orNotFound
+            AuthContext
+              .toService(
+                AuthRoutes().api
+                  .and(BuildRoutes().api)
+                  .and(FloorRoutes().api)
+                  .and(SwitchRoutes().api)
+                  .and(StaticRoutes().api)
+                  .toRoutes(swaggerMiddleware)
+              )
+          )
+        )
+
+        spa = Router[AppTask](
+          "/" -> fileService[AppTask](
+            FileService.Config("./src/main/resources/public")
+          )
+        )
+
+        routes = orRedirectToRoot(spa <+> httpAPI)
 
         server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
           //val ec = rts.platform.executor.asEC
@@ -162,7 +205,7 @@ object Main extends App {
             .withHttpApp(
               CORS.policy.withAllowOriginAll
                 .withAllowCredentials(false)
-                .apply(httpApp)
+                .apply(routes)
             )
             .serve
             .compile[AppTask, AppTask, CatsExitCode]

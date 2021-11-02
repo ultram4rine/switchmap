@@ -6,11 +6,13 @@ import org.http4s.{HttpRoutes, Request, Response, StaticFile, Challenge}
 import org.http4s.circe._
 import org.http4s.rho.RhoRoutes
 import org.http4s.rho.swagger.SwaggerSupport
+import org.http4s.multipart.Multipart
 import org.http4s.{EntityDecoder, EntityEncoder}
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
 import zio._
 import zio.interop.catz._
+import fs2.io.file.{Files, Path => Fs2Path}
 
 final case class StaticRoutes[R <: Has[Authorizer]]() {
   val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
@@ -24,6 +26,42 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
       GET / "static" / * >>> AuthContext.auth |>> {
         (req: Request[AppTask], _: List[String], auth: AuthStatus.Status) =>
           fetchResource(req.pathInfo.toString(), req, auth)
+      }
+
+    "Upload plan" **
+      POST / "plan" / pv"shortName" / "floors" / pathVar[Int](
+        "number",
+        "Number of floor"
+      ) >>> AuthContext.auth ^ EntityDecoder.multipart[AppTask] |>> {
+        (
+          shortName: String,
+          number: Int,
+          auth: AuthStatus.Status,
+          m: Multipart[AppTask]
+        ) =>
+          auth match {
+            case AuthStatus.Succeed =>
+              m.parts.find(_.name == Some("planFile")) match {
+                case None => BadRequest(s"Not file")
+                case Some(part) => {
+                  val stream = part.body
+                    .through(
+                      Files[AppTask].writeAll(
+                        Fs2Path(
+                          s"./src/main/resources/static/plans/${shortName}f${number}.png"
+                        )
+                      )
+                    )
+
+                  Created(
+                    stream.map(_ => "Multipart file parsed successfully")
+                  )
+                }
+
+              }
+            case _ =>
+              Unauthorized(())
+          }
       }
   }
 

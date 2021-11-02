@@ -140,6 +140,10 @@ export default defineComponent({
   },
 
   methods: {
+    displayBuilds() {
+      getBuilds().then((builds) => (this.builds = builds));
+    },
+
     handleEdit(b: BuildResponse) {
       this.build = b;
       this.oldBuild = b.shortName;
@@ -166,25 +170,25 @@ export default defineComponent({
     },
 
     handleSubmitBuild(name: string, shortName: string, action: string) {
-      switch (action) {
-        case "Add":
-          try {
-            addBuild({ name, shortName } as BuildRequest);
+      try {
+        switch (action) {
+          case "Add":
+            addBuild({ name, shortName } as BuildRequest).then(() =>
+              this.displayBuilds()
+            );
             this.closeBuildForm();
-          } catch (error: any) {
-            console.log(error);
-          }
-          break;
-        case "Change":
-          try {
-            editBuild({ name, shortName } as BuildRequest, this.oldBuild);
+            break;
+          case "Change":
+            editBuild({ name, shortName } as BuildRequest, this.oldBuild).then(
+              () => this.displayBuilds()
+            );
             this.closeBuildForm();
-          } catch (error: any) {
-            console.log(error);
-          }
-          break;
-        default:
-          break;
+            break;
+          default:
+            break;
+        }
+      } catch (err: any) {
+        console.log(err);
       }
     },
 
@@ -201,7 +205,7 @@ export default defineComponent({
           number,
           buildName: this.build.name,
           buildShortName: this.build.shortName,
-        } as FloorRequest);
+        } as FloorRequest).then(() => this.displayBuilds());
         this.closeFloorForm();
       } catch (error: any) {
         console.log(error);
@@ -216,7 +220,7 @@ export default defineComponent({
   },
 
   created() {
-    getBuilds().then((builds) => (this.builds = builds));
+    this.displayBuilds();
   },
 });
 </script>

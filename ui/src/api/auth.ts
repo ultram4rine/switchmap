@@ -7,7 +7,6 @@ export const login = async (
   password: string,
   rememberMe: boolean
 ): Promise<void> => {
-  console.log(rememberMe);
   const resp = await api.post<{ token: string }>("/auth/login", {
     username,
     password,

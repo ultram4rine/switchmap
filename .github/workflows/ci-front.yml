@@ -1,5 +1,13 @@
-name: CI
-on: [push, pull_request]
+name: CI front
+on:
+  push:
+    paths:
+      - ".github/workflows/ci-front.yml"
+      - "ui/**"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-front.yml"
+      - "ui/**"
 
 jobs:
   build:

@@ -77,6 +77,7 @@ export default defineComponent({
 
     const submit = () => {
       emit("submit", number.value);
+      number.value = 0;
     };
     const close = () => {
       number.value = 0;

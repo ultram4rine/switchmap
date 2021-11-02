@@ -1,0 +1,31 @@
+name: CI back
+on:
+  push:
+    paths:
+      - ".github/workflows/ci-back.yml"
+      - "build.sbt"
+      - "project/**"
+      - "src/**"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-back.yml"
+      - "build.sbt"
+      - "project/**"
+      - "src/**"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Coursier cache
+        uses: coursier/cache-action@v6
+      - name: Build
+        run: sbt +compile

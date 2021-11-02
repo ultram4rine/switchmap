@@ -141,13 +141,17 @@ export default defineComponent({
   },
 
   methods: {
+    displayFloors() {
+      getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
+    },
+
     handleDelete(floor: FloorResponse) {
       this.deleteName = `Floor ${floor.number}`;
       this.floor = { number: floor.number } as FloorRequest;
       this.confirmation = true;
     },
 
-    handleAddSwitch(shortName: string, floor: FloorResponse) {
+    handleAddSwitch(_shortName: string, floor: FloorResponse) {
       this.sw = {
         retrieveFromNetData: true,
         retrieveUpLinkFromSeens: true,
@@ -159,7 +163,6 @@ export default defineComponent({
         upLink: "",
         revision: "",
         serial: "",
-        buildShortName: shortName,
         floorNumber: floor.number,
       } as SwitchRequest;
       this.switchFormAction = "Add";
@@ -178,7 +181,7 @@ export default defineComponent({
             number,
             buildName: b.name,
             buildShortName: this.shortName,
-          } as FloorRequest);
+          } as FloorRequest).then(() => this.displayFloors());
           this.closeFloorForm();
         });
       } catch (error: any) {
@@ -201,7 +204,7 @@ export default defineComponent({
       snmpCommunity: string,
       revision: string,
       serial: string,
-      build: string,
+      _build: string,
       floor: number,
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
@@ -220,11 +223,11 @@ export default defineComponent({
           mac,
           upSwitchName,
           upLink,
-          buildShortName: build,
+          buildShortName: this.shortName,
           floorNumber: floor,
           revision,
           serial,
-        } as SwitchRequest);
+        } as SwitchRequest).then(() => this.displayFloors());
         this.closeSwitchForm();
         this.switchForm = false;
       } catch (error: any) {
@@ -240,7 +243,7 @@ export default defineComponent({
   },
 
   created() {
-    getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
+    this.displayFloors();
   },
 });
 </script>

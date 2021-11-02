@@ -9,3 +9,17 @@ export const getPlan = async (url: string): Promise<string | undefined> => {
     return URL.createObjectURL(resp.data);
   }
 };
+
+export const uploadPlan = async (
+  build: string,
+  floor: number,
+  image: File
+): Promise<void> => {
+  const formData = new FormData();
+  formData.append("planFile", image);
+  await api.post(`/plan/${build}/floors/${floor}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
