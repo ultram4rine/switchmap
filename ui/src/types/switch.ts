@@ -12,13 +12,11 @@ export type SwitchResponse = {
   mac: string;
   revision: string;
   serial: string;
-  portsNumber: number;
   buildShortName: string;
   floorNumber: number;
   positionTop: number;
   positionLeft: number;
   upSwitchName: string;
-  upSwitchMAC: string;
   upLink: string;
 };
 
