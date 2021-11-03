@@ -6,19 +6,19 @@
         :items="builds"
         :disabled="showAll"
         multiple
-        chips
+        small-chips
         hide-details
         item-text="name"
         item-value="shortName"
         label="Build"
         color="orange accent-2"
-        required
         @change="displaySwitches()"
       >
         <template v-slot:selection="data">
           <v-chip
             v-bind="data.attrs"
             :input-value="data.selected"
+            small
             close
             @click:close="remove(data.item), displaySwitches()"
           >
@@ -26,9 +26,11 @@
           </v-chip>
         </template>
       </v-autocomplete>
+      <v-divider class="mx-4" vertical></v-divider>
       <v-checkbox
         v-model="showAll"
         label="Show all"
+        hide-details
         color="orange darken-1"
         @change="displaySwitches()"
       ></v-checkbox>
