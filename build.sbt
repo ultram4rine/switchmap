@@ -57,7 +57,12 @@ lazy val root = (project in file("."))
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
     rpmLicense := Some("MIT"),
     Universal / mappings ++= directory("src/main/resources/public"),
-    Universal / mappings ++= directory("src/main/resources/static")
+    Universal / mappings ++= directory("src/main/resources/static"),
+    Universal / mappings += {
+      val conf = (Compile / resourceDirectory).value / "application.conf"
+      conf -> "conf/application.conf"
+    },
+    bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/application.conf""""
   )
 
 scalacOptions ++= Seq(
