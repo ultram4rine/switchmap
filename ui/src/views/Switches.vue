@@ -35,11 +35,11 @@
       </v-data-table>
     </v-card>
 
-    <confirmation
-      :confirmation="confirmation"
-      :name="name"
-      @confirm="deleteSwitch(name), (confirmation = !confirmation), (name = '')"
-      @cancel="(confirmation = !confirmation), (name = '')"
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
     />
 
     <switch-form
@@ -58,7 +58,7 @@ import { defineComponent, Ref, ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPencil, mdiDelete } from "@mdi/js";
 
 import SwitchForm from "../components/forms/SwitchForm.vue";
-import Confirmation from "../components/Confirmation.vue";
+import DeleteConfirmation from "../components/DeleteConfirmation.vue";
 
 import { SwitchRequest, SwitchResponse } from "../types/switch";
 import {
@@ -67,6 +67,8 @@ import {
   editSwitch,
   deleteSwitch,
 } from "../api/switches";
+
+import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
 import { macDenormalization } from "../helpers";
 
 type TableSwitch = SwitchResponse & {
@@ -80,7 +82,7 @@ export default defineComponent({
 
   components: {
     SwitchForm,
-    Confirmation,
+    DeleteConfirmation,
   },
 
   setup() {
@@ -90,8 +92,7 @@ export default defineComponent({
     const switchFormAction = ref("");
     const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
 
-    const confirmation = ref(false);
-    const name = ref("");
+    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
 
     const search = ref("");
     const headers = ref([
@@ -114,7 +115,8 @@ export default defineComponent({
       switchFormAction,
       sw,
 
-      confirmation,
+      deleteConfirmation,
+      deleteItemName,
       name,
 
       deleteSwitch,
@@ -143,8 +145,22 @@ export default defineComponent({
     },
 
     handleDelete(sw: TableSwitch) {
-      this.name = sw.name;
-      this.confirmation = true;
+      this.deleteItemName = sw.name;
+      this.deleteConfirmation = true;
+    },
+
+    deleteConfirm() {
+      deleteSwitch(this.deleteItemName)
+        .then(() => {
+          this.deleteConfirmation = false;
+          this.deleteItemName = "";
+        })
+        .then(() => this.displaySwitches());
+    },
+
+    deleteCancel() {
+      this.deleteConfirmation = false;
+      this.deleteItemName = "";
     },
 
     openSwitchForm(action: string, sw?: TableSwitch) {
