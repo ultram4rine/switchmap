@@ -1,7 +1,7 @@
 <template>
   <div id="vis">
     <v-toolbar>
-      <v-select
+      <v-autocomplete
         v-model="show"
         :items="builds"
         :disabled="showAll"
@@ -14,7 +14,18 @@
         color="orange accent-2"
         required
         @change="displaySwitches()"
-      ></v-select>
+      >
+        <template v-slot:selection="data">
+          <v-chip
+            v-bind="data.attrs"
+            :input-value="data.selected"
+            close
+            @click:close="remove(data.item), displaySwitches()"
+          >
+            {{ data.item.name }}
+          </v-chip>
+        </template>
+      </v-autocomplete>
       <v-checkbox
         v-model="showAll"
         label="Show all"
@@ -107,6 +118,11 @@ export default defineComponent({
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const network = new Network(container, data, options);
+    },
+
+    remove(b: BuildResponse) {
+      const index = this.show.indexOf(b.shortName);
+      if (index >= 0) this.show.splice(index, 1);
     },
   },
 
