@@ -48,7 +48,7 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
                     .through(
                       Files[AppTask].writeAll(
                         Fs2Path(
-                          s"./src/main/resources/static/plans/${shortName}f${number}.png"
+                          s"./static/plans/${shortName}f${number}.png"
                         )
                       )
                     )
@@ -71,7 +71,7 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
     auth: AuthStatus.Status
   ): AppTask[Response[AppTask]] = {
     val serv = StaticFile
-      .fromResource(path, Some(req))
+      .fromPath(Fs2Path(s"./${path}"), Some(req))
       .getOrElseF(NotFound(()))
     if (path.contains("/plans/")) {
       auth match {
