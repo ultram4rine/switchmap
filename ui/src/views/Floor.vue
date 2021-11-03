@@ -144,7 +144,6 @@ export default defineComponent({
 
   methods: {
     handlePlanUpload(plan: File) {
-      console.log(plan);
       uploadPlan(this.shortName, parseInt(this.floor), plan);
     },
 
@@ -236,7 +235,7 @@ export default defineComponent({
   },
 
   created() {
-    getPlan(`/static/plans/${this.shortName}f${this.floor}.png`)
+    getPlan(`/plans/${this.shortName}f${this.floor}.png`)
       .then((uri) => {
         if (uri) {
           this.planPath = uri;

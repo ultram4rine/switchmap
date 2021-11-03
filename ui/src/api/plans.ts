@@ -17,7 +17,7 @@ export const uploadPlan = async (
 ): Promise<void> => {
   const formData = new FormData();
   formData.append("planFile", image);
-  await api.post(`/plan/${build}/floors/${floor}`, formData, {
+  await api.post(`/plan/${build}/${floor}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
