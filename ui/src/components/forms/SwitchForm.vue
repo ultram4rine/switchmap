@@ -89,7 +89,7 @@
             ></v-checkbox>
             <v-row v-if="!retrieveUpLinkFromSeens">
               <v-col cols="12" sm="6">
-                <v-select
+                <v-autocomplete
                   v-model="upSwitchName"
                   :items="switches"
                   hide-details
@@ -98,8 +98,7 @@
                   label="Up switch"
                   color="orange accent-2"
                   required
-                  @change="getFloors(build)"
-                ></v-select>
+                ></v-autocomplete>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
@@ -149,7 +148,7 @@
 
             <v-row v-if="needLocationFields" dense>
               <v-col cols="12" sm="6">
-                <v-select
+                <v-autocomplete
                   v-model="build"
                   :items="builds"
                   hide-details
@@ -159,7 +158,7 @@
                   color="orange accent-2"
                   required
                   @change="getFloors(build)"
-                ></v-select>
+                ></v-autocomplete>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
