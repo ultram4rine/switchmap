@@ -38,7 +38,7 @@ lazy val root = (project in file("."))
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
       "io.grpc"                % "grpc-netty"             % "1.41.0",
       "com.thesamet.scalapb"  %% "scalapb-runtime-grpc"   % scalapb.compiler.Version.scalapbVersion,
-      "com.pauldijou"         %% "jwt-circe"              % "5.0.0",
+      "com.github.jwt-scala"  %% "jwt-circe"              % "6.0.0",
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
       "org.snmp4j"             % "snmp4j"                 % "3.5.1"
     ),
