@@ -69,6 +69,5 @@ scalacOptions ++= Seq(
   "-language:higherKinds",
   "-language:postfixOps",
   "-feature",
-  "-Xfatal-warnings",
-  "-Wunused"
+  "-Xfatal-warnings"
 )
