@@ -4,34 +4,21 @@ import cats.syntax.semigroupk._
 import cats.effect.{ExitCode => CatsExitCode}
 import cats.data.Kleisli
 import com.http4s.rho.swagger.ui.SwaggerUi
-import io.grpc.{ManagedChannelBuilder, Status}
-import fs2.io.file.{Files, Path}
+import io.grpc.ManagedChannelBuilder
 import org.http4s
 import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.implicits._
 import org.http4s.{
   HttpRoutes,
   HttpApp,
-  Headers,
-  MediaType,
   Request,
-  Response,
-  Uri
+  Response
 }
-import org.http4s.headers.{`Content-Type`, Location}
 import org.http4s.rho.swagger.models._
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
-import ru.sgu.git.netdataserv.netdataproto.{
-  GetNetworkSwitchesRequest,
-  GetNetworkSwitchesResponse,
-  NetworkSwitch,
-  GetMatchingHostRequest,
-  Match,
-  StaticHost
-}
+import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.{Config, AppConfig}
@@ -195,7 +182,7 @@ object Main extends App {
 
         routes = orRedirectToRoot(spa <+> httpAPI)
 
-        server <- ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
+        server <- ZIO.runtime[AppEnvironment].flatMap { _ =>
           //val ec = rts.platform.executor.asEC
 
           BlazeServerBuilder[AppTask]

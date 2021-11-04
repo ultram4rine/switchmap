@@ -1,19 +1,13 @@
 package ru.sgu.switchmap.repositories
 
-import io.grpc.Status
 import doobie.implicits._
-import doobie.{Query0, Update0}
 import doobie.hikari.HikariTransactor
 import zio._
-import zio.blocking.Blocking
 import zio.interop.catz._
 
 import ru.sgu.git.netdataserv.netdataproto.{
-  GetNetworkSwitchesResponse,
-  NetworkSwitch,
   GetMatchingHostRequest,
-  Match,
-  StaticHost
+  Match
 }
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
@@ -201,7 +195,7 @@ private[repositories] final case class DoobieSwitchRepository(
           for {
             maybeSwInfo <- snmpClient
               .getSwitchInfo(s.ip, switch.snmpCommunity)
-              .catchAll(e => UIO.succeed(None))
+              .catchAll(_ => UIO.succeed(None))
             swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
           } yield s.copy(
             revision = Some(swInfo.revision),
@@ -219,7 +213,7 @@ private[repositories] final case class DoobieSwitchRepository(
         withSNMP
           .flatMap { s =>
             for {
-              seen <- seensClient.get(s.mac).catchAll(e => UIO.succeed(None))
+              seen <- seensClient.get(s.mac).catchAll(_ => UIO.succeed(None))
               newSw = seen match {
                 case None => s
                 case Some(value) =>

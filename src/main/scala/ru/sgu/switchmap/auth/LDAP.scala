@@ -1,7 +1,7 @@
 package ru.sgu.switchmap.auth
 
 import zio._
-import com.unboundid.ldap.sdk.{LDAPConnection, LDAPException, SearchScope}
+import com.unboundid.ldap.sdk.{LDAPConnection, SearchScope}
 
 import ru.sgu.switchmap.config.LDAPConfig
 
