@@ -134,99 +134,94 @@ private[repositories] final case class DoobieSwitchRepository(
   }
 
   private def makeSwitch(switch: SwitchRequest): Task[SwitchResponse] = {
-    val sw: Task[SwitchResponse] = switch.retrieveFromNetData match {
-      case true => {
-        for {
-          resp <- ndc
-            .getMatchingHost(
-              GetMatchingHostRequest(
-                Some(Match(Match.Match.HostName(switch.name)))
-              )
-            )
-            .mapError(s => new Exception(s.toString))
-          maybeSwitch = resp.host.headOption
-          sw <- maybeSwitch match {
-            case Some(value) =>
-              IO.succeed(
-                SwitchResponse(
-                  value.name,
-                  value.ipv4Address.mkString("."),
-                  value.macAddressString,
-                  buildShortName = switch.buildShortName,
-                  floorNumber = switch.floorNumber,
-                  positionTop = switch.positionTop,
-                  positionLeft = switch.positionLeft
-                )
-              )
-            case None => IO.fail(new Exception("no such switch"))
-          }
-        } yield sw
-      }
-      case false => {
-        val ip = switch.ipResolveMethod match {
-          case "DNS" =>
-            for {
-              ip <- dns.getIPByHostname(switch.name)
-            } yield ip
-          case "Direct" => Task.succeed(switch.ip.getOrElse(""))
-          case _        => Task.fail(new Exception("unknown IP resolve method"))
-        }
-
-        ip.flatMap { ipVal =>
-          IO.succeed(
-            SwitchResponse(
-              switch.name,
-              ipVal,
-              switch.mac.getOrElse(""),
-              buildShortName = switch.buildShortName,
-              floorNumber = switch.floorNumber,
-              positionTop = switch.positionTop,
-              positionLeft = switch.positionLeft
+    val sw: Task[SwitchResponse] = if (switch.retrieveFromNetData) {
+      for {
+        resp <- ndc
+          .getMatchingHost(
+            GetMatchingHostRequest(
+              Some(Match(Match.Match.HostName(switch.name)))
             )
           )
+          .mapError(s => new Exception(s.toString))
+        maybeSwitch = resp.host.headOption
+        sw <- maybeSwitch match {
+          case Some(value) =>
+            IO.succeed(
+              SwitchResponse(
+                value.name,
+                value.ipv4Address.mkString("."),
+                value.macAddressString,
+                buildShortName = switch.buildShortName,
+                floorNumber = switch.floorNumber,
+                positionTop = switch.positionTop,
+                positionLeft = switch.positionLeft
+              )
+            )
+          case None => IO.fail(new Exception("no such switch"))
         }
-      }
-    }
-
-    val withSNMP = switch.retrieveTechDataFromSNMP match {
-      case true =>
-        sw.flatMap { s =>
+      } yield sw
+    } else {
+      val ip = switch.ipResolveMethod match {
+        case "DNS" =>
           for {
-            maybeSwInfo <- snmpClient
-              .getSwitchInfo(s.ip, switch.snmpCommunity)
-              .catchAll(_ => UIO.succeed(None))
-            swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
-          } yield s.copy(
-            revision = Some(swInfo.revision),
-            serial = Some(swInfo.serial)
+            ip <- dns.getIPByHostname(switch.name)
+          } yield ip
+        case "Direct" => Task.succeed(switch.ip.getOrElse(""))
+        case _        => Task.fail(new Exception("unknown IP resolve method"))
+      }
+
+      ip.flatMap { ipVal =>
+        IO.succeed(
+          SwitchResponse(
+            switch.name,
+            ipVal,
+            switch.mac.getOrElse(""),
+            buildShortName = switch.buildShortName,
+            floorNumber = switch.floorNumber,
+            positionTop = switch.positionTop,
+            positionLeft = switch.positionLeft
           )
-        }
-      case false =>
-        sw.map { s =>
-          s.copy(revision = switch.revision, serial = switch.serial)
-        }
+        )
+      }
     }
 
-    val withSeens = switch.retrieveUpLinkFromSeens match {
-      case true =>
-        withSNMP
-          .flatMap { s =>
-            for {
-              seen <- seensClient.get(s.mac).catchAll(_ => UIO.succeed(None))
-              newSw = seen match {
-                case None => s
-                case Some(value) =>
-                  s.copy(
-                    upSwitchName = Some(value.Switch),
-                    upLink = Some(value.PortName)
-                  )
-              }
-            } yield newSw
-          }
-      case false =>
-        withSNMP.map { s =>
-          s.copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink)
+    val withSNMP = if (switch.retrieveTechDataFromSNMP) {
+      sw.flatMap { s =>
+        for {
+          maybeSwInfo <- snmpClient
+            .getSwitchInfo(s.ip, switch.snmpCommunity)
+            .catchAll(_ => UIO.succeed(None))
+          swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
+        } yield s.copy(
+          revision = Some(swInfo.revision),
+          serial = Some(swInfo.serial)
+        )
+      }
+    } else {
+      sw.map { s =>
+        s.copy(revision = switch.revision, serial = switch.serial)
+      }
+    }
+
+    val withSeens = if (switch.retrieveUpLinkFromSeens) {
+      withSNMP
+        .flatMap { s =>
+          for {
+            seen <- seensClient.get(s.mac).catchAll(_ => UIO.succeed(None))
+            newSw = seen match {
+              case None => s
+              case Some(value) =>
+                s.copy(
+                  upSwitchName = Some(value.Switch),
+                  upLink = Some(value.PortName)
+                )
+            }
+          } yield newSw
         }
+    } else {
+      withSNMP.map { s =>
+        s.copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink)
+      }
     }
 
     withSeens
