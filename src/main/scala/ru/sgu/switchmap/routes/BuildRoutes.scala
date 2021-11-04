@@ -3,7 +3,6 @@ package ru.sgu.switchmap.routes
 import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
-import org.http4s.dsl.Http4sDsl
 import org.http4s.rho.RhoRoutes
 import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.{EntityDecoder, EntityEncoder}

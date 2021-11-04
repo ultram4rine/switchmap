@@ -2,19 +2,18 @@ package ru.sgu.switchmap.routes
 
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`WWW-Authenticate`
-import org.http4s.{HttpRoutes, Request, Response, StaticFile, Challenge}
-import org.http4s.circe._
+import org.http4s.{Request, Response, StaticFile, Challenge}
 import org.http4s.rho.RhoRoutes
 import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.multipart.Multipart
-import org.http4s.{EntityDecoder, EntityEncoder}
+import org.http4s.EntityDecoder
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
 import zio._
 import zio.interop.catz._
 import fs2.io.file.{Files, Path => Fs2Path}
 
-final case class StaticRoutes[R <: Has[Authorizer]]() {
+final case class PlanRoutes[R <: Has[Authorizer]]() {
   val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
   import dsl._
 
@@ -22,14 +21,14 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
     val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
     import swaggerIO._
 
-    "Get static file. Note that plans requires authorization" **
-      GET / "static" / * >>> AuthContext.auth |>> {
-        (req: Request[AppTask], _: List[String], auth: AuthStatus.Status) =>
-          fetchResource(req.pathInfo.toString(), req, auth)
+    "Get plan" **
+      GET / "plans" / pv"planName" >>> AuthContext.auth |>> {
+        (req: Request[AppTask], planName: String, auth: AuthStatus.Status) =>
+          fetchResource(planName, req, auth)
       }
 
     "Upload plan" **
-      POST / "plan" / pv"shortName" / "floors" / pathVar[Int](
+      POST / "plans" / pv"shortName" / pathVar[Int](
         "number",
         "Number of floor"
       ) >>> AuthContext.auth ^ EntityDecoder.multipart[AppTask] |>> {
@@ -48,7 +47,7 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
                     .through(
                       Files[AppTask].writeAll(
                         Fs2Path(
-                          s"./src/main/resources/static/plans/${shortName}f${number}.png"
+                          s"./plans/${shortName}f${number}.png"
                         )
                       )
                     )
@@ -66,27 +65,25 @@ final case class StaticRoutes[R <: Has[Authorizer]]() {
   }
 
   private def fetchResource(
-    path: String,
+    planName: String,
     req: Request[AppTask],
     auth: AuthStatus.Status
   ): AppTask[Response[AppTask]] = {
-    val serv = StaticFile
-      .fromResource(path, Some(req))
-      .getOrElseF(NotFound(()))
-    if (path.contains("/plans/")) {
-      auth match {
-        case AuthStatus.Succeed => serv
-        case _ =>
-          Unauthorized(
-            `WWW-Authenticate`(
-              Challenge(
-                "X-Auth-Token",
-                "SwitchMap",
-                Map.empty
-              )
+    auth match {
+      case AuthStatus.Succeed =>
+        StaticFile
+          .fromPath(Fs2Path(s"./plans/${planName}"), Some(req))
+          .getOrElseF(NotFound(()))
+      case _ =>
+        Unauthorized(
+          `WWW-Authenticate`(
+            Challenge(
+              "X-Auth-Token",
+              "SwitchMap",
+              Map.empty
             )
           )
-      }
-    } else serv
+        )
+    }
   }
 }

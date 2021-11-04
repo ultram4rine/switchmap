@@ -51,16 +51,11 @@
       </v-card>
     </v-row>
 
-    <confirmation
-      :confirmation="confirmation"
-      :name="name"
-      @confirm="
-        deleteBuild(shortName),
-          (confirmation = !confirmation),
-          (name = ''),
-          (shortName = '')
-      "
-      @cancel="(confirmation = !confirmation), (name = ''), (shortName = '')"
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
     />
 
     <build-form
@@ -84,7 +79,7 @@
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
 import BuildCard from "../components/cards/BuildCard.vue";
-import Confirmation from "../components/Confirmation.vue";
+import DeleteConfirmation from "../components/DeleteConfirmation.vue";
 import BuildForm from "../components/forms/BuildForm.vue";
 import FloorForm from "../components/forms/FloorForm.vue";
 
@@ -93,6 +88,8 @@ import { FloorRequest } from "../types/floor";
 import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
 import { addFloor } from "../api/floors";
 
+import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -100,7 +97,7 @@ export default defineComponent({
 
   components: {
     BuildCard,
-    Confirmation,
+    DeleteConfirmation,
     BuildForm,
     FloorForm,
   },
@@ -108,8 +105,8 @@ export default defineComponent({
   setup() {
     const builds: Ref<BuildResponse[]> = ref([]);
 
-    const confirmation = ref(false);
-    const name = ref("");
+    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+
     const shortName = ref("");
 
     const buildForm = ref(false);
@@ -123,8 +120,8 @@ export default defineComponent({
     return {
       builds,
 
-      confirmation,
-      name,
+      deleteConfirmation,
+      deleteItemName,
       shortName,
 
       buildForm,
@@ -152,9 +149,25 @@ export default defineComponent({
     },
 
     handleDelete(b: BuildResponse) {
-      this.name = b.name;
+      this.deleteItemName = b.name;
       this.shortName = b.shortName;
-      this.confirmation = true;
+      this.deleteConfirmation = true;
+    },
+
+    deleteConfirm() {
+      deleteBuild(this.shortName)
+        .then(() => {
+          this.deleteConfirmation = false;
+          this.deleteItemName = "";
+          this.shortName = "";
+        })
+        .then(() => this.displayBuilds());
+    },
+
+    deleteCancel() {
+      this.deleteConfirmation = false;
+      this.deleteItemName = "";
+      this.shortName = "";
     },
 
     handleAddFloor(b: BuildResponse) {

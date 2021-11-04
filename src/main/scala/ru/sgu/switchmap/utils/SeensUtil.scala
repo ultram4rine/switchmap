@@ -1,12 +1,8 @@
 package ru.sgu.switchmap.utils
 
 import io.circe.Decoder
-import org.http4s.Uri
-import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
-import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
 import zio._
-import zio.interop.catz
 import zio.interop.catz._
 import org.http4s.blaze.client.BlazeClientBuilder
 import ru.sgu.switchmap.models.{SeenRequest, SeenResponse}
@@ -17,7 +13,6 @@ import io.circe.generic.auto._
 import org.http4s.circe._
 
 import scala.concurrent.ExecutionContext.global
-import cats.effect.kernel.Resource
 import scala.util.matching.Regex
 import ru.sgu.switchmap.config.AppConfig
 import org.http4s.Request
@@ -29,14 +24,13 @@ object seens {
   private implicit val zioRuntime: zio.Runtime[zio.ZEnv] =
     zio.Runtime.default
 
-  private implicit val dispatcher: cats.effect.std.Dispatcher[zio.Task] =
-    zioRuntime
-      .unsafeRun(
-        cats.effect.std
-          .Dispatcher[zio.Task]
-          .allocated
-      )
-      ._1
+  zioRuntime
+    .unsafeRun(
+      cats.effect.std
+        .Dispatcher[zio.Task]
+        .allocated
+    )
+    ._1
 
   private val reg: Regex = "(.{2})".r
   private def macDenormalized(mac: String): String =
@@ -82,7 +76,7 @@ object seens {
                   } yield seens.sortBy(seen => seen.Metric).headOption
                 }
               }
-              case Left(value) =>
+              case Left(_) =>
                 Task.fail(new Exception("invalid URI for seens"))
             }
           }

@@ -1,16 +1,12 @@
 package ru.sgu.switchmap.utils
 
-import java.util
-
 import zio._
-import ru.sgu.switchmap.config.AppConfig
 import org.snmp4j.mp.SnmpConstants
 import org.snmp4j.smi._
 import org.snmp4j.transport.DefaultUdpTransportMapping
-import org.snmp4j.util.{DefaultPDUFactory, TreeUtils}
 import org.snmp4j.{CommunityTarget, PDU, Snmp}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 object snmp {
   case class SwitchInfo(
@@ -20,7 +16,7 @@ object snmp {
 
   private val entPhysicalDescr = new OID(".1.3.6.1.2.1.47.1.1.1.1.2.1")
   private val entPhysicalSerialNum = new OID(".1.3.6.1.2.1.47.1.1.1.1.11.1")
-  private val entPhysicalName = new OID(".1.3.6.1.2.1.47.1.1.1.1.7")
+  new OID(".1.3.6.1.2.1.47.1.1.1.1.7")
 
   type SNMPUtil = Has[SNMPUtil.Service]
 
@@ -63,8 +59,8 @@ object snmp {
                 val responsePDU = response.getResponse
                 if (responsePDU != null) {
                   val errorStatus = responsePDU.getErrorStatus
-                  val errorIndex = responsePDU.getErrorIndex
-                  val errorStatusText = responsePDU.getErrorStatusText
+                  responsePDU.getErrorIndex
+                  responsePDU.getErrorStatusText
 
                   if (errorStatus == PDU.noError) {
                     val revision = responsePDU.getVariable(entPhysicalDescr)

@@ -1,23 +1,36 @@
 <template>
   <div id="vis">
     <v-toolbar>
-      <v-select
+      <v-autocomplete
         v-model="show"
         :items="builds"
         :disabled="showAll"
         multiple
-        chips
+        small-chips
         hide-details
         item-text="name"
         item-value="shortName"
         label="Build"
         color="orange accent-2"
-        required
         @change="displaySwitches()"
-      ></v-select>
+      >
+        <template v-slot:selection="data">
+          <v-chip
+            v-bind="data.attrs"
+            :input-value="data.selected"
+            small
+            close
+            @click:close="remove(data.item), displaySwitches()"
+          >
+            {{ data.item.name }}
+          </v-chip>
+        </template>
+      </v-autocomplete>
+      <v-divider class="mx-4" vertical></v-divider>
       <v-checkbox
         v-model="showAll"
         label="Show all"
+        hide-details
         color="orange darken-1"
         @change="displaySwitches()"
       ></v-checkbox>
@@ -29,7 +42,12 @@
 <script lang="ts">
 import { defineComponent, Ref, ref } from "@vue/composition-api";
 
-import { Node, Edge, Network } from "vis-network/standalone";
+import {
+  Network,
+  DataSet,
+  DataSetNodes,
+  DataSetEdges,
+} from "vis-network/standalone";
 
 import { SwitchResponse } from "../types/switch";
 import { BuildResponse } from "../types/build";
@@ -61,8 +79,8 @@ export default defineComponent({
     displaySwitches() {
       const container = document.getElementById("container") as HTMLElement;
 
-      const nodes = new Array<Node>();
-      const edges = new Array<Edge>();
+      const nodes: DataSetNodes = new DataSet();
+      const edges: DataSetEdges = new DataSet();
       if (this.showAll) {
         this.switches = this.switchesAll;
       } else {
@@ -71,9 +89,9 @@ export default defineComponent({
         );
       }
       this.switches.forEach((sw) => {
-        nodes.push({ id: sw.name, label: sw.name });
+        nodes.add({ id: sw.name, label: sw.name });
         if (sw.upSwitchName) {
-          edges.push({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
+          edges.add({ from: sw.upSwitchName, to: sw.name, label: sw.upLink });
         }
       });
 
@@ -102,6 +120,11 @@ export default defineComponent({
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const network = new Network(container, data, options);
+    },
+
+    remove(b: BuildResponse) {
+      const index = this.show.indexOf(b.shortName);
+      if (index >= 0) this.show.splice(index, 1);
     },
   },
 

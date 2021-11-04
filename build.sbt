@@ -1,3 +1,5 @@
+import NativePackagerHelper._
+
 val Http4sVersion = "0.23.6"
 val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.0"
@@ -7,7 +9,9 @@ lazy val root = (project in file("."))
     organization := "ru.sgu",
     name := "switchmap",
     version := "2.0.0-SNAPSHOT",
-    scalaVersion := "2.13.7",
+    scalaVersion := "2.13.6",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
@@ -44,16 +48,18 @@ lazy val root = (project in file("."))
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
-  .enablePlugins(RpmPlugin, SystemdPlugin)
+  .enablePlugins(JavaServerAppPackaging, RpmPlugin, SystemdPlugin)
   .settings(
-    Linux / packageName := "SwitchMap",
+    Linux / packageName := "switchmap",
     Linux / maintainer := "SGU <sts@sgu.ru>",
     Linux / packageSummary := "Interactive map of SSU switches",
     Linux / packageDescription := "Interactive map of SSU switches",
-    rpmRelease := "1",
+    rpmRelease := "2",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
-    rpmLicense := Some("MIT")
+    rpmLicense := Some("MIT"),
+    Universal / mappings ++= directory("plans"),
+    bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/application.conf""""
   )
 
 scalacOptions ++= Seq(

@@ -74,20 +74,16 @@
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
-import drag from "../directives/drag";
-import dragSwitch from "../directives/dragSwitch";
-import zoom from "../directives/zoom";
+import drag from "@/directives/drag";
+import dragSwitch from "@/directives/dragSwitch";
+import zoom from "@/directives/zoom";
 
-import SwitchForm from "../components/forms/SwitchForm.vue";
-import PlanUpload from "../components/PlanUpload.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+import PlanUpload from "@/components/PlanUpload.vue";
 
-import {
-  SwitchRequest,
-  SwitchResponse,
-  SavePositionRequest,
-} from "../types/switch";
-import { getSwitchesOfFloor, addSwitch } from "../api/switches";
-import { getPlan, uploadPlan } from "../api/plans";
+import { SwitchRequest, SwitchResponse } from "@/types/switch";
+import { getSwitchesOfFloor, addSwitch } from "@/api/switches";
+import { getPlan, uploadPlan } from "@/api/plans";
 
 export default defineComponent({
   props: {
@@ -143,9 +139,25 @@ export default defineComponent({
   },
 
   methods: {
+    showPlan() {
+      getPlan(`/plans/${this.shortName}f${this.floor}.png`)
+        .then((uri) => {
+          if (uri) {
+            this.planPath = uri;
+            this.noPlan = false;
+          } else {
+            this.noPlan = true;
+          }
+        })
+        .catch((_err: any) => {
+          this.noPlan = true;
+        });
+    },
+
     handlePlanUpload(plan: File) {
-      console.log(plan);
-      uploadPlan(this.shortName, parseInt(this.floor), plan);
+      uploadPlan(this.shortName, parseInt(this.floor), plan).then(() =>
+        this.showPlan()
+      );
     },
 
     place(name: string) {
@@ -236,17 +248,7 @@ export default defineComponent({
   },
 
   created() {
-    getPlan(`/static/plans/${this.shortName}f${this.floor}.png`)
-      .then((uri) => {
-        if (uri) {
-          this.planPath = uri;
-        } else {
-          this.noPlan = true;
-        }
-      })
-      .catch((_err: any) => {
-        this.noPlan = true;
-      });
+    this.showPlan();
     getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
       sws.forEach((sw) => {
         this.switches.push(sw);

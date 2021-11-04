@@ -10,7 +10,7 @@
 
     <v-card-subtitle>
       {{ floor.switchesNumber }}
-      {{ floor.switchesNumber > 1 ? "switches" : "switch" }}
+      {{ floor.switchesNumber !== 1 ? "switches" : "switch" }}
     </v-card-subtitle>
 
     <v-card-actions>

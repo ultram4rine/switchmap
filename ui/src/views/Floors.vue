@@ -51,18 +51,11 @@
       </v-card>
     </v-row>
 
-    <confirmation
-      :confirmation="confirmation"
-      :name="deleteName"
-      @confirm="
-        deleteFloor(shortName, floorNumber),
-          (confirmation = !confirmation),
-          (deleteName = ''),
-          (floorNumber = 0)
-      "
-      @cancel="
-        (confirmation = !confirmation), (deleteName = ''), (floorNumber = 0)
-      "
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
     />
 
     <floor-form
@@ -87,7 +80,7 @@
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
 import FloorCard from "../components/cards/FloorCard.vue";
-import Confirmation from "../components/Confirmation.vue";
+import DeleteConfirmation from "../components/DeleteConfirmation.vue";
 import FloorForm from "../components/forms/FloorForm.vue";
 import SwitchForm from "../components/forms/SwitchForm.vue";
 
@@ -97,6 +90,8 @@ import { getFloorsOf, addFloor, deleteFloor } from "../api/floors";
 import { getBuild } from "../api/builds";
 import { addSwitch } from "../api/switches";
 
+import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -105,7 +100,7 @@ export default defineComponent({
 
   components: {
     FloorCard,
-    Confirmation,
+    DeleteConfirmation,
     FloorForm,
     SwitchForm,
   },
@@ -113,8 +108,7 @@ export default defineComponent({
   setup() {
     const floors: Ref<FloorResponse[]> = ref([]);
 
-    const confirmation = ref(false);
-    const deleteName = ref("");
+    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
 
     const floorForm = ref(false);
     const floor: Ref<FloorRequest> = ref({} as FloorRequest);
@@ -126,8 +120,8 @@ export default defineComponent({
     return {
       floors,
 
-      confirmation,
-      deleteName,
+      deleteConfirmation,
+      deleteItemName,
 
       floorForm,
       floor,
@@ -146,9 +140,25 @@ export default defineComponent({
     },
 
     handleDelete(floor: FloorResponse) {
-      this.deleteName = `Floor ${floor.number}`;
+      this.deleteItemName = `Floor ${floor.number}`;
       this.floor = { number: floor.number } as FloorRequest;
-      this.confirmation = true;
+      this.deleteConfirmation = true;
+    },
+
+    deleteConfirm() {
+      deleteFloor(this.shortName, this.floor.number)
+        .then(() => {
+          this.deleteConfirmation = false;
+          this.deleteItemName = "";
+          this.floor = {} as FloorRequest;
+        })
+        .then(() => this.displayFloors());
+    },
+
+    deleteCancel() {
+      this.deleteConfirmation = false;
+      this.deleteItemName = "";
+      this.floor = {} as FloorRequest;
     },
 
     handleAddSwitch(_shortName: string, floor: FloorResponse) {
