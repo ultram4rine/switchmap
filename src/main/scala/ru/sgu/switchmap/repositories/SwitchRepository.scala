@@ -133,15 +133,17 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  private def makeSwitch(switch: SwitchRequest): IO[Object, SwitchResponse] = {
-    val sw: IO[Object, SwitchResponse] = switch.retrieveFromNetData match {
+  private def makeSwitch(switch: SwitchRequest): Task[SwitchResponse] = {
+    val sw: Task[SwitchResponse] = switch.retrieveFromNetData match {
       case true => {
         for {
-          resp <- ndc.getMatchingHost(
-            GetMatchingHostRequest(
-              Some(Match(Match.Match.HostName(switch.name)))
+          resp <- ndc
+            .getMatchingHost(
+              GetMatchingHostRequest(
+                Some(Match(Match.Match.HostName(switch.name)))
+              )
             )
-          )
+            .mapError(s => new Exception(s.toString))
           maybeSwitch = resp.host.headOption
           sw <- maybeSwitch match {
             case Some(value) =>
@@ -244,7 +246,6 @@ private[repositories] final case class DoobieSwitchRepository(
             .foldM(err => Task.fail(err), _ => Task.succeed(true))
         }
       }
-      .mapError(s => new Exception(s.toString()))
   }
 
   def update(
@@ -266,7 +267,6 @@ private[repositories] final case class DoobieSwitchRepository(
             .foldM(err => Task.fail(err), _ => Task.succeed(true))
         }
       }
-      .mapError(s => new Exception(s.toString()))
   }
 
   def update(name: String, position: SavePositionRequest): Task[Boolean] = {
