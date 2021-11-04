@@ -25,12 +25,12 @@ object seens {
     zio.Runtime.default
 
   zioRuntime
-      .unsafeRun(
-        cats.effect.std
-          .Dispatcher[zio.Task]
-          .allocated
-      )
-      ._1
+    .unsafeRun(
+      cats.effect.std
+        .Dispatcher[zio.Task]
+        .allocated
+    )
+    ._1
 
   private val reg: Regex = "(.{2})".r
   private def macDenormalized(mac: String): String =

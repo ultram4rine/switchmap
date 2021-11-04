@@ -8,12 +8,7 @@ import io.grpc.ManagedChannelBuilder
 import org.http4s
 import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.{
-  HttpRoutes,
-  HttpApp,
-  Request,
-  Response
-}
+import org.http4s.{HttpRoutes, HttpApp, Request, Response}
 import org.http4s.rho.swagger.models._
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router

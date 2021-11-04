@@ -5,10 +5,7 @@ import doobie.hikari.HikariTransactor
 import zio._
 import zio.interop.catz._
 
-import ru.sgu.git.netdataserv.netdataproto.{
-  GetMatchingHostRequest,
-  Match
-}
+import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
 import ru.sgu.switchmap.config.AppConfig
