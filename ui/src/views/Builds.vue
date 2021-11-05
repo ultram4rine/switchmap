@@ -113,8 +113,9 @@ export default defineComponent({
       formAction: buildFormAction,
       build,
       oldBuildShortName,
-      openBuildForm,
-      closeBuildForm,
+      openForm: openBuildForm,
+      submitForm: submitBuildForm,
+      closeForm: closeBuildForm,
     } = useBuildForm();
 
     const {
@@ -138,6 +139,7 @@ export default defineComponent({
       build,
       oldBuildShortName,
       openBuildForm,
+      submitBuildForm,
       closeBuildForm,
 
       // Floor form.
@@ -184,27 +186,7 @@ export default defineComponent({
     },
 
     handleSubmitBuild(name: string, shortName: string, action: "Add" | "Edit") {
-      try {
-        switch (action) {
-          case "Add":
-            addBuild({ name, shortName } as BuildRequest).then(() =>
-              this.displayBuilds()
-            );
-            this.closeBuildForm();
-            break;
-          case "Edit":
-            editBuild(
-              { name, shortName } as BuildRequest,
-              this.oldBuildShortName
-            ).then(() => this.displayBuilds());
-            this.closeBuildForm();
-            break;
-          default:
-            break;
-        }
-      } catch (err: any) {
-        console.log(err);
-      }
+      this.submitBuildForm(name, shortName, action, this.displayBuilds);
     },
 
     handleSubmitFloor(number: number) {

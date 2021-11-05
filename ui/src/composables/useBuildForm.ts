@@ -2,13 +2,21 @@ import { ref, Ref } from "@vue/composition-api";
 
 import { BuildRequest } from "@/types/build";
 
+import { addBuild, editBuild } from "@/api/builds";
+
 const useBuildForm = (): {
   form: Ref<boolean>;
   formAction: Ref<"" | "Add" | "Edit">;
   build: Ref<BuildRequest>;
   oldBuildShortName: Ref<string>;
-  openBuildForm: (action: "Add" | "Edit", b?: BuildRequest) => void;
-  closeBuildForm: () => void;
+  openForm: (action: "Add" | "Edit", b?: BuildRequest) => void;
+  submitForm: (
+    name: string,
+    shortName: string,
+    action: "Add" | "Edit",
+    callback: () => void
+  ) => void;
+  closeForm: () => void;
 } => {
   const form = ref(false);
   const formAction: Ref<"" | "Add" | "Edit"> = ref("");
@@ -16,7 +24,7 @@ const useBuildForm = (): {
   const build: Ref<BuildRequest> = ref({} as BuildRequest);
   const oldBuildShortName = ref("");
 
-  const openBuildForm = (action: "Add" | "Edit", b?: BuildRequest): void => {
+  const openForm = (action: "Add" | "Edit", b?: BuildRequest): void => {
     if (b) {
       oldBuildShortName.value = b.shortName;
       build.value = b;
@@ -28,7 +36,34 @@ const useBuildForm = (): {
     form.value = true;
   };
 
-  const closeBuildForm = (): void => {
+  const submitForm = (
+    name: string,
+    shortName: string,
+    action: "Add" | "Edit",
+    callback: () => void
+  ): void => {
+    try {
+      switch (action) {
+        case "Add":
+          addBuild({ name, shortName } as BuildRequest).then(() => callback());
+          closeForm();
+          break;
+        case "Edit":
+          editBuild(
+            { name, shortName } as BuildRequest,
+            oldBuildShortName.value
+          ).then(() => callback());
+          closeForm();
+          break;
+        default:
+          break;
+      }
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+
+  const closeForm = (): void => {
     build.value = {} as BuildRequest;
     oldBuildShortName.value = "";
     formAction.value = "";
@@ -42,8 +77,9 @@ const useBuildForm = (): {
     build,
     oldBuildShortName,
 
-    openBuildForm,
-    closeBuildForm,
+    openForm,
+    submitForm,
+    closeForm,
   };
 };
 
