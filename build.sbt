@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
       "org.postgresql"         % "postgresql"             % "42.3.1",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
-      "io.grpc"                % "grpc-netty"             % "1.41.0",
+      "io.grpc"                % "grpc-netty"             % "1.41.1",
       "com.thesamet.scalapb"  %% "scalapb-runtime-grpc"   % scalapb.compiler.Version.scalapbVersion,
       "com.github.jwt-scala"  %% "jwt-circe"              % "9.0.2",
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
