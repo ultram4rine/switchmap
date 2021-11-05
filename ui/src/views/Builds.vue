@@ -19,7 +19,7 @@
       >
         <build-card
           :build="b"
-          @handleEdit="handleEdit"
+          @handleEdit="openBuildForm('Edit', b)"
           @handleDelete="handleDelete"
           @handleAddFloor="handleAddFloor"
         />
@@ -88,6 +88,7 @@ import { FloorRequest } from "../types/floor";
 import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
 import { addFloor } from "../api/floors";
 
+import useBuildForm from "@/composables/useBuildForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 
 export default defineComponent({
@@ -104,31 +105,39 @@ export default defineComponent({
 
   setup() {
     const builds: Ref<BuildResponse[]> = ref([]);
+    const buildShortName = ref("");
+
+    const {
+      form: buildForm,
+      formAction: buildFormAction,
+      build,
+      oldBuildShortName,
+      openBuildForm,
+      closeBuildForm,
+    } = useBuildForm();
 
     const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
-
-    const shortName = ref("");
-
-    const buildForm = ref(false);
-    const buildFormAction = ref("");
-    const build: Ref<BuildRequest> = ref({} as BuildRequest);
-    const oldBuild = ref("");
 
     const floorForm = ref(false);
     const floor: Ref<FloorRequest> = ref({} as FloorRequest);
 
     return {
       builds,
+      buildShortName,
 
-      deleteConfirmation,
-      deleteItemName,
-      shortName,
-
+      // Build form.
       buildForm,
       buildFormAction,
       build,
-      oldBuild,
+      oldBuildShortName,
+      openBuildForm,
+      closeBuildForm,
 
+      // Delete confirmation.
+      deleteConfirmation,
+      deleteItemName,
+
+      // Floor form.
       floorForm,
       floor,
 
@@ -141,21 +150,14 @@ export default defineComponent({
       getBuilds().then((builds) => (this.builds = builds));
     },
 
-    handleEdit(b: BuildResponse) {
-      this.build = b;
-      this.oldBuild = b.shortName;
-      this.buildFormAction = "Change";
-      this.buildForm = true;
-    },
-
     handleDelete(b: BuildResponse) {
       this.deleteItemName = b.name;
-      this.shortName = b.shortName;
+      this.buildShortName = b.shortName;
       this.deleteConfirmation = true;
     },
 
     deleteConfirm() {
-      deleteBuild(this.shortName)
+      deleteBuild(this.buildShortName)
         .then(() => {
           this.deleteConfirmation = false;
           this.deleteItemName = "";
@@ -176,13 +178,7 @@ export default defineComponent({
       this.floorForm = true;
     },
 
-    openBuildForm(action: string) {
-      this.build = {} as BuildRequest;
-      this.buildFormAction = action;
-      this.buildForm = true;
-    },
-
-    handleSubmitBuild(name: string, shortName: string, action: string) {
+    handleSubmitBuild(name: string, shortName: string, action: "Add" | "Edit") {
       try {
         switch (action) {
           case "Add":
@@ -191,10 +187,11 @@ export default defineComponent({
             );
             this.closeBuildForm();
             break;
-          case "Change":
-            editBuild({ name, shortName } as BuildRequest, this.oldBuild).then(
-              () => this.displayBuilds()
-            );
+          case "Edit":
+            editBuild(
+              { name, shortName } as BuildRequest,
+              this.oldBuildShortName
+            ).then(() => this.displayBuilds());
             this.closeBuildForm();
             break;
           default:
@@ -203,13 +200,6 @@ export default defineComponent({
       } catch (err: any) {
         console.log(err);
       }
-    },
-
-    closeBuildForm() {
-      this.build = {} as BuildRequest;
-      this.oldBuild = "";
-      this.buildFormAction = "";
-      this.buildForm = false;
     },
 
     handleSubmitFloor(number: number) {
