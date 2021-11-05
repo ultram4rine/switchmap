@@ -27,10 +27,30 @@
         class="elevation-1"
       >
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon small class="mr-2" @click="openSwitchForm('Change', item)">
-            {{ mdiPencil }}
-          </v-icon>
-          <v-icon small @click="handleDelete(item)">{{ mdiDelete }}</v-icon>
+          <v-btn icon small @click="openSwitchForm('Change', item)">
+            <v-icon small>
+              {{ mdiPencil }}
+            </v-icon>
+          </v-btn>
+          <v-btn icon small @click="handleDelete(item)">
+            <v-icon small>
+              {{ mdiDelete }}
+            </v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            small
+            v-if="item.floorNumber"
+            :to="{
+              name: 'floor',
+              params: {
+                shortName: item.buildShortName,
+                floor: item.floorNumber,
+              },
+            }"
+          >
+            <v-icon small>{{ mdiEye }}</v-icon>
+          </v-btn>
         </template>
       </v-data-table>
     </v-card>
@@ -55,7 +75,7 @@
 
 <script lang="ts">
 import { defineComponent, Ref, ref } from "@vue/composition-api";
-import { mdiMagnify, mdiPencil, mdiDelete } from "@mdi/js";
+import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
 import SwitchForm from "../components/forms/SwitchForm.vue";
 import DeleteConfirmation from "../components/DeleteConfirmation.vue";
@@ -127,6 +147,7 @@ export default defineComponent({
       mdiMagnify,
       mdiPencil,
       mdiDelete,
+      mdiEye,
     };
   },
 
