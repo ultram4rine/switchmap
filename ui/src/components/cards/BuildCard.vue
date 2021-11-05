@@ -15,7 +15,7 @@
       {{ build.floorsNumber }}
       {{ build.floorsNumber !== 1 ? "floors" : "floor" }},
       {{ build.switchesNumber }}
-      {{ build.switchesNumber !== 1 ? "switches" : "switch" }},
+      {{ build.switchesNumber !== 1 ? "switches" : "switch" }}
     </v-card-subtitle>
 
     <v-card-actions>
