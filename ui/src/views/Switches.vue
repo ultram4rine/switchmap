@@ -77,16 +77,11 @@
 import { defineComponent, Ref, ref } from "@vue/composition-api";
 import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
-import SwitchForm from "../components/forms/SwitchForm.vue";
-import DeleteConfirmation from "../components/DeleteConfirmation.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 
-import { SwitchRequest, SwitchResponse } from "../types/switch";
-import {
-  getSwitches,
-  addSwitch,
-  editSwitch,
-  deleteSwitch,
-} from "../api/switches";
+import { SwitchResponse } from "@/types/switch";
+import { getSwitches, deleteSwitch } from "@/api/switches";
 
 import useSwitchForm from "@/composables/useSwitchForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";

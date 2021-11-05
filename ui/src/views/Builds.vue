@@ -78,15 +78,13 @@
 <script lang="ts">
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
-import BuildCard from "../components/cards/BuildCard.vue";
-import DeleteConfirmation from "../components/DeleteConfirmation.vue";
-import BuildForm from "../components/forms/BuildForm.vue";
-import FloorForm from "../components/forms/FloorForm.vue";
+import BuildCard from "@/components/cards/BuildCard.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import BuildForm from "@/components/forms/BuildForm.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
 
-import { BuildRequest, BuildResponse } from "../types/build";
-import { FloorRequest } from "../types/floor";
-import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
-import { addFloor } from "../api/floors";
+import { BuildResponse } from "@/types/build";
+import { getBuilds, deleteBuild } from "@/api/builds";
 
 import useBuildForm from "@/composables/useBuildForm";
 import useFloorForm from "@/composables/useFloorForm";

@@ -81,8 +81,8 @@ import zoom from "@/directives/zoom";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import PlanUpload from "@/components/PlanUpload.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/types/switch";
-import { getSwitchesOfFloor, addSwitch } from "@/api/switches";
+import { SwitchResponse } from "@/types/switch";
+import { getSwitchesOfFloor } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 
 import useSwitchForm from "@/composables/useSwitchForm";
@@ -174,7 +174,7 @@ export default defineComponent({
             this.noPlan = true;
           }
         })
-        .catch((_err: any) => {
+        .catch(() => {
           this.noPlan = true;
         });
     },

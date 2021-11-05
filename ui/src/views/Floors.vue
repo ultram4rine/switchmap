@@ -79,16 +79,13 @@
 <script lang="ts">
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
-import FloorCard from "../components/cards/FloorCard.vue";
-import DeleteConfirmation from "../components/DeleteConfirmation.vue";
-import FloorForm from "../components/forms/FloorForm.vue";
-import SwitchForm from "../components/forms/SwitchForm.vue";
+import FloorCard from "@/components/cards/FloorCard.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
 
-import { FloorRequest, FloorResponse } from "../types/floor";
-import { SwitchRequest } from "../types/switch";
-import { getFloorsOf, addFloor, deleteFloor } from "../api/floors";
-import { getBuild } from "../api/builds";
-import { addSwitch } from "../api/switches";
+import { FloorRequest, FloorResponse } from "@/types/floor";
+import { getFloorsOf, deleteFloor } from "@/api/floors";
 
 import useFloorForm from "@/composables/useFloorForm";
 import useSwitchForm from "@/composables/useSwitchForm";
