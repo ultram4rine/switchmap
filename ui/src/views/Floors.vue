@@ -90,7 +90,7 @@ import { getFloorsOf, addFloor, deleteFloor } from "../api/floors";
 import { getBuild } from "../api/builds";
 import { addSwitch } from "../api/switches";
 
-import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
+import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 
 export default defineComponent({
   props: {

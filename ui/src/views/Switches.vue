@@ -88,7 +88,7 @@ import {
   deleteSwitch,
 } from "../api/switches";
 
-import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
+import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 import { macDenormalization } from "../helpers";
 
 type TableSwitch = SwitchResponse & {

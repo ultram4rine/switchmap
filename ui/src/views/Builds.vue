@@ -88,7 +88,7 @@ import { FloorRequest } from "../types/floor";
 import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
 import { addFloor } from "../api/floors";
 
-import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
+import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 
 export default defineComponent({
   props: {
