@@ -47,16 +47,9 @@
 
     <v-row no-gutters>
       <v-card class="ma-1">
-        <v-btn color="error" @click="openFloorForm">Add floor</v-btn>
+        <v-btn color="error" @click="openFloorForm(shortName)">Add floor</v-btn>
       </v-card>
     </v-row>
-
-    <delete-confirmation
-      :confirmation="deleteConfirmation"
-      :name="deleteItemName"
-      @confirm="deleteConfirm"
-      @cancel="deleteCancel"
-    />
 
     <floor-form
       :form="floorForm"
@@ -72,6 +65,13 @@
       :sw="sw"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
+    />
+
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
     />
   </div>
 </template>
@@ -90,6 +90,7 @@ import { getFloorsOf, addFloor, deleteFloor } from "../api/floors";
 import { getBuild } from "../api/builds";
 import { addSwitch } from "../api/switches";
 
+import useFloorForm from "@/composables/useFloorForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 
 export default defineComponent({
@@ -108,10 +109,16 @@ export default defineComponent({
   setup() {
     const floors: Ref<FloorResponse[]> = ref([]);
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      form: floorForm,
+      floor,
+      buildShortName: floorBuildShortName,
+      openForm: openFloorForm,
+      submitForm: submitFloorForm,
+      closeForm: closeFloorForm,
+    } = useFloorForm();
 
-    const floorForm = ref(false);
-    const floor: Ref<FloorRequest> = ref({} as FloorRequest);
+    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
 
     const switchForm = ref(false);
     const switchFormAction = ref("");
@@ -120,12 +127,19 @@ export default defineComponent({
     return {
       floors,
 
+      // Floor form.
+      floorForm,
+      floor,
+      floorBuildShortName,
+      openFloorForm,
+      submitFloorForm,
+      closeFloorForm,
+
+      // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
 
-      floorForm,
-      floor,
-
+      // Switch form.
       switchForm,
       switchFormAction,
       sw,
@@ -179,29 +193,8 @@ export default defineComponent({
       this.switchForm = true;
     },
 
-    openFloorForm() {
-      this.floorForm = true;
-      this.floor = {} as FloorRequest;
-    },
-
     handleSubmitFloor(number: number) {
-      try {
-        getBuild(this.shortName).then((b) => {
-          addFloor({
-            number,
-            buildName: b.name,
-            buildShortName: this.shortName,
-          } as FloorRequest).then(() => this.displayFloors());
-          this.closeFloorForm();
-        });
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-
-    closeFloorForm() {
-      this.floor = {} as FloorRequest;
-      this.floorForm = false;
+      this.submitFloorForm(number, this.displayFloors);
     },
 
     handleSubmitSwitch(

@@ -21,7 +21,7 @@
           :build="b"
           @handleEdit="openBuildForm('Edit', b)"
           @handleDelete="handleDelete"
-          @handleAddFloor="handleAddFloor"
+          @handleAddFloor="openFloorForm(b.shortName)"
         />
       </v-col>
 
@@ -51,13 +51,6 @@
       </v-card>
     </v-row>
 
-    <delete-confirmation
-      :confirmation="deleteConfirmation"
-      :name="deleteItemName"
-      @confirm="deleteConfirm"
-      @cancel="deleteCancel"
-    />
-
     <build-form
       :form="buildForm"
       :action="buildFormAction"
@@ -71,6 +64,13 @@
       :floor="floor"
       @submit="handleSubmitFloor"
       @close="closeFloorForm"
+    />
+
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
     />
   </div>
 </template>
@@ -89,6 +89,7 @@ import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
 import { addFloor } from "../api/floors";
 
 import useBuildForm from "@/composables/useBuildForm";
+import useFloorForm from "@/composables/useFloorForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 
 export default defineComponent({
@@ -116,10 +117,16 @@ export default defineComponent({
       closeBuildForm,
     } = useBuildForm();
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      form: floorForm,
+      floor,
+      buildShortName: floorBuildShortName,
+      openForm: openFloorForm,
+      submitForm: submitFloorForm,
+      closeForm: closeFloorForm,
+    } = useFloorForm();
 
-    const floorForm = ref(false);
-    const floor: Ref<FloorRequest> = ref({} as FloorRequest);
+    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
 
     return {
       builds,
@@ -133,13 +140,17 @@ export default defineComponent({
       openBuildForm,
       closeBuildForm,
 
-      // Delete confirmation.
-      deleteConfirmation,
-      deleteItemName,
-
       // Floor form.
       floorForm,
       floor,
+      floorBuildShortName,
+      openFloorForm,
+      submitFloorForm,
+      closeFloorForm,
+
+      // Delete confirmation.
+      deleteConfirmation,
+      deleteItemName,
 
       deleteBuild,
     };
@@ -172,12 +183,6 @@ export default defineComponent({
       this.shortName = "";
     },
 
-    handleAddFloor(b: BuildResponse) {
-      this.build = b;
-      this.floorNumber = 0;
-      this.floorForm = true;
-    },
-
     handleSubmitBuild(name: string, shortName: string, action: "Add" | "Edit") {
       try {
         switch (action) {
@@ -203,22 +208,7 @@ export default defineComponent({
     },
 
     handleSubmitFloor(number: number) {
-      try {
-        addFloor({
-          number,
-          buildName: this.build.name,
-          buildShortName: this.build.shortName,
-        } as FloorRequest).then(() => this.displayBuilds());
-        this.closeFloorForm();
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-
-    closeFloorForm() {
-      this.build = {} as BuildRequest;
-      this.floorNumber = 0;
-      this.floorForm = false;
+      this.submitFloorForm(number, this.displayBuilds);
     },
   },
 
