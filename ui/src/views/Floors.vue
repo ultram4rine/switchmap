@@ -21,7 +21,7 @@
           :shortName="shortName"
           :floor="f"
           @handleDelete="handleDelete"
-          @handleAddSwitch="handleAddSwitch"
+          @handleAddSwitch="openSwitchForm('Add')"
         />
       </v-col>
 
@@ -91,6 +91,7 @@ import { getBuild } from "../api/builds";
 import { addSwitch } from "../api/switches";
 
 import useFloorForm from "@/composables/useFloorForm";
+import useSwitchForm from "@/composables/useSwitchForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 
 export default defineComponent({
@@ -118,11 +119,17 @@ export default defineComponent({
       closeForm: closeFloorForm,
     } = useFloorForm();
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      form: switchForm,
+      formAction: switchFormAction,
+      sw,
+      oldSwitchName,
+      openForm: openSwitchForm,
+      submitForm: submitSwitchForm,
+      closeForm: closeSwitchForm,
+    } = useSwitchForm();
 
-    const switchForm = ref(false);
-    const switchFormAction = ref("");
-    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
 
     return {
       floors,
@@ -135,14 +142,18 @@ export default defineComponent({
       submitFloorForm,
       closeFloorForm,
 
-      // Delete confirmation.
-      deleteConfirmation,
-      deleteItemName,
-
       // Switch form.
       switchForm,
       switchFormAction,
       sw,
+      oldSwitchName,
+      openSwitchForm,
+      submitSwitchForm,
+      closeSwitchForm,
+
+      // Delete confirmation.
+      deleteConfirmation,
+      deleteItemName,
 
       deleteFloor,
     };
@@ -175,24 +186,6 @@ export default defineComponent({
       this.floor = {} as FloorRequest;
     },
 
-    handleAddSwitch(_shortName: string, floor: FloorResponse) {
-      this.sw = {
-        retrieveFromNetData: true,
-        retrieveUpLinkFromSeens: true,
-        retrieveTechDataFromSNMP: true,
-        name: "",
-        ip: "",
-        mac: "",
-        upSwitchName: "",
-        upLink: "",
-        revision: "",
-        serial: "",
-        floorNumber: floor.number,
-      } as SwitchRequest;
-      this.switchFormAction = "Add";
-      this.switchForm = true;
-    },
-
     handleSubmitFloor(number: number) {
       this.submitFloorForm(number, this.displayFloors);
     },
@@ -207,41 +200,31 @@ export default defineComponent({
       snmpCommunity: string,
       revision: string,
       serial: string,
-      _build: string,
+      build: string,
       floor: number,
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
       retrieveTechDataFromSNMP: boolean,
-      _action: string
+      action: "Add" | "Edit"
     ) {
-      try {
-        addSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          ipResolveMethod,
-          name,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          buildShortName: this.shortName,
-          floorNumber: floor,
-          revision,
-          serial,
-        } as SwitchRequest).then(() => this.displayFloors());
-        this.closeSwitchForm();
-        this.switchForm = false;
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-
-    closeSwitchForm() {
-      this.sw = {} as SwitchRequest;
-      this.switchFormAction = "";
-      this.switchForm = false;
+      this.submitSwitchForm(
+        name,
+        ipResolveMethod,
+        ip,
+        mac,
+        upSwitchName,
+        upLink,
+        snmpCommunity,
+        revision,
+        serial,
+        build,
+        floor,
+        retrieveFromNetData,
+        retrieveUpLinkFromSeens,
+        retrieveTechDataFromSNMP,
+        action,
+        this.displayFloors
+      );
     },
   },
 

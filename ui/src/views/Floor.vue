@@ -85,6 +85,8 @@ import { SwitchRequest, SwitchResponse } from "@/types/switch";
 import { getSwitchesOfFloor, addSwitch } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 
+import useSwitchForm from "@/composables/useSwitchForm";
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -110,9 +112,15 @@ export default defineComponent({
 
     const planKey = ref(0);
 
-    const switchForm = ref(false);
-    const switchFormAction = ref("");
-    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+    const {
+      form: switchForm,
+      formAction: switchFormAction,
+      sw,
+      oldSwitchName,
+      openForm: openSwitchForm,
+      submitForm: submitSwitchForm,
+      closeForm: closeSwitchForm,
+    } = useSwitchForm();
 
     const swName = ref("");
     const switches: Ref<SwitchResponse[]> = ref([]);
@@ -129,9 +137,14 @@ export default defineComponent({
       switches,
       switchesWithoutPosition,
 
+      // Switch form.
       switchForm,
       switchFormAction,
       sw,
+      oldSwitchName,
+      openSwitchForm,
+      submitSwitchForm,
+      closeSwitchForm,
 
       mdiMagnify,
       mdiPlus,
@@ -139,6 +152,18 @@ export default defineComponent({
   },
 
   methods: {
+    displaySwitches() {
+      getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
+        sws.forEach((sw) => {
+          this.switches.push(sw);
+          if (!sw.positionTop && !sw.positionLeft) {
+            this.switchesWithoutPosition.push(sw);
+          }
+        });
+        this.planKey += 1;
+      });
+    },
+
     showPlan() {
       getPlan(`/plans/${this.shortName}f${this.floor}.png`)
         .then((uri) => {
@@ -180,25 +205,6 @@ export default defineComponent({
       }
     },
 
-    openSwitchForm(action: string) {
-      this.sw = {
-        retrieveFromNetData: true,
-        retrieveUpLinkFromSeens: true,
-        retrieveTechDataFromSNMP: true,
-        name: "",
-        ip: "",
-        mac: "",
-        upSwitchName: "",
-        upLink: "",
-        revision: "",
-        serial: "",
-        buildShortName: this.shortName,
-        floorNumber: this.floor,
-      } as unknown as SwitchRequest;
-      this.switchFormAction = action;
-      this.switchForm = true;
-    },
-
     handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
@@ -214,50 +220,32 @@ export default defineComponent({
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
       retrieveTechDataFromSNMP: boolean,
-      _action: string
+      action: "Add" | "Edit"
     ) {
-      try {
-        addSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          ipResolveMethod,
-          name,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          buildShortName: build,
-          floorNumber: floor,
-          revision,
-          serial,
-        } as SwitchRequest);
-        this.closeSwitchForm();
-        this.switchForm = false;
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-
-    closeSwitchForm() {
-      this.sw = {} as SwitchRequest;
-      this.switchFormAction = "";
-      this.switchForm = false;
+      this.submitSwitchForm(
+        name,
+        ipResolveMethod,
+        ip,
+        mac,
+        upSwitchName,
+        upLink,
+        snmpCommunity,
+        revision,
+        serial,
+        build,
+        floor,
+        retrieveFromNetData,
+        retrieveUpLinkFromSeens,
+        retrieveTechDataFromSNMP,
+        action,
+        this.displaySwitches
+      );
     },
   },
 
   created() {
     this.showPlan();
-    getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
-      sws.forEach((sw) => {
-        this.switches.push(sw);
-        if (!sw.positionTop && !sw.positionLeft) {
-          this.switchesWithoutPosition.push(sw);
-        }
-      });
-      this.planKey += 1;
-    });
+    this.displaySwitches();
   },
 });
 </script>

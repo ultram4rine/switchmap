@@ -27,7 +27,7 @@
         class="elevation-1"
       >
         <template v-slot:[`item.actions`]="{ item }">
-          <v-btn icon small @click="openSwitchForm('Change', item)">
+          <v-btn icon small @click="openSwitchForm('Edit', item)">
             <v-icon small>
               {{ mdiPencil }}
             </v-icon>
@@ -88,8 +88,10 @@ import {
   deleteSwitch,
 } from "../api/switches";
 
+import useSwitchForm from "@/composables/useSwitchForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
-import { macDenormalization } from "../helpers";
+
+import { macDenormalization } from "@/helpers";
 
 type TableSwitch = SwitchResponse & {
   location: string;
@@ -108,9 +110,15 @@ export default defineComponent({
   setup() {
     const switches: Ref<TableSwitch[]> = ref([]);
 
-    const switchForm = ref(false);
-    const switchFormAction = ref("");
-    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+    const {
+      form: switchForm,
+      formAction: switchFormAction,
+      sw,
+      oldSwitchName,
+      openForm: openSwitchForm,
+      submitForm: submitSwitchForm,
+      closeForm: closeSwitchForm,
+    } = useSwitchForm();
 
     const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
 
@@ -131,10 +139,16 @@ export default defineComponent({
     return {
       switches,
 
+      // Switch form.
       switchForm,
       switchFormAction,
       sw,
+      oldSwitchName,
+      openSwitchForm,
+      submitSwitchForm,
+      closeSwitchForm,
 
+      // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
       name,
@@ -184,33 +198,6 @@ export default defineComponent({
       this.deleteItemName = "";
     },
 
-    openSwitchForm(action: string, sw?: TableSwitch) {
-      if (sw) {
-        this.sw = sw as unknown as SwitchRequest;
-        this.sw.ipResolveMethod = "Direct";
-        this.sw.retrieveFromNetData = false;
-        this.sw.retrieveUpLinkFromSeens = false;
-        this.sw.retrieveTechDataFromSNMP = false;
-      } else {
-        this.sw = {
-          retrieveFromNetData: true,
-          retrieveUpLinkFromSeens: true,
-          retrieveTechDataFromSNMP: true,
-          name: "",
-          ip: "",
-          mac: "",
-          upSwitchName: "",
-          upLink: "",
-          revision: "",
-          serial: "",
-          buildShortName: "",
-          floorNumber: 0,
-        } as SwitchRequest;
-      }
-      this.switchFormAction = action;
-      this.switchForm = true;
-    },
-
     handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
@@ -226,64 +213,26 @@ export default defineComponent({
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
       retrieveTechDataFromSNMP: boolean,
-      action: string
+      action: "Add" | "Edit"
     ) {
-      try {
-        switch (action) {
-          case "Add": {
-            addSwitch({
-              snmpCommunity,
-              retrieveFromNetData,
-              retrieveUpLinkFromSeens,
-              retrieveTechDataFromSNMP,
-              ipResolveMethod,
-              name,
-              ip,
-              mac,
-              upSwitchName,
-              upLink,
-              buildShortName: build,
-              floorNumber: floor,
-              revision,
-              serial,
-            } as SwitchRequest).then(() => this.displaySwitches());
-            this.closeSwitchForm();
-            break;
-          }
-          case "Change": {
-            editSwitch({
-              snmpCommunity,
-              retrieveFromNetData,
-              retrieveUpLinkFromSeens,
-              retrieveTechDataFromSNMP,
-              ipResolveMethod,
-              name,
-              ip,
-              mac,
-              upSwitchName,
-              upLink,
-              buildShortName: build,
-              floorNumber: floor,
-              positionTop: this.sw.positionTop,
-              positionLeft: this.sw.positionLeft,
-              revision,
-              serial,
-            } as SwitchRequest).then(() => this.displaySwitches());
-            this.closeSwitchForm();
-            break;
-          }
-          default:
-            break;
-        }
-      } catch (error: any) {
-        console.log(error);
-      }
-    },
-
-    closeSwitchForm() {
-      this.sw = {} as SwitchRequest;
-      this.switchFormAction = "";
-      this.switchForm = false;
+      this.submitSwitchForm(
+        name,
+        ipResolveMethod,
+        ip,
+        mac,
+        upSwitchName,
+        upLink,
+        snmpCommunity,
+        revision,
+        serial,
+        build,
+        floor,
+        retrieveFromNetData,
+        retrieveUpLinkFromSeens,
+        retrieveTechDataFromSNMP,
+        action,
+        this.displaySwitches
+      );
     },
   },
 
