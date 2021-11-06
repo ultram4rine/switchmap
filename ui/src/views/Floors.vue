@@ -21,7 +21,7 @@
           :shortName="shortName"
           :floor="f"
           @handleDelete="handleDelete"
-          @handleAddSwitch="openSwitchForm('Add')"
+          @handleAddSwitch="openSwitchForm('Add', shortName, f.number)"
         />
       </v-col>
 

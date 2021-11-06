@@ -3,13 +3,17 @@ import { ref, Ref } from "@vue/composition-api";
 import { SwitchRequest } from "@/types/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
-// TODO: fix build and floor getting from context.
 const useSwitchForm = (): {
   form: Ref<boolean>;
   formAction: Ref<string>;
   sw: Ref<SwitchRequest>;
   oldSwitchName: Ref<string>;
-  openForm: (action: "Add" | "Edit", swit?: SwitchRequest) => void;
+  openForm: (
+    action: "Add" | "Edit",
+    build?: string,
+    floor?: number,
+    swit?: SwitchRequest
+  ) => void;
   submitForm: (
     name: string,
     ipResolveMethod: string,
@@ -36,7 +40,12 @@ const useSwitchForm = (): {
   const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
   const oldSwitchName = ref("");
 
-  const openForm = (action: "Add" | "Edit", swit?: SwitchRequest): void => {
+  const openForm = (
+    action: "Add" | "Edit",
+    build?: string,
+    floor?: number,
+    swit?: SwitchRequest
+  ): void => {
     if (swit) {
       sw.value = swit;
       sw.value.ipResolveMethod = "Direct";
@@ -45,9 +54,12 @@ const useSwitchForm = (): {
       sw.value.retrieveTechDataFromSNMP = false;
     } else {
       sw.value = {
+        ipResolveMethod: "DNS",
         retrieveFromNetData: true,
         retrieveUpLinkFromSeens: true,
         retrieveTechDataFromSNMP: true,
+        buildShortName: build ? build : null,
+        floorNumber: floor ? floor : null,
       } as SwitchRequest;
     }
 
