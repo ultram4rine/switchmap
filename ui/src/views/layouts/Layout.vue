@@ -53,7 +53,7 @@ import {
   mdiCopyright,
 } from "@mdi/js";
 
-import { AUTH_LOGOUT } from "../../store/actions";
+import { AUTH_LOGOUT } from "@/store/actions";
 
 export default Vue.extend({
   props: {

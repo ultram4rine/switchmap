@@ -68,7 +68,7 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { BuildRequest } from "../../types/build";
+import { BuildRequest } from "@/types/build";
 
 extend("required", {
   ...required,
