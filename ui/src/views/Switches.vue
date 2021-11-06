@@ -115,7 +115,11 @@ export default defineComponent({
       closeForm: closeSwitchForm,
     } = useSwitchForm();
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      deleteConfirmation,
+      deleteItemName,
+      cancel: deleteCancel,
+    } = useDeleteConfirmation();
 
     const search = ref("");
     const headers = ref([
@@ -146,7 +150,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
-      name,
+      deleteCancel,
 
       deleteSwitch,
 
@@ -186,11 +190,6 @@ export default defineComponent({
           this.deleteItemName = "";
         })
         .then(() => this.displaySwitches());
-    },
-
-    deleteCancel() {
-      this.deleteConfirmation = false;
-      this.deleteItemName = "";
     },
 
     handleSubmitSwitch(

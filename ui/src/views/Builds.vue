@@ -70,7 +70,7 @@
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
       @confirm="deleteConfirm"
-      @cancel="deleteCancel"
+      @cancel="deleteCancel(() => (buildShortName = ''))"
     />
   </div>
 </template>
@@ -125,7 +125,11 @@ export default defineComponent({
       closeForm: closeFloorForm,
     } = useFloorForm();
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      deleteConfirmation,
+      deleteItemName,
+      cancel: deleteCancel,
+    } = useDeleteConfirmation();
 
     return {
       builds,
@@ -151,6 +155,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
+      deleteCancel,
 
       deleteBuild,
     };
@@ -170,17 +175,9 @@ export default defineComponent({
     deleteConfirm() {
       deleteBuild(this.buildShortName)
         .then(() => {
-          this.deleteConfirmation = false;
-          this.deleteItemName = "";
-          this.shortName = "";
+          this.deleteCancel(() => (this.buildShortName = ""));
         })
         .then(() => this.displayBuilds());
-    },
-
-    deleteCancel() {
-      this.deleteConfirmation = false;
-      this.deleteItemName = "";
-      this.shortName = "";
     },
 
     handleSubmitBuild(name: string, shortName: string, action: "Add" | "Edit") {

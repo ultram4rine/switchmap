@@ -71,7 +71,7 @@
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
       @confirm="deleteConfirm"
-      @cancel="deleteCancel"
+      @cancel="deleteCancel(() => (floor = {}))"
     />
   </div>
 </template>
@@ -126,7 +126,11 @@ export default defineComponent({
       closeForm: closeSwitchForm,
     } = useSwitchForm();
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      deleteConfirmation,
+      deleteItemName,
+      cancel: deleteCancel,
+    } = useDeleteConfirmation();
 
     return {
       floors,
@@ -151,6 +155,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
+      deleteCancel,
 
       deleteFloor,
     };
@@ -170,17 +175,9 @@ export default defineComponent({
     deleteConfirm() {
       deleteFloor(this.shortName, this.floor.number)
         .then(() => {
-          this.deleteConfirmation = false;
-          this.deleteItemName = "";
-          this.floor = {} as FloorRequest;
+          this.deleteCancel(() => (this.floor = {} as FloorRequest));
         })
         .then(() => this.displayFloors());
-    },
-
-    deleteCancel() {
-      this.deleteConfirmation = false;
-      this.deleteItemName = "";
-      this.floor = {} as FloorRequest;
     },
 
     handleSubmitFloor(number: number) {
