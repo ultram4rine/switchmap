@@ -1,7 +1,14 @@
 <template>
   <div id="home">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-if="isLoading && builds.length === 0"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-skeleton-loader
           class="mx-auto"
           type="card-heading, list-item, actions"
@@ -72,6 +79,13 @@
       @confirm="deleteConfirm"
       @cancel="deleteCancel(() => (buildShortName = ''))"
     />
+
+    <snackbar
+      :snackbar="snackbar"
+      :type="snackbarType"
+      :text="snackbarText"
+      @close="closeSnackbar"
+    />
   </div>
 </template>
 
@@ -79,9 +93,10 @@
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
 import BuildCard from "@/components/cards/BuildCard.vue";
-import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import BuildForm from "@/components/forms/BuildForm.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
 import { BuildResponse } from "@/types/build";
 import { getBuilds, deleteBuild } from "@/api/builds";
@@ -89,6 +104,7 @@ import { getBuilds, deleteBuild } from "@/api/builds";
 import useBuildForm from "@/composables/useBuildForm";
 import useFloorForm from "@/composables/useFloorForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
+import useSnackbar from "@/composables/useSnackbar";
 
 export default defineComponent({
   props: {
@@ -97,9 +113,10 @@ export default defineComponent({
 
   components: {
     BuildCard,
-    DeleteConfirmation,
     BuildForm,
     FloorForm,
+    DeleteConfirmation,
+    Snackbar,
   },
 
   setup() {
@@ -131,6 +148,14 @@ export default defineComponent({
       cancel: deleteCancel,
     } = useDeleteConfirmation();
 
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
+
     return {
       builds,
       buildShortName,
@@ -157,6 +182,13 @@ export default defineComponent({
       deleteItemName,
       deleteCancel,
 
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
+
       deleteBuild,
     };
   },
@@ -175,13 +207,24 @@ export default defineComponent({
     deleteConfirm() {
       deleteBuild(this.buildShortName)
         .then(() => {
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
           this.deleteCancel(() => (this.buildShortName = ""));
         })
         .then(() => this.displayBuilds());
     },
 
-    handleSubmitBuild(name: string, shortName: string, action: "Add" | "Edit") {
-      this.submitBuildForm(name, shortName, action, this.displayBuilds);
+    async handleSubmitBuild(
+      name: string,
+      shortName: string,
+      action: "Add" | "Edit"
+    ) {
+      try {
+        await this.submitBuildForm(name, shortName, action);
+        this.displayBuilds();
+        this.openSnackbar("success", `${name} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} build`);
+      }
     },
 
     handleSubmitFloor(number: number) {

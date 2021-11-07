@@ -13,9 +13,8 @@ const useBuildForm = (): {
   submitForm: (
     name: string,
     shortName: string,
-    action: "Add" | "Edit",
-    callback: () => void
-  ) => void;
+    action: "Add" | "Edit"
+  ) => Promise<void>;
   closeForm: () => void;
 } => {
   const form = ref(false);
@@ -36,30 +35,25 @@ const useBuildForm = (): {
     form.value = true;
   };
 
-  const submitForm = (
+  const submitForm = async (
     name: string,
     shortName: string,
-    action: "Add" | "Edit",
-    callback: () => void
-  ): void => {
-    try {
-      switch (action) {
-        case "Add":
-          addBuild({ name, shortName } as BuildRequest).then(() => callback());
-          closeForm();
-          break;
-        case "Edit":
-          editBuild(
-            { name, shortName } as BuildRequest,
-            oldBuildShortName.value
-          ).then(() => callback());
-          closeForm();
-          break;
-        default:
-          break;
-      }
-    } catch (err: any) {
-      console.log(err);
+    action: "Add" | "Edit"
+  ): Promise<void> => {
+    switch (action) {
+      case "Add":
+        await addBuild({ name, shortName } as BuildRequest);
+        closeForm();
+        break;
+      case "Edit":
+        await editBuild(
+          { name, shortName } as BuildRequest,
+          oldBuildShortName.value
+        );
+        closeForm();
+        break;
+      default:
+        break;
     }
   };
 
