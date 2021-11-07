@@ -55,13 +55,6 @@
       </v-data-table>
     </v-card>
 
-    <delete-confirmation
-      :confirmation="deleteConfirmation"
-      :name="deleteItemName"
-      @confirm="deleteConfirm"
-      @cancel="deleteCancel"
-    />
-
     <switch-form
       :form="switchForm"
       :action="switchFormAction"
@@ -69,6 +62,20 @@
       :sw="sw"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
+    />
+
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
+    />
+
+    <snackbar
+      :snackbar="snackbar"
+      :type="snackbarType"
+      :text="snackbarText"
+      @close="closeSnackbar"
     />
   </div>
 </template>
@@ -79,12 +86,14 @@ import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
 import { SwitchResponse } from "@/types/switch";
 import { getSwitches, deleteSwitch } from "@/api/switches";
 
 import useSwitchForm from "@/composables/useSwitchForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
+import useSnackbar from "@/composables/useSnackbar";
 
 import { macDenormalization } from "@/helpers";
 
@@ -100,6 +109,7 @@ export default defineComponent({
   components: {
     SwitchForm,
     DeleteConfirmation,
+    Snackbar,
   },
 
   setup() {
@@ -120,6 +130,14 @@ export default defineComponent({
       deleteItemName,
       cancel: deleteCancel,
     } = useDeleteConfirmation();
+
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
 
     const search = ref("");
     const headers = ref([
@@ -151,6 +169,13 @@ export default defineComponent({
       deleteConfirmation,
       deleteItemName,
       deleteCancel,
+
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
 
       deleteSwitch,
 
@@ -186,13 +211,14 @@ export default defineComponent({
     deleteConfirm() {
       deleteSwitch(this.deleteItemName)
         .then(() => {
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
           this.deleteConfirmation = false;
           this.deleteItemName = "";
         })
         .then(() => this.displaySwitches());
     },
 
-    handleSubmitSwitch(
+    async handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
       ip: string,
@@ -209,24 +235,29 @@ export default defineComponent({
       retrieveTechDataFromSNMP: boolean,
       action: "Add" | "Edit"
     ) {
-      this.submitSwitchForm(
-        name,
-        ipResolveMethod,
-        ip,
-        mac,
-        upSwitchName,
-        upLink,
-        snmpCommunity,
-        revision,
-        serial,
-        build,
-        floor,
-        retrieveFromNetData,
-        retrieveUpLinkFromSeens,
-        retrieveTechDataFromSNMP,
-        action,
-        this.displaySwitches
-      );
+      try {
+        await this.submitSwitchForm(
+          name,
+          ipResolveMethod,
+          ip,
+          mac,
+          upSwitchName,
+          upLink,
+          snmpCommunity,
+          revision,
+          serial,
+          build,
+          floor,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          action
+        );
+        this.displaySwitches();
+        this.openSnackbar("success", `${name} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
+      }
     },
   },
 

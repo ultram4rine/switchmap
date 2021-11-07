@@ -223,7 +223,7 @@ export default defineComponent({
       }
     },
 
-    handleSubmitSwitch(
+    async handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
       ip: string,
@@ -240,24 +240,29 @@ export default defineComponent({
       retrieveTechDataFromSNMP: boolean,
       action: "Add" | "Edit"
     ) {
-      this.submitSwitchForm(
-        name,
-        ipResolveMethod,
-        ip,
-        mac,
-        upSwitchName,
-        upLink,
-        snmpCommunity,
-        revision,
-        serial,
-        build,
-        floor,
-        retrieveFromNetData,
-        retrieveUpLinkFromSeens,
-        retrieveTechDataFromSNMP,
-        action,
-        this.displayFloors
-      );
+      try {
+        await this.submitSwitchForm(
+          name,
+          ipResolveMethod,
+          ip,
+          mac,
+          upSwitchName,
+          upLink,
+          snmpCommunity,
+          revision,
+          serial,
+          build,
+          floor,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          action
+        );
+        this.displayFloors();
+        this.openSnackbar("success", `${name} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
+      }
     },
   },
 

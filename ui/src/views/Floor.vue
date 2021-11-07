@@ -66,6 +66,13 @@
         @submit="handleSubmitSwitch"
         @close="closeSwitchForm"
       />
+
+      <snackbar
+        :snackbar="snackbar"
+        :type="snackbarType"
+        :text="snackbarText"
+        @close="closeSnackbar"
+      />
     </div>
   </div>
 </template>
@@ -78,14 +85,16 @@ import drag from "@/directives/drag";
 import dragSwitch from "@/directives/dragSwitch";
 import zoom from "@/directives/zoom";
 
-import SwitchForm from "@/components/forms/SwitchForm.vue";
 import PlanUpload from "@/components/PlanUpload.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
 import { SwitchResponse } from "@/types/switch";
 import { getSwitchesOfFloor } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 
 import useSwitchForm from "@/composables/useSwitchForm";
+import useSnackbar from "@/composables/useSnackbar";
 
 export default defineComponent({
   props: {
@@ -95,8 +104,9 @@ export default defineComponent({
   },
 
   components: {
-    SwitchForm,
     PlanUpload,
+    SwitchForm,
+    Snackbar,
   },
 
   directives: {
@@ -122,6 +132,14 @@ export default defineComponent({
       closeForm: closeSwitchForm,
     } = useSwitchForm();
 
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
+
     const swName = ref("");
     const switches: Ref<SwitchResponse[]> = ref([]);
     const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
@@ -145,6 +163,13 @@ export default defineComponent({
       openSwitchForm,
       submitSwitchForm,
       closeSwitchForm,
+
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
 
       mdiMagnify,
       mdiPlus,
@@ -205,7 +230,7 @@ export default defineComponent({
       }
     },
 
-    handleSubmitSwitch(
+    async handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
       ip: string,
@@ -222,24 +247,29 @@ export default defineComponent({
       retrieveTechDataFromSNMP: boolean,
       action: "Add" | "Edit"
     ) {
-      this.submitSwitchForm(
-        name,
-        ipResolveMethod,
-        ip,
-        mac,
-        upSwitchName,
-        upLink,
-        snmpCommunity,
-        revision,
-        serial,
-        build,
-        floor,
-        retrieveFromNetData,
-        retrieveUpLinkFromSeens,
-        retrieveTechDataFromSNMP,
-        action,
-        this.displaySwitches
-      );
+      try {
+        await this.submitSwitchForm(
+          name,
+          ipResolveMethod,
+          ip,
+          mac,
+          upSwitchName,
+          upLink,
+          snmpCommunity,
+          revision,
+          serial,
+          build,
+          floor,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          action
+        );
+        this.displaySwitches();
+        this.openSnackbar("success", `${name} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
+      }
     },
   },
 

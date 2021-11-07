@@ -29,9 +29,8 @@ const useSwitchForm = (): {
     retrieveFromNetData: boolean,
     retrieveUpLinkFromSeens: boolean,
     retrieveTechDataFromSNMP: boolean,
-    action: "Add" | "Edit",
-    callback: () => void
-  ) => void;
+    action: "Add" | "Edit"
+  ) => Promise<void>;
   closeForm: () => void;
 } => {
   const form = ref(false);
@@ -67,7 +66,7 @@ const useSwitchForm = (): {
     form.value = true;
   };
 
-  const submitForm = (
+  const submitForm = async (
     name: string,
     ipResolveMethod: string,
     ip: string,
@@ -82,58 +81,53 @@ const useSwitchForm = (): {
     retrieveFromNetData: boolean,
     retrieveUpLinkFromSeens: boolean,
     retrieveTechDataFromSNMP: boolean,
-    action: "Add" | "Edit",
-    callback: () => void
-  ): void => {
-    try {
-      switch (action) {
-        case "Add": {
-          addSwitch({
-            snmpCommunity,
-            retrieveFromNetData,
-            retrieveUpLinkFromSeens,
-            retrieveTechDataFromSNMP,
-            ipResolveMethod,
-            name,
-            ip,
-            mac,
-            upSwitchName,
-            upLink,
-            buildShortName: build,
-            floorNumber: floor,
-            revision,
-            serial,
-          } as SwitchRequest).then(() => callback());
-          closeForm();
-          break;
-        }
-        case "Edit": {
-          editSwitch({
-            snmpCommunity,
-            retrieveFromNetData,
-            retrieveUpLinkFromSeens,
-            retrieveTechDataFromSNMP,
-            ipResolveMethod,
-            name,
-            ip,
-            mac,
-            upSwitchName,
-            upLink,
-            buildShortName: build,
-            floorNumber: floor,
-            positionTop: sw.value.positionTop,
-            positionLeft: sw.value.positionLeft,
-            revision,
-            serial,
-          } as SwitchRequest).then(() => callback());
-          closeForm();
-          break;
-        }
-        default:
-          break;
+    action: "Add" | "Edit"
+  ): Promise<void> => {
+    switch (action) {
+      case "Add": {
+        await addSwitch({
+          snmpCommunity,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          ipResolveMethod,
+          name,
+          ip,
+          mac,
+          upSwitchName,
+          upLink,
+          buildShortName: build,
+          floorNumber: floor,
+          revision,
+          serial,
+        } as SwitchRequest);
+        closeForm();
+        break;
       }
-    } catch (error: any) {
-      console.log(error);
+      case "Edit": {
+        await editSwitch({
+          snmpCommunity,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          ipResolveMethod,
+          name,
+          ip,
+          mac,
+          upSwitchName,
+          upLink,
+          buildShortName: build,
+          floorNumber: floor,
+          positionTop: sw.value.positionTop,
+          positionLeft: sw.value.positionLeft,
+          revision,
+          serial,
+        } as SwitchRequest);
+        closeForm();
+        break;
+      }
+      default:
+        break;
     }
   };
 
