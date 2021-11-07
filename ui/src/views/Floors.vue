@@ -1,7 +1,14 @@
 <template>
   <div id="build">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-if="isLoading && floors.length === 0"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-skeleton-loader
           class="mx-auto"
           type="card-heading, list-item, actions"
@@ -73,6 +80,13 @@
       @confirm="deleteConfirm"
       @cancel="deleteCancel(() => (floor = {}))"
     />
+
+    <snackbar
+      :snackbar="snackbar"
+      :type="snackbarType"
+      :text="snackbarText"
+      @close="closeSnackbar"
+    />
   </div>
 </template>
 
@@ -80,9 +94,10 @@
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
 import FloorCard from "@/components/cards/FloorCard.vue";
-import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
 import { FloorRequest, FloorResponse } from "@/types/floor";
 import { getFloorsOf, deleteFloor } from "@/api/floors";
@@ -90,6 +105,7 @@ import { getFloorsOf, deleteFloor } from "@/api/floors";
 import useFloorForm from "@/composables/useFloorForm";
 import useSwitchForm from "@/composables/useSwitchForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
+import useSnackbar from "@/composables/useSnackbar";
 
 export default defineComponent({
   props: {
@@ -99,9 +115,10 @@ export default defineComponent({
 
   components: {
     FloorCard,
-    DeleteConfirmation,
     FloorForm,
     SwitchForm,
+    DeleteConfirmation,
+    Snackbar,
   },
 
   setup() {
@@ -132,6 +149,14 @@ export default defineComponent({
       cancel: deleteCancel,
     } = useDeleteConfirmation();
 
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
+
     return {
       floors,
 
@@ -157,6 +182,13 @@ export default defineComponent({
       deleteItemName,
       deleteCancel,
 
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
+
       deleteFloor,
     };
   },
@@ -175,13 +207,20 @@ export default defineComponent({
     deleteConfirm() {
       deleteFloor(this.shortName, this.floor.number)
         .then(() => {
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
           this.deleteCancel(() => (this.floor = {} as FloorRequest));
         })
         .then(() => this.displayFloors());
     },
 
-    handleSubmitFloor(number: number) {
-      this.submitFloorForm(number, this.displayFloors);
+    async handleSubmitFloor(number: number) {
+      try {
+        await this.submitFloorForm(number);
+        this.displayFloors();
+        this.openSnackbar("success", `Floor ${number} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to add floor`);
+      }
     },
 
     handleSubmitSwitch(

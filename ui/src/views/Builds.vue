@@ -227,8 +227,14 @@ export default defineComponent({
       }
     },
 
-    handleSubmitFloor(number: number) {
-      this.submitFloorForm(number, this.displayBuilds);
+    async handleSubmitFloor(number: number) {
+      try {
+        await this.submitFloorForm(number);
+        this.displayBuilds();
+        this.openSnackbar("success", `Floor ${number} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to add floor`);
+      }
     },
   },
 

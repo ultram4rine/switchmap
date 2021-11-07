@@ -10,7 +10,7 @@ const useFloorForm = (): {
   floor: Ref<FloorRequest>;
   buildShortName: Ref<string>;
   openForm: (shortName?: string) => void;
-  submitForm: (number: number, callback: () => void) => void;
+  submitForm: (number: number) => Promise<void>;
   closeForm: () => void;
 } => {
   const form = ref(false);
@@ -26,19 +26,14 @@ const useFloorForm = (): {
     form.value = true;
   };
 
-  const submitForm = (number: number, callback: () => void): void => {
-    try {
-      getBuild(buildShortName.value).then((b) => {
-        addFloor({
-          number,
-          buildName: b.name,
-          buildShortName: buildShortName.value,
-        } as FloorRequest).then(() => callback());
-        closeForm();
-      });
-    } catch (error: any) {
-      console.log(error);
-    }
+  const submitForm = async (number: number): Promise<void> => {
+    const b = await getBuild(buildShortName.value);
+    await addFloor({
+      number,
+      buildName: b.name,
+      buildShortName: buildShortName.value,
+    } as FloorRequest);
+    closeForm();
   };
 
   const closeForm = (): void => {
