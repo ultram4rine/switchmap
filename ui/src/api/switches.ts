@@ -56,8 +56,11 @@ export const addSwitch = async (sw: SwitchRequest): Promise<void> => {
   await api.post("/switches", sw);
 };
 
-export const editSwitch = async (sw: SwitchRequest): Promise<void> => {
-  await api.put(`/switches/${sw.name}`, sw);
+export const editSwitch = async (
+  sw: SwitchRequest,
+  oldName: string
+): Promise<void> => {
+  await api.put(`/switches/${oldName}`, sw);
 };
 
 export const updatePosition = async (

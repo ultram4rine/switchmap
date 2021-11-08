@@ -7,12 +7,11 @@ const useSwitchForm = (): {
   form: Ref<boolean>;
   formAction: Ref<string>;
   sw: Ref<SwitchRequest>;
-  oldSwitchName: Ref<string>;
   openForm: (
     action: "Add" | "Edit",
+    swit?: SwitchRequest,
     build?: string,
-    floor?: number,
-    swit?: SwitchRequest
+    floor?: number
   ) => void;
   submitForm: (
     name: string,
@@ -37,15 +36,16 @@ const useSwitchForm = (): {
   const formAction = ref("");
 
   const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
-  const oldSwitchName = ref("");
+  const oldName = ref("");
 
   const openForm = (
     action: "Add" | "Edit",
+    swit?: SwitchRequest,
     build?: string,
-    floor?: number,
-    swit?: SwitchRequest
+    floor?: number
   ): void => {
     if (swit) {
+      oldName.value = swit.name;
       sw.value = swit;
       sw.value.ipResolveMethod = "Direct";
       sw.value.retrieveFromNetData = false;
@@ -105,24 +105,27 @@ const useSwitchForm = (): {
         break;
       }
       case "Edit": {
-        await editSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          ipResolveMethod,
-          name,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          buildShortName: build,
-          floorNumber: floor,
-          positionTop: sw.value.positionTop,
-          positionLeft: sw.value.positionLeft,
-          revision,
-          serial,
-        } as SwitchRequest);
+        await editSwitch(
+          {
+            snmpCommunity,
+            retrieveFromNetData,
+            retrieveUpLinkFromSeens,
+            retrieveTechDataFromSNMP,
+            ipResolveMethod,
+            name,
+            ip,
+            mac,
+            upSwitchName,
+            upLink,
+            buildShortName: build,
+            floorNumber: floor,
+            positionTop: sw.value.positionTop,
+            positionLeft: sw.value.positionLeft,
+            revision,
+            serial,
+          } as SwitchRequest,
+          oldName.value
+        );
         closeForm();
         break;
       }
@@ -133,7 +136,7 @@ const useSwitchForm = (): {
 
   const closeForm = (): void => {
     sw.value = {} as SwitchRequest;
-    oldSwitchName.value = "";
+    oldName.value = "";
     formAction.value = "";
     form.value = false;
   };
@@ -143,7 +146,6 @@ const useSwitchForm = (): {
     formAction,
 
     sw,
-    oldSwitchName,
 
     openForm,
     submitForm,
