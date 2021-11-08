@@ -8,7 +8,6 @@ const useBuildForm = (): {
   form: Ref<boolean>;
   formAction: Ref<"" | "Add" | "Edit">;
   build: Ref<BuildRequest>;
-  oldBuildShortName: Ref<string>;
   openForm: (action: "Add" | "Edit", b?: BuildRequest) => void;
   submitForm: (
     name: string,
@@ -21,11 +20,11 @@ const useBuildForm = (): {
   const formAction: Ref<"" | "Add" | "Edit"> = ref("");
 
   const build: Ref<BuildRequest> = ref({} as BuildRequest);
-  const oldBuildShortName = ref("");
+  const oldShortName = ref("");
 
   const openForm = (action: "Add" | "Edit", b?: BuildRequest): void => {
     if (b) {
-      oldBuildShortName.value = b.shortName;
+      oldShortName.value = b.shortName;
       build.value = b;
     } else {
       build.value = {} as BuildRequest;
@@ -48,7 +47,7 @@ const useBuildForm = (): {
       case "Edit":
         await editBuild(
           { name, shortName } as BuildRequest,
-          oldBuildShortName.value
+          oldShortName.value
         );
         closeForm();
         break;
@@ -59,7 +58,7 @@ const useBuildForm = (): {
 
   const closeForm = (): void => {
     build.value = {} as BuildRequest;
-    oldBuildShortName.value = "";
+    oldShortName.value = "";
     formAction.value = "";
     form.value = false;
   };
@@ -69,7 +68,6 @@ const useBuildForm = (): {
     formAction,
 
     build,
-    oldBuildShortName,
 
     openForm,
     submitForm,
