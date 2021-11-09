@@ -238,7 +238,7 @@ extend("ip", {
 export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
-    action: { type: String, required: true },
+    action: { type: String, required: true, enum: ["Add", "Edit"] },
 
     sw: { type: Object as PropType<SwitchRequest>, required: true },
 
@@ -252,7 +252,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const title = computed(() => {
-      return props.action == "Add" ? "New switch" : "Change switch";
+      return props.action === "Add" ? "New switch" : "Change switch";
     });
 
     const retrieveFromNetData = ref(props.sw.retrieveFromNetData);
