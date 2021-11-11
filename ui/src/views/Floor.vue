@@ -43,7 +43,9 @@
             <v-btn
               icon
               :color="hover ? 'orange darken-1' : ''"
-              @click="openSwitchForm('Add', shortName, parseInt(floor))"
+              @click="
+                openSwitchForm('Add', undefined, shortName, parseInt(floor))
+              "
             >
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
