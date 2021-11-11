@@ -53,6 +53,7 @@ const useSwitchForm = (): {
       sw.value.retrieveTechDataFromSNMP = false;
     } else {
       sw.value = {
+        mac: "",
         ipResolveMethod: "DNS",
         retrieveFromNetData: true,
         retrieveUpLinkFromSeens: true,
