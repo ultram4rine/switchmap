@@ -181,7 +181,7 @@ object Main extends App {
           orRedirectToRoot(spa <+> httpAPI(wsb))
 
         server <- ZIO.runtime[AppEnvironment].flatMap { _ =>
-          //val ec = rts.platform.executor.asEC
+          // val ec = rts.platform.executor.asEC
 
           BlazeServerBuilder[AppTask]
             .bindHttp(api.port, api.endpoint)
