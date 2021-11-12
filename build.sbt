@@ -8,7 +8,7 @@ lazy val root = (project in file("."))
   .settings(
     organization := "ru.sgu",
     name := "switchmap",
-    version := "2.0.0-SNAPSHOT",
+    version := "2.0.0",
     scalaVersion := "2.13.6",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
@@ -54,7 +54,7 @@ lazy val root = (project in file("."))
     Linux / maintainer := "SGU <sts@sgu.ru>",
     Linux / packageSummary := "Interactive map of SSU switches",
     Linux / packageDescription := "Interactive map of SSU switches",
-    rpmRelease := "3",
+    rpmRelease := "4",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
     rpmLicense := Some("MIT"),
