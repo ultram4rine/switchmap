@@ -8,8 +8,8 @@ lazy val root = (project in file("."))
   .settings(
     organization := "ru.sgu",
     name := "switchmap",
-    version := "2.0.0-SNAPSHOT",
-    scalaVersion := "2.13.7",
+    version := "2.0.0",
+    scalaVersion := "2.13.6",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     Compile / PB.targets := Seq(
@@ -27,20 +27,20 @@ lazy val root = (project in file("."))
       "org.http4s"            %% "rho-swagger-ui"         % "0.23.0-RC1",
       "io.circe"              %% "circe-generic"          % "0.14.1",
       "org.specs2"            %% "specs2-core"            % "4.13.0" % "test",
-      "ch.qos.logback"         % "logback-classic"        % "1.2.6",
+      "ch.qos.logback"         % "logback-classic"        % "1.2.7",
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "org.flywaydb"           % "flyway-core"            % "8.0.3",
+      "org.flywaydb"           % "flyway-core"            % "8.0.4",
       "org.postgresql"         % "postgresql"             % "42.3.1",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
-      "io.grpc"                % "grpc-netty"             % "1.41.0",
-      "com.thesamet.scalapb"  %% "scalapb-runtime-grpc"   % scalapb.compiler.Version.scalapbVersion,
-      "com.pauldijou"         %% "jwt-circe"              % "5.0.0",
-      "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
-      "org.snmp4j"             % "snmp4j"                 % "3.5.1"
+      "io.grpc"                % "grpc-netty"             % "1.42.0",
+      "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+      "com.github.jwt-scala" %% "jwt-circe"         % "9.0.2",
+      "com.unboundid"         % "unboundid-ldapsdk" % "6.0.2",
+      "org.snmp4j"            % "snmp4j"            % "3.6.0"
     ),
     dependencyOverrides ++= Seq(
       "org.slf4j" % "slf4j-api" % "1.7.32" // doobie-hikari@1.0.0-RC1 -> HikariCP@4.0.3 -> slf4j-api@2.0.0-alpha.1
@@ -54,7 +54,7 @@ lazy val root = (project in file("."))
     Linux / maintainer := "SGU <sts@sgu.ru>",
     Linux / packageSummary := "Interactive map of SSU switches",
     Linux / packageDescription := "Interactive map of SSU switches",
-    rpmRelease := "2",
+    rpmRelease := "4",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
     rpmLicense := Some("MIT"),

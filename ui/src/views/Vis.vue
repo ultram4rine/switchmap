@@ -49,10 +49,10 @@ import {
   DataSetEdges,
 } from "vis-network/standalone";
 
-import { SwitchResponse } from "../types/switch";
-import { BuildResponse } from "../types/build";
-import { getSwitches } from "../api/switches";
-import { getBuilds } from "../api/builds";
+import { SwitchResponse } from "@/types/switch";
+import { BuildResponse } from "@/types/build";
+import { getSwitches } from "@/api/switches";
+import { getBuilds } from "@/api/builds";
 
 export default defineComponent({
   props: {
@@ -62,16 +62,20 @@ export default defineComponent({
   setup() {
     const switchesAll: Ref<SwitchResponse[]> = ref([]);
     const switches: Ref<SwitchResponse[]> = ref([]);
+
+    const builds: Ref<BuildResponse[]> = ref([]);
+
     const show: Ref<string[]> = ref([]);
     const showAll = ref(true);
-    const builds: Ref<BuildResponse[]> = ref([]);
 
     return {
       switchesAll,
       switches,
+
+      builds,
+
       show,
       showAll,
-      builds,
     };
   },
 
@@ -118,8 +122,7 @@ export default defineComponent({
         },
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const network = new Network(container, data, options);
+      new Network(container, data, options);
     },
 
     remove(b: BuildResponse) {

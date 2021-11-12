@@ -27,20 +27,33 @@
         class="elevation-1"
       >
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon small class="mr-2" @click="openSwitchForm('Change', item)">
-            {{ mdiPencil }}
-          </v-icon>
-          <v-icon small @click="handleDelete(item)">{{ mdiDelete }}</v-icon>
+          <v-btn icon small @click="openSwitchForm('Edit', item)">
+            <v-icon small>
+              {{ mdiPencil }}
+            </v-icon>
+          </v-btn>
+          <v-btn icon small @click="handleDelete(item)">
+            <v-icon small>
+              {{ mdiDelete }}
+            </v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            small
+            v-if="item.floorNumber"
+            :to="{
+              name: 'floor',
+              params: {
+                shortName: item.buildShortName,
+                floor: item.floorNumber,
+              },
+            }"
+          >
+            <v-icon small>{{ mdiEye }}</v-icon>
+          </v-btn>
         </template>
       </v-data-table>
     </v-card>
-
-    <delete-confirmation
-      :confirmation="deleteConfirmation"
-      :name="deleteItemName"
-      @confirm="deleteConfirm"
-      @cancel="deleteCancel"
-    />
 
     <switch-form
       :form="switchForm"
@@ -50,26 +63,39 @@
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
+
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel"
+    />
+
+    <snackbar
+      :snackbar="snackbar"
+      :type="snackbarType"
+      :text="snackbarText"
+      @close="closeSnackbar"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, Ref, ref } from "@vue/composition-api";
-import { mdiMagnify, mdiPencil, mdiDelete } from "@mdi/js";
+import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
-import SwitchForm from "../components/forms/SwitchForm.vue";
-import DeleteConfirmation from "../components/DeleteConfirmation.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
-import { SwitchRequest, SwitchResponse } from "../types/switch";
-import {
-  getSwitches,
-  addSwitch,
-  editSwitch,
-  deleteSwitch,
-} from "../api/switches";
+import { SwitchResponse } from "@/types/switch";
+import { getSwitches, deleteSwitch } from "@/api/switches";
 
-import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
-import { macDenormalization } from "../helpers";
+import useSwitchForm from "@/composables/useSwitchForm";
+import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
+import useSnackbar from "@/composables/useSnackbar";
+
+import { macDenormalization } from "@/helpers";
 
 type TableSwitch = SwitchResponse & {
   location: string;
@@ -83,16 +109,34 @@ export default defineComponent({
   components: {
     SwitchForm,
     DeleteConfirmation,
+    Snackbar,
   },
 
   setup() {
     const switches: Ref<TableSwitch[]> = ref([]);
 
-    const switchForm = ref(false);
-    const switchFormAction = ref("");
-    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+    const {
+      form: switchForm,
+      formAction: switchFormAction,
+      sw,
+      openForm: openSwitchForm,
+      submitForm: submitSwitchForm,
+      closeForm: closeSwitchForm,
+    } = useSwitchForm();
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      deleteConfirmation,
+      deleteItemName,
+      cancel: deleteCancel,
+    } = useDeleteConfirmation();
+
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
 
     const search = ref("");
     const headers = ref([
@@ -111,13 +155,25 @@ export default defineComponent({
     return {
       switches,
 
+      // Switch form.
       switchForm,
       switchFormAction,
       sw,
+      openSwitchForm,
+      submitSwitchForm,
+      closeSwitchForm,
 
+      // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
-      name,
+      deleteCancel,
+
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
 
       deleteSwitch,
 
@@ -127,6 +183,7 @@ export default defineComponent({
       mdiMagnify,
       mdiPencil,
       mdiDelete,
+      mdiEye,
     };
   },
 
@@ -152,45 +209,14 @@ export default defineComponent({
     deleteConfirm() {
       deleteSwitch(this.deleteItemName)
         .then(() => {
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
           this.deleteConfirmation = false;
           this.deleteItemName = "";
         })
         .then(() => this.displaySwitches());
     },
 
-    deleteCancel() {
-      this.deleteConfirmation = false;
-      this.deleteItemName = "";
-    },
-
-    openSwitchForm(action: string, sw?: TableSwitch) {
-      if (sw) {
-        this.sw = sw as unknown as SwitchRequest;
-        this.sw.ipResolveMethod = "Direct";
-        this.sw.retrieveFromNetData = false;
-        this.sw.retrieveUpLinkFromSeens = false;
-        this.sw.retrieveTechDataFromSNMP = false;
-      } else {
-        this.sw = {
-          retrieveFromNetData: true,
-          retrieveUpLinkFromSeens: true,
-          retrieveTechDataFromSNMP: true,
-          name: "",
-          ip: "",
-          mac: "",
-          upSwitchName: "",
-          upLink: "",
-          revision: "",
-          serial: "",
-          buildShortName: "",
-          floorNumber: 0,
-        } as SwitchRequest;
-      }
-      this.switchFormAction = action;
-      this.switchForm = true;
-    },
-
-    handleSubmitSwitch(
+    async handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
       ip: string,
@@ -205,64 +231,34 @@ export default defineComponent({
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
       retrieveTechDataFromSNMP: boolean,
-      action: string
+      action: "Add" | "Edit"
     ) {
       try {
-        switch (action) {
-          case "Add": {
-            addSwitch({
-              snmpCommunity,
-              retrieveFromNetData,
-              retrieveUpLinkFromSeens,
-              retrieveTechDataFromSNMP,
-              ipResolveMethod,
-              name,
-              ip,
-              mac,
-              upSwitchName,
-              upLink,
-              buildShortName: build,
-              floorNumber: floor,
-              revision,
-              serial,
-            } as SwitchRequest).then(() => this.displaySwitches());
-            this.closeSwitchForm();
-            break;
-          }
-          case "Change": {
-            editSwitch({
-              snmpCommunity,
-              retrieveFromNetData,
-              retrieveUpLinkFromSeens,
-              retrieveTechDataFromSNMP,
-              ipResolveMethod,
-              name,
-              ip,
-              mac,
-              upSwitchName,
-              upLink,
-              buildShortName: build,
-              floorNumber: floor,
-              positionTop: this.sw.positionTop,
-              positionLeft: this.sw.positionLeft,
-              revision,
-              serial,
-            } as SwitchRequest).then(() => this.displaySwitches());
-            this.closeSwitchForm();
-            break;
-          }
-          default:
-            break;
-        }
-      } catch (error: any) {
-        console.log(error);
+        await this.submitSwitchForm(
+          name,
+          ipResolveMethod,
+          ip,
+          mac,
+          upSwitchName,
+          upLink,
+          snmpCommunity,
+          revision,
+          serial,
+          build,
+          floor,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          action
+        );
+        this.displaySwitches();
+        this.openSnackbar(
+          "success",
+          `${name} succesfully ${action.toLowerCase()}ed`
+        );
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }
-    },
-
-    closeSwitchForm() {
-      this.sw = {} as SwitchRequest;
-      this.switchFormAction = "";
-      this.switchForm = false;
     },
   },
 

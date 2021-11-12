@@ -68,7 +68,7 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { BuildRequest } from "../../types/build";
+import { BuildRequest } from "@/types/build";
 
 extend("required", {
   ...required,
@@ -78,7 +78,7 @@ extend("required", {
 export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
-    action: { type: String, required: true },
+    action: { type: String, required: true, enum: ["Add", "Edit"] },
 
     build: { type: Object as PropType<BuildRequest>, required: true },
   },
@@ -87,7 +87,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const title = computed(() => {
-      return props.action == "Add" ? "New build" : "Change build";
+      return props.action === "Add" ? "New build" : "Change build";
     });
 
     const name = ref(props.build.name);

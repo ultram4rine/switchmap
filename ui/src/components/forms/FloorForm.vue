@@ -49,7 +49,7 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { FloorRequest } from "../../types/floor";
+import { FloorRequest } from "@/types/floor";
 
 extend("required", {
   ...required,

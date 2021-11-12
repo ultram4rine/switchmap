@@ -43,7 +43,9 @@
             <v-btn
               icon
               :color="hover ? 'orange darken-1' : ''"
-              @click="openSwitchForm('Add')"
+              @click="
+                openSwitchForm('Add', undefined, shortName, parseInt(floor))
+              "
             >
               <v-icon dark>{{ mdiPlus }}</v-icon>
             </v-btn>
@@ -66,6 +68,13 @@
         @submit="handleSubmitSwitch"
         @close="closeSwitchForm"
       />
+
+      <snackbar
+        :snackbar="snackbar"
+        :type="snackbarType"
+        :text="snackbarText"
+        @close="closeSnackbar"
+      />
     </div>
   </div>
 </template>
@@ -78,12 +87,16 @@ import drag from "@/directives/drag";
 import dragSwitch from "@/directives/dragSwitch";
 import zoom from "@/directives/zoom";
 
-import SwitchForm from "@/components/forms/SwitchForm.vue";
 import PlanUpload from "@/components/PlanUpload.vue";
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/types/switch";
-import { getSwitchesOfFloor, addSwitch } from "@/api/switches";
+import { SwitchResponse } from "@/types/switch";
+import { getSwitchesOfFloor } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
+
+import useSwitchForm from "@/composables/useSwitchForm";
+import useSnackbar from "@/composables/useSnackbar";
 
 export default defineComponent({
   props: {
@@ -93,8 +106,9 @@ export default defineComponent({
   },
 
   components: {
-    SwitchForm,
     PlanUpload,
+    SwitchForm,
+    Snackbar,
   },
 
   directives: {
@@ -110,9 +124,22 @@ export default defineComponent({
 
     const planKey = ref(0);
 
-    const switchForm = ref(false);
-    const switchFormAction = ref("");
-    const sw: Ref<SwitchRequest> = ref({} as SwitchRequest);
+    const {
+      form: switchForm,
+      formAction: switchFormAction,
+      sw,
+      openForm: openSwitchForm,
+      submitForm: submitSwitchForm,
+      closeForm: closeSwitchForm,
+    } = useSwitchForm();
+
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
 
     const swName = ref("");
     const switches: Ref<SwitchResponse[]> = ref([]);
@@ -129,9 +156,20 @@ export default defineComponent({
       switches,
       switchesWithoutPosition,
 
+      // Switch form.
       switchForm,
       switchFormAction,
       sw,
+      openSwitchForm,
+      submitSwitchForm,
+      closeSwitchForm,
+
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
 
       mdiMagnify,
       mdiPlus,
@@ -139,6 +177,18 @@ export default defineComponent({
   },
 
   methods: {
+    displaySwitches() {
+      getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
+        sws.forEach((sw) => {
+          this.switches.push(sw);
+          if (!sw.positionTop && !sw.positionLeft) {
+            this.switchesWithoutPosition.push(sw);
+          }
+        });
+        this.planKey += 1;
+      });
+    },
+
     showPlan() {
       getPlan(`/plans/${this.shortName}f${this.floor}.png`)
         .then((uri) => {
@@ -149,7 +199,7 @@ export default defineComponent({
             this.noPlan = true;
           }
         })
-        .catch((_err: any) => {
+        .catch(() => {
           this.noPlan = true;
         });
     },
@@ -180,26 +230,7 @@ export default defineComponent({
       }
     },
 
-    openSwitchForm(action: string) {
-      this.sw = {
-        retrieveFromNetData: true,
-        retrieveUpLinkFromSeens: true,
-        retrieveTechDataFromSNMP: true,
-        name: "",
-        ip: "",
-        mac: "",
-        upSwitchName: "",
-        upLink: "",
-        revision: "",
-        serial: "",
-        buildShortName: this.shortName,
-        floorNumber: this.floor,
-      } as unknown as SwitchRequest;
-      this.switchFormAction = action;
-      this.switchForm = true;
-    },
-
-    handleSubmitSwitch(
+    async handleSubmitSwitch(
       name: string,
       ipResolveMethod: string,
       ip: string,
@@ -214,50 +245,40 @@ export default defineComponent({
       retrieveFromNetData: boolean,
       retrieveUpLinkFromSeens: boolean,
       retrieveTechDataFromSNMP: boolean,
-      _action: string
+      action: "Add" | "Edit"
     ) {
       try {
-        addSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          ipResolveMethod,
+        await this.submitSwitchForm(
           name,
+          ipResolveMethod,
           ip,
           mac,
           upSwitchName,
           upLink,
-          buildShortName: build,
-          floorNumber: floor,
+          snmpCommunity,
           revision,
           serial,
-        } as SwitchRequest);
-        this.closeSwitchForm();
-        this.switchForm = false;
-      } catch (error: any) {
-        console.log(error);
+          build,
+          floor,
+          retrieveFromNetData,
+          retrieveUpLinkFromSeens,
+          retrieveTechDataFromSNMP,
+          action
+        );
+        this.displaySwitches();
+        this.openSnackbar(
+          "success",
+          `${name} succesfully ${action.toLowerCase()}ed`
+        );
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }
-    },
-
-    closeSwitchForm() {
-      this.sw = {} as SwitchRequest;
-      this.switchFormAction = "";
-      this.switchForm = false;
     },
   },
 
   created() {
     this.showPlan();
-    getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
-      sws.forEach((sw) => {
-        this.switches.push(sw);
-        if (!sw.positionTop && !sw.positionLeft) {
-          this.switchesWithoutPosition.push(sw);
-        }
-      });
-      this.planKey += 1;
-    });
+    this.displaySwitches();
   },
 });
 </script>

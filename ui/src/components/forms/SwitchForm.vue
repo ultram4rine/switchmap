@@ -203,15 +203,15 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { getSNMPCommunities, getSwitches } from "../../api/switches";
-import { getBuilds } from "../../api/builds";
-import { getFloorsOf } from "../../api/floors";
+import { getSNMPCommunities, getSwitches } from "@/api/switches";
+import { getBuilds } from "@/api/builds";
+import { getFloorsOf } from "@/api/floors";
 
-import { SwitchRequest, SwitchResponse } from "../../types/switch";
-import { BuildResponse } from "../../types/build";
-import { FloorResponse } from "../../types/floor";
+import { SwitchRequest, SwitchResponse } from "@/types/switch";
+import { BuildResponse } from "@/types/build";
+import { FloorResponse } from "@/types/floor";
 
-import { macNormalization } from "../../helpers";
+import { macNormalization } from "@/helpers";
 
 extend("required", {
   ...required,
@@ -238,7 +238,7 @@ extend("ip", {
 export default defineComponent({
   props: {
     form: { type: Boolean, required: true },
-    action: { type: String, required: true },
+    action: { type: String, required: true, enum: ["Add", "Edit"] },
 
     sw: { type: Object as PropType<SwitchRequest>, required: true },
 
@@ -252,7 +252,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const title = computed(() => {
-      return props.action == "Add" ? "New switch" : "Change switch";
+      return props.action === "Add" ? "New switch" : "Change switch";
     });
 
     const retrieveFromNetData = ref(props.sw.retrieveFromNetData);

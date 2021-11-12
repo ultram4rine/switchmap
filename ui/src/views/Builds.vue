@@ -1,7 +1,14 @@
 <template>
   <div id="home">
     <v-row no-gutters dense>
-      <v-col v-if="isLoading" cols="12" sm="6" md="4" lg="3" xl="2">
+      <v-col
+        v-if="isLoading && builds.length === 0"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="2"
+      >
         <v-skeleton-loader
           class="mx-auto"
           type="card-heading, list-item, actions"
@@ -19,9 +26,9 @@
       >
         <build-card
           :build="b"
-          @handleEdit="handleEdit"
+          @handleEdit="openBuildForm('Edit', b)"
           @handleDelete="handleDelete"
-          @handleAddFloor="handleAddFloor"
+          @handleAddFloor="openFloorForm(b.shortName)"
         />
       </v-col>
 
@@ -51,13 +58,6 @@
       </v-card>
     </v-row>
 
-    <delete-confirmation
-      :confirmation="deleteConfirmation"
-      :name="deleteItemName"
-      @confirm="deleteConfirm"
-      @cancel="deleteCancel"
-    />
-
     <build-form
       :form="buildForm"
       :action="buildFormAction"
@@ -72,23 +72,39 @@
       @submit="handleSubmitFloor"
       @close="closeFloorForm"
     />
+
+    <delete-confirmation
+      :confirmation="deleteConfirmation"
+      :name="deleteItemName"
+      @confirm="deleteConfirm"
+      @cancel="deleteCancel(() => (buildShortName = ''))"
+    />
+
+    <snackbar
+      :snackbar="snackbar"
+      :type="snackbarType"
+      :text="snackbarText"
+      @close="closeSnackbar"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, Ref } from "@vue/composition-api";
 
-import BuildCard from "../components/cards/BuildCard.vue";
-import DeleteConfirmation from "../components/DeleteConfirmation.vue";
-import BuildForm from "../components/forms/BuildForm.vue";
-import FloorForm from "../components/forms/FloorForm.vue";
+import BuildCard from "@/components/cards/BuildCard.vue";
+import BuildForm from "@/components/forms/BuildForm.vue";
+import FloorForm from "@/components/forms/FloorForm.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import Snackbar from "@/components/Snackbar.vue";
 
-import { BuildRequest, BuildResponse } from "../types/build";
-import { FloorRequest } from "../types/floor";
-import { getBuilds, addBuild, editBuild, deleteBuild } from "../api/builds";
-import { addFloor } from "../api/floors";
+import { BuildResponse } from "@/types/build";
+import { getBuilds, deleteBuild } from "@/api/builds";
 
-import useDeleteConfirmation from "@/helpers/useDeleteConfirmation";
+import useBuildForm from "@/composables/useBuildForm";
+import useFloorForm from "@/composables/useFloorForm";
+import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
+import useSnackbar from "@/composables/useSnackbar";
 
 export default defineComponent({
   props: {
@@ -97,40 +113,79 @@ export default defineComponent({
 
   components: {
     BuildCard,
-    DeleteConfirmation,
     BuildForm,
     FloorForm,
+    DeleteConfirmation,
+    Snackbar,
   },
 
   setup() {
     const builds: Ref<BuildResponse[]> = ref([]);
+    const buildShortName = ref("");
 
-    const { deleteConfirmation, deleteItemName } = useDeleteConfirmation();
+    const {
+      form: buildForm,
+      formAction: buildFormAction,
+      build,
+      openForm: openBuildForm,
+      submitForm: submitBuildForm,
+      closeForm: closeBuildForm,
+    } = useBuildForm();
 
-    const shortName = ref("");
+    const {
+      form: floorForm,
+      floor,
+      buildShortName: floorBuildShortName,
+      openForm: openFloorForm,
+      submitForm: submitFloorForm,
+      closeForm: closeFloorForm,
+    } = useFloorForm();
 
-    const buildForm = ref(false);
-    const buildFormAction = ref("");
-    const build: Ref<BuildRequest> = ref({} as BuildRequest);
-    const oldBuild = ref("");
+    const {
+      deleteConfirmation,
+      deleteItemName,
+      cancel: deleteCancel,
+    } = useDeleteConfirmation();
 
-    const floorForm = ref(false);
-    const floor: Ref<FloorRequest> = ref({} as FloorRequest);
+    const {
+      snackbar,
+      snackbarType,
+      text: snackbarText,
+      open: openSnackbar,
+      close: closeSnackbar,
+    } = useSnackbar();
 
     return {
       builds,
+      buildShortName,
 
-      deleteConfirmation,
-      deleteItemName,
-      shortName,
-
+      // Build form.
       buildForm,
       buildFormAction,
       build,
-      oldBuild,
+      openBuildForm,
+      submitBuildForm,
+      closeBuildForm,
 
+      // Floor form.
       floorForm,
       floor,
+      floorBuildShortName,
+      openFloorForm,
+      submitFloorForm,
+      closeFloorForm,
+
+      // Delete confirmation.
+      deleteConfirmation,
+      deleteItemName,
+      deleteCancel,
+
+      // Snackbar.
+      snackbar,
+      snackbarType,
+      snackbarText,
+      openSnackbar,
+      closeSnackbar,
 
       deleteBuild,
     };
@@ -141,94 +196,46 @@ export default defineComponent({
       getBuilds().then((builds) => (this.builds = builds));
     },
 
-    handleEdit(b: BuildResponse) {
-      this.build = b;
-      this.oldBuild = b.shortName;
-      this.buildFormAction = "Change";
-      this.buildForm = true;
-    },
-
     handleDelete(b: BuildResponse) {
       this.deleteItemName = b.name;
-      this.shortName = b.shortName;
+      this.buildShortName = b.shortName;
       this.deleteConfirmation = true;
     },
 
     deleteConfirm() {
-      deleteBuild(this.shortName)
+      deleteBuild(this.buildShortName)
         .then(() => {
-          this.deleteConfirmation = false;
-          this.deleteItemName = "";
-          this.shortName = "";
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
+          this.deleteCancel(() => (this.buildShortName = ""));
         })
         .then(() => this.displayBuilds());
     },
 
-    deleteCancel() {
-      this.deleteConfirmation = false;
-      this.deleteItemName = "";
-      this.shortName = "";
-    },
-
-    handleAddFloor(b: BuildResponse) {
-      this.build = b;
-      this.floorNumber = 0;
-      this.floorForm = true;
-    },
-
-    openBuildForm(action: string) {
-      this.build = {} as BuildRequest;
-      this.buildFormAction = action;
-      this.buildForm = true;
-    },
-
-    handleSubmitBuild(name: string, shortName: string, action: string) {
+    async handleSubmitBuild(
+      name: string,
+      shortName: string,
+      action: "Add" | "Edit"
+    ) {
       try {
-        switch (action) {
-          case "Add":
-            addBuild({ name, shortName } as BuildRequest).then(() =>
-              this.displayBuilds()
-            );
-            this.closeBuildForm();
-            break;
-          case "Change":
-            editBuild({ name, shortName } as BuildRequest, this.oldBuild).then(
-              () => this.displayBuilds()
-            );
-            this.closeBuildForm();
-            break;
-          default:
-            break;
-        }
-      } catch (err: any) {
-        console.log(err);
+        await this.submitBuildForm(name, shortName, action);
+        this.displayBuilds();
+        this.openSnackbar(
+          "success",
+          `${name} succesfully ${action.toLowerCase()}ed`
+        );
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to ${action.toLowerCase()} build`);
       }
     },
 
-    closeBuildForm() {
-      this.build = {} as BuildRequest;
-      this.oldBuild = "";
-      this.buildFormAction = "";
-      this.buildForm = false;
-    },
-
-    handleSubmitFloor(number: number) {
+    async handleSubmitFloor(number: number) {
       try {
-        addFloor({
-          number,
-          buildName: this.build.name,
-          buildShortName: this.build.shortName,
-        } as FloorRequest).then(() => this.displayBuilds());
-        this.closeFloorForm();
-      } catch (error: any) {
-        console.log(error);
+        await this.submitFloorForm(number);
+        this.displayBuilds();
+        this.openSnackbar("success", `Floor ${number} succesfully added`);
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to add floor`);
       }
-    },
-
-    closeFloorForm() {
-      this.build = {} as BuildRequest;
-      this.floorNumber = 0;
-      this.floorForm = false;
     },
   },
 

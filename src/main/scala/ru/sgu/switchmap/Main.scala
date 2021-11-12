@@ -13,6 +13,7 @@ import org.http4s.rho.swagger.models._
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
+import org.http4s.server.websocket.WebSocketBuilder2
 import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
@@ -157,36 +158,38 @@ object Main extends App {
           )
         )
 
-        httpAPI = Router[AppTask](
-          "/api/v2" -> Middleware.middleware(
-            AuthContext
-              .toService(
-                AuthRoutes().api
-                  .and(BuildRoutes().api)
-                  .and(FloorRoutes().api)
-                  .and(SwitchRoutes().api)
-                  .and(PlanRoutes().api)
-                  .toRoutes(swaggerMiddleware)
-              )
+        httpAPI = (wsb: WebSocketBuilder2[AppTask]) =>
+          Router[AppTask](
+            "/api/v2" -> Middleware.middleware(
+              AuthContext
+                .toService(
+                  AuthRoutes().api
+                    .and(BuildRoutes().api)
+                    .and(FloorRoutes().api)
+                    .and(SwitchRoutes().api)
+                    .and(PlanRoutes().api)
+                    .toRoutes(swaggerMiddleware)
+                )
+            )
           )
-        )
 
         spa = Router[AppTask](
           "/" -> resourceServiceBuilder[AppTask]("/public").toRoutes
         )
 
-        routes = orRedirectToRoot(spa <+> httpAPI)
+        routes = (wsb: WebSocketBuilder2[AppTask]) =>
+          orRedirectToRoot(spa <+> httpAPI(wsb))
 
         server <- ZIO.runtime[AppEnvironment].flatMap { _ =>
-          //val ec = rts.platform.executor.asEC
+          // val ec = rts.platform.executor.asEC
 
           BlazeServerBuilder[AppTask]
             .bindHttp(api.port, api.endpoint)
-            .withHttpApp(
+            .withHttpWebSocketApp { wsb =>
               CORS.policy.withAllowOriginAll
                 .withAllowCredentials(false)
-                .apply(routes)
-            )
+                .apply(routes(wsb))
+            }
             .serve
             .compile[AppTask, AppTask, CatsExitCode]
             .drain

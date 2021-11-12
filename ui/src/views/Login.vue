@@ -50,7 +50,7 @@
 import { defineComponent, ref } from "@vue/composition-api";
 import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
-import { AUTH_LOGIN } from "../store/actions";
+import { AUTH_LOGIN } from "@/store/actions";
 
 export default defineComponent({
   setup() {

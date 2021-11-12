@@ -1,7 +1,7 @@
 <template>
   <v-card class="ma-1" outlined>
     <v-card-title class="headline">
-      {{ build.name }}
+      <div class="ellipsis">{{ build.name }}</div>
       <v-spacer></v-spacer>
       <v-btn icon small color="grey" @click="handleEdit">
         <v-icon>{{ mdiPencil }}</v-icon>
@@ -15,7 +15,7 @@
       {{ build.floorsNumber }}
       {{ build.floorsNumber !== 1 ? "floors" : "floor" }},
       {{ build.switchesNumber }}
-      {{ build.switchesNumber !== 1 ? "switches" : "switch" }},
+      {{ build.switchesNumber !== 1 ? "switches" : "switch" }}
     </v-card-subtitle>
 
     <v-card-actions>
@@ -39,7 +39,7 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import { mdiPencil, mdiDelete } from "@mdi/js";
 
-import { BuildResponse } from "../../types/build";
+import { BuildResponse } from "@/types/build";
 
 export default defineComponent({
   props: {
@@ -61,3 +61,14 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.v-card__title {
+  flex-wrap: nowrap;
+}
+.ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+</style>
