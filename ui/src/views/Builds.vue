@@ -219,7 +219,10 @@ export default defineComponent({
       try {
         await this.submitBuildForm(name, shortName, action);
         this.displayBuilds();
-        this.openSnackbar("success", `${name} succesfully added`);
+        this.openSnackbar(
+          "success",
+          `${name} succesfully ${action.toLowerCase()}ed`
+        );
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} build`);
       }

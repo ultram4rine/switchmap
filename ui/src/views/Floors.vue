@@ -257,7 +257,10 @@ export default defineComponent({
           action
         );
         this.displayFloors();
-        this.openSnackbar("success", `${name} succesfully added`);
+        this.openSnackbar(
+          "success",
+          `${name} succesfully ${action.toLowerCase()}ed`
+        );
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }
