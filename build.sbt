@@ -21,6 +21,8 @@ lazy val root = (project in file("."))
       "dev.zio"               %% "zio-interop-cats"       % "3.1.1.0",
       "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
       "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion,
+      "org.http4s"            %% "http4s-ember-server"    % Http4sVersion,
+      "org.http4s"            %% "http4s-ember-client"    % Http4sVersion,
       "org.http4s"            %% "http4s-circe"           % Http4sVersion,
       "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
       "org.http4s"            %% "rho-swagger"            % "0.23.0-RC1",

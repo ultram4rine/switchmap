@@ -3,11 +3,13 @@ package ru.sgu.switchmap
 import cats.syntax.semigroupk._
 import cats.effect.{ExitCode => CatsExitCode}
 import cats.data.Kleisli
+import com.comcast.ip4s._
 import com.http4s.rho.swagger.ui.SwaggerUi
 import io.grpc.ManagedChannelBuilder
 import org.http4s
 import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.{HttpRoutes, HttpApp, Request, Response}
 import org.http4s.rho.swagger.models._
 import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
@@ -180,7 +182,7 @@ object Main extends App {
         routes = (wsb: WebSocketBuilder2[AppTask]) =>
           orRedirectToRoot(spa <+> httpAPI(wsb))
 
-        server <- ZIO.runtime[AppEnvironment].flatMap { _ =>
+        /* server <- ZIO.runtime[AppEnvironment].flatMap { _ =>
           // val ec = rts.platform.executor.asEC
 
           BlazeServerBuilder[AppTask]
@@ -193,7 +195,25 @@ object Main extends App {
             .serve
             .compile[AppTask, AppTask, CatsExitCode]
             .drain
-        }
+        } */
+
+        server <- EmberServerBuilder
+          .default[AppTask]
+          .withHost(Host.fromString(api.endpoint).get)
+          .withPort(Port.fromInt(api.port).get)
+          .withHttpWebSocketApp { wsb =>
+            CORS.policy.withAllowOriginAll
+              .withAllowCredentials(false)
+              .apply(routes(wsb))
+          }
+          .build
+          .toManagedZIO
+          .use(server =>
+            Task
+              .succeed(
+                putStrLn(s"Server Has Started at ${server.address}")
+              ) *> UIO.never.as(())
+          )
       } yield server
 
     program
