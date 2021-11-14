@@ -1,7 +1,7 @@
 import { DirectiveOptions } from "vue";
 import { DirectiveBinding } from "vue/types/options";
 
-import { updatePosition } from "../api/switches";
+import { updatePosition } from "@/api/switches";
 
 const apply = (elem: HTMLElement, transform: { dx: number; dy: number }) => {
   elem.style.top = transform.dy.toString() + "px";
@@ -18,14 +18,9 @@ const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
     const style = window.getComputedStyle(sw),
       top = parseFloat(style.top),
       left = parseFloat(style.left);
-    let lastTransform = { dx: left, dy: top };
 
-    const lastOffset = lastTransform;
-    const lastOffsetX = lastOffset ? lastOffset.dx : 0,
-      lastOffsetY = lastOffset ? lastOffset.dy : 0;
-
-    const startX = e.pageX - lastOffsetX,
-      startY = e.pageY - lastOffsetY;
+    const startX = e.pageX - left,
+      startY = e.pageY - top;
 
     const swMoveHandler = (event: MouseEvent) => {
       if (event.preventDefault) event.preventDefault();
@@ -33,14 +28,13 @@ const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
       const newDx =
           event.clientX -
           startX +
-          (event.clientX - startX - lastOffsetX) * (1 / scale - 1),
+          (event.clientX - startX - left) * (1 / scale - 1),
         newDy =
           event.clientY -
           startY +
-          (event.clientY - startY - lastOffsetY) * (1 / scale - 1);
+          (event.clientY - startY - top) * (1 / scale - 1);
 
       apply(sw, { dx: newDx, dy: newDy });
-      lastTransform = { dx: newDx, dy: newDy };
       binding.value.positionTop = newDy;
       binding.value.positionLeft = newDx;
     };
@@ -48,7 +42,10 @@ const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
     sw.addEventListener("mousemove", swMoveHandler);
 
     sw.addEventListener("mouseup", () => {
-      updatePosition(sw.id, { top: lastTransform.dy, left: lastTransform.dx });
+      updatePosition(sw.id, {
+        top: binding.value.positionTop,
+        left: binding.value.positionLeft,
+      });
       sw.removeEventListener("mousemove", swMoveHandler);
     });
     sw.addEventListener("mouseout", () =>

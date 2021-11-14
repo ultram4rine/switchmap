@@ -1,8 +1,10 @@
 import { DirectiveOptions } from "vue";
 
-const apply = (elem: HTMLElement, transform: string) => {
-  elem.style.webkitTransform = transform;
-  elem.style.transform = transform;
+const apply = (
+  elem: HTMLElement,
+  transform: { dx: number; dy: number; scale: number }
+) => {
+  elem.style.transform = `translate(${transform.dx}px, ${transform.dy}px) scale(${transform.scale})`;
 };
 
 const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
@@ -15,13 +17,7 @@ const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
 
 const directive: DirectiveOptions = {
   inserted: (el) => {
-    let scale = el.getBoundingClientRect().width / el.offsetWidth,
-      oldScale;
-
-    let rect: DOMRect;
-    setTimeout(() => {
-      rect = el.getBoundingClientRect();
-    }, 0);
+    let scale = el.getBoundingClientRect().width / el.offsetWidth;
 
     addOnWheel(el, (e: WheelEvent) => {
       e.preventDefault();
@@ -30,11 +26,11 @@ const directive: DirectiveOptions = {
         pgY = e.pageY;
 
       const parentRect = (el?.parentNode as Element).getBoundingClientRect();
-      rect = el.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
 
       const delta = Math.max(-1, Math.min(1, e.deltaY || e.detail));
 
-      oldScale = scale;
+      const oldScale = scale;
       scale -= delta / 10;
       if (scale < 0.1) {
         scale = 0.1;
@@ -52,8 +48,7 @@ const directive: DirectiveOptions = {
         pgY - parentRect.top - yPercent * ((rect.height * scale) / oldScale)
       );
 
-      const transform = `translate(${left}px, ${top}px) scale(${scale})`;
-      apply(el, transform);
+      apply(el, { dx: left, dy: top, scale });
     });
   },
 };
