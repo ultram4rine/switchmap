@@ -4,7 +4,7 @@ import io.circe.Decoder
 import org.http4s.client.dsl.Http4sClientDsl
 import zio._
 import zio.interop.catz._
-import org.http4s.blaze.client.BlazeClientBuilder
+import org.http4s.ember.client.EmberClientBuilder
 import ru.sgu.switchmap.models.{SeenRequest, SeenResponse}
 import org.http4s.Uri
 import org.http4s.Method.POST
@@ -63,9 +63,9 @@ object seens {
                     value
                   )
                   for {
-                    seensAll <- BlazeClientBuilder[Task]
-                      .withExecutionContext(global)
-                      .resource
+                    seensAll <- EmberClientBuilder
+                      .default[Task]
+                      .build
                       .use { client =>
                         client.expect[List[SeenResponse]](req)
                       }
