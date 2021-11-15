@@ -1,23 +1,15 @@
 import { DirectiveOptions } from "vue";
 
-const apply = (
-  elem: HTMLElement,
-  transform: { dx: number; dy: number; scale: number }
-) => {
-  elem.style.transform = `translate(${transform.dx}px, ${transform.dy}px) scale(${transform.scale})`;
-};
-
 const handler = (el: HTMLElement): void => {
   const mouseDownHandler = (e: MouseEvent) => {
     if (e.preventDefault) e.preventDefault();
 
-    const scale = el.getBoundingClientRect().width / el.offsetWidth;
-
     const style = window.getComputedStyle(el),
-      matrix = new WebKitCSSMatrix(style.transform);
+      top = parseFloat(style.top),
+      left = parseFloat(style.left);
 
-    const startX = e.pageX - matrix.m41,
-      startY = e.pageY - matrix.m42;
+    const startX = e.pageX - left,
+      startY = e.pageY - top;
 
     const mouseMoveHandler = (event: MouseEvent) => {
       if (event.preventDefault) event.preventDefault();
@@ -25,27 +17,24 @@ const handler = (el: HTMLElement): void => {
       const newDx = event.pageX - startX,
         newDy = event.pageY - startY;
 
-      apply(el, { dx: newDx, dy: newDy, scale });
+      el.style.left = newDx + "px";
+      el.style.top = newDy + "px";
     };
 
-    el.addEventListener("mousemove", mouseMoveHandler);
+    document.addEventListener("mousemove", mouseMoveHandler);
 
-    el.addEventListener("mouseup", () => {
-      el.removeEventListener("mousemove", mouseMoveHandler);
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mousemove", mouseMoveHandler);
     });
   };
 
-  el.addEventListener("mousedown", mouseDownHandler);
+  el.onmousedown = mouseDownHandler;
 
   for (const swEl of el.getElementsByClassName("switch")) {
     const sw = swEl as HTMLElement;
 
-    sw.addEventListener("mouseover", () =>
-      el.removeEventListener("mousedown", mouseDownHandler)
-    );
-    sw.addEventListener("mouseout", () =>
-      el.addEventListener("mousedown", mouseDownHandler)
-    );
+    sw.onmouseover = () => (el.onmousedown = null);
+    sw.onmouseout = () => (el.onmousedown = mouseDownHandler);
   }
 };
 

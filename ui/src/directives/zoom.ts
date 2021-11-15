@@ -1,12 +1,5 @@
 import { DirectiveOptions } from "vue";
 
-const apply = (
-  elem: HTMLElement,
-  transform: { dx: number; dy: number; scale: number }
-) => {
-  elem.style.transform = `translate(${transform.dx}px, ${transform.dy}px) scale(${transform.scale})`;
-};
-
 const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
   if (elem.addEventListener) {
     if ("onwheel" in document) {
@@ -48,7 +41,9 @@ const directive: DirectiveOptions = {
         pgY - parentRect.top - yPercent * ((rect.height * scale) / oldScale)
       );
 
-      apply(el, { dx: left, dy: top, scale });
+      el.style.top = top + "px";
+      el.style.left = left + "px";
+      el.style.transform = `scale(${scale})`;
     });
   },
 };
