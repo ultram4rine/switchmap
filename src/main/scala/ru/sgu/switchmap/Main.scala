@@ -184,21 +184,6 @@ object Main extends App {
         routes = (wsb: WebSocketBuilder2[AppTask]) =>
           orRedirectToRoot(spa <+> httpAPI(wsb))
 
-        /* server <- ZIO.runtime[AppEnvironment].flatMap { _ =>
-          // val ec = rts.platform.executor.asEC
-
-          BlazeServerBuilder[AppTask]
-            .bindHttp(api.port, api.endpoint)
-            .withHttpWebSocketApp { wsb =>
-              CORS.policy.withAllowOriginAll
-                .withAllowCredentials(false)
-                .apply(routes(wsb))
-            }
-            .serve
-            .compile[AppTask, AppTask, CatsExitCode]
-            .drain
-        } */
-
         server <- EmberServerBuilder
           .default[AppTask]
           .withHost(Host.fromString(api.endpoint).get)
