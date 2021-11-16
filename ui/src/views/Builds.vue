@@ -53,10 +53,23 @@
     </v-row>
 
     <v-row no-gutters>
-      <v-card class="ma-1">
-        <v-btn color="error" @click="openBuildForm('Add')">Add build</v-btn>
+      <v-card :style="{ visibility: 'hidden' }" class="ma-1">
+        <v-btn rounded large></v-btn>
       </v-card>
     </v-row>
+
+    <v-btn
+      rounded
+      large
+      fixed
+      bottom
+      right
+      color="orange accent-4"
+      dark
+      @click="openBuildForm('Add')"
+    >
+      Add build
+    </v-btn>
 
     <build-form
       :form="buildForm"

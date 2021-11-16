@@ -39,19 +39,9 @@
             label="Switch"
             color="orange accent-2"
           ></v-select>
-          <v-hover v-slot:default="{ hover }">
-            <v-btn
-              icon
-              :color="hover ? 'orange darken-1' : ''"
-              @click="
-                openSwitchForm('Add', undefined, shortName, parseInt(floor))
-              "
-            >
-              <v-icon dark>{{ mdiPlus }}</v-icon>
-            </v-btn>
-          </v-hover>
           <v-btn
             v-if="swName !== ''"
+            class="ma-1"
             color="orange darken-1"
             @click="place(swName)"
           >
@@ -59,6 +49,19 @@
           </v-btn>
         </v-toolbar>
       </div>
+
+      <v-btn
+        rounded
+        large
+        fixed
+        bottom
+        right
+        color="orange accent-4"
+        dark
+        @click="openSwitchForm('Add', undefined, shortName, parseInt(floor))"
+      >
+        Add switch
+      </v-btn>
 
       <SwitchForm
         :form="switchForm"
