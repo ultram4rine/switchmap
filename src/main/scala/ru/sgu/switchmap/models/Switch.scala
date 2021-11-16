@@ -36,7 +36,8 @@ final case class SwitchResponse(
 final case class SwitchPosition(
   name: String = "",
   top: Float = 0,
-  left: Float = 0
+  left: Float = 0,
+  moving: Boolean = true
 )
 
 final case class SavePositionRequest(

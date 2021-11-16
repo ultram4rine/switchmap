@@ -11,7 +11,7 @@
 
           <v-chip
             v-for="sw in switches"
-            v-drag-switch="{ sw, socket }"
+            v-drag-switch="{ sw, socket, locked }"
             @moving="setMoving"
             :key="sw.name"
             :id="sw.name"
@@ -148,6 +148,7 @@ export default defineComponent({
     const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
 
     const moving = ref("");
+    const locked: Ref<string[]> = ref([]);
     let socket = new WebSocket(wsURL(props.shortName, parseInt(props.floor)));
 
     socket.onopen = () => {
@@ -160,13 +161,20 @@ export default defineComponent({
       console.log("closing");
     };
     socket.onmessage = (event) => {
-      const pos: { name: string; top: number; left: number } = JSON.parse(
-        event.data
-      );
+      const pos: { name: string; top: number; left: number; moving: boolean } =
+        JSON.parse(event.data);
       if (pos) {
         if (moving.value !== pos.name) {
           const sw2Update = switches.value.find((sw) => sw.name === pos.name);
           if (sw2Update) {
+            if (pos.moving) {
+              locked.value.push(pos.name);
+            } else {
+              let lockID = locked.value.indexOf(pos.name);
+              if (lockID !== -1) {
+                locked.value.splice(lockID, 1);
+              }
+            }
             const idx = switches.value.indexOf(sw2Update);
             switches.value[idx].positionTop = pos.top;
             switches.value[idx].positionLeft = pos.left;
@@ -202,7 +210,7 @@ export default defineComponent({
       closeSnackbar,
 
       moving,
-
+      locked,
       socket,
 
       mdiMagnify,
