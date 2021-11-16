@@ -66,8 +66,6 @@ export default Vue.extend({
       mdiCopyright: mdiCopyright,
 
       drawer: true,
-      fab: false,
-      overlay: false,
 
       //breadcrumbs: [],
 
