@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
     rpmRelease := "5",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
-    rpmLicense := Some("MIT"),
+    rpmLicense := Some("Apache-2.0"),
     Universal / mappings ++= directory("plans"),
     bashScriptExtraDefines += """addJava "-Dconfig.file=${app_home}/../conf/application.conf""""
   )
