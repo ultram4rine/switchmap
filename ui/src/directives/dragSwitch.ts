@@ -1,8 +1,6 @@
 import { DirectiveOptions, VNode } from "vue";
 import { DirectiveBinding } from "vue/types/options";
 
-import { updatePosition } from "@/api/switches";
-
 const handler = (
   sw: HTMLElement,
   binding: DirectiveBinding,
@@ -57,13 +55,11 @@ const handler = (
       }
     };
 
-    document.addEventListener("mousemove", swMoveHandler);
+    if (!binding.value.locked.has(sw.id)) {
+      document.addEventListener("mousemove", swMoveHandler);
+    }
 
     sw.addEventListener("mouseup", () => {
-      /* updatePosition(sw.id, {
-        top: binding.value.positionTop,
-        left: binding.value.positionLeft,
-      }); */
       binding.value.socket.send(
         JSON.stringify({
           name: sw.id,
