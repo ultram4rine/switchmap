@@ -11,7 +11,8 @@
 
           <v-chip
             v-for="sw in switches"
-            v-drag-switch="sw"
+            v-drag-switch="{ sw, socket }"
+            @moving="setMoving"
             :key="sw.name"
             :id="sw.name"
             dark
@@ -94,6 +95,7 @@ import Snackbar from "@/components/Snackbar.vue";
 import { SwitchResponse } from "@/types/switch";
 import { getSwitchesOfFloor } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
+import { wsURL } from "@/api";
 
 import useSwitchForm from "@/composables/useSwitchForm";
 import useSnackbar from "@/composables/useSnackbar";
@@ -117,7 +119,7 @@ export default defineComponent({
     zoom,
   },
 
-  setup() {
+  setup(props) {
     const planPath = ref("");
 
     const noPlan = ref(false);
@@ -145,6 +147,34 @@ export default defineComponent({
     const switches: Ref<SwitchResponse[]> = ref([]);
     const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
 
+    const moving = ref("");
+    let socket = new WebSocket(wsURL(props.shortName, parseInt(props.floor)));
+
+    socket.onopen = () => {
+      console.log("opened");
+    };
+    socket.onerror = () => {
+      console.log("error");
+    };
+    socket.onclose = () => {
+      console.log("closing");
+    };
+    socket.onmessage = (event) => {
+      const pos: { name: string; top: number; left: number } = JSON.parse(
+        event.data
+      );
+      if (pos) {
+        if (moving.value !== pos.name) {
+          const sw2Update = switches.value.find((sw) => sw.name === pos.name);
+          if (sw2Update) {
+            const idx = switches.value.indexOf(sw2Update);
+            switches.value[idx].positionTop = pos.top;
+            switches.value[idx].positionLeft = pos.left;
+          }
+        }
+      }
+    };
+
     return {
       planPath,
       noPlan,
@@ -170,6 +200,10 @@ export default defineComponent({
       snackbarText,
       openSnackbar,
       closeSnackbar,
+
+      moving,
+
+      socket,
 
       mdiMagnify,
       mdiPlus,
@@ -228,6 +262,10 @@ export default defineComponent({
           switchToPlace.positionLeft = plan.offsetWidth / 2;
         }
       }
+    },
+
+    setMoving(name: { detail: string }) {
+      this.moving = name.detail;
     },
 
     async handleSubmitSwitch(
