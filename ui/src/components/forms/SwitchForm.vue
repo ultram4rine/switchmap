@@ -10,8 +10,8 @@
       </v-toolbar>
 
       <ValidationObserver ref="observer" v-slot="{ invalid }">
-        <v-card-text>
-          <v-form ref="form">
+        <v-form ref="form" @submit.prevent="submit">
+          <v-card-text>
             <v-checkbox
               v-model="retrieveFromNetData"
               label="Retrieve switch data from netdata"
@@ -173,17 +173,17 @@
                 ></v-select>
               </v-col>
             </v-row>
-          </v-form>
-        </v-card-text>
+          </v-card-text>
 
-        <v-divider></v-divider>
+          <v-divider></v-divider>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
-            {{ action }}
-          </v-btn>
-        </v-card-actions>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn type="submit" color="orange darken-1" :disabled="invalid">
+              {{ action }}
+            </v-btn>
+          </v-card-actions>
+        </v-form>
       </ValidationObserver>
     </v-card>
   </v-dialog>
