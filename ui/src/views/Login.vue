@@ -6,7 +6,7 @@
           <v-toolbar dark flat>
             <v-toolbar-title>Login to SwitchMap</v-toolbar-title>
           </v-toolbar>
-          <v-form>
+          <v-form @submit.prevent="login">
             <v-card-text>
               <v-text-field
                 v-model="username"
@@ -34,7 +34,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn color="orange darken-1" class="mr-4" @click="login">
+              <v-btn type="submit" color="orange darken-1" class="mr-4">
                 Sign in
                 <v-icon right>{{ mdiLogin }}</v-icon>
               </v-btn>

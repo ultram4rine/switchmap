@@ -10,8 +10,8 @@
       </v-toolbar>
 
       <ValidationObserver ref="observer" v-slot="{ invalid }">
-        <v-card-text>
-          <v-form ref="form">
+        <v-form ref="form" @submit.prevent="submit">
+          <v-card-text>
             <ValidationProvider
               v-slot="{ errors }"
               name="Number of floor"
@@ -26,17 +26,17 @@
                 color="orange accent-2"
               ></v-text-field>
             </ValidationProvider>
-          </v-form>
-        </v-card-text>
+          </v-card-text>
 
-        <v-divider></v-divider>
+          <v-divider></v-divider>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
-            Add
-          </v-btn>
-        </v-card-actions>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn type="submit" color="orange darken-1" :disabled="invalid">
+              Add
+            </v-btn>
+          </v-card-actions>
+        </v-form>
       </ValidationObserver>
     </v-card>
   </v-dialog>
