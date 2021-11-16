@@ -152,21 +152,27 @@ export default defineComponent({
 
     const moving = ref("");
     const locked = ref(new Set<string>());
-    let socket = new WebSocket(wsURL(props.shortName, parseInt(props.floor)));
+    const socket = ref(
+      new WebSocket(wsURL(props.shortName, parseInt(props.floor)))
+    );
 
-    socket.onopen = () => {
+    socket.value.onopen = () => {
       console.log("opened");
     };
-    socket.onerror = () => {
+    socket.value.onerror = () => {
       console.log("error");
     };
-    socket.onclose = () => {
+    socket.value.onclose = () => {
       console.log("closing");
     };
-    socket.onmessage = (event) => {
-      const pos: { name: string; top: number; left: number; moving: boolean } =
-        JSON.parse(event.data);
-      if (pos) {
+    socket.value.onmessage = (event) => {
+      try {
+        const pos: {
+          name: string;
+          top: number;
+          left: number;
+          moving: boolean;
+        } = JSON.parse(event.data);
         if (moving.value !== pos.name) {
           const sw2Update = switches.value.find((sw) => sw.name === pos.name);
           if (sw2Update) {
@@ -180,6 +186,9 @@ export default defineComponent({
             switches.value[idx].positionLeft = pos.left;
           }
         }
+      } catch (e) {
+        console.log(event.data);
+        socket.value.send(event.data);
       }
     };
 
