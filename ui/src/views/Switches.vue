@@ -4,9 +4,6 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
-        <v-btn color="orange darken-1" dark @click="openSwitchForm('Add')">
-          Add switch
-        </v-btn>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -54,6 +51,25 @@
         </template>
       </v-data-table>
     </v-card>
+
+    <v-row no-gutters>
+      <v-card :style="{ visibility: 'hidden' }" class="ma-1">
+        <v-btn rounded large></v-btn>
+      </v-card>
+    </v-row>
+
+    <v-btn
+      rounded
+      large
+      fixed
+      bottom
+      right
+      color="orange accent-4"
+      dark
+      @click="openSwitchForm('Add')"
+    >
+      Add switch
+    </v-btn>
 
     <switch-form
       :form="switchForm"
