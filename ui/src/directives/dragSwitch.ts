@@ -49,6 +49,7 @@ const handler = (
             name: sw.id,
             top: binding.value.sw.positionTop,
             left: binding.value.sw.positionLeft,
+            moving: true,
           })
         );
       } catch (err) {
@@ -63,6 +64,14 @@ const handler = (
         top: binding.value.positionTop,
         left: binding.value.positionLeft,
       }); */
+      binding.value.socket.send(
+        JSON.stringify({
+          name: sw.id,
+          top: binding.value.sw.positionTop,
+          left: binding.value.sw.positionLeft,
+          moving: false,
+        })
+      );
       document.removeEventListener("mousemove", swMoveHandler);
     });
   };
