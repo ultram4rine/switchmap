@@ -1,19 +1,33 @@
 package ru.sgu.switchmap.routes
 
+import fs2.{Stream, Pipe}
 import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
+import io.circe.parser.decode
 import org.http4s.circe._
 import org.http4s.rho.RhoRoutes
 import org.http4s.rho.swagger.SwaggerSupport
-import org.http4s.{EntityDecoder, EntityEncoder}
+import org.http4s.{EntityDecoder, EntityEncoder, Response, Challenge}
+import org.http4s.server.websocket.WebSocketBuilder2
+import org.http4s.websocket.WebSocketFrame
+import org.http4s.websocket.WebSocketFrame._
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
-import ru.sgu.switchmap.models.{SwitchRequest, SavePositionRequest}
+import ru.sgu.switchmap.models.{
+  SwitchRequest,
+  SwitchPosition,
+  SavePositionRequest
+}
 import ru.sgu.switchmap.repositories._
 import zio._
 import zio.interop.catz._
+import zio.stream.ZStream
+import zio.stream.interop.fs2z._
 
-final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
+final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
+  wsb: WebSocketBuilder2[AppTask],
+  hub: Hub[WebSocketFrame]
+) {
   type SwitchTask[A] = RIO[R, A]
 
   implicit def circeJsonDecoder[A](implicit
@@ -69,6 +83,19 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
                 getSwitchesOf(shortName, number).foldM(_ => NotFound(()), Ok(_))
               case _ => Unauthorized(())
             }
+        }
+
+      "Connect to websocket" **
+        GET / "builds" / pv"shortName" / "floors" / pathVar[Int](
+          "number",
+          "Number of floor"
+        ) / "ws" >>> AuthContext.auth |>> {
+          (
+            shortName: String,
+            number: Int,
+            auth: AuthStatus.Status
+          ) =>
+            mkWebSocket(shortName, number, auth)
         }
 
       "Get switch by name" **
@@ -140,4 +167,42 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
             }
         }
     }
+
+  private def mkWebSocket(
+    shortName: String,
+    number: Int,
+    auth: AuthStatus.Status
+  ): AppTask[Response[AppTask]] = {
+    auth match {
+      case _ => {
+        val stream = ZStream.fromHub(hub)
+        def handle(s: Stream[AppTask, WebSocketFrame]): Stream[AppTask, Unit] =
+          s
+            .collect({
+              case WebSocketFrame.Text(text, _) => {
+                decode[SwitchPosition](text)
+                  .fold(_ => (), _ => ())
+                WebSocketFrame.Text(text)
+              }
+            })
+            .evalMap(hub.publish(_).map(_ => ()))
+
+        val toClient: Stream[AppTask, WebSocketFrame] =
+          stream.toFs2Stream
+        val fromClient: Pipe[AppTask, WebSocketFrame, Unit] = handle
+
+        wsb.withFilterPingPongs(false).build(toClient, fromClient)
+      }
+      /* case _ =>
+        Unauthorized(
+          WWW-Authenticate(
+            Challenge(
+              "X-Auth-Token",
+              "SwitchMap",
+              Map.empty
+            )
+          )
+        ) */
+    }
+  }
 }

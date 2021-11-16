@@ -1,11 +1,21 @@
-import { DirectiveOptions } from "vue";
+import { DirectiveOptions, VNode } from "vue";
 import { DirectiveBinding } from "vue/types/options";
 
 import { updatePosition } from "@/api/switches";
 
-const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
+const handler = (
+  sw: HTMLElement,
+  binding: DirectiveBinding,
+  vnode: VNode
+): void => {
   sw.onmousedown = (e: MouseEvent) => {
     if (e.preventDefault) e.preventDefault();
+
+    if (vnode.componentInstance) {
+      vnode.componentInstance.$emit("moving", { detail: sw.id });
+    } else {
+      vnode.elm?.dispatchEvent(new CustomEvent("moving", { detail: sw.id }));
+    }
 
     const scale =
       Math.round((sw.getBoundingClientRect().width / sw.offsetWidth) * 10) / 10;
@@ -31,17 +41,28 @@ const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
 
       sw.style.left = newDx + "px";
       sw.style.top = newDy + "px";
-      binding.value.positionTop = newDy;
-      binding.value.positionLeft = newDx;
+      binding.value.sw.positionTop = newDy;
+      binding.value.sw.positionLeft = newDx;
+      try {
+        binding.value.socket.send(
+          JSON.stringify({
+            name: sw.id,
+            top: binding.value.sw.positionTop,
+            left: binding.value.sw.positionLeft,
+          })
+        );
+      } catch (err) {
+        console.log(err);
+      }
     };
 
     document.addEventListener("mousemove", swMoveHandler);
 
     sw.addEventListener("mouseup", () => {
-      updatePosition(sw.id, {
+      /* updatePosition(sw.id, {
         top: binding.value.positionTop,
         left: binding.value.positionLeft,
-      });
+      }); */
       document.removeEventListener("mousemove", swMoveHandler);
     });
   };

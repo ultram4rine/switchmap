@@ -33,6 +33,12 @@ final case class SwitchResponse(
   upLink: Option[String] = None
 )
 
+final case class SwitchPosition(
+  name: String = "",
+  top: Float = 0,
+  left: Float = 0
+)
+
 final case class SavePositionRequest(
   top: Float = 0,
   left: Float = 0

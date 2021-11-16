@@ -15,6 +15,7 @@ import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
 import org.http4s.server.websocket.WebSocketBuilder2
+import org.http4s.websocket.WebSocketFrame
 import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
@@ -147,7 +148,7 @@ object Main extends App {
             apiInfo = Info(title = "SwitchMap API", version = "2.0.0-SNAPSHOT"),
             host = Some(app.hostname),
             basePath = Some("/api/v2"),
-            schemes = List(Scheme.HTTPS),
+            schemes = List(Scheme.HTTPS, Scheme.WSS),
             security = List(SecurityRequirement("JWT", List())),
             securityDefinitions = Map(
               "JWT" -> ApiKeyAuthDefinition(
@@ -159,6 +160,8 @@ object Main extends App {
           )
         )
 
+        hub <- ZHub.unbounded[WebSocketFrame]
+
         httpAPI = (wsb: WebSocketBuilder2[AppTask]) =>
           Router[AppTask](
             "/api/v2" -> Middleware.middleware(
@@ -167,7 +170,7 @@ object Main extends App {
                   AuthRoutes().api
                     .and(BuildRoutes().api)
                     .and(FloorRoutes().api)
-                    .and(SwitchRoutes().api)
+                    .and(SwitchRoutes(wsb, hub).api)
                     .and(PlanRoutes().api)
                     .toRoutes(swaggerMiddleware)
                 )
