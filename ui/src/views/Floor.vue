@@ -148,7 +148,7 @@ export default defineComponent({
     const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
 
     const moving = ref("");
-    const locked: Ref<string[]> = ref([]);
+    const locked = ref(new Set<string>());
     let socket = new WebSocket(wsURL(props.shortName, parseInt(props.floor)));
 
     socket.onopen = () => {
@@ -168,12 +168,9 @@ export default defineComponent({
           const sw2Update = switches.value.find((sw) => sw.name === pos.name);
           if (sw2Update) {
             if (pos.moving) {
-              locked.value.push(pos.name);
+              locked.value.add(pos.name);
             } else {
-              let lockID = locked.value.indexOf(pos.name);
-              if (lockID !== -1) {
-                locked.value.splice(lockID, 1);
-              }
+              locked.value.delete(pos.name);
             }
             const idx = switches.value.indexOf(sw2Update);
             switches.value[idx].positionTop = pos.top;
