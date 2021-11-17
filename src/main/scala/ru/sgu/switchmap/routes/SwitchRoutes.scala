@@ -24,9 +24,9 @@ import zio._
 import zio.interop.catz._
 import zio.stream.ZStream
 import zio.stream.interop.fs2z._
-//import zio.duration.durationInt
+import zio.duration.durationInt
 
-import scala.concurrent.duration._
+//import scala.concurrent.duration._
 
 final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
   wsb: WebSocketBuilder2[AppTask],
@@ -179,16 +179,13 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
   ): AppTask[Response[AppTask]] = {
     auth match {
       case _ => {
-        val stream = ZStream.fromHub(hub)
-        /* val pingStream = ZStream
+        val stream = ZStream.fromHub(hub).chunkN(1)
+        val pingStream = ZStream
           .repeatWith(
-            {
-              scala.Console.println("ping")
-              WebSocketFrame.Text("ping" /* hex"70696e67" */ )
-            },
-            Schedule.spaced(5.second)
+            Ping(hex"70696e67"),
+            Schedule.spaced(50.second)
           )
-          .chunkN(1) */
+          .chunkN(1)
         def handle(s: Stream[AppTask, WebSocketFrame]): Stream[AppTask, Unit] =
           s
             .collect({
@@ -197,26 +194,14 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
                   .fold(_ => (), _ => ())
                 WebSocketFrame.Text(text)
               }
-              case WebSocketFrame.Ping(data) => {
-                scala.Console.println(data.toString())
-                WebSocketFrame.Pong(data)
-              }
-              case WebSocketFrame.Pong(data) => {
-                scala.Console.println(data.toString())
-                WebSocketFrame.Ping(data)
-              }
             })
             .evalMap(hub.publish(_).map(_ => ()))
 
         val toClient: Stream[AppTask, WebSocketFrame] =
-          stream.toFs2Stream.merge(
-            fs2.Stream
-              .awakeEvery[AppTask](50.second)
-              .map(_ => Text("Ping!"))
-          )
+          ZStream.mergeAllUnbounded(16)(stream, pingStream).toFs2Stream
         val fromClient: Pipe[AppTask, WebSocketFrame, Unit] = handle
 
-        wsb.withFilterPingPongs(false).build(toClient, fromClient)
+        wsb.build(toClient, fromClient)
       }
       /* case _ =>
         Unauthorized(

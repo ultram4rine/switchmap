@@ -69,6 +69,11 @@ const handler = (
         })
       );
       document.removeEventListener("mousemove", swMoveHandler);
+      if (vnode.componentInstance) {
+        vnode.componentInstance.$emit("moving", { detail: "" });
+      } else {
+        vnode.elm?.dispatchEvent(new CustomEvent("moving", { detail: "" }));
+      }
     });
   };
 };

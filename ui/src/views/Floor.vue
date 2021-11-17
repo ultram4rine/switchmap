@@ -31,6 +31,13 @@
         </div>
 
         <v-toolbar floating>
+          <v-icon v-if="wsState === 'loading'" class="ma-2 mdi-spin">
+            {{ mdiLoading }}
+          </v-icon>
+          <v-icon v-else-if="wsState === 'opened'" class="ma-2">
+            {{ mdiCheckCircleOutline }}
+          </v-icon>
+          <v-icon v-else class="ma-2">{{ mdiAlertCircle }}</v-icon>
           <v-select
             v-model="swName"
             :items="switchesWithoutPosition"
@@ -82,7 +89,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref } from "@vue/composition-api";
-import { mdiMagnify, mdiPlus } from "@mdi/js";
+import {
+  mdiMagnify,
+  mdiPlus,
+  mdiLoading,
+  mdiCheckCircleOutline,
+  mdiAlertCircle,
+} from "@mdi/js";
 
 import drag from "@/directives/drag";
 import dragSwitch from "@/directives/dragSwitch";
@@ -149,17 +162,22 @@ export default defineComponent({
 
     const moving = ref("");
     const locked = ref(new Set<string>());
+    const wsState: Ref<"loading" | "opened" | "closed" | "errored"> =
+      ref("loading");
     const socket = ref(
       new WebSocket(wsURL(props.shortName, parseInt(props.floor)))
     );
 
     socket.value.onopen = () => {
+      wsState.value = "opened";
       console.log("opened");
     };
     socket.value.onerror = () => {
+      wsState.value = "errored";
       console.log("error");
     };
     socket.value.onclose = () => {
+      wsState.value = "closed";
       console.log("closing");
     };
     socket.value.onmessage = (event) => {
@@ -217,10 +235,14 @@ export default defineComponent({
 
       moving,
       locked,
+      wsState,
       socket,
 
       mdiMagnify,
       mdiPlus,
+      mdiLoading,
+      mdiCheckCircleOutline,
+      mdiAlertCircle,
     };
   },
 
@@ -355,5 +377,19 @@ export default defineComponent({
 }
 .switch {
   position: absolute;
+}
+.mdi-spin {
+  animation-name: spin;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
