@@ -4,14 +4,18 @@ import fs2.{Stream, Pipe}
 import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import io.circe.parser.decode
+import org.http4s.headers
+import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
+import org.http4s.headers.`WWW-Authenticate`
 import org.http4s.rho.RhoRoutes
 import org.http4s.rho.swagger.SwaggerSupport
+import org.http4s.rho.bits._
 import org.http4s.{EntityDecoder, EntityEncoder, Response, Challenge}
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 import org.http4s.websocket.WebSocketFrame._
-import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
+import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus, AuthToken}
 import ru.sgu.switchmap.Main.AppTask
 import ru.sgu.switchmap.models.{
   SwitchRequest,
@@ -20,6 +24,7 @@ import ru.sgu.switchmap.models.{
 }
 import ru.sgu.switchmap.repositories._
 import scodec.bits._
+import shapeless.{::, HNil}
 import zio._
 import zio.interop.catz._
 import zio.stream.ZStream
@@ -46,6 +51,14 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
     new RhoRoutes[AppTask] {
       val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
       import swaggerIO._
+
+      val withCookie: TypedHeader[AppTask, Option[AuthToken] :: HNil] =
+        H[headers.Cookie].captureMap { cookie =>
+          cookie.values.toList.find(c => c.name == "X-Auth-Token") match {
+            case Some(c) => Some(AuthToken(c.content))
+            case None    => None
+          }
+        }
 
       "Get SNMP communitites" **
         GET / "switches" / "snmp" / "communities" >>> AuthContext.auth |>> {
@@ -98,8 +111,7 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
             shortName: String,
             number: Int,
             auth: AuthStatus.Status
-          ) =>
-            mkWebSocket(shortName, number, auth)
+          ) => mkWebSocket(shortName, number, auth)
         }
 
       "Get switch by name" **
@@ -172,13 +184,16 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
         }
     }
 
+  val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
+  import dsl._
+
   private def mkWebSocket(
     shortName: String,
     number: Int,
     auth: AuthStatus.Status
   ): AppTask[Response[AppTask]] = {
     auth match {
-      case _ => {
+      case AuthStatus.Succeed => {
         val stream = ZStream.fromHub(hub).chunkN(1)
         val pingStream = ZStream
           .repeatWith(
@@ -187,32 +202,30 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
           )
           .chunkN(1)
         def handle(s: Stream[AppTask, WebSocketFrame]): Stream[AppTask, Unit] =
-          s
-            .collect({
-              case WebSocketFrame.Text(text, _) => {
-                decode[SwitchPosition](text)
-                  .fold(_ => (), _ => ())
-                WebSocketFrame.Text(text)
-              }
-            })
-            .evalMap(hub.publish(_).map(_ => ()))
+          s.collect({
+            case Text(text, _) => {
+              decode[SwitchPosition](text)
+                .fold(_ => (), _ => ())
+              Text(text)
+            }
+          }).evalMap(hub.publish(_).map(_ => ()))
 
         val toClient: Stream[AppTask, WebSocketFrame] =
-          ZStream.mergeAllUnbounded(16)(stream, pingStream).toFs2Stream
+          ZStream.mergeAll(2)(stream, pingStream).toFs2Stream
         val fromClient: Pipe[AppTask, WebSocketFrame, Unit] = handle
 
         wsb.build(toClient, fromClient)
       }
-      /* case _ =>
+      case _ =>
         Unauthorized(
-          WWW-Authenticate(
+          `WWW-Authenticate`(
             Challenge(
               "X-Auth-Token",
               "SwitchMap",
               Map.empty
             )
           )
-        ) */
+        )
     }
   }
 }

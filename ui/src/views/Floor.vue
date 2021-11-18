@@ -113,6 +113,8 @@ import { wsURL } from "@/api";
 import useSwitchForm from "@/composables/useSwitchForm";
 import useSnackbar from "@/composables/useSnackbar";
 
+import { authHeader } from "@/helpers";
+
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -164,6 +166,7 @@ export default defineComponent({
     const locked = ref(new Set<string>());
     const wsState: Ref<"loading" | "opened" | "closed" | "errored"> =
       ref("loading");
+    document.cookie = "X-Auth-Token=" + authHeader() + "; path=/";
     const socket = ref(
       new WebSocket(wsURL(props.shortName, parseInt(props.floor)))
     );
@@ -203,7 +206,6 @@ export default defineComponent({
         }
       } catch (e) {
         console.log(event.data);
-        socket.value.send(event.data);
       }
     };
 
@@ -356,6 +358,7 @@ export default defineComponent({
   },
 
   beforeDestroy() {
+    document.cookie = "X-Auth-Token=; path=/";
     this.socket.close(1000);
   },
 });

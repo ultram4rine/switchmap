@@ -19,7 +19,14 @@ object Middleware {
       case Some(token) =>
         Authorizer
           .authorize(AuthToken(token.head.value))
-      case None => ZIO.succeed(AuthStatus.NoToken)
+      case None => {
+        request.cookies.find(_.name == "X-Auth-Token") match {
+          case Some(c) =>
+            Authorizer
+              .authorize(AuthToken(c.content))
+          case None => ZIO.succeed(AuthStatus.NoToken)
+        }
+      }
     }
 
   def authUser
