@@ -354,6 +354,10 @@ export default defineComponent({
     this.showPlan();
     this.displaySwitches();
   },
+
+  beforeDestroy() {
+    this.socket.close(1000);
+  },
 });
 </script>
 
