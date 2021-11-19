@@ -20,7 +20,7 @@ import org.http4s.Request
 import org.http4s.EntityDecoder
 
 trait SeensUtil {
-  def get(mac: MACAddress): Task[Option[SeenResponse]]
+  def getSeenOf(mac: MACAddress): Task[Option[SeenResponse]]
 }
 
 case class SeensUtilLive(cfg: AppConfig) extends SeensUtil {
@@ -33,7 +33,7 @@ case class SeensUtilLive(cfg: AppConfig) extends SeensUtil {
     decoder: Decoder[A]
   ): EntityDecoder[Task, A] = jsonOf[Task, A]
 
-  override def get(mac: MACAddress): Task[Option[SeenResponse]] = {
+  override def getSeenOf(mac: MACAddress): Task[Option[SeenResponse]] = {
     val dsl: Http4sClientDsl[Task] = new Http4sClientDsl[Task] {}
     import dsl._
 
@@ -70,6 +70,6 @@ object SeensUtilLive {
 }
 
 object SeensUtil {
-  def get(mac: MACAddress): RIO[Has[SeensUtil], Option[SeenResponse]] =
-    ZIO.accessM(_.get.get(mac))
+  def getSeenOf(mac: MACAddress): RIO[Has[SeensUtil], Option[SeenResponse]] =
+    ZIO.accessM(_.get.getSeenOf(mac))
 }

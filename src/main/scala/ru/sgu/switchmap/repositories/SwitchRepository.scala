@@ -248,13 +248,15 @@ private[repositories] final case class DoobieSwitchRepository(
       withSNMP
         .flatMap { s =>
           for {
-            seen <- seensClient.get(s.mac).catchAll(_ => UIO.succeed(None))
-            newSw = seen match {
+            maybeSeen <- seensClient
+              .getSeenOf(s.mac)
+              .catchAll(_ => UIO.succeed(None))
+            newSw = maybeSeen match {
               case None => s
-              case Some(value) =>
+              case Some(seen) =>
                 s.copy(
-                  upSwitchName = Some(value.Switch),
-                  upLink = Some(value.PortName)
+                  upSwitchName = Some(seen.Switch),
+                  upLink = Some(seen.PortName)
                 )
             }
           } yield newSw
