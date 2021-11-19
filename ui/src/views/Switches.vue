@@ -24,30 +24,59 @@
         class="elevation-1"
       >
         <template v-slot:[`item.actions`]="{ item }">
-          <v-btn icon small @click="openSwitchForm('Edit', item)">
-            <v-icon small>
-              {{ mdiPencil }}
-            </v-icon>
-          </v-btn>
-          <v-btn icon small @click="handleDelete(item)">
-            <v-icon small>
-              {{ mdiDelete }}
-            </v-icon>
-          </v-btn>
-          <v-btn
-            icon
-            small
-            v-if="item.floorNumber"
-            :to="{
-              name: 'floor',
-              params: {
-                shortName: item.buildShortName,
-                floor: item.floorNumber,
-              },
-            }"
-          >
-            <v-icon small>{{ mdiEye }}</v-icon>
-          </v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                @click="openSwitchForm('Edit', item)"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon small>
+                  {{ mdiPencil }}
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Edit</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                @click="handleDelete(item)"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon small>
+                  {{ mdiDelete }}
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Delete</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                v-if="item.floorNumber"
+                :to="{
+                  name: 'floor',
+                  params: {
+                    shortName: item.buildShortName,
+                    floor: item.floorNumber,
+                  },
+                }"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon small>{{ mdiEye }}</v-icon>
+              </v-btn>
+            </template>
+            <span>View</span>
+          </v-tooltip>
         </template>
       </v-data-table>
     </v-card>
