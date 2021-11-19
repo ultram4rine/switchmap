@@ -1,6 +1,7 @@
 package ru.sgu.switchmap.utils
 
 import zio._
+import inet.ipaddr.IPAddress
 import org.snmp4j.mp.SnmpConstants
 import org.snmp4j.smi._
 import org.snmp4j.transport.DefaultUdpTransportMapping
@@ -22,13 +23,16 @@ object snmp {
 
   object SNMPUtil {
     trait Service {
-      def getSwitchInfo(ip: String, community: String): Task[Option[SwitchInfo]]
+      def getSwitchInfo(
+        ip: IPAddress,
+        community: String
+      ): Task[Option[SwitchInfo]]
     }
 
     val live: ULayer[SNMPUtil] =
       ZLayer.succeed(new Service {
         override def getSwitchInfo(
-          ip: String,
+          ip: IPAddress,
           community: String
         ): Task[Option[SwitchInfo]] = {
           Task.fromFuture { implicit ec =>
@@ -38,7 +42,7 @@ object snmp {
 
               val target =
                 new CommunityTarget(
-                  new UdpAddress(s"${ip}/161"),
+                  new UdpAddress(s"${ip.toString()}/161"),
                   new OctetString(community)
                 )
               target.setVersion(SnmpConstants.version2c)
@@ -90,7 +94,7 @@ object snmp {
       })
 
     def getSwitchInfo(
-      ip: String,
+      ip: IPAddress,
       community: String
     ): RIO[SNMPUtil, Option[SwitchInfo]] =
       ZIO.accessM(_.get.getSwitchInfo(ip, community))

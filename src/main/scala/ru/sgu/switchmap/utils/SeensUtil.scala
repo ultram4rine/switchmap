@@ -8,6 +8,7 @@ import org.http4s.ember.client.EmberClientBuilder
 import ru.sgu.switchmap.models.{SeenRequest, SeenResponse}
 import org.http4s.Uri
 import org.http4s.Method.POST
+import inet.ipaddr.mac.MACAddress
 import io.circe.syntax._
 import io.circe.generic.auto._
 import org.http4s.circe._
@@ -32,23 +33,21 @@ object seens {
     )
     ._1
 
-  private val reg: Regex = "(.{2})".r
-  private def macDenormalized(mac: String): String =
-    reg.replaceAllIn(mac, m => s"${m}:").dropRight(1)
-
   object SeensUtil {
+    import ru.sgu.switchmap.utils.JSONUtil._
+
     implicit def circeJsonDecoder[A](implicit
       decoder: Decoder[A]
     ): EntityDecoder[Task, A] = jsonOf[Task, A]
 
     trait Service {
-      def get(mac: String): Task[Option[SeenResponse]]
+      def get(mac: MACAddress): Task[Option[SeenResponse]]
     }
 
     val live: ZLayer[Has[AppConfig], Nothing, SeensUtil] =
       ZLayer.fromService { cfg =>
         new Service {
-          override def get(mac: String): Task[Option[SeenResponse]] = {
+          override def get(mac: MACAddress): Task[Option[SeenResponse]] = {
             val dsl: Http4sClientDsl[Task] = new Http4sClientDsl[Task] {}
             import dsl._
 
@@ -59,7 +58,7 @@ object seens {
               case Right(value) => {
                 {
                   val req: Request[Task] = POST(
-                    SeenRequest(macDenormalized(mac)).asJson,
+                    SeenRequest(mac).asJson,
                     value
                   )
                   for {
@@ -83,7 +82,7 @@ object seens {
         }
       }
 
-    def get(mac: String): RIO[SeensUtil, Option[SeenResponse]] =
+    def get(mac: MACAddress): RIO[SeensUtil, Option[SeenResponse]] =
       ZIO.accessM(_.get.get(mac))
   }
 }

@@ -2,6 +2,8 @@ package ru.sgu.switchmap.repositories
 
 import doobie.implicits._
 import doobie.hikari.HikariTransactor
+import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
+import inet.ipaddr.mac.MACAddress
 import zio._
 import zio.interop.catz._
 
@@ -59,6 +61,18 @@ private[repositories] final case class DoobieSwitchRepository(
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
+
+  implicit val ipAddressEncoder =
+    MappedEncoding[IPAddress, String](_.toString())
+  implicit val ipAddressDecoder =
+    MappedEncoding[String, IPAddress](new IPAddressString(_).getAddress())
+  implicit val macAddressEncoder =
+    MappedEncoding[MACAddress, String](_.toString())
+  implicit val macAddressDecoder =
+    MappedEncoding[String, MACAddress](new MACAddressString(_).getAddress())
+
+  implicit val switchInsertMeta = insertMeta[SwitchResponse]()
+  implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)
@@ -149,8 +163,9 @@ private[repositories] final case class DoobieSwitchRepository(
             IO.succeed(
               SwitchResponse(
                 value.name,
-                value.ipv4Address.mkString("."),
-                value.macAddressString,
+                new IPAddressString(value.ipv4Address.mkString("."))
+                  .toAddress(),
+                new MACAddressString(value.macAddressString).toAddress(),
                 buildShortName = switch.buildShortName,
                 floorNumber = switch.floorNumber,
                 positionTop = switch.positionTop,
@@ -166,7 +181,7 @@ private[repositories] final case class DoobieSwitchRepository(
           for {
             ip <- dns.getIPByHostname(switch.name)
           } yield ip
-        case "Direct" => Task.succeed(switch.ip.getOrElse(""))
+        case "Direct" => Task.succeed(switch.ip.get)
         case _        => Task.fail(new Exception("unknown IP resolve method"))
       }
 
@@ -175,7 +190,7 @@ private[repositories] final case class DoobieSwitchRepository(
           SwitchResponse(
             switch.name,
             ipVal,
-            switch.mac.getOrElse(""),
+            switch.mac.get,
             buildShortName = switch.buildShortName,
             floorNumber = switch.floorNumber,
             positionTop = switch.positionTop,
@@ -232,7 +247,19 @@ private[repositories] final case class DoobieSwitchRepository(
       .flatMap { s =>
         {
           val q = quote {
-            Tables.switches.insert(lift(s))
+            Tables.switches.insert(
+              _.name -> lift(s.name),
+              _.ip -> infix"${lift(s.ip)}::inet".as[IPAddress],
+              _.mac -> infix"${lift(s.mac)}::macaddr".as[MACAddress],
+              _.revision -> lift(s.revision),
+              _.serial -> lift(s.serial),
+              _.buildShortName -> lift(s.buildShortName),
+              _.floorNumber -> lift(s.floorNumber),
+              _.positionTop -> lift(s.positionTop),
+              _.positionLeft -> lift(s.positionLeft),
+              _.upSwitchName -> lift(s.upSwitchName),
+              _.upLink -> lift(s.upLink)
+            )
           }
 
           Tables.ctx
@@ -253,7 +280,19 @@ private[repositories] final case class DoobieSwitchRepository(
           val q = quote {
             Tables.switches
               .filter(sw => sw.name == lift(name))
-              .update(lift(s))
+              .update(
+                _.name -> lift(s.name),
+                _.ip -> infix"${lift(s.ip)}::inet".as[IPAddress],
+                _.mac -> infix"${lift(s.mac)}::macaddr".as[MACAddress],
+                _.revision -> lift(s.revision),
+                _.serial -> lift(s.serial),
+                _.buildShortName -> lift(s.buildShortName),
+                _.floorNumber -> lift(s.floorNumber),
+                _.positionTop -> lift(s.positionTop),
+                _.positionLeft -> lift(s.positionLeft),
+                _.upSwitchName -> lift(s.upSwitchName),
+                _.upLink -> lift(s.upLink)
+              )
           }
 
           Tables.ctx

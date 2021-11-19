@@ -1,13 +1,16 @@
 package ru.sgu.switchmap.models
 
+import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
+import inet.ipaddr.mac.MACAddress
+
 final case class SwitchRequest(
   retrieveFromNetData: Boolean = false,
   retrieveUpLinkFromSeens: Boolean = false,
   retrieveTechDataFromSNMP: Boolean = false,
   name: String = "",
   ipResolveMethod: String = "",
-  ip: Option[String] = None,
-  mac: Option[String] = None,
+  ip: Option[IPAddress] = None,
+  mac: Option[MACAddress] = None,
   snmpCommunity: String = "",
   revision: Option[String] = None,
   serial: Option[String] = None,
@@ -21,8 +24,8 @@ final case class SwitchRequest(
 
 final case class SwitchResponse(
   name: String = "",
-  ip: String = "",
-  mac: String = "",
+  ip: IPAddress,
+  mac: MACAddress,
   revision: Option[String] = None,
   serial: Option[String] = None,
   buildShortName: Option[String] = None,
@@ -41,12 +44,12 @@ final case class SavePositionRequest(
 final case class SwitchNotFound(name: String) extends Exception
 
 final case class SeenRequest(
-  MAC: String
+  MAC: MACAddress
 )
 
 final case class SeenResponse(
   Name: String,
-  MAC: String,
+  MAC: MACAddress,
   Switch: String,
   PortName: String,
   PortAlias: String,

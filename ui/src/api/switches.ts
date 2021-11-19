@@ -7,7 +7,6 @@ import {
   SwitchRequest,
   SwitchResponse,
 } from "@/types/switch";
-import { macDenormalization } from "@/helpers";
 
 export const getSNMPCommunities = async (): Promise<string[]> => {
   const resp = await api.get<string, AxiosResponse<string[]>>(
@@ -29,7 +28,6 @@ export const getSwitchesOfBuild = async (
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
     `/builds/${shortName}/switches`
   );
-  resp.data.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
   return resp.data;
 };
 
@@ -40,7 +38,6 @@ export const getSwitchesOfFloor = async (
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
     `/builds/${shortName}/floors/${number}/switches`
   );
-  resp.data.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
   return resp.data;
 };
 
@@ -48,7 +45,6 @@ export const getSwitch = async (name: string): Promise<SwitchResponse> => {
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse>>(
     `/switches/${name}`
   );
-  resp.data.mac = macDenormalization(resp.data.mac);
   return resp.data;
 };
 

@@ -111,8 +111,6 @@ import useSwitchForm from "@/composables/useSwitchForm";
 import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
 import useSnackbar from "@/composables/useSnackbar";
 
-import { macDenormalization } from "@/helpers";
-
 type TableSwitch = SwitchResponse & {
   location: string;
 };
@@ -207,7 +205,7 @@ export default defineComponent({
     displaySwitches() {
       getSwitches().then((switches) => {
         this.switches = switches.map((sw) => {
-          sw.mac = macDenormalization(sw.mac);
+          sw.mac = sw.mac.toUpperCase();
           let tableSwitch = sw as TableSwitch;
           tableSwitch.location =
             (sw.buildShortName ? `${sw.buildShortName}` : "") +
