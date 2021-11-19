@@ -29,7 +29,7 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
       val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
       import swaggerIO._
 
-      import ru.sgu.switchmap.utils.JSONUtil._
+      import ru.sgu.switchmap.json._
 
       "Get SNMP communitites" **
         GET / "switches" / "snmp" / "communities" >>> AuthContext.auth |>> {

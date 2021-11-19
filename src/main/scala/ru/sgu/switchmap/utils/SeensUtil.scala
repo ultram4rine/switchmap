@@ -27,7 +27,7 @@ case class SeensUtilLive(cfg: AppConfig) extends SeensUtil {
   private implicit val zioRuntime: zio.Runtime[zio.ZEnv] =
     zio.Runtime.default
 
-  import ru.sgu.switchmap.utils.JSONUtil._
+  import ru.sgu.switchmap.json._
 
   implicit def circeJsonDecoder[A](implicit
     decoder: Decoder[A]

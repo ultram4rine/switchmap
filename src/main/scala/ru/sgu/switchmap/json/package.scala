@@ -1,4 +1,4 @@
-package ru.sgu.switchmap.utils
+package ru.sgu.switchmap
 
 import io.circe.{Decoder, Encoder}
 import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
@@ -6,7 +6,7 @@ import inet.ipaddr.mac.MACAddress
 
 import scala.util.Try
 
-object JSONUtil {
+package object json {
   implicit val encodeIPAddress: Encoder[IPAddress] =
     Encoder.encodeString.contramap[IPAddress](_.toString)
   implicit val decodeIPAddress: Decoder[IPAddress] =
