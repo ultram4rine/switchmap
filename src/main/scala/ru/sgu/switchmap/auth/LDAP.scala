@@ -13,7 +13,7 @@ trait LDAP {
 
 case class LDAPLive(cfg: LDAPConfig) extends LDAP {
   override val conn: Task[LDAPConnection] =
-    this.connect(cfg.bindUser, cfg.bindPass)
+    connect(cfg.bindUser, cfg.bindPass)
 
   override def connect(
     username: String,
@@ -33,7 +33,7 @@ case class LDAPLive(cfg: LDAPConfig) extends LDAP {
   override def findUser(
     username: String
   ): Task[Boolean] = {
-    this.conn.flatMap { conn =>
+    conn.flatMap { conn =>
       val result = conn.search(
         cfg.baseDN,
         SearchScope.SUB,
