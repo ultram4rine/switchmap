@@ -19,9 +19,7 @@ import ru.sgu.switchmap.models.{
   SavePositionRequest,
   SwitchNotFound
 }
-import ru.sgu.switchmap.utils.seens.SeensUtil
-import ru.sgu.switchmap.utils.dns.DNSUtil
-import ru.sgu.switchmap.utils.snmp.{SNMPUtil, SwitchInfo}
+import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil, SwitchInfo}
 
 object SwitchRepository {
 
@@ -40,14 +38,16 @@ object SwitchRepository {
 
   val live: URLayer[DBTransactor with Has[
     AppConfig
-  ] with NetDataClient with SeensUtil with DNSUtil with SNMPUtil, SwitchRepository] =
+  ] with NetDataClient with Has[
+    SeensUtil
+  ] with Has[DNSUtil] with Has[SNMPUtil], SwitchRepository] =
     ZLayer.fromServices[
       DBTransactor.Resource,
       AppConfig,
       NetDataClient.Service,
-      SeensUtil.Service,
-      DNSUtil.Service,
-      SNMPUtil.Service,
+      SeensUtil,
+      DNSUtil,
+      SNMPUtil,
       SwitchRepository.Service
     ] { (resource, cfg, ndc, seensClient, dns, snmp) =>
       DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient, dns, snmp)
@@ -58,9 +58,9 @@ private[repositories] final case class DoobieSwitchRepository(
   xa: HikariTransactor[Task],
   cfg: AppConfig,
   ndc: NetDataClient.Service,
-  seensClient: SeensUtil.Service,
-  dns: DNSUtil.Service,
-  snmpClient: SNMPUtil.Service
+  seensClient: SeensUtil,
+  dns: DNSUtil,
+  snmpClient: SNMPUtil
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._

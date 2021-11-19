@@ -9,29 +9,26 @@ import ru.sgu.switchmap.config.AppConfig
 import scala.concurrent.Future
 import inet.ipaddr.IPAddressString
 
-object dns {
-  type DNSUtil = Has[DNSUtil.Service]
+trait DNSUtil {
+  def getIPByHostname(name: String): Task[IPAddress]
+}
 
-  object DNSUtil {
-    trait Service {
-      def getIPByHostname(name: String): Task[IPAddress]
-    }
-
-    val live: ZLayer[Has[AppConfig], Nothing, DNSUtil] =
-      ZLayer.fromService { cfg =>
-        new Service {
-          override def getIPByHostname(name: String): Task[IPAddress] = {
-            Task.fromFuture { implicit ec =>
-              Future {
-                val ip = InetAddress.getByName(s"${name}.${cfg.dnsSuffix}")
-                new IPAddressString(ip.getHostAddress()).toAddress()
-              }
-            }
-          }
-        }
+case class DNSUtilLive(cfg: AppConfig) extends DNSUtil {
+  override def getIPByHostname(name: String): Task[IPAddress] = {
+    Task.fromFuture { implicit ec =>
+      Future {
+        val ip = InetAddress.getByName(s"${name}.${cfg.dnsSuffix}")
+        new IPAddressString(ip.getHostAddress()).toAddress()
       }
-
-    def getIPByHostname(name: String): RIO[DNSUtil, IPAddress] =
-      ZIO.accessM(_.get.getIPByHostname(name))
+    }
   }
+}
+
+object DNSUtilLive {
+  val layer: RLayer[Has[AppConfig], Has[DNSUtil]] = (DNSUtilLive(_)).toLayer
+}
+
+object DNSUtil {
+  def getIPByHostname(name: String): RIO[Has[DNSUtil], IPAddress] =
+    ZIO.accessM(_.get.getIPByHostname(name))
 }

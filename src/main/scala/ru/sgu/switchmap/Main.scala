@@ -25,9 +25,14 @@ import ru.sgu.switchmap.repositories.{
   FloorRepository,
   SwitchRepository
 }
-import ru.sgu.switchmap.utils.seens.SeensUtil
-import ru.sgu.switchmap.utils.dns.DNSUtil
-import ru.sgu.switchmap.utils.snmp.SNMPUtil
+import ru.sgu.switchmap.utils.{
+  SeensUtil,
+  SeensUtilLive,
+  DNSUtil,
+  DNSUtilLive,
+  SNMPUtil,
+  SNMPUtilLive
+}
 import ru.sgu.switchmap.routes._
 import scalapb.zio_grpc.ZManagedChannel
 import zio._
@@ -66,9 +71,12 @@ object Main extends App {
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
 
-  val seensClient: TaskLayer[SeensUtil] = Config.live >>> SeensUtil.live
-  val dnsEnvironment: TaskLayer[DNSUtil] = Config.live >>> DNSUtil.live
-  val snmpEnvironment: TaskLayer[SNMPUtil] = Config.live >>> SNMPUtil.live
+  val seensClient: TaskLayer[Has[SeensUtil]] =
+    Config.live >>> SeensUtilLive.layer
+  val dnsEnvironment: TaskLayer[Has[DNSUtil]] =
+    Config.live >>> DNSUtilLive.layer
+  val snmpEnvironment: TaskLayer[Has[SNMPUtil]] =
+    Config.live >>> SNMPUtilLive.layer
 
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
