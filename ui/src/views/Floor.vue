@@ -6,7 +6,24 @@
 
     <div v-else>
       <div id="floor">
-        <div v-drag v-zoom id="plan" :key="planKey">
+        <div
+          v-drag
+          v-zoom
+          id="plan"
+          :key="planKey"
+          :style="
+            centerSwitch
+              ? {
+                  transform: `translate(${-(
+                    centerSwitch.positionLeft +
+                    windowWidth / 2
+                  )}px, ${
+                    -(centerSwitch.positionTop + windowHeight / 2) - 64
+                  }px) scale(1)`,
+                }
+              : {}
+          "
+        >
           <v-img :src="planPath" class="image" @error="noPlan = true"></v-img>
 
           <v-chip
@@ -148,6 +165,11 @@ export default defineComponent({
     const switches: Ref<SwitchResponse[]> = ref([]);
     const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
 
+    const centerSwitchName: Ref<string | undefined> = ref();
+    const centerSwitch: Ref<SwitchResponse | undefined> = ref();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
     return {
       planPath,
       noPlan,
@@ -158,6 +180,11 @@ export default defineComponent({
       swName,
       switches,
       switchesWithoutPosition,
+
+      centerSwitchName,
+      centerSwitch,
+      windowWidth,
+      windowHeight,
 
       // Switch form.
       switchForm,
@@ -180,16 +207,18 @@ export default defineComponent({
   },
 
   methods: {
-    displaySwitches() {
-      getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
-        sws.forEach((sw) => {
-          this.switches.push(sw);
-          if (!sw.positionTop && !sw.positionLeft) {
-            this.switchesWithoutPosition.push(sw);
-          }
-        });
-        this.planKey += 1;
+    async displaySwitches() {
+      const sws = await getSwitchesOfFloor(
+        this.shortName,
+        parseInt(this.floor)
+      );
+      sws.forEach((sw) => {
+        this.switches.push(sw);
+        if (!sw.positionTop && !sw.positionLeft) {
+          this.switchesWithoutPosition.push(sw);
+        }
       });
+      this.planKey += 1;
     },
 
     showPlan() {
@@ -280,8 +309,18 @@ export default defineComponent({
   },
 
   created() {
+    const centerSwitch = this.$route.query.sw;
+    this.centerSwitchName =
+      typeof centerSwitch === "object" ? undefined : centerSwitch;
+    console.log(this.centerSwitchName);
     this.showPlan();
-    this.displaySwitches();
+    this.displaySwitches().then(() => {
+      console.log(this.switches);
+      this.centerSwitch = this.switches.find(
+        (sw) => sw.name === this.centerSwitchName
+      );
+      console.log(this.centerSwitch);
+    });
   },
 });
 </script>

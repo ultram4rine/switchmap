@@ -68,6 +68,12 @@
                     shortName: item.buildShortName,
                     floor: item.floorNumber,
                   },
+                  query: {
+                    sw:
+                      item.positionTop && item.positionLeft
+                        ? item.name
+                        : undefined,
+                  },
                 }"
                 v-bind="attrs"
                 v-on="on"
