@@ -220,7 +220,7 @@ extend("required", {
 
 extend("mac", {
   validate: (val: string) => {
-    const regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
+    const regex = /^[0-9a-f]{12}|([0-9a-f]{2}[:-]){5}([0-9a-f]{2})$/i;
     return regex.test(val);
   },
   message: "{_value_} is not correct MAC address",
@@ -229,7 +229,7 @@ extend("mac", {
 extend("ip", {
   validate: (val: string) => {
     const regex =
-      /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+      /^((25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)(\.)){3}(25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
     return regex.test(val);
   },
   message: "{_value_} is not correct IP address",
