@@ -1,11 +1,9 @@
 package ru.sgu.switchmap.auth
 
-import zio._
 import com.unboundid.ldap.sdk.{LDAPConnection, SearchScope}
-
 import ru.sgu.switchmap.config.LDAPConfig
-
 import scala.util.Try
+import zio._
 
 trait LDAP {
   val conn: Task[LDAPConnection]
@@ -57,6 +55,8 @@ object LDAPLive {
 }
 
 object LDAP {
+  val conn: RIO[Has[LDAP], LDAPConnection] = ZIO.serviceWith[LDAP](_.conn)
+
   def connect(
     username: String,
     password: String

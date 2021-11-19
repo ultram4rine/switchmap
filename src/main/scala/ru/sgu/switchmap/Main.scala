@@ -55,9 +55,10 @@ object Main extends App {
   type HttpServerEnvironment = Clock with Blocking
   type AuthEnvironment = Has[Authenticator] with Has[Authorizer]
   type AppEnvironment = Config
-    with AuthEnvironment
     with Has[FlywayMigrator]
+    with Has[LDAP]
     with NetDataClient
+    with AuthEnvironment
     with HttpServerEnvironment
     with BuildRepository
     with FloorRepository
@@ -70,12 +71,14 @@ object Main extends App {
   val dnsEnvironment: TaskLayer[DNSUtil] = Config.live >>> DNSUtil.live
   val snmpEnvironment: TaskLayer[SNMPUtil] = Config.live >>> SNMPUtil.live
 
-  val authEnvironment: TaskLayer[Has[Authenticator] with Has[Authorizer]] =
-    Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
+  val ldapEnvironment: TaskLayer[Has[LDAP]] =
+    Config.live >>> LDAPLive.layer
   val netdataEnvironment: TaskLayer[NetDataClient] =
     Config.live >>> NetDataClientLive.layer
+  val authEnvironment: TaskLayer[Has[Authenticator] with Has[Authorizer]] =
+    Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Clock.live ++ Blocking.live
   val buildRepository: TaskLayer[BuildRepository] =
@@ -85,7 +88,7 @@ object Main extends App {
   val switchRepository: TaskLayer[SwitchRepository] =
     dbTransactor ++ Config.live ++ netdataEnvironment ++ seensClient ++ dnsEnvironment ++ snmpEnvironment >>> SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live ++ Console.live ++ authEnvironment ++ netdataEnvironment ++ flywayMigrator ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    Config.live ++ flywayMigrator ++ Console.live ++ ldapEnvironment ++ netdataEnvironment ++ authEnvironment ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
@@ -114,7 +117,10 @@ object Main extends App {
       for {
         api <- config.apiConfig
         app <- config.appConfig
+
         _ <- FlywayMigrator.migrate()
+
+        _ <- LDAP.conn
 
         _ <- putStrLn("Retrieving switches")
         switches <- for {
