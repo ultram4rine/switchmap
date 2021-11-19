@@ -4,9 +4,11 @@ import doobie.implicits._
 import doobie.hikari.HikariTransactor
 import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
 import inet.ipaddr.mac.MACAddress
+import io.grpc.Status
 import zio._
 import zio.interop.catz._
 
+import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
@@ -24,6 +26,7 @@ import ru.sgu.switchmap.utils.snmp.{SNMPUtil, SwitchInfo}
 object SwitchRepository {
 
   trait Service {
+    def sync(): Task[Unit]
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
@@ -73,6 +76,29 @@ private[repositories] final case class DoobieSwitchRepository(
 
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
+
+  def sync(): Task[Unit] = for {
+    switches <- for {
+      resp <- ndc
+        .getNetworkSwitches(GetNetworkSwitchesRequest())
+        .mapError(s => new Exception(s.toString))
+    } yield resp.switch
+
+    _ <- ZIO.foreachPar_(switches)(sw =>
+      create(
+        SwitchRequest(
+          true,
+          true,
+          true,
+          sw.name,
+          snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+        )
+      )
+        .catchAll(e => {
+          ZIO.succeed(())
+        })
+    )
+  } yield ()
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)

@@ -6,7 +6,7 @@ import cats.data.Kleisli
 import com.comcast.ip4s._
 import com.http4s.rho.swagger.ui.SwaggerUi
 import io.grpc.ManagedChannelBuilder
-import org.http4s
+import org.http4s.Status.{Found, NotFound}
 import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.{HttpRoutes, HttpApp, Request, Response}
@@ -15,7 +15,6 @@ import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
 import org.http4s.server.websocket.WebSocketBuilder2
-import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.{Config, AppConfig}
@@ -95,7 +94,7 @@ object Main extends App {
   def redirectToRootResponse(request: Request[AppTask]): Response[AppTask] = {
     if (!request.pathInfo.startsWithString("/api/v2")) {
       Response[AppTask]()
-        .withStatus(http4s.Status.Found)
+        .withStatus(Found)
         .withEntity(
           Source
             .fromResource("public/index.html")
@@ -105,7 +104,7 @@ object Main extends App {
         .withHeaders(request.headers)
     } else {
       Response[AppTask]()
-        .withStatus(http4s.Status.NotFound)
+        .withStatus(NotFound)
     }
   }
 
@@ -113,7 +112,7 @@ object Main extends App {
     Kleisli(req => routes.run(req).getOrElse(redirectToRootResponse(req)))
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
-    val program: ZIO[AppEnvironment with Console, Object, Unit] =
+    val program: RIO[AppEnvironment with Console, Unit] =
       for {
         api <- config.apiConfig
         app <- config.appConfig
@@ -123,28 +122,7 @@ object Main extends App {
         _ <- LDAP.conn
 
         _ <- putStrLn("Retrieving switches")
-        switches <- for {
-          resp <-
-            NetDataClient
-              .getNetworkSwitches(GetNetworkSwitchesRequest())
-        } yield resp.switch
-
-        _ <- putStrLn("Adding switches to database")
-        _ <- ZIO.foreach(switches)(sw =>
-          repositories
-            .createSwitch(
-              SwitchRequest(
-                true,
-                true,
-                true,
-                sw.name,
-                snmpCommunity = app.snmpCommunities.headOption.getOrElse("")
-              )
-            )
-            .catchAll(e => {
-              putStrLn(e.getMessage()) *> ZIO.succeed(false)
-            })
-        )
+        _ <- repositories.sync()
         _ <- putStrLn("Switches added")
 
         swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(

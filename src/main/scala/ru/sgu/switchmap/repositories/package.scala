@@ -75,6 +75,7 @@ package object repositories {
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))
 
+  def sync(): RIO[SwitchRepository, Unit] = RIO.accessM(_.get.sync())
   def snmpCommunities(): RIO[SwitchRepository, List[String]] =
     RIO.accessM(_.get.snmp())
   def getSwitches(): RIO[SwitchRepository, List[SwitchResponse]] =
