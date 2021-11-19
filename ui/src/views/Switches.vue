@@ -113,6 +113,7 @@ import useSnackbar from "@/composables/useSnackbar";
 
 type TableSwitch = SwitchResponse & {
   location: string;
+  uplink: string;
 };
 
 export default defineComponent({
@@ -163,6 +164,7 @@ export default defineComponent({
       { text: "IP", value: "ip" },
       { text: "Serial", value: "serial" },
       { text: "Location", value: "location" },
+      { text: "Uplink", value: "uplink" },
       { text: "Actions", value: "actions", sortable: false },
     ]);
 
@@ -210,6 +212,10 @@ export default defineComponent({
           tableSwitch.location =
             (sw.buildShortName ? `${sw.buildShortName}` : "") +
             (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
+          tableSwitch.uplink =
+            sw.upSwitchName && sw.upLink
+              ? `${sw.upSwitchName} (${sw.upLink})`
+              : "";
           return tableSwitch;
         });
       });
