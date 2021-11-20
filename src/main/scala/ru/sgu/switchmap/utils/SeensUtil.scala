@@ -71,5 +71,5 @@ object SeensUtilLive {
 
 object SeensUtil {
   def getSeenOf(mac: MACAddress): RIO[Has[SeensUtil], Option[SeenResponse]] =
-    ZIO.accessM(_.get.getSeenOf(mac))
+    ZIO.serviceWith[SeensUtil](_.getSeenOf(mac))
 }

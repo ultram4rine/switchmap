@@ -86,7 +86,7 @@ case class SNMPUtilLive() extends SNMPUtil {
 }
 
 object SNMPUtilLive {
-  val layer: ULayer[Has[SNMPUtil]] = SNMPUtilLive.layer
+  val layer: ULayer[Has[SNMPUtil]] = (SNMPUtilLive.apply _).toLayer
 }
 
 object SNMPUtil {
@@ -94,5 +94,5 @@ object SNMPUtil {
     ip: IPAddress,
     community: String
   ): RIO[Has[SNMPUtil], Option[SwitchInfo]] =
-    ZIO.accessM(_.get.getSwitchInfo(ip, community))
+    ZIO.serviceWith[SNMPUtil](_.getSwitchInfo(ip, community))
 }

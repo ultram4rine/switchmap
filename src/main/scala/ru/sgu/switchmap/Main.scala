@@ -71,13 +71,6 @@ object Main extends App {
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
 
-  val seensClient: TaskLayer[Has[SeensUtil]] =
-    Config.live >>> SeensUtilLive.layer
-  val dnsEnvironment: TaskLayer[Has[DNSUtil]] =
-    Config.live >>> DNSUtilLive.layer
-  val snmpEnvironment: TaskLayer[Has[SNMPUtil]] =
-    Config.live >>> SNMPUtilLive.layer
-
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
   val ldapEnvironment: TaskLayer[Has[LDAP]] =
@@ -93,7 +86,12 @@ object Main extends App {
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    dbTransactor ++ Config.live ++ netdataEnvironment ++ seensClient ++ dnsEnvironment ++ snmpEnvironment >>> SwitchRepository.live
+    dbTransactor ++ Config.live >+>
+      netdataEnvironment ++
+      SeensUtilLive.layer ++
+      DNSUtilLive.layer ++
+      SNMPUtilLive.layer >>>
+      SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
     Config.live ++ flywayMigrator ++ Console.live ++ ldapEnvironment ++ netdataEnvironment ++ authEnvironment ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 

@@ -30,5 +30,5 @@ object DNSUtilLive {
 
 object DNSUtil {
   def getIPByHostname(name: String): RIO[Has[DNSUtil], IPAddress] =
-    ZIO.accessM(_.get.getIPByHostname(name))
+    ZIO.serviceWith[DNSUtil](_.getIPByHostname(name))
 }
