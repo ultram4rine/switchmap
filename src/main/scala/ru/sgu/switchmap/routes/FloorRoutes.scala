@@ -14,8 +14,6 @@ import zio._
 import zio.interop.catz._
 
 final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
-  type FloorTask[A] = RIO[R, A]
-
   implicit def circeJsonDecoder[A](implicit
     decoder: Decoder[A]
   ): EntityDecoder[AppTask, A] = jsonOf[AppTask, A]
