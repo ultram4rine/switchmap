@@ -26,28 +26,29 @@ lazy val root = (project in file("."))
       "org.http4s"            %% "rho-swagger"            % "0.23.0-RC1",
       "org.http4s"            %% "rho-swagger-ui"         % "0.23.0-RC1",
       "io.circe"              %% "circe-generic"          % "0.14.1",
-      "org.specs2"            %% "specs2-core"            % "4.13.0" % "test",
-      "ch.qos.logback"         % "logback-classic"        % "1.2.7",
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
       "org.flywaydb"           % "flyway-core"            % "8.0.5",
       "org.postgresql"         % "postgresql"             % "42.3.1",
-      "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
+      "com.github.jwt-scala"  %% "jwt-circe"              % "9.0.2",
+      "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
+      "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
+      "org.snmp4j"             % "snmp4j"                 % "3.6.1",
+      "ch.qos.logback"         % "logback-classic"        % "1.2.7",
       "io.grpc"                % "grpc-netty"             % "1.42.1",
-      "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
-      "com.github.jwt-scala" %% "jwt-circe"         % "9.0.2",
-      "com.unboundid"         % "unboundid-ldapsdk" % "6.0.2",
-      "org.snmp4j"            % "snmp4j"            % "3.6.1"
+      "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
       "org.slf4j" % "slf4j-api" % "1.7.32" // doobie-hikari@1.0.0-RC1 -> HikariCP@4.0.3 -> slf4j-api@2.0.0-alpha.1
     ),
-    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
-    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
+    addCompilerPlugin(
+      "org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full
+    ),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
   .enablePlugins(JavaServerAppPackaging, RpmPlugin, SystemdPlugin)
   .settings(
