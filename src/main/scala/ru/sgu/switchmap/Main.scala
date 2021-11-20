@@ -40,6 +40,8 @@ import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.console._
 import zio.interop.catz._
+import zio.logging.{Logging, log}
+import zio.logging.slf4j.Slf4jLogger
 import scala.io.Source
 
 private object NetDataClientLive {
@@ -58,7 +60,8 @@ private object NetDataClientLive {
 object Main extends App {
   type HttpServerEnvironment = Clock with Blocking
   type AuthEnvironment = Has[Authenticator] with Has[Authorizer]
-  type AppEnvironment = Config
+  type AppEnvironment = Logging
+    with Config
     with Has[FlywayMigrator]
     with Has[LDAP]
     with NetDataClient
@@ -68,11 +71,13 @@ object Main extends App {
     with FloorRepository
     with SwitchRepository
 
+  val logLayer: ULayer[Logging] = Slf4jLogger.make((_, msg) => "%s".format(msg))
+
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
 
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
-    Console.live ++ dbTransactor >>> FlywayMigratorLive.layer
+    logLayer ++ dbTransactor >>> FlywayMigratorLive.layer
   val ldapEnvironment: TaskLayer[Has[LDAP]] =
     Config.live >>> LDAPLive.layer
   val netdataEnvironment: TaskLayer[NetDataClient] =
@@ -93,7 +98,7 @@ object Main extends App {
       SNMPUtilLive.layer >>>
       SwitchRepository.live
   val appEnvironment: TaskLayer[AppEnvironment] =
-    Config.live ++ flywayMigrator ++ Console.live ++ ldapEnvironment ++ netdataEnvironment ++ authEnvironment ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    logLayer ++ Config.live ++ flywayMigrator ++ Console.live ++ ldapEnvironment ++ netdataEnvironment ++ authEnvironment ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
@@ -127,9 +132,9 @@ object Main extends App {
 
         _ <- LDAP.conn
 
-        _ <- putStrLn("Retrieving switches")
+        _ <- log.info("Retrieving switches")
         _ <- repositories.sync()
-        _ <- putStrLn("Switches added")
+        _ <- log.info("Switches added")
 
         swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
           swaggerFormats = DefaultSwaggerFormats,
