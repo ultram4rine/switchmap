@@ -29,6 +29,16 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
 
       import ru.sgu.switchmap.json._
 
+      "Run switches sync with network" **
+        GET / "switches" / "sync" >>> AuthContext.auth |>> {
+          auth: AuthStatus.Status =>
+            auth match {
+              case AuthStatus.Succeed =>
+                sync().foldM(_ => InternalServerError(()), Ok(_))
+              case _ => Unauthorized(())
+            }
+        }
+
       "Get SNMP communitites" **
         GET / "switches" / "snmp" / "communities" >>> AuthContext.auth |>> {
           auth: AuthStatus.Status =>
