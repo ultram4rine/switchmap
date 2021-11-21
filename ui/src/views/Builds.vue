@@ -205,8 +205,8 @@ export default defineComponent({
   },
 
   methods: {
-    displayBuilds() {
-      getBuilds().then((builds) => (this.builds = builds));
+    async displayBuilds() {
+      this.builds = await getBuilds();
     },
 
     handleDelete(b: BuildResponse) {
@@ -215,13 +215,13 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    deleteConfirm() {
-      deleteBuild(this.buildShortName)
-        .then(() => {
-          this.openSnackbar("success", `${this.deleteItemName} deleted`);
-          this.deleteCancel(() => (this.buildShortName = ""));
-        })
-        .then(() => this.displayBuilds());
+    async deleteConfirm() {
+      await deleteBuild(this.buildShortName);
+
+      this.openSnackbar("success", `${this.deleteItemName} deleted`);
+      this.deleteCancel(() => (this.buildShortName = ""));
+
+      this.displayBuilds();
     },
 
     async handleSubmitBuild(

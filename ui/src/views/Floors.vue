@@ -205,8 +205,8 @@ export default defineComponent({
   },
 
   methods: {
-    displayFloors() {
-      getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
+    async displayFloors() {
+      this.floors = await getFloorsOf(this.shortName);
     },
 
     handleDelete(floor: FloorResponse) {
@@ -215,13 +215,13 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    deleteConfirm() {
-      deleteFloor(this.shortName, this.floor.number)
-        .then(() => {
-          this.openSnackbar("success", `${this.deleteItemName} deleted`);
-          this.deleteCancel(() => (this.floor = {} as FloorRequest));
-        })
-        .then(() => this.displayFloors());
+    async deleteConfirm() {
+      await deleteFloor(this.shortName, this.floor.number);
+
+      this.openSnackbar("success", `${this.deleteItemName} deleted`);
+      this.deleteCancel(() => (this.floor = {} as FloorRequest));
+
+      this.displayFloors();
     },
 
     async handleSubmitFloor(number: number) {

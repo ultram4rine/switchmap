@@ -180,16 +180,18 @@ export default defineComponent({
   },
 
   methods: {
-    displaySwitches() {
-      getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
-        sws.forEach((sw) => {
-          this.switches.push(sw);
-          if (!sw.positionTop && !sw.positionLeft) {
-            this.switchesWithoutPosition.push(sw);
-          }
-        });
-        this.planKey += 1;
+    async displaySwitches() {
+      const sws = await getSwitchesOfFloor(
+        this.shortName,
+        parseInt(this.floor)
+      );
+      sws.forEach((sw) => {
+        this.switches.push(sw);
+        if (!sw.positionTop && !sw.positionLeft) {
+          this.switchesWithoutPosition.push(sw);
+        }
       });
+      this.planKey += 1;
     },
 
     showPlan() {

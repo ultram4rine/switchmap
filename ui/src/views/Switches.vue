@@ -233,20 +233,19 @@ export default defineComponent({
   },
 
   methods: {
-    displaySwitches() {
-      getSwitches().then((switches) => {
-        this.switches = switches.map((sw) => {
-          sw.mac = sw.mac.toUpperCase();
-          let tableSwitch = sw as TableSwitch;
-          tableSwitch.location =
-            (sw.buildShortName ? `${sw.buildShortName}` : "") +
-            (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
-          tableSwitch.uplink =
-            sw.upSwitchName && sw.upLink
-              ? `${sw.upSwitchName} (${sw.upLink})`
-              : "";
-          return tableSwitch;
-        });
+    async displaySwitches() {
+      const sws = await getSwitches();
+      this.switches = sws.map((sw) => {
+        sw.mac = sw.mac.toUpperCase();
+        let tableSwitch = sw as TableSwitch;
+        tableSwitch.location =
+          (sw.buildShortName ? `${sw.buildShortName}` : "") +
+          (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
+        tableSwitch.uplink =
+          sw.upSwitchName && sw.upLink
+            ? `${sw.upSwitchName} (${sw.upLink})`
+            : "";
+        return tableSwitch;
       });
     },
 
@@ -255,14 +254,14 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    deleteConfirm() {
-      deleteSwitch(this.deleteItemName)
-        .then(() => {
-          this.openSnackbar("success", `${this.deleteItemName} deleted`);
-          this.deleteConfirmation = false;
-          this.deleteItemName = "";
-        })
-        .then(() => this.displaySwitches());
+    async deleteConfirm() {
+      await deleteSwitch(this.deleteItemName);
+
+      this.openSnackbar("success", `${this.deleteItemName} deleted`);
+      this.deleteConfirmation = false;
+      this.deleteItemName = "";
+
+      this.displaySwitches();
     },
 
     async handleSubmitSwitch(
