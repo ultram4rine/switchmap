@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="form" persistent max-width="500px">
+  <v-dialog :value="form" persistent max-width="500px" width="500px">
     <v-card dark>
       <v-toolbar>
         <v-toolbar-title>New floor</v-toolbar-title>

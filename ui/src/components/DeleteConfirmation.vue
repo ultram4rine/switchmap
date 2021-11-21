@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :value="confirmation" persistent max-width="500px">
+  <v-dialog :value="confirmation" persistent max-width="500px" width="500px">
     <v-card dark>
       <v-card-title class="headline">Delete {{ name }}?</v-card-title>
 
