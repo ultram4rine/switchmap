@@ -37,9 +37,9 @@ const useFloorForm = (): {
   };
 
   const closeForm = (): void => {
+    form.value = false;
     buildShortName.value = "";
     floor.value = {} as FloorRequest;
-    form.value = false;
   };
 
   return {

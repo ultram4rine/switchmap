@@ -57,10 +57,10 @@ const useBuildForm = (): {
   };
 
   const closeForm = (): void => {
+    form.value = false;
     build.value = {} as BuildRequest;
     oldShortName.value = "";
     formAction.value = "";
-    form.value = false;
   };
 
   return {

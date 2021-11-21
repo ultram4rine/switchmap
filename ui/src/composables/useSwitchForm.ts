@@ -136,10 +136,10 @@ const useSwitchForm = (): {
   };
 
   const closeForm = (): void => {
+    form.value = false;
     sw.value = {} as SwitchRequest;
     oldName.value = "";
     formAction.value = "";
-    form.value = false;
   };
 
   return {
