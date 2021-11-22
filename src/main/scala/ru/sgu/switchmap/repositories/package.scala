@@ -4,6 +4,7 @@ import doobie.quill.DoobieContext
 import io.getquill._
 import ru.sgu.switchmap.models._
 import zio.{Has, RIO}
+import zio.logging.Logging
 
 package object repositories {
   type BuildRepository = Has[BuildRepository.Service]
@@ -75,7 +76,8 @@ package object repositories {
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))
 
-  def sync(): RIO[SwitchRepository, Unit] = RIO.accessM(_.get.sync())
+  def sync(): RIO[SwitchRepository with Logging, Unit] =
+    RIO.accessM(_.get.sync())
   def snmpCommunities(): RIO[SwitchRepository, List[String]] =
     RIO.accessM(_.get.snmp())
   def getSwitches(): RIO[SwitchRepository, List[SwitchResponse]] =
@@ -91,12 +93,12 @@ package object repositories {
     RIO.accessM(_.get.getOf(build, floor))
   def getSwitch(name: String): RIO[SwitchRepository, SwitchResponse] =
     RIO.accessM(_.get.get(name))
-  def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, Boolean] =
+  def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, SwitchResult] =
     RIO.accessM(_.get.create(sw))
   def updateSwitch(
     name: String,
     sw: SwitchRequest
-  ): RIO[SwitchRepository, Boolean] =
+  ): RIO[SwitchRepository, SwitchResult] =
     RIO.accessM(_.get.update(name, sw))
   def updateSwitchPosition(
     name: String,

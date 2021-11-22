@@ -8,7 +8,6 @@ import io.grpc.Status
 import zio._
 import zio.interop.catz._
 import zio.logging.{log, Logger, Logging}
-import zio.console.putStrLn
 
 import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
@@ -28,7 +27,7 @@ import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 object SwitchRepository {
 
   trait Service {
-    def sync(): Task[Unit]
+    def sync(): RIO[Logging, Unit]
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
@@ -40,7 +39,7 @@ object SwitchRepository {
     def delete(name: String): Task[Boolean]
   }
 
-  val live: URLayer[DBTransactor with Has[
+  val live: URLayer[Has[Logger[String]] with DBTransactor with Has[
     AppConfig
   ] with NetDataClient with Has[
     SeensUtil
@@ -81,7 +80,7 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  def sync(): Task[Unit] = for {
+  def sync(): RIO[Logging, Unit] = for {
     switches <- for {
       resp <- ndc
         .getNetworkSwitches(GetNetworkSwitchesRequest())
@@ -99,7 +98,7 @@ private[repositories] final case class DoobieSwitchRepository(
         )
       )
         .catchAll(e => {
-          ZIO.succeed(())
+          log.warn(e.toString())
         })
     )
   } yield ()
