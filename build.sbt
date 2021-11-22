@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= Seq(
       "dev.zio"               %% "zio"                    % "1.0.12",
-      "dev.zio"               %% "zio-interop-cats"       % "3.1.1.0",
+      "dev.zio"               %% "zio-interop-cats"       % "3.2.9.0",
       "dev.zio"               %% "zio-logging-slf4j"      % "0.5.14",
       "org.http4s"            %% "http4s-ember-server"    % Http4sVersion,
       "org.http4s"            %% "http4s-ember-client"    % Http4sVersion,
