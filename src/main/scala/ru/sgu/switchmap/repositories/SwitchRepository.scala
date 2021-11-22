@@ -7,6 +7,8 @@ import inet.ipaddr.mac.MACAddress
 import io.grpc.Status
 import zio._
 import zio.interop.catz._
+import zio.logging.{log, Logger, Logging}
+import zio.console.putStrLn
 
 import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
@@ -16,6 +18,7 @@ import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.models.{
   SwitchRequest,
   SwitchResponse,
+  SwitchResult,
   SwitchInfo,
   SavePositionRequest,
   SwitchNotFound
@@ -31,8 +34,8 @@ object SwitchRepository {
     def getOf(build: String): Task[List[SwitchResponse]]
     def getOf(build: String, floor: Int): Task[List[SwitchResponse]]
     def get(name: String): Task[SwitchResponse]
-    def create(switch: SwitchRequest): Task[Boolean]
-    def update(name: String, switch: SwitchRequest): Task[Boolean]
+    def create(switch: SwitchRequest): Task[SwitchResult]
+    def update(name: String, switch: SwitchRequest): Task[SwitchResult]
     def update(name: String, position: SavePositionRequest): Task[Boolean]
     def delete(name: String): Task[Boolean]
   }
@@ -174,7 +177,7 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  private def makeSwitch(switch: SwitchRequest): Task[SwitchResponse] = {
+  private def makeSwitch(switch: SwitchRequest): Task[SwitchResult] = {
     val sw: Task[SwitchResponse] = if (switch.retrieveFromNetData) {
       for {
         resp <- ndc
@@ -227,21 +230,34 @@ private[repositories] final case class DoobieSwitchRepository(
       }
     }
 
+    val sr = sw.map { s => SwitchResult(sw = s) }
+
     val withSNMP = if (switch.retrieveTechDataFromSNMP) {
-      sw.flatMap { s =>
+      sr.flatMap { s =>
         for {
           maybeSwInfo <- snmpClient
-            .getSwitchInfo(s.ip, switch.snmpCommunity)
+            .getSwitchInfo(s.sw.ip, switch.snmpCommunity)
             .catchAll(_ => UIO.succeed(None))
+          newSw = maybeSwInfo match {
+            case None => s.copy(snmp = false)
+            case Some(swInfo) =>
+              s.copy(
+                sw = s.sw.copy(
+                  revision = Some(swInfo.revision),
+                  serial = Some(swInfo.serial)
+                ),
+                snmp = true
+              )
+          }
           swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
-        } yield s.copy(
-          revision = Some(swInfo.revision),
-          serial = Some(swInfo.serial)
-        )
+        } yield newSw
       }
     } else {
-      sw.map { s =>
-        s.copy(revision = switch.revision, serial = switch.serial)
+      sr.map { s =>
+        s.copy(
+          sw = s.sw.copy(revision = switch.revision, serial = switch.serial),
+          snmp = true
+        )
       }
     }
 
@@ -250,51 +266,58 @@ private[repositories] final case class DoobieSwitchRepository(
         .flatMap { s =>
           for {
             maybeSeen <- seensClient
-              .getSeenOf(s.mac)
+              .getSeenOf(s.sw.mac)
               .catchAll(_ => UIO.succeed(None))
             newSw = maybeSeen match {
-              case None => s
+              case None => s.copy(seen = false)
               case Some(seen) =>
                 s.copy(
-                  upSwitchName = Some(seen.Switch),
-                  upLink = Some(seen.PortName)
+                  sw = s.sw.copy(
+                    upSwitchName = Some(seen.Switch),
+                    upLink = Some(seen.PortName)
+                  ),
+                  seen = true
                 )
             }
           } yield newSw
         }
     } else {
       withSNMP.map { s =>
-        s.copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink)
+        s.copy(
+          sw = s.sw
+            .copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink),
+          seen = true
+        )
       }
     }
 
     withSeens
   }
 
-  def create(switch: SwitchRequest): Task[Boolean] = {
+  def create(switch: SwitchRequest): Task[SwitchResult] = {
     makeSwitch(switch)
-      .flatMap { s =>
+      .flatMap { sr =>
         {
           val q = quote {
             Tables.switches.insert(
-              _.name -> lift(s.name),
-              _.ip -> infix"${lift(s.ip)}::inet".as[IPAddress],
-              _.mac -> infix"${lift(s.mac)}::macaddr".as[MACAddress],
-              _.revision -> lift(s.revision),
-              _.serial -> lift(s.serial),
-              _.buildShortName -> lift(s.buildShortName),
-              _.floorNumber -> lift(s.floorNumber),
-              _.positionTop -> lift(s.positionTop),
-              _.positionLeft -> lift(s.positionLeft),
-              _.upSwitchName -> lift(s.upSwitchName),
-              _.upLink -> lift(s.upLink)
+              _.name -> lift(sr.sw.name),
+              _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
+              _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
+              _.revision -> lift(sr.sw.revision),
+              _.serial -> lift(sr.sw.serial),
+              _.buildShortName -> lift(sr.sw.buildShortName),
+              _.floorNumber -> lift(sr.sw.floorNumber),
+              _.positionTop -> lift(sr.sw.positionTop),
+              _.positionLeft -> lift(sr.sw.positionLeft),
+              _.upSwitchName -> lift(sr.sw.upSwitchName),
+              _.upLink -> lift(sr.sw.upLink)
             )
           }
 
           Tables.ctx
             .run(q)
             .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(true))
+            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
         }
       }
   }
@@ -302,32 +325,32 @@ private[repositories] final case class DoobieSwitchRepository(
   def update(
     name: String,
     switch: SwitchRequest
-  ): Task[Boolean] = {
+  ): Task[SwitchResult] = {
     makeSwitch(switch)
-      .flatMap { s =>
+      .flatMap { sr =>
         {
           val q = quote {
             Tables.switches
               .filter(sw => sw.name == lift(name))
               .update(
-                _.name -> lift(s.name),
-                _.ip -> infix"${lift(s.ip)}::inet".as[IPAddress],
-                _.mac -> infix"${lift(s.mac)}::macaddr".as[MACAddress],
-                _.revision -> lift(s.revision),
-                _.serial -> lift(s.serial),
-                _.buildShortName -> lift(s.buildShortName),
-                _.floorNumber -> lift(s.floorNumber),
-                _.positionTop -> lift(s.positionTop),
-                _.positionLeft -> lift(s.positionLeft),
-                _.upSwitchName -> lift(s.upSwitchName),
-                _.upLink -> lift(s.upLink)
+                _.name -> lift(sr.sw.name),
+                _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
+                _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
+                _.revision -> lift(sr.sw.revision),
+                _.serial -> lift(sr.sw.serial),
+                _.buildShortName -> lift(sr.sw.buildShortName),
+                _.floorNumber -> lift(sr.sw.floorNumber),
+                _.positionTop -> lift(sr.sw.positionTop),
+                _.positionLeft -> lift(sr.sw.positionLeft),
+                _.upSwitchName -> lift(sr.sw.upSwitchName),
+                _.upLink -> lift(sr.sw.upLink)
               )
           }
 
           Tables.ctx
             .run(q)
             .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(true))
+            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
         }
       }
   }

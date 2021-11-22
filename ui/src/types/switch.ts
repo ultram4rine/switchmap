@@ -20,6 +20,12 @@ export type SwitchResponse = {
   upLink: string;
 };
 
+export type SwitchResult = {
+  sw: SwitchResponse;
+  seen: boolean;
+  snmp: boolean;
+};
+
 export type SavePositionRequest = {
   top: number;
   left: number;

@@ -6,6 +6,7 @@ import {
   SavePositionRequest,
   SwitchRequest,
   SwitchResponse,
+  SwitchResult,
 } from "@/types/switch";
 
 export const getSNMPCommunities = async (): Promise<string[]> => {
@@ -48,15 +49,23 @@ export const getSwitch = async (name: string): Promise<SwitchResponse> => {
   return resp.data;
 };
 
-export const addSwitch = async (sw: SwitchRequest): Promise<void> => {
-  await api.post("/switches", sw);
+export const addSwitch = async (sw: SwitchRequest): Promise<SwitchResult> => {
+  const resp = await api.post<SwitchResult, AxiosResponse<SwitchResult>>(
+    "/switches",
+    sw
+  );
+  return resp.data;
 };
 
 export const editSwitch = async (
   sw: SwitchRequest,
   oldName: string
-): Promise<void> => {
-  await api.put(`/switches/${oldName}`, sw);
+): Promise<SwitchResult> => {
+  const resp = await api.put<SwitchResult, AxiosResponse<SwitchResult>>(
+    `/switches/${oldName}`,
+    sw
+  );
+  return resp.data;
 };
 
 export const updatePosition = async (

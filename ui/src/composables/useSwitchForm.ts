@@ -1,6 +1,6 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { SwitchRequest } from "@/types/switch";
+import { SwitchRequest, SwitchResult } from "@/types/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
 const useSwitchForm = (): {
@@ -29,7 +29,7 @@ const useSwitchForm = (): {
     retrieveUpLinkFromSeens: boolean,
     retrieveTechDataFromSNMP: boolean,
     action: "Add" | "Edit"
-  ) => Promise<void>;
+  ) => Promise<SwitchResult>;
   closeForm: () => void;
 } => {
   const form = ref(false);
@@ -83,10 +83,11 @@ const useSwitchForm = (): {
     retrieveUpLinkFromSeens: boolean,
     retrieveTechDataFromSNMP: boolean,
     action: "Add" | "Edit"
-  ): Promise<void> => {
+  ): Promise<SwitchResult> => {
+    let sr: SwitchResult = {} as SwitchResult;
     switch (action) {
       case "Add": {
-        await addSwitch({
+        sr = await addSwitch({
           snmpCommunity,
           retrieveFromNetData,
           retrieveUpLinkFromSeens,
@@ -106,7 +107,7 @@ const useSwitchForm = (): {
         break;
       }
       case "Edit": {
-        await editSwitch(
+        sr = await editSwitch(
           {
             snmpCommunity,
             retrieveFromNetData,
@@ -133,6 +134,7 @@ const useSwitchForm = (): {
       default:
         break;
     }
+    return sr;
   };
 
   const closeForm = (): void => {

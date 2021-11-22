@@ -254,7 +254,7 @@ export default defineComponent({
       action: "Add" | "Edit"
     ) {
       try {
-        await this.submitSwitchForm(
+        const sr = await this.submitSwitchForm(
           name,
           ipResolveMethod,
           ip,
@@ -272,10 +272,25 @@ export default defineComponent({
           action
         );
         this.displayFloors();
-        this.openSnackbar(
-          "success",
-          `${name} succesfully ${action.toLowerCase()}ed`
-        );
+
+        let typ: "success" | "info" | "warning" | "error" = "success";
+        let text = "";
+
+        if (sr.seen && sr.snmp) {
+          typ = "success";
+          text = `${name} succesfully ${action.toLowerCase()}ed`;
+        } else if (!sr.seen && !sr.snmp) {
+          typ = "warning";
+          text = `Failed to get uplink and technical data of ${name}`;
+        } else if (!sr.seen) {
+          typ = "warning";
+          text = `Failed to get uplink of ${name}`;
+        } else if (!sr.snmp) {
+          typ = "warning";
+          text = `Failed to get technical data of ${name}`;
+        }
+
+        this.openSnackbar(typ, text);
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }

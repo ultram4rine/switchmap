@@ -36,6 +36,12 @@ final case class SwitchResponse(
   upLink: Option[String] = None
 )
 
+final case class SwitchResult(
+  sw: SwitchResponse,
+  seen: Boolean = false,
+  snmp: Boolean = false
+)
+
 final case class SavePositionRequest(
   top: Float = 0,
   left: Float = 0
@@ -45,6 +51,10 @@ final case class SwitchInfo(
   revision: String,
   serial: String
 )
+
+/* final case class SyncResult(
+
+) */
 
 final case class SwitchNotFound(name: String) extends Exception
 
