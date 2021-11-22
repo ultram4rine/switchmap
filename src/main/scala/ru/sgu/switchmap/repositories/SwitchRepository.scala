@@ -87,7 +87,7 @@ private[repositories] final case class DoobieSwitchRepository(
         .mapError(s => new Exception(s.toString))
     } yield resp.switch
 
-    _ <- ZIO.foreachPar_(switches)(sw =>
+    _ <- ZIO.foreachParN_(10)(switches)(sw =>
       create(
         SwitchRequest(
           true,
