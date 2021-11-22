@@ -16,10 +16,11 @@ import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.models.{
   SwitchRequest,
   SwitchResponse,
+  SwitchInfo,
   SavePositionRequest,
   SwitchNotFound
 }
-import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil, SwitchInfo}
+import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 
 object SwitchRepository {
 

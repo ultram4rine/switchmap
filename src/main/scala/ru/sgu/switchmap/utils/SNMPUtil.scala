@@ -6,13 +6,9 @@ import org.snmp4j.mp.SnmpConstants
 import org.snmp4j.smi._
 import org.snmp4j.transport.DefaultUdpTransportMapping
 import org.snmp4j.{CommunityTarget, PDU, Snmp}
+import ru.sgu.switchmap.models.SwitchInfo
 
 import scala.concurrent.Future
-
-case class SwitchInfo(
-  revision: String,
-  serial: String
-)
 
 trait SNMPUtil {
   def getSwitchInfo(ip: IPAddress, community: String): Task[Option[SwitchInfo]]

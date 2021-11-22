@@ -41,6 +41,11 @@ final case class SavePositionRequest(
   left: Float = 0
 )
 
+final case class SwitchInfo(
+  revision: String,
+  serial: String
+)
+
 final case class SwitchNotFound(name: String) extends Exception
 
 final case class SeenRequest(
