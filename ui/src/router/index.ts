@@ -3,12 +3,15 @@ import VueRouter, { Route, Location, RouteConfig } from "vue-router";
 
 import store from "@/store";
 
-import Login from "@/views/Login.vue";
-import Builds from "@/views/Builds.vue";
-import Floors from "@/views/Floors.vue";
-import Floor from "@/views/Floor.vue";
-import Switches from "@/views/Switches.vue";
-import Vis from "@/views/Vis.vue";
+const Login = () => import("@/views/Login.vue");
+const Builds = () =>
+  import(/* webpackChunkName: "builds" */ "@/views/Builds.vue");
+const Floors = () =>
+  import(/* webpackChunkName: "builds" */ "@/views/Floors.vue");
+const Floor = () =>
+  import(/* webpackChunkName: "builds" */ "@/views/Floor.vue");
+const Switches = () => import("@/views/Switches.vue");
+const Vis = () => import("@/views/Vis.vue");
 
 Vue.use(VueRouter);
 
