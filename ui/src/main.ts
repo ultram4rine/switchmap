@@ -9,12 +9,12 @@ loadFonts();
 
 import App from "@/App.vue";
 
-import Layout from "@/views/layouts/Layout.vue";
-import Empty from "@/views/layouts/Empty.vue";
+import DefaultLayout from "@/views/layouts/DefaultLayout.vue";
+import EmptyLayout from "@/views/layouts/EmptyLayout.vue";
 
 createApp(App)
-  .component("default", Layout)
-  .component("empty", Empty)
+  .component("default", DefaultLayout)
+  .component("empty", EmptyLayout)
   .use(router)
   .use(store)
   .use(vuetify)
