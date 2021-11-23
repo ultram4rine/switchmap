@@ -64,28 +64,30 @@ object Main extends App {
     with Config
     with Has[FlywayMigrator]
     with Has[LDAP]
-    with NetDataClient
     with AuthEnvironment
+    with NetDataClient
     with HttpServerEnvironment
     with BuildRepository
     with FloorRepository
     with SwitchRepository
 
-  val logLayer: ULayer[Logging] = Slf4jLogger.make((_, msg) => "%s".format(msg))
+  val logLayer: ULayer[Logging] = Slf4jLogger.make((_, msg) => msg)
 
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-
   val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
     logLayer ++ dbTransactor >>> FlywayMigratorLive.layer
+
   val ldapEnvironment: TaskLayer[Has[LDAP]] =
     Config.live >>> LDAPLive.layer
-  val netdataEnvironment: TaskLayer[NetDataClient] =
-    Config.live >>> NetDataClientLive.layer
   val authEnvironment: TaskLayer[Has[Authenticator] with Has[Authorizer]] =
     Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
+
+  val netdataEnvironment: TaskLayer[NetDataClient] =
+    Config.live >>> NetDataClientLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
     Clock.live ++ Blocking.live
+
   val buildRepository: TaskLayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
   val floorRepository: TaskLayer[FloorRepository] =
@@ -97,8 +99,9 @@ object Main extends App {
       DNSUtilLive.layer ++
       SNMPUtilLive.layer >>>
       SwitchRepository.live
+
   val appEnvironment: TaskLayer[AppEnvironment] =
-    logLayer ++ Config.live ++ flywayMigrator ++ Console.live ++ ldapEnvironment ++ netdataEnvironment ++ authEnvironment ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
+    logLayer ++ Config.live ++ flywayMigrator ++ ldapEnvironment ++ authEnvironment ++ netdataEnvironment ++ httpServerEnvironment ++ buildRepository ++ floorRepository ++ switchRepository
 
   type AppTask[A] = RIO[AppEnvironment, A]
 
