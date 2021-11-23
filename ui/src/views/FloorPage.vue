@@ -72,7 +72,7 @@
         @close="closeSwitchForm"
       />
 
-      <snackbar
+      <snackbar-notification
         :snackbar="snackbar"
         :type="snackbarType"
         :text="snackbarText"
@@ -92,7 +92,7 @@ import zoom from "@/directives/zoom";
 
 import PlanUpload from "@/components/PlanUpload.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
 import { SwitchResponse } from "@/types/switch";
 import { getSwitchesOfFloor } from "@/api/switches";
@@ -111,7 +111,7 @@ export default defineComponent({
   components: {
     PlanUpload,
     SwitchForm,
-    Snackbar,
+    SnackbarNotification,
   },
 
   directives: {

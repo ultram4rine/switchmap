@@ -116,7 +116,7 @@
       @cancel="deleteCancel"
     />
 
-    <snackbar
+    <snackbar-notification
       :snackbar="snackbar"
       :type="snackbarType"
       :text="snackbarText"
@@ -131,7 +131,7 @@ import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
 import { SwitchResponse } from "@/types/switch";
 import { getSwitches, deleteSwitch } from "@/api/switches";
@@ -153,7 +153,7 @@ export default defineComponent({
   components: {
     SwitchForm,
     DeleteConfirmation,
-    Snackbar,
+    SnackbarNotification,
   },
 
   setup() {

@@ -93,7 +93,7 @@
       @cancel="deleteCancel(() => (buildShortName = ''))"
     />
 
-    <snackbar
+    <snackbar-notification
       :snackbar="snackbar"
       :type="snackbarType"
       :text="snackbarText"
@@ -109,7 +109,7 @@ import BuildCard from "@/components/cards/BuildCard.vue";
 import BuildForm from "@/components/forms/BuildForm.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
 import { BuildResponse } from "@/types/build";
 import { getBuilds, deleteBuild } from "@/api/builds";
@@ -129,7 +129,7 @@ export default defineComponent({
     BuildForm,
     FloorForm,
     DeleteConfirmation,
-    Snackbar,
+    SnackbarNotification,
   },
 
   setup() {

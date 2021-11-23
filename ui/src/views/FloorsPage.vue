@@ -96,7 +96,7 @@
       @cancel="deleteCancel(() => (floor = {}))"
     />
 
-    <snackbar
+    <snackbar-notification
       :snackbar="snackbar"
       :type="snackbarType"
       :text="snackbarText"
@@ -112,7 +112,7 @@ import FloorCard from "@/components/cards/FloorCard.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
 import { FloorRequest, FloorResponse } from "@/types/floor";
 import { getFloorsOf, deleteFloor } from "@/api/floors";
@@ -133,7 +133,7 @@ export default defineComponent({
     FloorForm,
     SwitchForm,
     DeleteConfirmation,
-    Snackbar,
+    SnackbarNotification,
   },
 
   setup() {
