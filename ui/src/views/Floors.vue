@@ -92,7 +92,7 @@
     <delete-confirmation
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
-      @confirm="deleteConfirm"
+      @confirm="confirmDelete"
       @cancel="deleteCancel(() => (floor = {}))"
     />
 
@@ -162,6 +162,7 @@ export default defineComponent({
     const {
       deleteConfirmation,
       deleteItemName,
+      confirm: deleteConfirm,
       cancel: deleteCancel,
     } = useDeleteConfirmation();
 
@@ -195,6 +196,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
+      deleteConfirm,
       deleteCancel,
 
       // Snackbar.
@@ -203,8 +205,6 @@ export default defineComponent({
       snackbarText,
       openSnackbar,
       closeSnackbar,
-
-      deleteFloor,
     };
   },
 
@@ -219,13 +219,16 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    async deleteConfirm() {
-      await deleteFloor(this.shortName, this.floor.number);
-
-      this.openSnackbar("success", `${this.deleteItemName} deleted`);
-      this.deleteCancel(() => (this.floor = {} as FloorRequest));
-
-      this.displayFloors();
+    async confirmDelete() {
+      await this.deleteConfirm(
+        () => deleteFloor(this.shortName, this.floor.number),
+        () => {
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
+          this.displayFloors();
+        },
+        () =>
+          this.openSnackbar("error", `Failed to delete ${this.deleteItemName}`)
+      );
     },
 
     async handleSubmitFloor(number: number) {

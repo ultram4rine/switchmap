@@ -112,7 +112,7 @@
     <delete-confirmation
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
-      @confirm="deleteConfirm"
+      @confirm="confirmDelete"
       @cancel="deleteCancel"
     />
 
@@ -173,6 +173,7 @@ export default defineComponent({
     const {
       deleteConfirmation,
       deleteItemName,
+      confirm: deleteConfirm,
       cancel: deleteCancel,
     } = useDeleteConfirmation();
 
@@ -213,6 +214,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
+      deleteConfirm,
       deleteCancel,
 
       // Snackbar.
@@ -221,8 +223,6 @@ export default defineComponent({
       snackbarText,
       openSnackbar,
       closeSnackbar,
-
-      deleteSwitch,
 
       search,
       headers,
@@ -256,14 +256,16 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    async deleteConfirm() {
-      await deleteSwitch(this.deleteItemName);
-
-      this.openSnackbar("success", `${this.deleteItemName} deleted`);
-      this.deleteConfirmation = false;
-      this.deleteItemName = "";
-
-      this.displaySwitches();
+    async confirmDelete() {
+      await this.deleteConfirm(
+        () => deleteSwitch(this.deleteItemName),
+        () => {
+          this.openSnackbar("success", `${this.deleteItemName} deleted`);
+          this.displaySwitches();
+        },
+        () =>
+          this.openSnackbar("error", `Failed to delete ${this.deleteItemName}`)
+      );
     },
 
     async handleSubmitSwitch(
