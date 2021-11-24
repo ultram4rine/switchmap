@@ -49,8 +49,7 @@ import {
   DataSetEdges,
 } from "vis-network/standalone";
 
-import { SwitchResponse } from "@/interfaces/switch";
-import { BuildResponse } from "@/interfaces/build";
+import { SwitchResponse, BuildResponse } from "@/interfaces";
 import { getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 

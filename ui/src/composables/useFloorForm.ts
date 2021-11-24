@@ -5,7 +5,7 @@ import { FloorRequest } from "@/interfaces/floor";
 import { addFloor } from "@/api/floors";
 import { getBuild } from "@/api/builds";
 
-const useFloorForm = (): {
+export const useFloorForm = (): {
   form: Ref<boolean>;
   floor: Ref<FloorRequest>;
   buildShortName: Ref<string>;
@@ -53,5 +53,3 @@ const useFloorForm = (): {
     closeForm,
   };
 };
-
-export default useFloorForm;

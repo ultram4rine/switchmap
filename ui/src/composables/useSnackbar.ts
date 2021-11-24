@@ -1,6 +1,6 @@
 import { ref, Ref } from "@vue/composition-api";
 
-const useSnackbar = (): {
+export const useSnackbar = (): {
   snackbar: Ref<boolean>;
   snackbarType: Ref<"success" | "info" | "warning" | "error">;
   text: Ref<string>;
@@ -37,5 +37,3 @@ const useSnackbar = (): {
     close,
   };
 };
-
-export default useSnackbar;

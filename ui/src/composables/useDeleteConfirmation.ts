@@ -1,6 +1,6 @@
 import { ref, Ref } from "@vue/composition-api";
 
-const useDeleteConfirmation = (): {
+export const useDeleteConfirmation = (): {
   deleteConfirmation: Ref<boolean>;
   deleteItemName: Ref<string>;
   cancel: (callback: () => void) => void;
@@ -21,5 +21,3 @@ const useDeleteConfirmation = (): {
     cancel,
   };
 };
-
-export default useDeleteConfirmation;

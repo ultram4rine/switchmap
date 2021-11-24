@@ -114,10 +114,12 @@ import Snackbar from "@/components/Snackbar.vue";
 import { BuildResponse } from "@/interfaces/build";
 import { getBuilds, deleteBuild } from "@/api/builds";
 
-import useBuildForm from "@/composables/useBuildForm";
-import useFloorForm from "@/composables/useFloorForm";
-import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
-import useSnackbar from "@/composables/useSnackbar";
+import {
+  useBuildForm,
+  useFloorForm,
+  useDeleteConfirmation,
+  useSnackbar,
+} from "@/composables";
 
 export default defineComponent({
   props: {

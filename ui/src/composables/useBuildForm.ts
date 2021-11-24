@@ -4,7 +4,7 @@ import { BuildRequest } from "@/interfaces/build";
 
 import { addBuild, editBuild } from "@/api/builds";
 
-const useBuildForm = (): {
+export const useBuildForm = (): {
   form: Ref<boolean>;
   formAction: Ref<"" | "Add" | "Edit">;
   build: Ref<BuildRequest>;
@@ -74,5 +74,3 @@ const useBuildForm = (): {
     closeForm,
   };
 };
-
-export default useBuildForm;

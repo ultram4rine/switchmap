@@ -207,9 +207,12 @@ import { getSNMPCommunities, getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 import { getFloorsOf } from "@/api/floors";
 
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
-import { BuildResponse } from "@/interfaces/build";
-import { FloorResponse } from "@/interfaces/floor";
+import {
+  SwitchRequest,
+  SwitchResponse,
+  BuildResponse,
+  FloorResponse,
+} from "@/interfaces";
 
 import { macNormalization } from "@/helpers";
 

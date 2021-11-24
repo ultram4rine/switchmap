@@ -136,9 +136,11 @@ import Snackbar from "@/components/Snackbar.vue";
 import { SwitchResponse } from "@/interfaces/switch";
 import { getSwitches, deleteSwitch } from "@/api/switches";
 
-import useSwitchForm from "@/composables/useSwitchForm";
-import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
-import useSnackbar from "@/composables/useSnackbar";
+import {
+  useSwitchForm,
+  useDeleteConfirmation,
+  useSnackbar,
+} from "@/composables";
 
 type TableSwitch = SwitchResponse & {
   location: string;

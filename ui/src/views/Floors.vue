@@ -117,10 +117,12 @@ import Snackbar from "@/components/Snackbar.vue";
 import { FloorRequest, FloorResponse } from "@/interfaces/floor";
 import { getFloorsOf, deleteFloor } from "@/api/floors";
 
-import useFloorForm from "@/composables/useFloorForm";
-import useSwitchForm from "@/composables/useSwitchForm";
-import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
-import useSnackbar from "@/composables/useSnackbar";
+import {
+  useFloorForm,
+  useSwitchForm,
+  useDeleteConfirmation,
+  useSnackbar,
+} from "@/composables";
 
 export default defineComponent({
   props: {

@@ -3,7 +3,7 @@ import { ref, Ref } from "@vue/composition-api";
 import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
-const useSwitchForm = (): {
+export const useSwitchForm = (): {
   form: Ref<boolean>;
   formAction: Ref<string>;
   sw: Ref<SwitchRequest>;
@@ -155,5 +155,3 @@ const useSwitchForm = (): {
     closeForm,
   };
 };
-
-export default useSwitchForm;

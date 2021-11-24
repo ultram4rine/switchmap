@@ -98,8 +98,7 @@ import { SwitchResponse } from "@/interfaces/switch";
 import { getSwitchesOfFloor } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 
-import useSwitchForm from "@/composables/useSwitchForm";
-import useSnackbar from "@/composables/useSnackbar";
+import {useSwitchForm,useSnackbar} from "@/composables";
 
 export default defineComponent({
   props: {
