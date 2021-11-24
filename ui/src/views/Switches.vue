@@ -133,7 +133,7 @@ import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
-import { SwitchResponse } from "@/types/switch";
+import { SwitchResponse } from "@/interfaces/switch";
 import { getSwitches, deleteSwitch } from "@/api/switches";
 
 import useSwitchForm from "@/composables/useSwitchForm";

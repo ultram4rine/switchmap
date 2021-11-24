@@ -207,9 +207,9 @@ import { getSNMPCommunities, getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 import { getFloorsOf } from "@/api/floors";
 
-import { SwitchRequest, SwitchResponse } from "@/types/switch";
-import { BuildResponse } from "@/types/build";
-import { FloorResponse } from "@/types/floor";
+import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import { BuildResponse } from "@/interfaces/build";
+import { FloorResponse } from "@/interfaces/floor";
 
 import { macNormalization } from "@/helpers";
 

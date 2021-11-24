@@ -114,7 +114,7 @@ import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
-import { FloorRequest, FloorResponse } from "@/types/floor";
+import { FloorRequest, FloorResponse } from "@/interfaces/floor";
 import { getFloorsOf, deleteFloor } from "@/api/floors";
 
 import useFloorForm from "@/composables/useFloorForm";

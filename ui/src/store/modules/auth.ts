@@ -7,7 +7,7 @@ import {
   AUTH_ERROR,
 } from "@/store/actions";
 import { login, logout } from "@/api/auth";
-import { User } from "@/types/user";
+import { User } from "@/interfaces/user";
 
 type State = {
   token: string;

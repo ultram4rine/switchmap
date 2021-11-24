@@ -37,7 +37,7 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import { mdiDelete } from "@mdi/js";
 
-import { FloorResponse } from "@/types/floor";
+import { FloorResponse } from "@/interfaces/floor";
 
 export default defineComponent({
   props: {

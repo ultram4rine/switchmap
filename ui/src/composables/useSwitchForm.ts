@@ -1,6 +1,6 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { SwitchRequest, SwitchResult } from "@/types/switch";
+import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
 const useSwitchForm = (): {

@@ -1,6 +1,6 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { BuildRequest } from "@/types/build";
+import { BuildRequest } from "@/interfaces/build";
 
 import { addBuild, editBuild } from "@/api/builds";
 

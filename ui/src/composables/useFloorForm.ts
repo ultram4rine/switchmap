@@ -1,6 +1,6 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { FloorRequest } from "@/types/floor";
+import { FloorRequest } from "@/interfaces/floor";
 
 import { addFloor } from "@/api/floors";
 import { getBuild } from "@/api/builds";

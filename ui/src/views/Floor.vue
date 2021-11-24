@@ -94,7 +94,7 @@ import PlanUpload from "@/components/PlanUpload.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
-import { SwitchResponse } from "@/types/switch";
+import { SwitchResponse } from "@/interfaces/switch";
 import { getSwitchesOfFloor } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 

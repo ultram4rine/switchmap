@@ -39,7 +39,7 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import { mdiPencil, mdiDelete } from "@mdi/js";
 
-import { BuildResponse } from "@/types/build";
+import { BuildResponse } from "@/interfaces/build";
 
 export default defineComponent({
   props: {
