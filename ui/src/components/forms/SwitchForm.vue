@@ -147,7 +147,7 @@
                 @change="getFloors(build)"
               ></v-autocomplete>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col v-if="build" cols="12" sm="6">
               <v-select
                 v-model="floor"
                 :items="floors"
