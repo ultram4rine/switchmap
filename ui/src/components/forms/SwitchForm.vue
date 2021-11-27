@@ -281,6 +281,9 @@ export default defineComponent({
         sw.value.snmpCommunity = communitites.value[0];
         sw.value.revision = val.revision;
         sw.value.serial = val.serial;
+        if (val.buildShortName) {
+          getFloors(val.buildShortName);
+        }
       }
     );
 
@@ -288,6 +291,10 @@ export default defineComponent({
       emit("submit", sw.value, props.action);
     };
     const close = () => emit("close");
+
+    const getFloors = (buildShortName: string) => {
+      getFloorsOf(buildShortName).then((fs) => (floors.value = fs));
+    };
 
     return {
       title,
@@ -303,14 +310,10 @@ export default defineComponent({
       submit,
       close,
 
+      getFloors,
+
       mdiClose,
     };
-  },
-
-  methods: {
-    getFloors(build: string) {
-      getFloorsOf(build).then((floors) => (this.floors = floors));
-    },
   },
 
   created() {
