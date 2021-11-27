@@ -1,5 +1,5 @@
 <template>
-  <form-wrap :form="form" :title="title" @close="close">
+  <form-wrap :form="form" title="New floor" @close="close">
     <ValidationObserver ref="observer" v-slot="{ invalid }">
       <v-form ref="form" @submit.prevent="submit">
         <v-card-text>
