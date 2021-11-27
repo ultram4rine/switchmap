@@ -9,7 +9,7 @@
             rules="required"
           >
             <v-text-field
-              v-model="number"
+              v-model="f.number"
               :error-messages="errors"
               type="number"
               label="Number"
@@ -58,26 +58,26 @@ export default defineComponent({
   components: { FormWrap, ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
-    const number = ref(props.floor.number);
+    const f = ref({ number: props.floor.number } as FloorRequest);
 
     watch(
-      () => props.floor.number,
-      (val: number) => {
-        number.value = val;
+      () => props.floor,
+      (val) => {
+        f.value.number = val.number;
       }
     );
 
     const submit = () => {
-      emit("submit", number.value);
-      number.value = 0;
+      emit("submit", f.value);
+      f.value = {} as FloorRequest;
     };
     const close = () => {
-      number.value = 0;
+      f.value = {} as FloorRequest;
       emit("close");
     };
 
     return {
-      number,
+      f,
 
       submit,
       close,

@@ -5,7 +5,7 @@
         <v-card-text>
           <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
             <v-text-field
-              v-model="name"
+              v-model="b.name"
               :error-messages="errors"
               label="Name"
               required
@@ -19,7 +19,7 @@
             rules="required"
           >
             <v-text-field
-              v-model="shortName"
+              v-model="b.shortName"
               :error-messages="errors"
               label="Short name"
               required
@@ -78,38 +78,31 @@ export default defineComponent({
       return props.action === "Add" ? "New build" : "Change build";
     });
 
-    const name = ref(props.build.name);
-    const shortName = ref(props.build.shortName);
-
+    const b = ref({
+      name: props.build.name,
+      shortName: props.build.shortName,
+    } as BuildRequest);
     watch(
-      () => props.build.name,
+      () => props.build,
       (val) => {
-        name.value = val;
-      }
-    );
-    watch(
-      () => props.build.shortName,
-      (val) => {
-        shortName.value = val;
+        b.value.name = val.name;
+        b.value.shortName = val.shortName;
       }
     );
 
     const submit = () => {
-      emit("submit", name.value, shortName.value, props.action);
-      name.value = "";
-      shortName.value = "";
+      emit("submit", b.value, props.action);
+      b.value = {} as BuildRequest;
     };
     const close = () => {
-      name.value = "";
-      shortName.value = "";
+      b.value = {} as BuildRequest;
       emit("close");
     };
 
     return {
       title,
 
-      name,
-      shortName,
+      b,
 
       submit,
       close,

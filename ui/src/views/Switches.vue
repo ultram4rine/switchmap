@@ -104,7 +104,7 @@
       :form="switchForm"
       :action="switchFormAction"
       :needLocationFields="true"
-      :sw="sw"
+      :swit="sw"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
@@ -133,7 +133,7 @@ import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
-import { SwitchResponse } from "@/interfaces/switch";
+import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
 import { getSwitches, deleteSwitch } from "@/api/switches";
 
 import {
@@ -268,41 +268,9 @@ export default defineComponent({
       );
     },
 
-    async handleSubmitSwitch(
-      name: string,
-      ipResolveMethod: string,
-      ip: string,
-      mac: string,
-      upSwitchName: string,
-      upLink: string,
-      snmpCommunity: string,
-      revision: string,
-      serial: string,
-      build: string,
-      floor: number,
-      retrieveFromNetData: boolean,
-      retrieveUpLinkFromSeens: boolean,
-      retrieveTechDataFromSNMP: boolean,
-      action: "Add" | "Edit"
-    ) {
+    async handleSubmitSwitch(swit: SwitchRequest, action: "Add" | "Edit") {
       try {
-        const sr = await this.submitSwitchForm(
-          name,
-          ipResolveMethod,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          snmpCommunity,
-          revision,
-          serial,
-          build,
-          floor,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          action
-        );
+        const sr = await this.submitSwitchForm(swit, action);
         this.displaySwitches();
 
         let typ: "success" | "info" | "warning" | "error" = "success";

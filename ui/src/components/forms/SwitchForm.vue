@@ -4,14 +4,14 @@
       <v-form ref="form" @submit.prevent="submit">
         <v-card-text>
           <v-checkbox
-            v-model="retrieveFromNetData"
+            v-model="sw.retrieveFromNetData"
             label="Retrieve switch data from netdata"
             color="orange accent-2"
           ></v-checkbox>
 
           <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
             <v-text-field
-              v-model="name"
+              v-model="sw.name"
               :error-messages="errors"
               label="Name"
               required
@@ -19,11 +19,11 @@
             ></v-text-field>
           </ValidationProvider>
 
-          <template v-if="!retrieveFromNetData">
+          <template v-if="!sw.retrieveFromNetData">
             <v-row dense>
               <v-col cols="12" sm="6">
                 <v-select
-                  v-model="ipResolveMethod"
+                  v-model="sw.ipResolveMethod"
                   :items="methods"
                   hide-details
                   label="IP resolve method"
@@ -31,14 +31,14 @@
                   required
                 ></v-select>
               </v-col>
-              <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
+              <v-col v-if="sw.ipResolveMethod === 'Direct'" cols="12" sm="6">
                 <ValidationProvider
                   v-slot="{ errors }"
                   name="IP address"
                   rules="required|ip"
                 >
                   <v-text-field
-                    v-model="ip"
+                    v-model="sw.ip"
                     :error-messages="errors"
                     label="IP"
                     placeholder="e.g. 192.168.1.1"
@@ -57,7 +57,7 @@
                   rules="required|mac"
                 >
                   <v-text-field
-                    v-model="mac"
+                    v-model="sw.mac"
                     :error-messages="errors"
                     label="MAC"
                     placeholder="XX:XX:XX:XX:XX:XX"
@@ -70,14 +70,14 @@
           </template>
 
           <v-checkbox
-            v-model="retrieveUpLinkFromSeens"
+            v-model="sw.retrieveUpLinkFromSeens"
             label="Retrieve uplink from seens"
             color="orange accent-2"
           ></v-checkbox>
-          <v-row v-if="!retrieveUpLinkFromSeens">
+          <v-row v-if="!sw.retrieveUpLinkFromSeens">
             <v-col cols="12" sm="6">
               <v-autocomplete
-                v-model="upSwitchName"
+                v-model="sw.upSwitchName"
                 :items="switches"
                 hide-details
                 item-text="name"
@@ -89,7 +89,7 @@
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field
-                v-model="upLink"
+                v-model="sw.upLink"
                 label="Up link"
                 color="orange accent-2"
               ></v-text-field>
@@ -97,21 +97,21 @@
           </v-row>
 
           <v-checkbox
-            v-model="retrieveTechDataFromSNMP"
+            v-model="sw.retrieveTechDataFromSNMP"
             label="Retrieve tech data from SNMP"
             color="orange accent-2"
           ></v-checkbox>
-          <v-row v-if="!retrieveTechDataFromSNMP">
+          <v-row v-if="!sw.retrieveTechDataFromSNMP">
             <v-col cols="12" sm="6">
               <v-text-field
-                v-model="revision"
+                v-model="sw.revision"
                 label="Revision"
                 color="orange accent-2"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field
-                v-model="serial"
+                v-model="sw.serial"
                 label="Serial"
                 color="orange accent-2"
               ></v-text-field>
@@ -124,7 +124,7 @@
             rules="required"
           >
             <v-select
-              v-model="snmpCommunity"
+              v-model="sw.snmpCommunity"
               :error-messages="errors"
               :items="communitites"
               label="SNMP community"
@@ -136,7 +136,7 @@
           <v-row v-if="needLocationFields" dense>
             <v-col cols="12" sm="6">
               <v-autocomplete
-                v-model="build"
+                v-model="sw.buildShortName"
                 :items="builds"
                 hide-details
                 item-text="name"
@@ -144,12 +144,12 @@
                 label="Build"
                 color="orange accent-2"
                 required
-                @change="getFloors(build)"
+                @change="getFloors(sw.buildShortName)"
               ></v-autocomplete>
             </v-col>
-            <v-col v-if="build" cols="12" sm="6">
+            <v-col v-if="sw.buildShortName" cols="12" sm="6">
               <v-select
-                v-model="floor"
+                v-model="sw.floorNumber"
                 :items="floors"
                 hide-details
                 item-text="number"
@@ -202,8 +202,6 @@ import {
   FloorResponse,
 } from "@/interfaces";
 
-import { macNormalization } from "@/helpers";
-
 extend("required", {
   ...required,
   message: "{_field_} is required",
@@ -231,7 +229,7 @@ export default defineComponent({
     form: { type: Boolean, required: true },
     action: { type: String, required: true, enum: ["Add", "Edit"] },
 
-    sw: { type: Object as PropType<SwitchRequest>, required: true },
+    swit: { type: Object as PropType<SwitchRequest>, required: true },
 
     needLocationFields: { type: Boolean, required: true },
   },
@@ -243,20 +241,22 @@ export default defineComponent({
       return props.action === "Add" ? "New switch" : "Change switch";
     });
 
-    const retrieveFromNetData = ref(props.sw.retrieveFromNetData);
-    const retrieveUpLinkFromSeens = ref(props.sw.retrieveUpLinkFromSeens);
-    const retrieveTechDataFromSNMP = ref(props.sw.retrieveTechDataFromSNMP);
-    const name = ref(props.sw.name);
-    const ipResolveMethod = ref(props.sw.ipResolveMethod);
-    const ip = ref(props.sw.ip);
-    const mac = ref(props.sw.mac);
-    const upSwitchName = ref(props.sw.upSwitchName);
-    const upLink = ref(props.sw.upLink);
-    const build = ref(props.sw.buildShortName);
-    const floor = ref(props.sw.floorNumber);
-    const snmpCommunity = ref(props.sw.snmpCommunity);
-    const revision = ref(props.sw.revision);
-    const serial = ref(props.sw.serial);
+    const sw = ref({
+      retrieveFromNetData: props.swit.retrieveFromNetData,
+      retrieveUpLinkFromSeens: props.swit.retrieveUpLinkFromSeens,
+      retrieveTechDataFromSNMP: props.swit.retrieveTechDataFromSNMP,
+      name: props.swit.name,
+      ipResolveMethod: props.swit.ipResolveMethod,
+      ip: props.swit.ip,
+      mac: props.swit.mac,
+      upSwitchName: props.swit.upSwitchName,
+      upLink: props.swit.upLink,
+      buildShortName: props.swit.buildShortName,
+      floorNumber: props.swit.floorNumber,
+      snmpCommunity: props.swit.snmpCommunity,
+      revision: props.swit.revision,
+      serial: props.swit.serial,
+    } as SwitchRequest);
 
     const methods = ["Direct", "DNS"];
     const communitites: Ref<string[]> = ref([]);
@@ -265,130 +265,34 @@ export default defineComponent({
     const floors: Ref<FloorResponse[]> = ref([]);
 
     watch(
-      () => props.sw.retrieveFromNetData,
+      () => props.swit,
       (val) => {
-        retrieveFromNetData.value = val;
-      }
-    );
-    watch(
-      () => props.sw.retrieveUpLinkFromSeens,
-      (val) => {
-        retrieveUpLinkFromSeens.value = val;
-      }
-    );
-    watch(
-      () => props.sw.retrieveTechDataFromSNMP,
-      (val) => {
-        retrieveTechDataFromSNMP.value = val;
-      }
-    );
-    watch(
-      () => props.sw.name,
-      (val) => {
-        name.value = val;
-      }
-    );
-    watch(
-      () => props.sw.ipResolveMethod,
-      (val) => {
-        ipResolveMethod.value = val;
-      }
-    );
-    watch(
-      () => props.sw.ip,
-      (val) => {
-        ip.value = val;
-      }
-    );
-    watch(
-      () => props.sw.mac,
-      (val) => {
-        mac.value = val;
-      }
-    );
-    watch(
-      () => props.sw.upSwitchName,
-      (val) => {
-        upSwitchName.value = val;
-      }
-    );
-    watch(
-      () => props.sw.upLink,
-      (val) => {
-        upLink.value = val;
-      }
-    );
-    watch(
-      () => props.sw.buildShortName,
-      (val) => {
-        build.value = val;
-        if (val) getFloorsOf(build.value).then((fs) => (floors.value = fs));
-      }
-    );
-    watch(
-      () => props.sw.floorNumber,
-      (val) => {
-        floor.value = val;
-      }
-    );
-    watch(
-      () => props.sw.snmpCommunity,
-      (val) => {
-        snmpCommunity.value = val;
-      }
-    );
-    watch(
-      () => props.sw.revision,
-      (val) => {
-        revision.value = val;
-      }
-    );
-    watch(
-      () => props.sw.serial,
-      (val) => {
-        serial.value = val;
+        sw.value.retrieveFromNetData = val.retrieveFromNetData;
+        sw.value.retrieveUpLinkFromSeens = val.retrieveUpLinkFromSeens;
+        sw.value.retrieveTechDataFromSNMP = val.retrieveTechDataFromSNMP;
+        sw.value.name = val.name;
+        sw.value.ipResolveMethod = val.ipResolveMethod;
+        sw.value.ip = val.ip;
+        sw.value.mac = val.mac;
+        sw.value.upSwitchName = val.upSwitchName;
+        sw.value.upLink = val.upLink;
+        sw.value.buildShortName = val.buildShortName;
+        sw.value.floorNumber = val.floorNumber;
+        sw.value.snmpCommunity = communitites.value[0];
+        sw.value.revision = val.revision;
+        sw.value.serial = val.serial;
       }
     );
 
     const submit = () => {
-      emit(
-        "submit",
-        name.value,
-        ipResolveMethod.value,
-        ip.value,
-        mac.value.length === 12 ? mac.value : macNormalization(mac.value),
-        upSwitchName.value,
-        upLink.value,
-        snmpCommunity.value,
-        revision.value,
-        serial.value,
-        build.value,
-        floor.value,
-        retrieveFromNetData.value,
-        retrieveUpLinkFromSeens.value,
-        retrieveTechDataFromSNMP.value,
-        props.action
-      );
+      emit("submit", sw.value, props.action);
     };
     const close = () => emit("close");
 
     return {
       title,
 
-      retrieveFromNetData,
-      retrieveUpLinkFromSeens,
-      retrieveTechDataFromSNMP,
-      name,
-      ipResolveMethod,
-      ip,
-      mac,
-      upSwitchName,
-      upLink,
-      build,
-      floor,
-      snmpCommunity,
-      revision,
-      serial,
+      sw,
 
       methods,
       communitites,
@@ -412,7 +316,7 @@ export default defineComponent({
   created() {
     getSNMPCommunities().then((comms: string[]) => {
       this.communitites = comms;
-      if (!this.sw.snmpCommunity) this.snmpCommunity = this.communitites[0];
+      this.sw.snmpCommunity = this.communitites[0];
     });
     getSwitches().then((switches) => (this.switches = switches));
     if (this.needLocationFields) {

@@ -111,7 +111,7 @@ import FloorForm from "@/components/forms/FloorForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
-import { BuildResponse } from "@/interfaces/build";
+import { BuildRequest, BuildResponse, FloorRequest } from "@/interfaces";
 import { getBuilds, deleteBuild } from "@/api/builds";
 
 import {
@@ -229,28 +229,24 @@ export default defineComponent({
       );
     },
 
-    async handleSubmitBuild(
-      name: string,
-      shortName: string,
-      action: "Add" | "Edit"
-    ) {
+    async handleSubmitBuild(b: BuildRequest, action: "Add" | "Edit") {
       try {
-        await this.submitBuildForm(name, shortName, action);
+        await this.submitBuildForm(b, action);
         this.displayBuilds();
         this.openSnackbar(
           "success",
-          `${name} succesfully ${action.toLowerCase()}ed`
+          `${b.name} succesfully ${action.toLowerCase()}ed`
         );
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} build`);
       }
     },
 
-    async handleSubmitFloor(number: number) {
+    async handleSubmitFloor(f: FloorRequest) {
       try {
-        await this.submitFloorForm(number);
+        await this.submitFloorForm(f);
         this.displayBuilds();
-        this.openSnackbar("success", `Floor ${number} succesfully added`);
+        this.openSnackbar("success", `Floor ${f.number} succesfully added`);
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to add floor`);
       }

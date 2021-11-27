@@ -3,6 +3,8 @@ import { ref, Ref } from "@vue/composition-api";
 import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
+import { macNormalization } from "@/helpers";
+
 export const useSwitchForm = (): {
   form: Ref<boolean>;
   formAction: Ref<string>;
@@ -14,20 +16,7 @@ export const useSwitchForm = (): {
     floor?: number
   ) => void;
   submitForm: (
-    name: string,
-    ipResolveMethod: string,
-    ip: string,
-    mac: string,
-    upSwitchName: string,
-    upLink: string,
-    snmpCommunity: string,
-    revision: string,
-    serial: string,
-    build: string,
-    floor: number,
-    retrieveFromNetData: boolean,
-    retrieveUpLinkFromSeens: boolean,
-    retrieveTechDataFromSNMP: boolean,
+    swit: SwitchRequest,
     action: "Add" | "Edit"
   ) => Promise<SwitchResult>;
   closeForm: () => void;
@@ -68,66 +57,21 @@ export const useSwitchForm = (): {
   };
 
   const submitForm = async (
-    name: string,
-    ipResolveMethod: string,
-    ip: string,
-    mac: string,
-    upSwitchName: string,
-    upLink: string,
-    snmpCommunity: string,
-    revision: string,
-    serial: string,
-    build: string,
-    floor: number,
-    retrieveFromNetData: boolean,
-    retrieveUpLinkFromSeens: boolean,
-    retrieveTechDataFromSNMP: boolean,
+    swit: SwitchRequest,
     action: "Add" | "Edit"
   ): Promise<SwitchResult> => {
     let sr: SwitchResult = {} as SwitchResult;
+    swit.mac = swit.mac.length === 12 ? swit.mac : macNormalization(swit.mac);
     switch (action) {
       case "Add": {
-        sr = await addSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          ipResolveMethod,
-          name,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          buildShortName: build,
-          floorNumber: floor,
-          revision,
-          serial,
-        } as SwitchRequest);
+        sr = await addSwitch(swit);
         closeForm();
         break;
       }
       case "Edit": {
-        sr = await editSwitch(
-          {
-            snmpCommunity,
-            retrieveFromNetData,
-            retrieveUpLinkFromSeens,
-            retrieveTechDataFromSNMP,
-            ipResolveMethod,
-            name,
-            ip,
-            mac,
-            upSwitchName,
-            upLink,
-            buildShortName: build,
-            floorNumber: floor,
-            positionTop: sw.value.positionTop,
-            positionLeft: sw.value.positionLeft,
-            revision,
-            serial,
-          } as SwitchRequest,
-          oldName.value
-        );
+        swit.positionTop = sw.value.positionTop;
+        swit.positionLeft = sw.value.positionLeft;
+        sr = await editSwitch(swit, oldName.value);
         closeForm();
         break;
       }
