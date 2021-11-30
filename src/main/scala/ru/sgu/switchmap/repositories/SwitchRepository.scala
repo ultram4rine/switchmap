@@ -93,6 +93,7 @@ private[repositories] final case class DoobieSwitchRepository(
           true,
           true,
           true,
+          true,
           sw.name,
           snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
         )
@@ -205,13 +206,10 @@ private[repositories] final case class DoobieSwitchRepository(
         }
       } yield sw
     } else {
-      val ip = switch.ipResolveMethod match {
-        case "DNS" =>
-          for {
-            ip <- dns.getIPByHostname(switch.name)
-          } yield ip
-        case "Direct" => Task.succeed(switch.ip.get)
-        case _        => Task.fail(new Exception("unknown IP resolve method"))
+      val ip = if (switch.retrieveIPFromDNS) {
+        dns.getIPByHostname(switch.name)
+      } else {
+        Task.succeed(switch.ip.get)
       }
 
       ip.flatMap { ipVal =>

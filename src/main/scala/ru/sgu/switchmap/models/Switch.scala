@@ -5,10 +5,10 @@ import inet.ipaddr.mac.MACAddress
 
 final case class SwitchRequest(
   retrieveFromNetData: Boolean = false,
+  retrieveIPFromDNS: Boolean = false,
   retrieveUpLinkFromSeens: Boolean = false,
   retrieveTechDataFromSNMP: Boolean = false,
   name: String = "",
-  ipResolveMethod: String = "",
   ip: Option[IPAddress] = None,
   mac: Option[MACAddress] = None,
   snmpCommunity: String = "",

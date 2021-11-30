@@ -36,15 +36,15 @@ export const useSwitchForm = (): {
     if (swit) {
       oldName.value = swit.name;
       sw.value = swit;
-      sw.value.ipResolveMethod = "Direct";
       sw.value.retrieveFromNetData = false;
+      sw.value.retrieveIPFromDNS = false;
       sw.value.retrieveUpLinkFromSeens = false;
       sw.value.retrieveTechDataFromSNMP = false;
     } else {
       sw.value = {
         mac: "",
-        ipResolveMethod: "DNS",
         retrieveFromNetData: true,
+        retrieveIPFromDNS: true,
         retrieveUpLinkFromSeens: true,
         retrieveTechDataFromSNMP: true,
         buildShortName: build ? build : null,

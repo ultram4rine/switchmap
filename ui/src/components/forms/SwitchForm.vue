@@ -22,16 +22,13 @@
           <template v-if="!sw.retrieveFromNetData">
             <v-row dense>
               <v-col cols="12" sm="6">
-                <v-select
-                  v-model="sw.ipResolveMethod"
-                  :items="methods"
-                  hide-details
-                  label="IP resolve method"
+                <v-checkbox
+                  v-model="sw.retrieveIPFromDNS"
+                  label="Get IP from DNS"
                   color="orange accent-2"
-                  required
-                ></v-select>
+                ></v-checkbox>
               </v-col>
-              <v-col v-if="sw.ipResolveMethod === 'Direct'" cols="12" sm="6">
+              <v-col v-if="!sw.retrieveIPFromDNS" cols="12" sm="6">
                 <ValidationProvider
                   v-slot="{ errors }"
                   name="IP address"
@@ -243,10 +240,10 @@ export default defineComponent({
 
     const sw = ref({
       retrieveFromNetData: props.swit.retrieveFromNetData,
+      retrieveIPFromDNS: props.swit.retrieveIPFromDNS,
       retrieveUpLinkFromSeens: props.swit.retrieveUpLinkFromSeens,
       retrieveTechDataFromSNMP: props.swit.retrieveTechDataFromSNMP,
       name: props.swit.name,
-      ipResolveMethod: props.swit.ipResolveMethod,
       ip: props.swit.ip,
       mac: props.swit.mac,
       upSwitchName: props.swit.upSwitchName,
@@ -258,7 +255,6 @@ export default defineComponent({
       serial: props.swit.serial,
     } as SwitchRequest);
 
-    const methods = ["Direct", "DNS"];
     const communitites: Ref<string[]> = ref([]);
     const switches: Ref<SwitchResponse[]> = ref([]);
     const builds: Ref<BuildResponse[]> = ref([]);
@@ -268,10 +264,10 @@ export default defineComponent({
       () => props.swit,
       (val) => {
         sw.value.retrieveFromNetData = val.retrieveFromNetData;
+        sw.value.retrieveIPFromDNS = val.retrieveIPFromDNS;
         sw.value.retrieveUpLinkFromSeens = val.retrieveUpLinkFromSeens;
         sw.value.retrieveTechDataFromSNMP = val.retrieveTechDataFromSNMP;
         sw.value.name = val.name;
-        sw.value.ipResolveMethod = val.ipResolveMethod;
         sw.value.ip = val.ip;
         sw.value.mac = val.mac;
         sw.value.upSwitchName = val.upSwitchName;
@@ -301,7 +297,6 @@ export default defineComponent({
 
       sw,
 
-      methods,
       communitites,
       switches,
       builds,

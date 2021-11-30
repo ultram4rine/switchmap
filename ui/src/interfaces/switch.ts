@@ -1,9 +1,9 @@
 export interface SwitchRequest extends SwitchResponse {
   snmpCommunity: string;
   retrieveFromNetData: boolean;
+  retrieveIPFromDNS: boolean;
   retrieveUpLinkFromSeens: boolean;
   retrieveTechDataFromSNMP: boolean;
-  ipResolveMethod: string;
 }
 
 export interface SwitchResponse {
