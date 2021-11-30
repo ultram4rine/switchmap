@@ -181,8 +181,8 @@ object Main extends App {
 
         server <- EmberServerBuilder
           .default[AppTask]
-          .withHost(Host.fromString(api.endpoint).get)
-          .withPort(Port.fromInt(api.port).get)
+          .withHost(api.endpoint)
+          .withPort(api.port)
           .withHttpWebSocketApp { wsb =>
             CORS.policy.withAllowOriginAll
               .withAllowCredentials(false)

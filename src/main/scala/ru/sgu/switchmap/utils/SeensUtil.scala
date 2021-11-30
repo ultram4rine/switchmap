@@ -37,31 +37,18 @@ case class SeensUtilLive(cfg: AppConfig) extends SeensUtil {
     val dsl: Http4sClientDsl[Task] = new Http4sClientDsl[Task] {}
     import dsl._
 
-    val uri = Uri.fromString(
-      s"${cfg.seensHost}/mac"
-    )
-    uri match {
-      case Right(value) => {
-        {
-          val req: Request[Task] = POST(
-            SeenRequest(mac).asJson,
-            value
-          )
-          for {
-            seensAll <- EmberClientBuilder
-              .default[Task]
-              .build
-              .use { client =>
-                client.expect[List[SeenResponse]](req)
-              }
-            seensNow = seensAll.filter(seen => seen.Name.contains("(now)"))
-            seens = if (seensNow.isEmpty) seensAll else seensNow
-          } yield seens.sortBy(seen => seen.Metric).headOption
+    val req: Request[Task] =
+      POST(SeenRequest(mac).asJson, cfg.seensHost / "mac")
+    for {
+      seensAll <- EmberClientBuilder
+        .default[Task]
+        .build
+        .use { client =>
+          client.expect[List[SeenResponse]](req)
         }
-      }
-      case Left(_) =>
-        Task.fail(new Exception("invalid URI for seens"))
-    }
+      seensNow = seensAll.filter(seen => seen.Name.contains("(now)"))
+      seens = if (seensNow.isEmpty) seensAll else seensNow
+    } yield seens.sortBy(seen => seen.Metric).headOption
   }
 }
 

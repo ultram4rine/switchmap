@@ -1,6 +1,10 @@
 package ru.sgu.switchmap
 
+import com.comcast.ip4s.{Host, Hostname, Port}
+import org.http4s.Uri
 import pureconfig.ConfigSource
+import pureconfig.module.http4s._
+import pureconfig.module.ip4s._
 import zio.{Has, ZIO, URIO, ULayer, ZLayer, Task}
 
 package object config {
@@ -21,12 +25,12 @@ package object config {
     jwtKey: String,
     netdataHost: String,
     netdataPort: Int,
-    seensHost: String,
+    seensHost: Uri,
     snmpCommunities: List[String],
     dnsSuffix: String
   )
 
-  final case class APIConfig(endpoint: String, port: Int)
+  final case class APIConfig(endpoint: Hostname, port: Port)
   final case class DBConfig(
     url: String,
     user: String,

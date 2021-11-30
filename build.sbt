@@ -35,6 +35,8 @@ lazy val root = (project in file("."))
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.2",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
+      "com.github.pureconfig" %% "pureconfig-http4s"      % PureConfigVersion,
+      "com.github.pureconfig" %% "pureconfig-ip4s"        % PureConfigVersion,
       "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
       "org.snmp4j"             % "snmp4j"                 % "3.6.2",
       "ch.qos.logback"         % "logback-classic"        % "1.2.7",
