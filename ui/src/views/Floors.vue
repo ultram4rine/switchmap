@@ -252,16 +252,16 @@ export default defineComponent({
 
         if (sr.seen && sr.snmp) {
           typ = "success";
-          text = `${name} succesfully ${action.toLowerCase()}ed`;
+          text = `${sr.sw.name} succesfully ${action.toLowerCase()}ed`;
         } else if (!sr.seen && !sr.snmp) {
           typ = "warning";
-          text = `Failed to get uplink and technical data of ${name}`;
+          text = `Failed to get uplink and technical data of ${sr.sw.name}`;
         } else if (!sr.seen) {
           typ = "warning";
-          text = `Failed to get uplink of ${name}`;
+          text = `Failed to get uplink of ${sr.sw.name}`;
         } else if (!sr.snmp) {
           typ = "warning";
-          text = `Failed to get technical data of ${name}`;
+          text = `Failed to get technical data of ${sr.sw.name}`;
         }
 
         this.openSnackbar(typ, text);
