@@ -3,17 +3,32 @@ package ru.sgu.switchmap.routes
 import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
+import org.http4s.dsl.Http4sDsl
 import org.http4s.rho.RhoRoutes
 import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.{EntityDecoder, EntityEncoder}
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
 import ru.sgu.switchmap.Main.AppTask
-import ru.sgu.switchmap.models.{SwitchRequest, SavePositionRequest}
+import ru.sgu.switchmap.models.{
+  SwitchRequest,
+  SwitchResponse,
+  SwitchResult,
+  SavePositionRequest
+}
 import ru.sgu.switchmap.repositories._
+import sttp.tapir.json.circe._
+import sttp.tapir.generic.auto._
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import sttp.tapir.ztapir._
 import zio._
 import zio.interop.catz._
 
 final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
+  val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
+  import dsl._
+
+  import ru.sgu.switchmap.json._
+
   implicit def circeJsonDecoder[A](implicit
     decoder: Decoder[A]
   ): EntityDecoder[AppTask, A] = jsonOf[AppTask, A]
@@ -21,6 +36,76 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
     decoder: Encoder[A]
   ): EntityEncoder[AppTask, A] =
     jsonEncoderOf[AppTask, A]
+
+  val runSyncEndpoint =
+    endpoint.get.in("switches" / "sync").errorOut(stringBody).zServerLogic {
+      _ => sync().mapError(_.toString())
+    }
+  val getSNMPCommunitiesEndpoint = endpoint.get
+    .in("switches" / "snmp" / "communities")
+    .errorOut(stringBody)
+    .out(jsonBody[List[String]])
+    .zServerLogic { _ => snmpCommunities().mapError(_.toString()) }
+  val getSwitchesEndpoint = endpoint.get
+    .in("switches")
+    .errorOut(stringBody)
+    .out(jsonBody[List[SwitchResponse]])
+    .zServerLogic { _ => getSwitches().mapError(_.toString()) }
+  val getSwitchesOfBuildEndpoint = endpoint.get
+    .in("builds" / path[String]("shortName") / "switches")
+    .errorOut(stringBody)
+    .out(jsonBody[List[SwitchResponse]])
+    .zServerLogic { shortName =>
+      getSwitchesOf(shortName).mapError(_.toString())
+    }
+  val getSwitchesOfFloorEndpoint = endpoint.get
+    .in(
+      "builds" / path[String]("shortName") /
+        "floors" / path[Int]("number") / "switches"
+    )
+    .errorOut(stringBody)
+    .out(jsonBody[List[SwitchResponse]])
+    .zServerLogic { case (shortName, number) =>
+      getSwitchesOf(shortName, number).mapError(_.toString())
+    }
+  val getSwitchEndpoint = endpoint.get
+    .in("switches" / path[String]("name"))
+    .errorOut(stringBody)
+    .out(jsonBody[SwitchResponse])
+    .zServerLogic { name =>
+      getSwitch(name).mapError(_.toString())
+    }
+  val addSwitchEndpoint = endpoint.post
+    .in("switches")
+    .in(jsonBody[SwitchRequest])
+    .errorOut(stringBody)
+    .out(jsonBody[SwitchResult])
+    .zServerLogic { switch =>
+      createSwitch(switch).mapError(_.toString())
+    }
+  val updateSwitchEndpoint = endpoint.put
+    .in("switches" / path[String]("name"))
+    .in(jsonBody[SwitchRequest])
+    .errorOut(stringBody)
+    .out(jsonBody[SwitchResult])
+    .zServerLogic { case (name, switch) =>
+      updateSwitch(name, switch).mapError(_.toString())
+    }
+  val updateSwitchPositionEndpoint = endpoint.patch
+    .in("switches" / path[String]("name"))
+    .in(jsonBody[SavePositionRequest])
+    .errorOut(stringBody)
+    .out(plainBody[Boolean])
+    .zServerLogic { case (name, position) =>
+      updateSwitchPosition(name, position).mapError(_.toString())
+    }
+  val deleteSwitchEndpoint = endpoint.delete
+    .in("switches" / path[String]("name"))
+    .errorOut(stringBody)
+    .out(plainBody[Boolean])
+    .zServerLogic { name =>
+      updateSwitch(name, switch).mapError(_.toString())
+    }
 
   val api: RhoRoutes[AppTask] =
     new RhoRoutes[AppTask] {
