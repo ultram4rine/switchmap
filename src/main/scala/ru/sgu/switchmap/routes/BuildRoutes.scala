@@ -32,38 +32,56 @@ final case class BuildRoutes[
   ): EntityEncoder[AppTask, A] =
     jsonEncoderOf[AppTask, A]
 
-  val getBuildsEndpoint = endpoint.get
+  val getBuildsEndpoint = withAuth.get
     .in("builds")
-    .errorOut(stringBody)
     .out(jsonBody[List[BuildResponse]])
-    .zServerLogic { _ => getBuilds().mapError(_.toString()) }
-  val getBuildEndpoint = endpoint.get
-    .in("builds" / path[String]("shortName"))
-    .errorOut(stringBody)
-    .out(jsonBody[BuildResponse])
-    .zServerLogic { shortName =>
-      getBuild(shortName).mapError(_.toString())
+    .serverLogic { as => _ =>
+      as match {
+        case AuthStatus.Succeed => getBuilds().mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
     }
-  val addBuildEndpoint = endpoint.post
+  val getBuildEndpoint = withAuth.get
+    .in("builds" / path[String]("shortName"))
+    .out(jsonBody[BuildResponse])
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed => getBuild(shortName).mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
+    }
+  val addBuildEndpoint = withAuth.post
     .in("builds")
     .in(jsonBody[BuildRequest])
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { build => createBuild(build).mapError(_.toString()) }
-  val updateBuildEndpoint = endpoint.put
+    .serverLogic { as => build =>
+      as match {
+        case AuthStatus.Succeed => createBuild(build).mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
+    }
+  val updateBuildEndpoint = withAuth.put
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[BuildRequest])
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { case (shortName, build) =>
-      updateBuild(shortName, build).mapError(_.toString())
+    .serverLogic { as =>
+      { case (shortName, build) =>
+        as match {
+          case AuthStatus.Succeed =>
+            updateBuild(shortName, build).mapError(_.toString())
+          case _ => ZIO.fail("401")
+        }
+      }
     }
-  val deleteBuildEndpoint = endpoint.delete
+  val deleteBuildEndpoint = withAuth.delete
     .in("builds" / path[String]("shortName"))
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { shortName =>
-      (getBuild(shortName) *> deleteBuild(shortName)).mapError(_.toString())
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed =>
+          (getBuild(shortName) *> deleteBuild(shortName)).mapError(_.toString())
+        case _ => ZIO.fail("401")
+      }
     }
 
   val routes = ZHttp4sServerInterpreter()

@@ -39,73 +39,109 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
     jsonEncoderOf[AppTask, A]
 
   val runSyncEndpoint =
-    endpoint.get.in("switches" / "sync").errorOut(stringBody).zServerLogic {
-      _ => sync().mapError(_.toString())
+    withAuth.get.in("switches" / "sync").serverLogic { as => _ =>
+      as match {
+        case AuthStatus.Succeed => sync().mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
     }
-  val getSNMPCommunitiesEndpoint = endpoint.get
+  val getSNMPCommunitiesEndpoint = withAuth.get
     .in("switches" / "snmp" / "communities")
-    .errorOut(stringBody)
     .out(jsonBody[List[String]])
-    .zServerLogic { _ => snmpCommunities().mapError(_.toString()) }
-  val getSwitchesEndpoint = endpoint.get
-    .in("switches")
-    .errorOut(stringBody)
-    .out(jsonBody[List[SwitchResponse]])
-    .zServerLogic { _ => getSwitches().mapError(_.toString()) }
-  val getSwitchesOfBuildEndpoint = endpoint.get
-    .in("builds" / path[String]("shortName") / "switches")
-    .errorOut(stringBody)
-    .out(jsonBody[List[SwitchResponse]])
-    .zServerLogic { shortName =>
-      getSwitchesOf(shortName).mapError(_.toString())
+    .serverLogic { as => _ =>
+      as match {
+        case AuthStatus.Succeed => snmpCommunities().mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
     }
-  val getSwitchesOfFloorEndpoint = endpoint.get
+  val getSwitchesEndpoint = withAuth.get
+    .in("switches")
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as => _ =>
+      as match {
+        case AuthStatus.Succeed => getSwitches().mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
+    }
+  val getSwitchesOfBuildEndpoint = withAuth.get
+    .in("builds" / path[String]("shortName") / "switches")
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed =>
+          getSwitchesOf(shortName).mapError(_.toString())
+        case _ => ZIO.fail("401")
+      }
+    }
+  val getSwitchesOfFloorEndpoint = withAuth.get
     .in(
       "builds" / path[String]("shortName") /
         "floors" / path[Int]("number") / "switches"
     )
-    .errorOut(stringBody)
     .out(jsonBody[List[SwitchResponse]])
-    .zServerLogic { case (shortName, number) =>
-      getSwitchesOf(shortName, number).mapError(_.toString())
+    .serverLogic { as =>
+      { case (shortName, number) =>
+        as match {
+          case AuthStatus.Succeed =>
+            getSwitchesOf(shortName, number).mapError(_.toString())
+          case _ => ZIO.fail("401")
+        }
+      }
     }
-  val getSwitchEndpoint = endpoint.get
+  val getSwitchEndpoint = withAuth.get
     .in("switches" / path[String]("name"))
-    .errorOut(stringBody)
     .out(jsonBody[SwitchResponse])
-    .zServerLogic { name =>
-      getSwitch(name).mapError(_.toString())
+    .serverLogic { as => name =>
+      as match {
+        case AuthStatus.Succeed => getSwitch(name).mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
     }
-  val addSwitchEndpoint = endpoint.post
+  val addSwitchEndpoint = withAuth.post
     .in("switches")
     .in(jsonBody[SwitchRequest])
-    .errorOut(stringBody)
     .out(jsonBody[SwitchResult])
-    .zServerLogic { switch =>
-      createSwitch(switch).mapError(_.toString())
+    .serverLogic { as => switch =>
+      as match {
+        case AuthStatus.Succeed => createSwitch(switch).mapError(_.toString())
+        case _                  => ZIO.fail("401")
+      }
     }
-  val updateSwitchEndpoint = endpoint.put
+  val updateSwitchEndpoint = withAuth.put
     .in("switches" / path[String]("name"))
     .in(jsonBody[SwitchRequest])
-    .errorOut(stringBody)
     .out(jsonBody[SwitchResult])
-    .zServerLogic { case (name, switch) =>
-      updateSwitch(name, switch).mapError(_.toString())
+    .serverLogic { as =>
+      { case (name, switch) =>
+        as match {
+          case AuthStatus.Succeed =>
+            updateSwitch(name, switch).mapError(_.toString())
+          case _ => ZIO.fail("401")
+        }
+      }
     }
-  val updateSwitchPositionEndpoint = endpoint.patch
+  val updateSwitchPositionEndpoint = withAuth.patch
     .in("switches" / path[String]("name"))
     .in(jsonBody[SavePositionRequest])
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { case (name, position) =>
-      updateSwitchPosition(name, position).mapError(_.toString())
+    .serverLogic { as =>
+      { case (name, position) =>
+        as match {
+          case AuthStatus.Succeed =>
+            updateSwitchPosition(name, position).mapError(_.toString())
+          case _ => ZIO.fail("401")
+        }
+      }
     }
-  val deleteSwitchEndpoint = endpoint.delete
+  val deleteSwitchEndpoint = withAuth.delete
     .in("switches" / path[String]("name"))
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { name =>
-      (getSwitch(name) *> deleteSwitch(name)).mapError(_.toString())
+    .serverLogic { as => name =>
+      as match {
+        case AuthStatus.Succeed =>
+          (getSwitch(name) *> deleteSwitch(name)).mapError(_.toString())
+        case _ => ZIO.fail("401")
+      }
     }
 
   val api: RhoRoutes[AppTask] =

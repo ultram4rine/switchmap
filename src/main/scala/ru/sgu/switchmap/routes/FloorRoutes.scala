@@ -30,36 +30,52 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
   ): EntityEncoder[AppTask, A] =
     jsonEncoderOf[AppTask, A]
 
-  val getFloorsOfEndpoint = endpoint.get
+  val getFloorsOfEndpoint = withAuth.get
     .in("builds" / path[String]("shortName") / "floors")
-    .errorOut(stringBody)
     .out(jsonBody[List[FloorResponse]])
-    .zServerLogic { shortName =>
-      getFloorsOf(shortName).mapError(_.toString())
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed =>
+          getFloorsOf(shortName).mapError(_.toString())
+        case _ => ZIO.fail("401")
+      }
     }
-  val getFloorEndpoint = endpoint.get
+  val getFloorEndpoint = withAuth.get
     .in("builds" / path[String]("shortName") / "floors" / path[Int]("number"))
-    .errorOut(stringBody)
     .out(jsonBody[FloorResponse])
-    .zServerLogic { case (shortName, number) =>
-      getFloor(shortName, number).mapError(_.toString())
+    .serverLogic { as =>
+      { case (shortName, number) =>
+        as match {
+          case AuthStatus.Succeed =>
+            getFloor(shortName, number).mapError(_.toString())
+          case _ => ZIO.fail("401")
+        }
+      }
     }
-  val addFloorEndpoint = endpoint.post
+  val addFloorEndpoint = withAuth.post
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[FloorRequest])
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { case (shortName, floor) =>
-      createFloor(floor).mapError(_.toString())
+    .serverLogic { as =>
+      { case (shortName, floor) =>
+        as match {
+          case AuthStatus.Succeed => createFloor(floor).mapError(_.toString())
+          case _                  => ZIO.fail("401")
+        }
+      }
     }
-  val deleteFloorEndpoint = endpoint.delete
+  val deleteFloorEndpoint = withAuth.delete
     .in("builds" / path[String]("shortName") / "floors" / path[Int]("number"))
-    .errorOut(stringBody)
     .out(plainBody[Boolean])
-    .zServerLogic { case (shortName, number) =>
-      (getFloor(shortName, number) *> deleteFloor(shortName, number)).mapError(
-        _.toString()
-      )
+    .serverLogic { as =>
+      { case (shortName, number) =>
+        as match {
+          case AuthStatus.Succeed =>
+            (getFloor(shortName, number) *> deleteFloor(shortName, number))
+              .mapError(_.toString())
+          case _ => ZIO.fail("401")
+        }
+      }
     }
 
   val routes = ZHttp4sServerInterpreter()
