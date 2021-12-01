@@ -28,6 +28,7 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
   import dsl._
 
   import ru.sgu.switchmap.json._
+  import ru.sgu.switchmap.routes.schemas._
 
   implicit def circeJsonDecoder[A](implicit
     decoder: Decoder[A]
@@ -104,7 +105,7 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
     .errorOut(stringBody)
     .out(plainBody[Boolean])
     .zServerLogic { name =>
-      updateSwitch(name, switch).mapError(_.toString())
+      (getSwitch(name) *> deleteSwitch(name)).mapError(_.toString())
     }
 
   val api: RhoRoutes[AppTask] =
