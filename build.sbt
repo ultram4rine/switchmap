@@ -38,7 +38,7 @@ lazy val root = (project in file("."))
       "com.github.pureconfig" %% "pureconfig-http4s"      % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-ip4s"        % PureConfigVersion,
       "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
-      "org.snmp4j"             % "snmp4j"                 % "3.6.2",
+      "org.snmp4j"             % "snmp4j"                 % "3.6.3",
       "ch.qos.logback"         % "logback-classic"        % "1.2.7",
       "io.grpc"                % "grpc-netty"             % "1.42.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
