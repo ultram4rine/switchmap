@@ -13,7 +13,7 @@
     "@mdi/js": "^6.5.95",
     "@vue/composition-api": "^1.4.1",
     "axios": "^0.24.0",
-    "core-js": "^3.19.2",
+    "core-js": "^3.19.3",
     "vee-validate": "^3.4.14",
     "vis-data": "^7.1.2",
     "vis-network": "^9.1.0",
