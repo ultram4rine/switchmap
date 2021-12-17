@@ -15,7 +15,7 @@ lazy val root = (project in file("."))
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies ++= Seq(
-      "dev.zio"               %% "zio"                    % "1.0.12",
+      "dev.zio"               %% "zio"                    % "1.0.13",
       "dev.zio"               %% "zio-interop-cats"       % "3.2.9.0",
       "dev.zio"               %% "zio-logging-slf4j"      % "0.5.14",
       "org.http4s"            %% "http4s-ember-server"    % Http4sVersion,
@@ -38,8 +38,8 @@ lazy val root = (project in file("."))
       "com.github.pureconfig" %% "pureconfig-http4s"      % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-ip4s"        % PureConfigVersion,
       "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
-      "org.snmp4j"             % "snmp4j"                 % "3.6.3",
-      "ch.qos.logback"         % "logback-classic"        % "1.2.8",
+      "org.snmp4j"             % "snmp4j"                 % "3.6.4",
+      "ch.qos.logback"         % "logback-classic"        % "1.2.9",
       "io.grpc"                % "grpc-netty"             % "1.43.0",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
