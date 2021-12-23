@@ -20,7 +20,8 @@ import ru.sgu.switchmap.models.{
   SwitchResult,
   SwitchInfo,
   SavePositionRequest,
-  SwitchNotFound
+  SwitchNotFound,
+  LastSyncTime
 }
 import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 
@@ -81,29 +82,56 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  def sync(): RIO[Logging, Unit] = for {
-    switches <- for {
-      resp <- ndc
-        .getNetworkSwitches(GetNetworkSwitchesRequest())
-        .mapError(s => new Exception(s.toString))
-    } yield resp.switch
+  def sync(): RIO[Logging, Unit] = {
+    for {
+      _ <- log.info("Retrieving switches")
 
-    _ <- ZIO.foreachParN_(10)(switches)(sw =>
-      create(
-        SwitchRequest(
-          true,
-          true,
-          true,
-          true,
-          sw.name,
-          snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+      switches <- for {
+        resp <- ndc
+          .getNetworkSwitches(GetNetworkSwitchesRequest())
+          .flatMapError(s =>
+            log.throwable(
+              s"Failed to get switches: ${s.toString()}",
+              new Exception(s.toString())
+            )
+          )
+      } yield resp.switch
+
+      _ <- ZIO.foreachParN_(10)(switches)(sw =>
+        create(
+          SwitchRequest(
+            true,
+            true,
+            true,
+            true,
+            sw.name,
+            snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+          )
         )
+          .catchAll(e => {
+            log.warn(e.toString())
+          })
       )
-        .catchAll(e => {
-          log.warn(e.toString())
-        })
-    )
-  } yield ()
+
+      _ <- log.info("Switches added")
+    } yield ()
+
+    val timestamp = java.time.Instant.now()
+    val q = quote {
+      Tables.lastSyncTime.update(
+        _.syncTime -> lift(timestamp),
+        _.success -> lift(true)
+      )
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        _ => Task.succeed(())
+      )
+  }
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)

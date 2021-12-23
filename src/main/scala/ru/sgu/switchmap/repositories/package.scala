@@ -32,6 +32,15 @@ package object repositories {
       )
     )
 
+    val lastSyncTime = quote(
+      querySchema[LastSyncTime](
+        "last_sync_time",
+        _.syncTime -> "sync_time",
+        _.success -> "success",
+        _.lock -> "lock"
+      )
+    )
+
     val switches = quote(
       querySchema[SwitchResponse](
         "switches",

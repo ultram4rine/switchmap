@@ -135,9 +135,7 @@ object Main extends App {
 
         _ <- LDAP.conn
 
-        _ <- log.info("Retrieving switches")
         _ <- repositories.sync()
-        _ <- log.info("Switches added")
 
         swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
           swaggerFormats = DefaultSwaggerFormats,
