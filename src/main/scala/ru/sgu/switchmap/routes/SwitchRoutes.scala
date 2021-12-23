@@ -68,7 +68,20 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
             }
         }
 
-      "Get all switches of floor in build" **
+      "Get all unplaced switches in build" **
+        GET / "builds" / pv"shortName" / "switches" / "unplaced" >>> AuthContext.auth |>> {
+          (shortName: String, auth: AuthStatus.Status) =>
+            auth match {
+              case AuthStatus.Succeed =>
+                getUnplacedSwitchesOf(shortName).foldM(
+                  _ => NotFound(()),
+                  Ok(_)
+                )
+              case _ => Unauthorized(())
+            }
+        }
+
+      "Get all placed switches of floor in build" **
         GET / "builds" / pv"shortName" / "floors" / pathVar[Int](
           "number",
           "Number of floor"
@@ -76,7 +89,10 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository]() {
           (shortName: String, number: Int, auth: AuthStatus.Status) =>
             auth match {
               case AuthStatus.Succeed =>
-                getSwitchesOf(shortName, number).foldM(_ => NotFound(()), Ok(_))
+                getPlacedSwitchesOf(shortName, number).foldM(
+                  _ => NotFound(()),
+                  Ok(_)
+                )
               case _ => Unauthorized(())
             }
         }

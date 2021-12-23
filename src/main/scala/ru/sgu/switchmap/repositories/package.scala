@@ -86,11 +86,15 @@ package object repositories {
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.getOf(build))
-  def getSwitchesOf(
+  def getUnplacedSwitchesOf(
+    build: String
+  ): RIO[SwitchRepository, List[SwitchResponse]] =
+    RIO.accessM(_.get.getUnplacedOf(build))
+  def getPlacedSwitchesOf(
     build: String,
     floor: Int
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getOf(build, floor))
+    RIO.accessM(_.get.getPlacedOf(build, floor))
   def getSwitch(name: String): RIO[SwitchRepository, SwitchResponse] =
     RIO.accessM(_.get.get(name))
   def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, SwitchResult] =

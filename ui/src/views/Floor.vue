@@ -95,7 +95,10 @@ import SwitchForm from "@/components/forms/SwitchForm.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
 import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
-import { getSwitchesOfFloor } from "@/api/switches";
+import {
+  getUnplacedSwitchesOfBuild,
+  getPlacedSwitchesOfFloor,
+} from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 
 import { useSwitchForm, useSnackbar } from "@/composables";
@@ -180,16 +183,15 @@ export default defineComponent({
 
   methods: {
     async displaySwitches() {
-      const sws = await getSwitchesOfFloor(
+      this.switches = await getPlacedSwitchesOfFloor(
         this.shortName,
         parseInt(this.floor)
       );
-      sws.forEach((sw) => {
-        this.switches.push(sw);
-        if (!sw.positionTop && !sw.positionLeft) {
-          this.switchesWithoutPosition.push(sw);
-        }
-      });
+      this.switchesWithoutPosition = await getUnplacedSwitchesOfBuild(
+        this.shortName
+      );
+      this.switches = this.switches.concat(this.switchesWithoutPosition);
+      console.log(this.switches);
       this.planKey += 1;
     },
 

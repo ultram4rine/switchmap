@@ -32,7 +32,16 @@ export const getSwitchesOfBuild = async (
   return resp.data;
 };
 
-export const getSwitchesOfFloor = async (
+export const getUnplacedSwitchesOfBuild = async (
+  shortName: string
+): Promise<SwitchResponse[]> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
+    `/builds/${shortName}/switches/unplaced`
+  );
+  return resp.data;
+};
+
+export const getPlacedSwitchesOfFloor = async (
   shortName: string,
   number: number
 ): Promise<SwitchResponse[]> => {
