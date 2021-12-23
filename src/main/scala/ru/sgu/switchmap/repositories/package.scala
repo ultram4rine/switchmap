@@ -1,6 +1,6 @@
 package ru.sgu.switchmap
 
-import doobie.quill.DoobieContext
+import org.polyvariant.doobiequill.DoobieContext
 import io.getquill._
 import ru.sgu.switchmap.models._
 import zio.{Has, RIO}
@@ -29,6 +29,15 @@ package object repositories {
         _.number -> "number",
         _.buildName -> "build_name",
         _.buildShortName -> "build_short_name"
+      )
+    )
+
+    val lastSyncTime = quote(
+      querySchema[LastSyncTime](
+        "last_sync_time",
+        _.syncTime -> "sync_time",
+        _.success -> "success",
+        _.lock -> "lock"
       )
     )
 
@@ -86,11 +95,15 @@ package object repositories {
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.getOf(build))
-  def getSwitchesOf(
+  def getUnplacedSwitchesOf(
+    build: String
+  ): RIO[SwitchRepository, List[SwitchResponse]] =
+    RIO.accessM(_.get.getUnplacedOf(build))
+  def getPlacedSwitchesOf(
     build: String,
     floor: Int
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getOf(build, floor))
+    RIO.accessM(_.get.getPlacedOf(build, floor))
   def getSwitch(name: String): RIO[SwitchRepository, SwitchResponse] =
     RIO.accessM(_.get.get(name))
   def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, SwitchResult] =

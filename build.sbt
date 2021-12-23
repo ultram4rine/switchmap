@@ -27,8 +27,8 @@ lazy val root = (project in file("."))
       "io.circe"              %% "circe-generic"          % "0.14.1",
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
-      "org.tpolecat"          %% "doobie-quill"           % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
+      "org.polyvariant"       %% "doobie-quill"           % "0.0.2",
       "org.flywaydb"           % "flyway-core"            % "8.3.0",
       "org.postgresql"         % "postgresql"             % "42.3.1",
       "com.github.jwt-scala"  %% "jwt-circe"              % "9.0.2",
@@ -39,7 +39,7 @@ lazy val root = (project in file("."))
       "com.github.pureconfig" %% "pureconfig-ip4s"        % PureConfigVersion,
       "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
       "org.snmp4j"             % "snmp4j"                 % "3.6.4",
-      "ch.qos.logback"         % "logback-classic"        % "1.2.9",
+      "ch.qos.logback"         % "logback-classic"        % "1.2.10",
       "io.grpc"                % "grpc-netty"             % "1.43.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),

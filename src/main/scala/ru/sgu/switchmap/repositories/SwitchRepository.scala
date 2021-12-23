@@ -20,7 +20,8 @@ import ru.sgu.switchmap.models.{
   SwitchResult,
   SwitchInfo,
   SavePositionRequest,
-  SwitchNotFound
+  SwitchNotFound,
+  LastSyncTime
 }
 import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 
@@ -31,7 +32,8 @@ object SwitchRepository {
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
-    def getOf(build: String, floor: Int): Task[List[SwitchResponse]]
+    def getUnplacedOf(build: String): Task[List[SwitchResponse]]
+    def getPlacedOf(build: String, floor: Int): Task[List[SwitchResponse]]
     def get(name: String): Task[SwitchResponse]
     def create(switch: SwitchRequest): Task[SwitchResult]
     def update(name: String, switch: SwitchRequest): Task[SwitchResult]
@@ -80,29 +82,56 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  def sync(): RIO[Logging, Unit] = for {
-    switches <- for {
-      resp <- ndc
-        .getNetworkSwitches(GetNetworkSwitchesRequest())
-        .mapError(s => new Exception(s.toString))
-    } yield resp.switch
+  def sync(): RIO[Logging, Unit] = {
+    for {
+      _ <- log.info("Retrieving switches")
 
-    _ <- ZIO.foreachParN_(10)(switches)(sw =>
-      create(
-        SwitchRequest(
-          true,
-          true,
-          true,
-          true,
-          sw.name,
-          snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+      switches <- for {
+        resp <- ndc
+          .getNetworkSwitches(GetNetworkSwitchesRequest())
+          .flatMapError(s =>
+            log.throwable(
+              s"Failed to get switches: ${s.toString()}",
+              new Exception(s.toString())
+            )
+          )
+      } yield resp.switch
+
+      _ <- ZIO.foreachParN_(10)(switches)(sw =>
+        create(
+          SwitchRequest(
+            true,
+            true,
+            true,
+            true,
+            sw.name,
+            snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+          )
         )
+          .catchAll(e => {
+            log.warn(e.toString())
+          })
       )
-        .catchAll(e => {
-          log.warn(e.toString())
-        })
-    )
-  } yield ()
+
+      _ <- log.info("Switches added")
+    } yield ()
+
+    val timestamp = java.time.Instant.now()
+    val q = quote {
+      Tables.lastSyncTime.update(
+        _.syncTime -> lift(timestamp),
+        _.success -> lift(true)
+      )
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        _ => Task.succeed(())
+      )
+  }
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)
@@ -138,13 +167,34 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def getOf(build: String, floor: Int): Task[List[SwitchResponse]] = {
+  def getUnplacedOf(build: String): Task[List[SwitchResponse]] = {
     val q = quote {
       Tables.switches
         .filter(sw =>
-          sw.buildShortName.getOrNull == lift(
-            build
-          ) && sw.floorNumber.getOrNull == lift(floor)
+          sw.buildShortName.getOrNull == lift(build)
+            && sw.positionTop.isEmpty
+            && sw.positionLeft.isEmpty
+        )
+        .sortBy(sw => sw.name)
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        switches => Task.succeed(switches)
+      )
+  }
+
+  def getPlacedOf(build: String, floor: Int): Task[List[SwitchResponse]] = {
+    val q = quote {
+      Tables.switches
+        .filter(sw =>
+          sw.buildShortName.getOrNull == lift(build)
+            && sw.floorNumber.getOrNull == lift(floor)
+            && sw.positionTop.isDefined
+            && sw.positionLeft.isDefined
         )
         .sortBy(sw => sw.name)
     }
@@ -175,6 +225,96 @@ private[repositories] final case class DoobieSwitchRepository(
         maybeSwitch =>
           Task.require(SwitchNotFound(name))(Task.succeed(maybeSwitch))
       )
+  }
+
+  def create(switch: SwitchRequest): Task[SwitchResult] = {
+    makeSwitch(switch)
+      .flatMap { sr =>
+        {
+          val q = quote {
+            Tables.switches.insert(
+              _.name -> lift(sr.sw.name),
+              _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
+              _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
+              _.revision -> lift(sr.sw.revision),
+              _.serial -> lift(sr.sw.serial),
+              _.buildShortName -> lift(sr.sw.buildShortName),
+              _.floorNumber -> lift(sr.sw.floorNumber),
+              _.positionTop -> lift(sr.sw.positionTop),
+              _.positionLeft -> lift(sr.sw.positionLeft),
+              _.upSwitchName -> lift(sr.sw.upSwitchName),
+              _.upLink -> lift(sr.sw.upLink)
+            )
+          }
+
+          Tables.ctx
+            .run(q)
+            .transact(xa)
+            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
+        }
+      }
+  }
+
+  def update(
+    name: String,
+    switch: SwitchRequest
+  ): Task[SwitchResult] = {
+    makeSwitch(switch)
+      .flatMap { sr =>
+        {
+          val q = quote {
+            Tables.switches
+              .filter(sw => sw.name == lift(name))
+              .update(
+                _.name -> lift(sr.sw.name),
+                _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
+                _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
+                _.revision -> lift(sr.sw.revision),
+                _.serial -> lift(sr.sw.serial),
+                _.buildShortName -> lift(sr.sw.buildShortName),
+                _.floorNumber -> lift(sr.sw.floorNumber),
+                _.positionTop -> lift(sr.sw.positionTop),
+                _.positionLeft -> lift(sr.sw.positionLeft),
+                _.upSwitchName -> lift(sr.sw.upSwitchName),
+                _.upLink -> lift(sr.sw.upLink)
+              )
+          }
+
+          Tables.ctx
+            .run(q)
+            .transact(xa)
+            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
+        }
+      }
+  }
+
+  def update(name: String, position: SavePositionRequest): Task[Boolean] = {
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.name == lift(name))
+        .update(
+          _.positionTop -> lift(Option(position.top)),
+          _.positionLeft -> lift(Option(position.left))
+        )
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+  }
+
+  def delete(name: String): Task[Boolean] = {
+    val q = quote {
+      Tables.switches
+        .filter(sw => sw.name == lift(name))
+        .delete
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   private def makeSwitch(switch: SwitchRequest): Task[SwitchResult] = {
@@ -289,96 +429,6 @@ private[repositories] final case class DoobieSwitchRepository(
     }
 
     withSeens
-  }
-
-  def create(switch: SwitchRequest): Task[SwitchResult] = {
-    makeSwitch(switch)
-      .flatMap { sr =>
-        {
-          val q = quote {
-            Tables.switches.insert(
-              _.name -> lift(sr.sw.name),
-              _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
-              _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
-              _.revision -> lift(sr.sw.revision),
-              _.serial -> lift(sr.sw.serial),
-              _.buildShortName -> lift(sr.sw.buildShortName),
-              _.floorNumber -> lift(sr.sw.floorNumber),
-              _.positionTop -> lift(sr.sw.positionTop),
-              _.positionLeft -> lift(sr.sw.positionLeft),
-              _.upSwitchName -> lift(sr.sw.upSwitchName),
-              _.upLink -> lift(sr.sw.upLink)
-            )
-          }
-
-          Tables.ctx
-            .run(q)
-            .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
-        }
-      }
-  }
-
-  def update(
-    name: String,
-    switch: SwitchRequest
-  ): Task[SwitchResult] = {
-    makeSwitch(switch)
-      .flatMap { sr =>
-        {
-          val q = quote {
-            Tables.switches
-              .filter(sw => sw.name == lift(name))
-              .update(
-                _.name -> lift(sr.sw.name),
-                _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
-                _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
-                _.revision -> lift(sr.sw.revision),
-                _.serial -> lift(sr.sw.serial),
-                _.buildShortName -> lift(sr.sw.buildShortName),
-                _.floorNumber -> lift(sr.sw.floorNumber),
-                _.positionTop -> lift(sr.sw.positionTop),
-                _.positionLeft -> lift(sr.sw.positionLeft),
-                _.upSwitchName -> lift(sr.sw.upSwitchName),
-                _.upLink -> lift(sr.sw.upLink)
-              )
-          }
-
-          Tables.ctx
-            .run(q)
-            .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
-        }
-      }
-  }
-
-  def update(name: String, position: SavePositionRequest): Task[Boolean] = {
-    val q = quote {
-      Tables.switches
-        .filter(sw => sw.name == lift(name))
-        .update(
-          _.positionTop -> lift(Option(position.top)),
-          _.positionLeft -> lift(Option(position.left))
-        )
-    }
-
-    Tables.ctx
-      .run(q)
-      .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
-  }
-
-  def delete(name: String): Task[Boolean] = {
-    val q = quote {
-      Tables.switches
-        .filter(sw => sw.name == lift(name))
-        .delete
-    }
-
-    Tables.ctx
-      .run(q)
-      .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
   }
 
 }

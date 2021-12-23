@@ -52,9 +52,11 @@ final case class SwitchInfo(
   serial: String
 )
 
-/* final case class SyncResult(
-
-) */
+final case class LastSyncTime(
+  syncTime: java.time.Instant,
+  success: Boolean,
+  lock: String
+)
 
 final case class SwitchNotFound(name: String) extends Exception
 
