@@ -76,6 +76,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val getSwitchesOfFloorEndpoint = switchBaseEndpoint
+    .deprecated()
     .summary("Get all switches of floor in build")
     .get
     .in(
@@ -88,6 +89,38 @@ final case class SwitchRoutes[R <: Has[
         as match {
           case AuthStatus.Succeed =>
             getSwitchesOf(shortName, number).mapError(_.toString())
+          case _ => ZIO.fail(())
+        }
+      }
+    }
+  val getUnplacedSwitchesOfBuildEndpoint = switchBaseEndpoint
+    .summary("Get all unplaced switches in build")
+    .get
+    .in(
+      "builds" / path[String]("shortName") /
+        "switches" / "unplaced"
+    )
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed =>
+          getUnplacedSwitchesOf(shortName).mapError(_.toString())
+        case _ => ZIO.fail(())
+      }
+    }
+  val getPlacedSwitchesOfFloorEndpoint = switchBaseEndpoint
+    .summary("Get all placed switches of floor in build")
+    .get
+    .in(
+      "builds" / path[String]("shortName") /
+        "floors" / path[Int]("number") / "switches" / "placed"
+    )
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as =>
+      { case (shortName, number) =>
+        as match {
+          case AuthStatus.Succeed =>
+            getPlacedSwitchesOf(shortName, number).mapError(_.toString())
           case _ => ZIO.fail(())
         }
       }
@@ -164,6 +197,8 @@ final case class SwitchRoutes[R <: Has[
     getSwitchesEndpoint.widen[R],
     getSwitchesOfBuildEndpoint.widen[R],
     getSwitchesOfFloorEndpoint.widen[R],
+    getUnplacedSwitchesOfBuildEndpoint.widen[R],
+    getPlacedSwitchesOfFloorEndpoint.widen[R],
     getSwitchEndpoint.widen[R],
     addSwitchEndpoint.widen[R],
     updateSwitchEndpoint.widen[R],
