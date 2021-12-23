@@ -41,11 +41,20 @@ object SwitchRepository {
     def delete(name: String): Task[Boolean]
   }
 
-  val live: URLayer[Has[Logger[String]] with DBTransactor with Has[
-    AppConfig
-  ] with NetDataClient with Has[
-    SeensUtil
-  ] with Has[DNSUtil] with Has[SNMPUtil], SwitchRepository] =
+  val live: URLayer[
+    Has[Logger[String]]
+      with DBTransactor
+      with Has[
+        AppConfig
+      ]
+      with NetDataClient
+      with Has[
+        SeensUtil
+      ]
+      with Has[DNSUtil]
+      with Has[SNMPUtil],
+    SwitchRepository
+  ] =
     ZLayer.fromServices[
       DBTransactor.Resource,
       AppConfig,
