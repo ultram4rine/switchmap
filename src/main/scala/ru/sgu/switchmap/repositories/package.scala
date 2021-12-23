@@ -1,6 +1,6 @@
 package ru.sgu.switchmap
 
-import doobie.quill.DoobieContext
+import org.polyvariant.doobiequill.DoobieContext
 import io.getquill._
 import ru.sgu.switchmap.models._
 import zio.{Has, RIO}
