@@ -1,6 +1,8 @@
 <template>
   <v-form>
-    <v-banner>Can't find plan for with floor, please upload</v-banner>
+    <v-banner v-if="!update">
+      Can't find plan for with floor, please upload
+    </v-banner>
     <v-file-input
       v-model="plan"
       show-size
@@ -9,8 +11,21 @@
       color="orange darken-1"
       required
     ></v-file-input>
-    <v-btn dark color="orange darken-1" class="mr-4" @click="upload">
+    <v-btn
+      color="orange darken-1"
+      class="mr-4 white--text"
+      :disabled="!plan.size"
+      @click="upload"
+    >
       Upload
+    </v-btn>
+    <v-btn
+      v-if="update"
+      color="orange darken-1"
+      class="mr-4 white--text"
+      @click="cancel"
+    >
+      Cancel
     </v-btn>
   </v-form>
 </template>
@@ -18,6 +33,10 @@
 <script lang="ts">
 import { defineComponent, ref } from "@vue/composition-api";
 export default defineComponent({
+  props: {
+    update: { type: Boolean, required: true },
+  },
+
   setup() {
     const plan = ref({} as File);
 
@@ -29,6 +48,9 @@ export default defineComponent({
   methods: {
     upload() {
       this.$emit("upload", this.plan);
+    },
+    cancel() {
+      this.$emit("cancel");
     },
   },
 });

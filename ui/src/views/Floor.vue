@@ -1,7 +1,11 @@
 <template>
   <div>
     <div id="plan_upload" v-if="noPlan">
-      <plan-upload @upload="handlePlanUpload" />
+      <plan-upload
+        :update="update"
+        @upload="handlePlanUpload"
+        @cancel="handleUploadCancel"
+      />
     </div>
 
     <div v-else>
@@ -46,6 +50,9 @@
             @click="place(swName)"
           >
             Place
+          </v-btn>
+          <v-btn class="ml-2" color="orange darken-1" @click="updatePlan()">
+            Update plan
           </v-btn>
         </v-toolbar>
       </div>
@@ -124,9 +131,8 @@ export default defineComponent({
 
   setup() {
     const planPath = ref("");
-
+    const update = ref(false);
     const noPlan = ref(false);
-
     const planKey = ref(0);
 
     const {
@@ -152,6 +158,7 @@ export default defineComponent({
 
     return {
       planPath,
+      update,
       noPlan,
       planKey,
 
@@ -191,7 +198,6 @@ export default defineComponent({
         this.shortName
       );
       this.switches = this.switches.concat(this.switchesWithoutPosition);
-      console.log(this.switches);
       this.planKey += 1;
     },
 
@@ -210,10 +216,20 @@ export default defineComponent({
         });
     },
 
+    updatePlan() {
+      this.update = true;
+      this.noPlan = true;
+    },
+
     handlePlanUpload(plan: File) {
       uploadPlan(this.shortName, parseInt(this.floor), plan).then(() =>
         this.showPlan()
       );
+    },
+
+    handleUploadCancel() {
+      this.update = false;
+      this.noPlan = false;
     },
 
     place(name: string) {
