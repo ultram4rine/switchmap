@@ -36,7 +36,6 @@ package object repositories {
       querySchema[LastSyncTime](
         "last_sync_time",
         _.syncTime -> "sync_time",
-        _.success -> "success",
         _.lock -> "lock"
       )
     )

@@ -54,7 +54,6 @@ final case class SwitchInfo(
 
 final case class LastSyncTime(
   syncTime: java.time.Instant,
-  success: Boolean,
   lock: String
 )
 

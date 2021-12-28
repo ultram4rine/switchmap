@@ -91,56 +91,51 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  def sync(): RIO[Logging, Unit] = {
-    for {
-      _ <- log.info("Retrieving switches")
+  def sync(): RIO[Logging, Unit] = for {
+    _ <- log.info("Retrieving switches")
 
-      switches <- for {
-        resp <- ndc
-          .getNetworkSwitches(GetNetworkSwitchesRequest())
-          .flatMapError(s =>
-            log.throwable(
-              s"Failed to get switches: ${s.toString()}",
-              new Exception(s.toString())
-            )
-          )
-      } yield resp.switch
+    switches <- for {
+      resp <- ndc
+        .getNetworkSwitches(GetNetworkSwitchesRequest())
+        .mapError(s => {
+          log.error(s"Failed to get switches: ${s.toString()}")
+          new Exception(s.toString)
+        })
+    } yield resp.switch
 
-      _ <- ZIO.foreachParN_(10)(switches)(sw =>
-        create(
-          SwitchRequest(
-            true,
-            true,
-            true,
-            true,
-            sw.name,
-            snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
-          )
+    _ <- ZIO.foreachParN_(10)(switches)(sw =>
+      create(
+        SwitchRequest(
+          retrieveFromNetData = true,
+          retrieveIPFromDNS = true,
+          retrieveUpLinkFromSeens = true,
+          retrieveTechDataFromSNMP = true,
+          name = sw.name,
+          snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
         )
-          .catchAll(e => {
-            log.warn(e.toString())
-          })
       )
+        .catchAll(e => {
+          log.warn(e.toString())
+        })
+    )
 
-      _ <- log.info("Switches added")
-    } yield ()
+    _ <- log.info("Switches synced")
 
-    val timestamp = java.time.Instant.now()
-    val q = quote {
+    timestamp = java.time.Instant.now()
+    q = quote {
       Tables.lastSyncTime.update(
-        _.syncTime -> lift(timestamp),
-        _.success -> lift(true)
+        _.syncTime -> lift(timestamp)
       )
     }
 
-    Tables.ctx
+    _ <- Tables.ctx
       .run(q)
       .transact(xa)
       .foldM(
         err => Task.fail(err),
         _ => Task.succeed(())
       )
-  }
+  } yield ()
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)
