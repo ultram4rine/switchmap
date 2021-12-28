@@ -65,7 +65,7 @@
       bottom
       right
       color="orange accent-4"
-      dark
+      class="white--text"
       @click="openBuildForm('Add')"
     >
       Add build

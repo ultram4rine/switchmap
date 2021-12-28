@@ -20,11 +20,11 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn dark small color="primary" @click="handleAddFloor">
+      <v-btn class="white--text" small color="primary" @click="handleAddFloor">
         Add floor
       </v-btn>
       <v-btn
-        dark
+        class="white--text"
         small
         color="primary"
         :to="{ name: 'build', params: { shortName: build.shortName } }"

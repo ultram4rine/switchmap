@@ -15,11 +15,11 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn dark small color="primary" @click="handleAddSwitch">
+      <v-btn class="white--text" small color="primary" @click="handleAddSwitch">
         Add switch
       </v-btn>
       <v-btn
-        dark
+        class="white--text"
         small
         color="primary"
         :to="{
