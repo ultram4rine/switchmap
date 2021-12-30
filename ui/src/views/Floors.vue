@@ -106,7 +106,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { defineComponent, ref, Ref } from "vue";
 
 import FloorCard from "@/components/cards/FloorCard.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";

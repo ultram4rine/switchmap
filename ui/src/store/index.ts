@@ -1,11 +1,8 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from "vuex";
 
 import { state, getters, actions, mutations } from "./modules/auth";
 
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
+const store = createStore({
   state: state,
   getters: getters,
   actions: actions,

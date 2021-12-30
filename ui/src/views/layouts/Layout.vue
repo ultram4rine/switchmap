@@ -44,14 +44,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 import {
   mdiLogout,
   mdiOfficeBuilding,
   mdiRouterNetwork,
   mdiLan,
-  mdiCopyright,
 } from "@mdi/js";
 
 import { AUTH_LOGOUT } from "@/store/actions";
@@ -62,12 +63,21 @@ export default defineComponent({
   },
 
   setup() {
+    const router = useRouter();
+    const store = useStore();
+
     const drawer = ref(true);
     const navs = [
       { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
       { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
       { link: "/vis", text: "Visualization", icon: mdiLan },
     ];
+
+    const logout = () => {
+      store.dispatch(AUTH_LOGOUT).then(() => {
+        router.push("/login");
+      });
+    };
 
     //breadcrumbs: [],
 
@@ -76,16 +86,9 @@ export default defineComponent({
       navs,
 
       mdiLogout,
-      mdiCopyright,
-    };
-  },
 
-  methods: {
-    logout: function () {
-      this.$store.dispatch(AUTH_LOGOUT).then(() => {
-        this.$router.push("/login");
-      });
-    },
+      logout,
+    };
   },
 
   /* created() {

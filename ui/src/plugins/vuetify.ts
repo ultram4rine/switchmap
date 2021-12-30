@@ -1,11 +1,12 @@
-import Vue from "vue";
-import Vuetify from "vuetify";
-import "vuetify/dist/vuetify.min.css";
+import { createVuetify } from "vuetify";
+import { aliases, mdi } from "vuetify/lib/iconsets/mdi-svg";
 
-Vue.use(Vuetify);
-
-export default new Vuetify({
+export default createVuetify({
   icons: {
-    iconfont: "mdiSvg",
+    defaultSet: "mdi",
+    aliases,
+    sets: {
+      mdi,
+    },
   },
 });

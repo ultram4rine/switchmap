@@ -1,4 +1,4 @@
-import { DirectiveOptions } from "vue";
+import { Directive } from "vue";
 
 const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
   if (elem.addEventListener) {
@@ -8,8 +8,8 @@ const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
   }
 };
 
-const directive: DirectiveOptions = {
-  inserted: (el) => {
+const directive: Directive = {
+  mounted: (el: HTMLElement) => {
     let scale = el.getBoundingClientRect().width / el.offsetWidth;
 
     addOnWheel(el, (e: WheelEvent) => {

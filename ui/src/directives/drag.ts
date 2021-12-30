@@ -1,4 +1,4 @@
-import { DirectiveOptions } from "vue";
+import { Directive } from "vue";
 
 const handler = (el: HTMLElement): void => {
   const mouseDownHandler = (e: MouseEvent) => {
@@ -38,8 +38,8 @@ const handler = (el: HTMLElement): void => {
   }
 };
 
-const directive: DirectiveOptions = {
-  inserted: handler,
+const directive: Directive = {
+  mounted: handler,
 };
 
 export default directive;

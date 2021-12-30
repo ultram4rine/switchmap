@@ -1,4 +1,4 @@
-import { ref, Ref } from "@vue/composition-api";
+import { ref, Ref } from "vue";
 
 import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
 import { addSwitch, editSwitch } from "@/api/switches";

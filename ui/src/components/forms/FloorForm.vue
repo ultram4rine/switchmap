@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, PropType } from "@vue/composition-api";
+import { defineComponent, ref, watch, PropType } from "vue";
 import { mdiClose } from "@mdi/js";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";

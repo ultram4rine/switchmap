@@ -1,5 +1,4 @@
-import { DirectiveOptions } from "vue";
-import { DirectiveBinding } from "vue/types/options";
+import { Directive, DirectiveBinding } from "vue";
 
 import { updatePosition } from "@/api/switches";
 
@@ -47,8 +46,8 @@ const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
   };
 };
 
-const directive: DirectiveOptions = {
-  inserted: handler,
+const directive: Directive = {
+  mounted: handler,
 };
 
 export default directive;

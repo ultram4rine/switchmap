@@ -31,27 +31,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, ref } from "vue";
 export default defineComponent({
   props: {
     update: { type: Boolean, required: true },
   },
 
-  setup() {
+  setup(props, { emit }) {
     const plan = ref({} as File);
+
+    const upload = () => {
+      emit("upload", plan.value);
+    };
+    const cancel = () => {
+      emit("cancel");
+    };
 
     return {
       plan,
+      upload,
+      cancel,
     };
-  },
-
-  methods: {
-    upload() {
-      this.$emit("upload", this.plan);
-    },
-    cancel() {
-      this.$emit("cancel");
-    },
   },
 });
 </script>

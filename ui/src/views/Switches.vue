@@ -7,7 +7,7 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
-          :append-icon="this.mdiMagnify"
+          :append-icon="mdiMagnify"
           label="Search"
           color="orange accent-2"
           single-line
@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "@vue/composition-api";
+import { defineComponent, Ref, ref } from "vue";
 import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";

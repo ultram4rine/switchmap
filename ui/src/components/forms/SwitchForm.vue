@@ -173,14 +173,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  computed,
-  watch,
-  Ref,
-  PropType,
-} from "@vue/composition-api";
+import { defineComponent, ref, computed, watch, Ref, PropType } from "vue";
 import { mdiClose } from "@mdi/js";
 
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";

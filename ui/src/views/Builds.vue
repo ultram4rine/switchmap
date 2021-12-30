@@ -103,7 +103,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { defineComponent, ref, Ref } from "vue";
 
 import BuildCard from "@/components/cards/BuildCard.vue";
 import BuildForm from "@/components/forms/BuildForm.vue";

@@ -14,7 +14,7 @@
                 type="text"
                 color="orange darken-1"
                 required
-                :prepend-icon="this.mdiAccount"
+                :prepend-icon="mdiAccount"
               ></v-text-field>
               <v-text-field
                 v-model="password"
@@ -22,8 +22,8 @@
                 :type="show ? 'text' : 'password'"
                 color="orange darken-1"
                 required
-                :prepend-icon="this.mdiKey"
-                :append-icon="show ? this.mdiEye : this.mdiEyeOff"
+                :prepend-icon="mdiKey"
+                :append-icon="show ? mdiEye : mdiEyeOff"
                 @click:append="show = !show"
               ></v-text-field>
               <v-checkbox
@@ -47,43 +47,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
 import { AUTH_LOGIN } from "@/store/actions";
 
 export default defineComponent({
   setup() {
+    const router = useRouter();
+    const store = useStore();
+
     const username = ref("");
     const password = ref("");
     const rememberMe = ref(false);
 
     const show = ref(false);
 
-    return {
-      mdiEye,
-      mdiEyeOff,
-      mdiAccount,
-      mdiKey,
-      mdiLogin,
+    const login = async () => {
+      await store.dispatch(AUTH_LOGIN, { username, password, rememberMe });
+      router.push("/");
+    };
 
+    return {
       username,
       password,
       rememberMe,
 
       show,
+
+      login,
+
+      mdiEye,
+      mdiEyeOff,
+      mdiAccount,
+      mdiKey,
+      mdiLogin,
     };
-  },
-  methods: {
-    async login() {
-      const { username, password, rememberMe } = this;
-      await this.$store.dispatch(AUTH_LOGIN, {
-        username,
-        password,
-        rememberMe,
-      });
-      this.$router.push("/");
-    },
   },
 });
 </script>

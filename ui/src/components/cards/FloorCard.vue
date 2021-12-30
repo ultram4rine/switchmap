@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@vue/composition-api";
+import { defineComponent, PropType } from "vue";
 import { mdiDelete } from "@mdi/js";
 
 import { FloorResponse } from "@/interfaces/floor";
@@ -44,16 +44,16 @@ export default defineComponent({
     shortName: { type: String, required: true },
     floor: { type: Object as PropType<FloorResponse>, required: true },
   },
-  setup() {
-    return { mdiDelete };
-  },
-  methods: {
-    handleDelete() {
-      this.$emit("handleDelete", this.floor);
-    },
-    handleAddSwitch() {
-      this.$emit("handleAddSwitch", this.shortName, this.floor);
-    },
+
+  setup(props, { emit }) {
+    const handleDelete = () => {
+      emit("handleDelete", props.floor);
+    };
+    const handleAddSwitch = () => {
+      emit("handleAddSwitch", props.shortName, props.floor);
+    };
+
+    return { handleDelete, handleAddSwitch, mdiDelete };
   },
 });
 </script>

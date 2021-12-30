@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { defineComponent, ref, Ref } from "vue";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 import drag from "@/directives/drag";
