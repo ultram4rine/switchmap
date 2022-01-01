@@ -1,9 +1,4 @@
-import {
-  createRouter,
-  createWebHistory,
-  RouteRecordRaw,
-  RouteLocationNormalized,
-} from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 import store from "@/store";
 
