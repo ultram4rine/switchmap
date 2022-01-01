@@ -13,6 +13,7 @@
     "@mdi/js": "^6.5.95",
     "axios": "^0.24.0",
     "core-js": "^3.20.1",
+    "roboto-fontface": "*",
     "vee-validate": "^4.5.7",
     "vis-data": "^7.1.2",
     "vis-network": "^9.1.0",
@@ -21,9 +22,11 @@
     "vue-router": "^4.0.12",
     "vuetify": "^3.0.0-alpha.12",
     "vuex": "^4.0.2",
+    "webfontloader": "^1.6.28",
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@types/webfontloader": "^1.6.34",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vue/cli-plugin-babel": "^4.5.15",
