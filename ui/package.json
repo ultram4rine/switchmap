@@ -20,7 +20,8 @@
     "vue": "^3.2.26",
     "vue-router": "^4.0.12",
     "vuetify": "^3.0.0-alpha.12",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.33.0",

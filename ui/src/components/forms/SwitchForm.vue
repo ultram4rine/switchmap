@@ -1,183 +1,162 @@
 <template>
   <form-wrap :form="form" :title="title" @close="close">
-    <ValidationObserver ref="observer" v-slot="{ invalid }">
-      <v-form ref="form" @submit.prevent="submit">
-        <v-card-text>
-          <v-checkbox
-            v-model="sw.retrieveFromNetData"
-            label="Retrieve switch data from netdata"
-            color="orange accent-2"
-          ></v-checkbox>
+    <v-form ref="form" @submit.prevent="submit">
+      <v-card-text>
+        <v-checkbox
+          v-model="sw.retrieveFromNetData"
+          label="Retrieve switch data from netdata"
+          color="orange accent-2"
+        ></v-checkbox>
 
-          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
-            <v-text-field
-              v-model="sw.name"
-              :error-messages="errors"
-              label="Name"
+        <v-text-field
+          v-model="sw.name"
+          :error-messages="errors"
+          label="Name"
+          required
+          color="orange accent-2"
+        ></v-text-field>
+
+        <template v-if="!sw.retrieveFromNetData">
+          <v-row dense>
+            <v-col cols="12" sm="6">
+              <v-checkbox
+                v-model="sw.retrieveIPFromDNS"
+                label="Get IP from DNS"
+                color="orange accent-2"
+              ></v-checkbox>
+            </v-col>
+            <v-col v-if="!sw.retrieveIPFromDNS" cols="12" sm="6">
+              <v-text-field
+                v-model="sw.ip"
+                :error-messages="errors"
+                label="IP"
+                placeholder="e.g. 192.168.1.1"
+                required
+                color="orange accent-2"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <v-row dense>
+            <v-col cols="12" sm="12">
+              <v-text-field
+                v-model="sw.mac"
+                :error-messages="errors"
+                label="MAC"
+                placeholder="XX:XX:XX:XX:XX:XX"
+                required
+                color="orange accent-2"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </template>
+
+        <v-checkbox
+          v-model="sw.retrieveUpLinkFromSeens"
+          label="Retrieve uplink from seens"
+          color="orange accent-2"
+        ></v-checkbox>
+        <v-row v-if="!sw.retrieveUpLinkFromSeens">
+          <v-col cols="12" sm="6">
+            <v-autocomplete
+              v-model="sw.upSwitchName"
+              :items="switches"
+              hide-details
+              item-text="name"
+              item-value="name"
+              label="Up switch"
+              color="orange accent-2"
               required
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-text-field
+              v-model="sw.upLink"
+              label="Up link"
               color="orange accent-2"
             ></v-text-field>
-          </ValidationProvider>
+          </v-col>
+        </v-row>
 
-          <template v-if="!sw.retrieveFromNetData">
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <v-checkbox
-                  v-model="sw.retrieveIPFromDNS"
-                  label="Get IP from DNS"
-                  color="orange accent-2"
-                ></v-checkbox>
-              </v-col>
-              <v-col v-if="!sw.retrieveIPFromDNS" cols="12" sm="6">
-                <ValidationProvider
-                  v-slot="{ errors }"
-                  name="IP address"
-                  rules="required|ip"
-                >
-                  <v-text-field
-                    v-model="sw.ip"
-                    :error-messages="errors"
-                    label="IP"
-                    placeholder="e.g. 192.168.1.1"
-                    required
-                    color="orange accent-2"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
-
-            <v-row dense>
-              <v-col cols="12" sm="12">
-                <ValidationProvider
-                  v-slot="{ errors }"
-                  name="MAC address"
-                  rules="required|mac"
-                >
-                  <v-text-field
-                    v-model="sw.mac"
-                    :error-messages="errors"
-                    label="MAC"
-                    placeholder="XX:XX:XX:XX:XX:XX"
-                    required
-                    color="orange accent-2"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
-          </template>
-
-          <v-checkbox
-            v-model="sw.retrieveUpLinkFromSeens"
-            label="Retrieve uplink from seens"
-            color="orange accent-2"
-          ></v-checkbox>
-          <v-row v-if="!sw.retrieveUpLinkFromSeens">
-            <v-col cols="12" sm="6">
-              <v-autocomplete
-                v-model="sw.upSwitchName"
-                :items="switches"
-                hide-details
-                item-text="name"
-                item-value="name"
-                label="Up switch"
-                color="orange accent-2"
-                required
-              ></v-autocomplete>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="sw.upLink"
-                label="Up link"
-                color="orange accent-2"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-
-          <v-checkbox
-            v-model="sw.retrieveTechDataFromSNMP"
-            label="Retrieve tech data from SNMP"
-            color="orange accent-2"
-          ></v-checkbox>
-          <v-row v-if="!sw.retrieveTechDataFromSNMP">
-            <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="sw.revision"
-                label="Revision"
-                color="orange accent-2"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="sw.serial"
-                label="Serial"
-                color="orange accent-2"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <ValidationProvider
-            v-slot="{ errors }"
-            v-else
-            name="SNMP community"
-            rules="required"
-          >
-            <v-select
-              v-model="sw.snmpCommunity"
-              :error-messages="errors"
-              :items="communitites"
-              label="SNMP community"
-              required
+        <v-checkbox
+          v-model="sw.retrieveTechDataFromSNMP"
+          label="Retrieve tech data from SNMP"
+          color="orange accent-2"
+        ></v-checkbox>
+        <v-row v-if="!sw.retrieveTechDataFromSNMP">
+          <v-col cols="12" sm="6">
+            <v-text-field
+              v-model="sw.revision"
+              label="Revision"
               color="orange accent-2"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-text-field
+              v-model="sw.serial"
+              label="Serial"
+              color="orange accent-2"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-select
+          v-model="sw.snmpCommunity"
+          :error-messages="errors"
+          :items="communitites"
+          label="SNMP community"
+          required
+          color="orange accent-2"
+        ></v-select>
+
+        <v-row v-if="needLocationFields" dense>
+          <v-col cols="12" sm="6">
+            <v-autocomplete
+              v-model="sw.buildShortName"
+              :items="builds"
+              hide-details
+              item-text="name"
+              item-value="shortName"
+              label="Build"
+              color="orange accent-2"
+              required
+              @change="getFloors(sw.buildShortName)"
+            ></v-autocomplete>
+          </v-col>
+          <v-col v-if="sw.buildShortName" cols="12" sm="6">
+            <v-select
+              v-model="sw.floorNumber"
+              :items="floors"
+              hide-details
+              item-text="number"
+              item-value="number"
+              label="Floor"
+              color="orange accent-2"
+              required
             ></v-select>
-          </ValidationProvider>
+          </v-col>
+        </v-row>
+      </v-card-text>
 
-          <v-row v-if="needLocationFields" dense>
-            <v-col cols="12" sm="6">
-              <v-autocomplete
-                v-model="sw.buildShortName"
-                :items="builds"
-                hide-details
-                item-text="name"
-                item-value="shortName"
-                label="Build"
-                color="orange accent-2"
-                required
-                @change="getFloors(sw.buildShortName)"
-              ></v-autocomplete>
-            </v-col>
-            <v-col v-if="sw.buildShortName" cols="12" sm="6">
-              <v-select
-                v-model="sw.floorNumber"
-                :items="floors"
-                hide-details
-                item-text="number"
-                item-value="number"
-                label="Floor"
-                color="orange accent-2"
-                required
-              ></v-select>
-            </v-col>
-          </v-row>
-        </v-card-text>
+      <v-divider></v-divider>
 
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn type="submit" color="orange darken-1" :disabled="invalid">
-            {{ action }}
-          </v-btn>
-        </v-card-actions>
-      </v-form>
-    </ValidationObserver>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          type="submit"
+          color="orange darken-1"
+          :disabled="errors || isSubmitting"
+        >
+          {{ action }}
+        </v-btn>
+      </v-card-actions>
+    </v-form>
   </form-wrap>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch, Ref, PropType } from "vue";
-import { mdiClose } from "@mdi/js";
 
-import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
-import { required } from "vee-validate/dist/rules";
+import { useForm } from "vee-validate";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
@@ -192,27 +171,9 @@ import {
   FloorResponse,
 } from "@/interfaces";
 
-extend("required", {
-  ...required,
-  message: "{_field_} is required",
-});
+import { SwitchSchema } from "@/validations/SwitchSchema";
 
-extend("mac", {
-  validate: (val: string) => {
-    const regex = /^([0-9a-f]{2}[:-]?){5}[0-9a-f]{2}$/i;
-    return regex.test(val);
-  },
-  message: "{_value_} is not correct MAC address",
-});
-
-extend("ip", {
-  validate: (val: string) => {
-    const regex =
-      /^((25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)(\.)){3}(25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
-    return regex.test(val);
-  },
-  message: "{_value_} is not correct IP address",
-});
+import { mdiClose } from "@mdi/js";
 
 export default defineComponent({
   props: {
@@ -224,7 +185,7 @@ export default defineComponent({
     needLocationFields: { type: Boolean, required: true },
   },
 
-  components: { FormWrap, ValidationObserver, ValidationProvider },
+  components: { FormWrap },
 
   setup(props, { emit }) {
     const title = computed(() => {
@@ -285,6 +246,11 @@ export default defineComponent({
       getFloorsOf(buildShortName).then((fs) => (floors.value = fs));
     };
 
+    const { errors, isSubmitting } = useForm<SwitchRequest>({
+      initialValues: sw.value,
+      validationSchema: SwitchSchema,
+    });
+
     return {
       title,
 
@@ -299,6 +265,9 @@ export default defineComponent({
       close,
 
       getFloors,
+
+      errors,
+      isSubmitting,
 
       mdiClose,
     };

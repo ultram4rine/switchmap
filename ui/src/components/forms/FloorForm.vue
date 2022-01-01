@@ -1,52 +1,45 @@
 <template>
   <form-wrap :form="form" title="New floor" @close="close">
-    <ValidationObserver ref="observer" v-slot="{ invalid }">
-      <v-form ref="form" @submit.prevent="submit">
-        <v-card-text>
-          <ValidationProvider
-            v-slot="{ errors }"
-            name="Number of floor"
-            rules="required"
-          >
-            <v-text-field
-              v-model="f.number"
-              :error-messages="errors"
-              type="number"
-              label="Number"
-              required
-              color="orange accent-2"
-            ></v-text-field>
-          </ValidationProvider>
-        </v-card-text>
+    <v-form ref="form" @submit.prevent="submit">
+      <v-card-text>
+        <v-text-field
+          v-model="f.number"
+          :error-messages="errors"
+          type="number"
+          label="Number"
+          required
+          color="orange accent-2"
+        ></v-text-field>
+      </v-card-text>
 
-        <v-divider></v-divider>
+      <v-divider></v-divider>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn type="submit" color="orange darken-1" :disabled="invalid">
-            Add
-          </v-btn>
-        </v-card-actions>
-      </v-form>
-    </ValidationObserver>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          type="submit"
+          color="orange darken-1"
+          :disabled="errors || isSubmitting"
+        >
+          Add
+        </v-btn>
+      </v-card-actions>
+    </v-form>
   </form-wrap>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch, PropType } from "vue";
-import { mdiClose } from "@mdi/js";
 
-import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
-import { required } from "vee-validate/dist/rules";
+import { useForm } from "vee-validate";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
 import { FloorRequest } from "@/interfaces/floor";
 
-extend("required", {
-  ...required,
-  message: "{_field_} is required",
-});
+import { FloorSchema } from "@/validations/FloorSchema";
+
+import { mdiClose } from "@mdi/js";
 
 export default defineComponent({
   props: {
@@ -55,11 +48,10 @@ export default defineComponent({
     floor: { type: Object as PropType<FloorRequest>, required: true },
   },
 
-  components: { FormWrap, ValidationObserver, ValidationProvider },
+  components: { FormWrap },
 
   setup(props, { emit }) {
     const f = ref({ number: props.floor.number } as FloorRequest);
-
     watch(
       () => props.floor,
       (val) => {
@@ -76,11 +68,19 @@ export default defineComponent({
       emit("close");
     };
 
+    const { errors, isSubmitting } = useForm<{ number: number }>({
+      initialValues: f.value,
+      validationSchema: FloorSchema,
+    });
+
     return {
       f,
 
       submit,
       close,
+
+      errors,
+      isSubmitting,
 
       mdiClose,
     };
