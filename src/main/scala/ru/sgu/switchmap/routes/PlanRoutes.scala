@@ -1,10 +1,8 @@
 package ru.sgu.switchmap.routes
 
-import org.http4s.dsl.Http4sDsl
-import org.http4s.headers.`WWW-Authenticate`
 import org.http4s.{Request, Response, StaticFile, Challenge}
 import org.http4s.rho.RhoRoutes
-import org.http4s.rho.swagger.SwaggerSupport
+import org.http4s.rho.swagger.{SwaggerSupport, SwaggerFileResponse}
 import org.http4s.multipart.Multipart
 import org.http4s.EntityDecoder
 import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
@@ -14,9 +12,6 @@ import zio.interop.catz._
 import fs2.io.file.{Files, Path => Fs2Path}
 
 final case class PlanRoutes[R <: Has[Authorizer]]() {
-  val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
-  import dsl._
-
   val api: RhoRoutes[AppTask] = new RhoRoutes[AppTask] {
     val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
     import swaggerIO._
@@ -24,7 +19,16 @@ final case class PlanRoutes[R <: Has[Authorizer]]() {
     "Get plan" **
       GET / "plans" / pv"planName" >>> AuthContext.auth |>> {
         (req: Request[AppTask], planName: String, auth: AuthStatus.Status) =>
-          fetchResource(planName, req, auth)
+          auth match {
+            case AuthStatus.Succeed =>
+              Ok(
+                SwaggerFileResponse(
+                  Files[AppTask].readAll(Fs2Path(s"./plans/${planName}"))
+                )
+              )
+            case _ =>
+              Unauthorized(())
+          }
       }
 
     "Upload plan" **
@@ -61,28 +65,5 @@ final case class PlanRoutes[R <: Has[Authorizer]]() {
               Unauthorized(())
           }
       }
-  }
-
-  private def fetchResource(
-    planName: String,
-    req: Request[AppTask],
-    auth: AuthStatus.Status
-  ): AppTask[Response[AppTask]] = {
-    auth match {
-      case AuthStatus.Succeed =>
-        StaticFile
-          .fromPath(Fs2Path(s"./plans/${planName}"), Some(req))
-          .getOrElseF(NotFound(()))
-      case _ =>
-        Unauthorized(
-          `WWW-Authenticate`(
-            Challenge(
-              "X-Auth-Token",
-              "SwitchMap",
-              Map.empty
-            )
-          )
-        )
-    }
   }
 }
