@@ -140,7 +140,17 @@ object Main extends App {
         swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
           swaggerFormats = DefaultSwaggerFormats,
           swaggerMetadata = SwaggerMetadata(
-            apiInfo = Info(title = "SwitchMap API", version = "2.0.0"),
+            apiInfo = Info(
+              title = "SwitchMap API",
+              version = "2.0.0",
+              description = Some("Definition of SwitchMap API"),
+              license = Some(
+                License(
+                  "Apache-2.0",
+                  "https://git.sgu.ru/ultramarine/switchmap/blob/master/LICENSE"
+                )
+              )
+            ),
             host = Some(app.hostname),
             basePath = Some("/api/v2"),
             schemes = List(Scheme.HTTPS),
