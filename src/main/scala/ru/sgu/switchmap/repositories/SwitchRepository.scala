@@ -2,9 +2,14 @@ package ru.sgu.switchmap.repositories
 
 import doobie.implicits._
 import doobie.hikari.HikariTransactor
+import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
+import inet.ipaddr.mac.MACAddress
+import io.grpc.Status
 import zio._
 import zio.interop.catz._
+import zio.logging.{log, Logger, Logging}
 
+import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.db.DBTransactor
@@ -12,37 +17,51 @@ import ru.sgu.switchmap.config.AppConfig
 import ru.sgu.switchmap.models.{
   SwitchRequest,
   SwitchResponse,
+  SwitchResult,
+  SwitchInfo,
   SavePositionRequest,
-  SwitchNotFound
+  SwitchNotFound,
+  LastSyncTime
 }
-import ru.sgu.switchmap.utils.seens.SeensUtil
-import ru.sgu.switchmap.utils.dns.DNSUtil
-import ru.sgu.switchmap.utils.snmp.{SNMPUtil, SwitchInfo}
+import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 
 object SwitchRepository {
 
   trait Service {
+    def sync(): RIO[Logging, Unit]
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
-    def getOf(build: String, floor: Int): Task[List[SwitchResponse]]
+    def getUnplacedOf(build: String): Task[List[SwitchResponse]]
+    def getPlacedOf(build: String, floor: Int): Task[List[SwitchResponse]]
     def get(name: String): Task[SwitchResponse]
-    def create(switch: SwitchRequest): Task[Boolean]
-    def update(name: String, switch: SwitchRequest): Task[Boolean]
+    def create(switch: SwitchRequest): Task[SwitchResult]
+    def update(name: String, switch: SwitchRequest): Task[SwitchResult]
     def update(name: String, position: SavePositionRequest): Task[Boolean]
     def delete(name: String): Task[Boolean]
   }
 
-  val live: URLayer[DBTransactor with Has[
-    AppConfig
-  ] with NetDataClient with SeensUtil with DNSUtil with SNMPUtil, SwitchRepository] =
+  val live: URLayer[
+    Has[Logger[String]]
+      with DBTransactor
+      with Has[
+        AppConfig
+      ]
+      with NetDataClient
+      with Has[
+        SeensUtil
+      ]
+      with Has[DNSUtil]
+      with Has[SNMPUtil],
+    SwitchRepository
+  ] =
     ZLayer.fromServices[
       DBTransactor.Resource,
       AppConfig,
       NetDataClient.Service,
-      SeensUtil.Service,
-      DNSUtil.Service,
-      SNMPUtil.Service,
+      SeensUtil,
+      DNSUtil,
+      SNMPUtil,
       SwitchRepository.Service
     ] { (resource, cfg, ndc, seensClient, dns, snmp) =>
       DoobieSwitchRepository(resource.xa, cfg, ndc, seensClient, dns, snmp)
@@ -53,12 +72,70 @@ private[repositories] final case class DoobieSwitchRepository(
   xa: HikariTransactor[Task],
   cfg: AppConfig,
   ndc: NetDataClient.Service,
-  seensClient: SeensUtil.Service,
-  dns: DNSUtil.Service,
-  snmpClient: SNMPUtil.Service
+  seensClient: SeensUtil,
+  dns: DNSUtil,
+  snmpClient: SNMPUtil
 ) extends SwitchRepository.Service {
 
   import Tables.ctx._
+
+  implicit val ipAddressEncoder =
+    MappedEncoding[IPAddress, String](_.toString())
+  implicit val ipAddressDecoder =
+    MappedEncoding[String, IPAddress](new IPAddressString(_).getAddress())
+  implicit val macAddressEncoder =
+    MappedEncoding[MACAddress, String](_.toString())
+  implicit val macAddressDecoder =
+    MappedEncoding[String, MACAddress](new MACAddressString(_).getAddress())
+
+  implicit val switchInsertMeta = insertMeta[SwitchResponse]()
+  implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
+
+  def sync(): RIO[Logging, Unit] = for {
+    _ <- log.info("Retrieving switches")
+
+    switches <- for {
+      resp <- ndc
+        .getNetworkSwitches(GetNetworkSwitchesRequest())
+        .mapError(s => {
+          log.error(s"Failed to get switches: ${s.toString()}")
+          new Exception(s.toString)
+        })
+    } yield resp.switch
+
+    _ <- ZIO.foreachParN_(10)(switches)(sw =>
+      create(
+        SwitchRequest(
+          retrieveFromNetData = true,
+          retrieveIPFromDNS = true,
+          retrieveUpLinkFromSeens = true,
+          retrieveTechDataFromSNMP = true,
+          name = sw.name,
+          snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+        )
+      )
+        .catchAll(e => {
+          log.warn(e.toString())
+        })
+    )
+
+    _ <- log.info("Switches synced")
+
+    timestamp = java.time.Instant.now()
+    q = quote {
+      Tables.lastSyncTime.update(
+        _.syncTime -> lift(timestamp)
+      )
+    }
+
+    _ <- Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        _ => Task.succeed(())
+      )
+  } yield ()
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)
@@ -94,13 +171,34 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  def getOf(build: String, floor: Int): Task[List[SwitchResponse]] = {
+  def getUnplacedOf(build: String): Task[List[SwitchResponse]] = {
     val q = quote {
       Tables.switches
         .filter(sw =>
-          sw.buildShortName.getOrNull == lift(
-            build
-          ) && sw.floorNumber.getOrNull == lift(floor)
+          sw.buildShortName.getOrNull == lift(build)
+            && sw.positionTop.isEmpty
+            && sw.positionLeft.isEmpty
+        )
+        .sortBy(sw => sw.name)
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        switches => Task.succeed(switches)
+      )
+  }
+
+  def getPlacedOf(build: String, floor: Int): Task[List[SwitchResponse]] = {
+    val q = quote {
+      Tables.switches
+        .filter(sw =>
+          sw.buildShortName.getOrNull == lift(build)
+            && sw.floorNumber.getOrNull == lift(floor)
+            && sw.positionTop.isDefined
+            && sw.positionLeft.isDefined
         )
         .sortBy(sw => sw.name)
     }
@@ -133,112 +231,30 @@ private[repositories] final case class DoobieSwitchRepository(
       )
   }
 
-  private def makeSwitch(switch: SwitchRequest): Task[SwitchResponse] = {
-    val sw: Task[SwitchResponse] = if (switch.retrieveFromNetData) {
-      for {
-        resp <- ndc
-          .getMatchingHost(
-            GetMatchingHostRequest(
-              Some(Match(Match.Match.HostName(switch.name)))
-            )
-          )
-          .mapError(s => new Exception(s.toString))
-        maybeSwitch = resp.host.headOption
-        sw <- maybeSwitch match {
-          case Some(value) =>
-            IO.succeed(
-              SwitchResponse(
-                value.name,
-                value.ipv4Address.mkString("."),
-                value.macAddressString,
-                buildShortName = switch.buildShortName,
-                floorNumber = switch.floorNumber,
-                positionTop = switch.positionTop,
-                positionLeft = switch.positionLeft
-              )
-            )
-          case None => IO.fail(new Exception("no such switch"))
-        }
-      } yield sw
-    } else {
-      val ip = switch.ipResolveMethod match {
-        case "DNS" =>
-          for {
-            ip <- dns.getIPByHostname(switch.name)
-          } yield ip
-        case "Direct" => Task.succeed(switch.ip.getOrElse(""))
-        case _        => Task.fail(new Exception("unknown IP resolve method"))
-      }
-
-      ip.flatMap { ipVal =>
-        IO.succeed(
-          SwitchResponse(
-            switch.name,
-            ipVal,
-            switch.mac.getOrElse(""),
-            buildShortName = switch.buildShortName,
-            floorNumber = switch.floorNumber,
-            positionTop = switch.positionTop,
-            positionLeft = switch.positionLeft
-          )
-        )
-      }
-    }
-
-    val withSNMP = if (switch.retrieveTechDataFromSNMP) {
-      sw.flatMap { s =>
-        for {
-          maybeSwInfo <- snmpClient
-            .getSwitchInfo(s.ip, switch.snmpCommunity)
-            .catchAll(_ => UIO.succeed(None))
-          swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
-        } yield s.copy(
-          revision = Some(swInfo.revision),
-          serial = Some(swInfo.serial)
-        )
-      }
-    } else {
-      sw.map { s =>
-        s.copy(revision = switch.revision, serial = switch.serial)
-      }
-    }
-
-    val withSeens = if (switch.retrieveUpLinkFromSeens) {
-      withSNMP
-        .flatMap { s =>
-          for {
-            seen <- seensClient.get(s.mac).catchAll(_ => UIO.succeed(None))
-            newSw = seen match {
-              case None => s
-              case Some(value) =>
-                s.copy(
-                  upSwitchName = Some(value.Switch),
-                  upLink = Some(value.PortName)
-                )
-            }
-          } yield newSw
-        }
-    } else {
-      withSNMP.map { s =>
-        s.copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink)
-      }
-    }
-
-    withSeens
-  }
-
-  def create(switch: SwitchRequest): Task[Boolean] = {
+  def create(switch: SwitchRequest): Task[SwitchResult] = {
     makeSwitch(switch)
-      .flatMap { s =>
+      .flatMap { sr =>
         {
           val q = quote {
-            Tables.switches.insert(lift(s))
+            Tables.switches.insert(
+              _.name -> lift(sr.sw.name),
+              _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
+              _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
+              _.revision -> lift(sr.sw.revision),
+              _.serial -> lift(sr.sw.serial),
+              _.buildShortName -> lift(sr.sw.buildShortName),
+              _.floorNumber -> lift(sr.sw.floorNumber),
+              _.positionTop -> lift(sr.sw.positionTop),
+              _.positionLeft -> lift(sr.sw.positionLeft),
+              _.upSwitchName -> lift(sr.sw.upSwitchName),
+              _.upLink -> lift(sr.sw.upLink)
+            )
           }
 
           Tables.ctx
             .run(q)
             .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(true))
+            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
         }
       }
   }
@@ -246,20 +262,32 @@ private[repositories] final case class DoobieSwitchRepository(
   def update(
     name: String,
     switch: SwitchRequest
-  ): Task[Boolean] = {
+  ): Task[SwitchResult] = {
     makeSwitch(switch)
-      .flatMap { s =>
+      .flatMap { sr =>
         {
           val q = quote {
             Tables.switches
               .filter(sw => sw.name == lift(name))
-              .update(lift(s))
+              .update(
+                _.name -> lift(sr.sw.name),
+                _.ip -> infix"${lift(sr.sw.ip)}::inet".as[IPAddress],
+                _.mac -> infix"${lift(sr.sw.mac)}::macaddr".as[MACAddress],
+                _.revision -> lift(sr.sw.revision),
+                _.serial -> lift(sr.sw.serial),
+                _.buildShortName -> lift(sr.sw.buildShortName),
+                _.floorNumber -> lift(sr.sw.floorNumber),
+                _.positionTop -> lift(sr.sw.positionTop),
+                _.positionLeft -> lift(sr.sw.positionLeft),
+                _.upSwitchName -> lift(sr.sw.upSwitchName),
+                _.upLink -> lift(sr.sw.upLink)
+              )
           }
 
           Tables.ctx
             .run(q)
             .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(true))
+            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
         }
       }
   }
@@ -291,6 +319,120 @@ private[repositories] final case class DoobieSwitchRepository(
       .run(q)
       .transact(xa)
       .foldM(err => Task.fail(err), _ => Task.succeed(true))
+  }
+
+  private def makeSwitch(switch: SwitchRequest): Task[SwitchResult] = {
+    val sw: Task[SwitchResponse] = if (switch.retrieveFromNetData) {
+      for {
+        resp <- ndc
+          .getMatchingHost(
+            GetMatchingHostRequest(
+              Some(Match(Match.Match.HostName(switch.name)))
+            )
+          )
+          .mapError(s => new Exception(s.toString))
+        maybeSwitch = resp.host.headOption
+        sw <- maybeSwitch match {
+          case Some(value) =>
+            IO.succeed(
+              SwitchResponse(
+                value.name,
+                new IPAddressString(value.ipv4Address.mkString("."))
+                  .toAddress(),
+                new MACAddressString(value.macAddressString).toAddress(),
+                buildShortName = switch.buildShortName,
+                floorNumber = switch.floorNumber,
+                positionTop = switch.positionTop,
+                positionLeft = switch.positionLeft
+              )
+            )
+          case None => IO.fail(new Exception("no such switch"))
+        }
+      } yield sw
+    } else {
+      val ip = if (switch.retrieveIPFromDNS) {
+        dns.getIPByHostname(switch.name)
+      } else {
+        Task.succeed(switch.ip.get)
+      }
+
+      ip.flatMap { ipVal =>
+        IO.succeed(
+          SwitchResponse(
+            switch.name,
+            ipVal,
+            switch.mac.get,
+            buildShortName = switch.buildShortName,
+            floorNumber = switch.floorNumber,
+            positionTop = switch.positionTop,
+            positionLeft = switch.positionLeft
+          )
+        )
+      }
+    }
+
+    val sr = sw.map { s => SwitchResult(sw = s) }
+
+    val withSNMP = if (switch.retrieveTechDataFromSNMP) {
+      sr.flatMap { s =>
+        for {
+          maybeSwInfo <- snmpClient
+            .getSwitchInfo(s.sw.ip, switch.snmpCommunity)
+            .catchAll(_ => UIO.succeed(None))
+          newSw = maybeSwInfo match {
+            case None => s.copy(snmp = false)
+            case Some(swInfo) =>
+              s.copy(
+                sw = s.sw.copy(
+                  revision = Some(swInfo.revision),
+                  serial = Some(swInfo.serial)
+                ),
+                snmp = true
+              )
+          }
+          swInfo = maybeSwInfo.getOrElse(SwitchInfo("", ""))
+        } yield newSw
+      }
+    } else {
+      sr.map { s =>
+        s.copy(
+          sw = s.sw.copy(revision = switch.revision, serial = switch.serial),
+          snmp = true
+        )
+      }
+    }
+
+    val withSeens = if (switch.retrieveUpLinkFromSeens) {
+      withSNMP
+        .flatMap { s =>
+          for {
+            maybeSeen <- seensClient
+              .getSeenOf(s.sw.mac)
+              .catchAll(_ => UIO.succeed(None))
+            newSw = maybeSeen match {
+              case None => s.copy(seen = false)
+              case Some(seen) =>
+                s.copy(
+                  sw = s.sw.copy(
+                    upSwitchName = Some(seen.Switch),
+                    upLink = Some(seen.PortName)
+                  ),
+                  seen = true
+                )
+            }
+          } yield newSw
+        }
+    } else {
+      withSNMP.map { s =>
+        s.copy(
+          sw = s.sw
+            .copy(upSwitchName = switch.upSwitchName, upLink = switch.upLink),
+          seen = true
+        )
+      }
+    }
+
+    withSeens
   }
 
 }

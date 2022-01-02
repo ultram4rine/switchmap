@@ -6,8 +6,8 @@ import {
   SavePositionRequest,
   SwitchRequest,
   SwitchResponse,
-} from "@/types/switch";
-import { macDenormalization } from "@/helpers";
+  SwitchResult,
+} from "@/interfaces/switch";
 
 export const getSNMPCommunities = async (): Promise<string[]> => {
   const resp = await api.get<string, AxiosResponse<string[]>>(
@@ -29,18 +29,25 @@ export const getSwitchesOfBuild = async (
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
     `/builds/${shortName}/switches`
   );
-  resp.data.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
   return resp.data;
 };
 
-export const getSwitchesOfFloor = async (
+export const getUnplacedSwitchesOfBuild = async (
+  shortName: string
+): Promise<SwitchResponse[]> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
+    `/builds/${shortName}/switches/unplaced`
+  );
+  return resp.data;
+};
+
+export const getPlacedSwitchesOfFloor = async (
   shortName: string,
   number: number
 ): Promise<SwitchResponse[]> => {
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
     `/builds/${shortName}/floors/${number}/switches`
   );
-  resp.data.forEach((sw) => (sw.mac = macDenormalization(sw.mac)));
   return resp.data;
 };
 
@@ -48,19 +55,26 @@ export const getSwitch = async (name: string): Promise<SwitchResponse> => {
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse>>(
     `/switches/${name}`
   );
-  resp.data.mac = macDenormalization(resp.data.mac);
   return resp.data;
 };
 
-export const addSwitch = async (sw: SwitchRequest): Promise<void> => {
-  await api.post("/switches", sw);
+export const addSwitch = async (sw: SwitchRequest): Promise<SwitchResult> => {
+  const resp = await api.post<SwitchResult, AxiosResponse<SwitchResult>>(
+    "/switches",
+    sw
+  );
+  return resp.data;
 };
 
 export const editSwitch = async (
   sw: SwitchRequest,
   oldName: string
-): Promise<void> => {
-  await api.put(`/switches/${oldName}`, sw);
+): Promise<SwitchResult> => {
+  const resp = await api.put<SwitchResult, AxiosResponse<SwitchResult>>(
+    `/switches/${oldName}`,
+    sw
+  );
+  return resp.data;
 };
 
 export const updatePosition = async (

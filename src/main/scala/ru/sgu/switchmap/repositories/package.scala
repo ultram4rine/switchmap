@@ -1,9 +1,10 @@
 package ru.sgu.switchmap
 
-import doobie.quill.DoobieContext
+import org.polyvariant.doobiequill.DoobieContext
 import io.getquill._
 import ru.sgu.switchmap.models._
 import zio.{Has, RIO}
+import zio.logging.Logging
 
 package object repositories {
   type BuildRepository = Has[BuildRepository.Service]
@@ -28,6 +29,14 @@ package object repositories {
         _.number -> "number",
         _.buildName -> "build_name",
         _.buildShortName -> "build_short_name"
+      )
+    )
+
+    val lastSyncTime = quote(
+      querySchema[LastSyncTime](
+        "last_sync_time",
+        _.syncTime -> "sync_time",
+        _.lock -> "lock"
       )
     )
 
@@ -75,6 +84,8 @@ package object repositories {
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))
 
+  def sync(): RIO[SwitchRepository with Logging, Unit] =
+    RIO.accessM(_.get.sync())
   def snmpCommunities(): RIO[SwitchRepository, List[String]] =
     RIO.accessM(_.get.snmp())
   def getSwitches(): RIO[SwitchRepository, List[SwitchResponse]] =
@@ -83,19 +94,23 @@ package object repositories {
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.getOf(build))
-  def getSwitchesOf(
+  def getUnplacedSwitchesOf(
+    build: String
+  ): RIO[SwitchRepository, List[SwitchResponse]] =
+    RIO.accessM(_.get.getUnplacedOf(build))
+  def getPlacedSwitchesOf(
     build: String,
     floor: Int
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getOf(build, floor))
+    RIO.accessM(_.get.getPlacedOf(build, floor))
   def getSwitch(name: String): RIO[SwitchRepository, SwitchResponse] =
     RIO.accessM(_.get.get(name))
-  def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, Boolean] =
+  def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, SwitchResult] =
     RIO.accessM(_.get.create(sw))
   def updateSwitch(
     name: String,
     sw: SwitchRequest
-  ): RIO[SwitchRepository, Boolean] =
+  ): RIO[SwitchRepository, SwitchResult] =
     RIO.accessM(_.get.update(name, sw))
   def updateSwitchPosition(
     name: String,

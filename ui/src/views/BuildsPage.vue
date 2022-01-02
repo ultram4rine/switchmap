@@ -53,10 +53,23 @@
     </v-row>
 
     <v-row no-gutters>
-      <v-card class="ma-1">
-        <v-btn color="error" @click="openBuildForm('Add')">Add build</v-btn>
+      <v-card :style="{ visibility: 'hidden' }" class="ma-1">
+        <v-btn rounded large></v-btn>
       </v-card>
     </v-row>
+
+    <v-btn
+      rounded
+      large
+      fixed
+      bottom
+      right
+      color="orange accent-4"
+      class="white--text"
+      @click="openBuildForm('Add')"
+    >
+      Add build
+    </v-btn>
 
     <build-form
       :form="buildForm"
@@ -76,11 +89,11 @@
     <delete-confirmation
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
-      @confirm="deleteConfirm"
+      @confirm="confirmDelete"
       @cancel="deleteCancel(() => (buildShortName = ''))"
     />
 
-    <snackbar
+    <snackbar-notification
       :snackbar="snackbar"
       :type="snackbarType"
       :text="snackbarText"
@@ -96,15 +109,17 @@ import BuildCard from "@/components/cards/BuildCard.vue";
 import BuildForm from "@/components/forms/BuildForm.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { BuildResponse } from "@/types/build";
+import { BuildRequest, BuildResponse, FloorRequest } from "@/interfaces";
 import { getBuilds, deleteBuild } from "@/api/builds";
 
-import useBuildForm from "@/composables/useBuildForm";
-import useFloorForm from "@/composables/useFloorForm";
-import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
-import useSnackbar from "@/composables/useSnackbar";
+import {
+  useBuildForm,
+  useFloorForm,
+  useDeleteConfirmation,
+  useSnackbar,
+} from "@/composables";
 
 export default defineComponent({
   props: {
@@ -116,7 +131,7 @@ export default defineComponent({
     BuildForm,
     FloorForm,
     DeleteConfirmation,
-    Snackbar,
+    SnackbarNotification,
   },
 
   setup() {
@@ -144,6 +159,7 @@ export default defineComponent({
     const {
       deleteConfirmation,
       deleteItemName,
+      confirm: deleteConfirm,
       cancel: deleteCancel,
     } = useDeleteConfirmation();
 
@@ -178,6 +194,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
+      deleteConfirm,
       deleteCancel,
 
       // Snackbar.
@@ -186,14 +203,12 @@ export default defineComponent({
       snackbarText,
       openSnackbar,
       closeSnackbar,
-
-      deleteBuild,
     };
   },
 
   methods: {
-    displayBuilds() {
-      getBuilds().then((builds) => (this.builds = builds));
+    async displayBuilds() {
+      this.builds = await getBuilds();
     },
 
     handleDelete(b: BuildResponse) {
@@ -202,37 +217,36 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    deleteConfirm() {
-      deleteBuild(this.buildShortName)
-        .then(() => {
+    async confirmDelete() {
+      await this.deleteConfirm(
+        () => deleteBuild(this.buildShortName),
+        () => {
           this.openSnackbar("success", `${this.deleteItemName} deleted`);
-          this.deleteCancel(() => (this.buildShortName = ""));
-        })
-        .then(() => this.displayBuilds());
+          this.displayBuilds();
+        },
+        () =>
+          this.openSnackbar("error", `Failed to delete ${this.deleteItemName}`)
+      );
     },
 
-    async handleSubmitBuild(
-      name: string,
-      shortName: string,
-      action: "Add" | "Edit"
-    ) {
+    async handleSubmitBuild(b: BuildRequest, action: "Add" | "Edit") {
       try {
-        await this.submitBuildForm(name, shortName, action);
+        await this.submitBuildForm(b, action);
         this.displayBuilds();
         this.openSnackbar(
           "success",
-          `${name} succesfully ${action.toLowerCase()}ed`
+          `${b.name} succesfully ${action.toLowerCase()}ed`
         );
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} build`);
       }
     },
 
-    async handleSubmitFloor(number: number) {
+    async handleSubmitFloor(f: FloorRequest) {
       try {
-        await this.submitFloorForm(number);
+        await this.submitFloorForm(f);
         this.displayBuilds();
-        this.openSnackbar("success", `Floor ${number} succesfully added`);
+        this.openSnackbar("success", `Floor ${f.number} succesfully added`);
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to add floor`);
       }

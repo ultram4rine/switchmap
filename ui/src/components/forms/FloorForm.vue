@@ -1,45 +1,35 @@
 <template>
-  <v-dialog :value="form" persistent max-width="500px">
-    <v-card dark>
-      <v-toolbar>
-        <v-toolbar-title>New floor</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon @click="close">
-          <v-icon>{{ mdiClose }}</v-icon>
-        </v-btn>
-      </v-toolbar>
-
-      <ValidationObserver ref="observer" v-slot="{ invalid }">
+  <form-wrap :form="form" title="New floor" @close="close">
+    <ValidationObserver ref="observer" v-slot="{ invalid }">
+      <v-form ref="form" @submit.prevent="submit">
         <v-card-text>
-          <v-form ref="form">
-            <ValidationProvider
-              v-slot="{ errors }"
-              name="Number of floor"
-              rules="required"
-            >
-              <v-text-field
-                v-model="number"
-                :error-messages="errors"
-                type="number"
-                label="Number"
-                required
-                color="orange accent-2"
-              ></v-text-field>
-            </ValidationProvider>
-          </v-form>
+          <ValidationProvider
+            v-slot="{ errors }"
+            name="Number of floor"
+            rules="required"
+          >
+            <v-text-field
+              v-model="f.number"
+              :error-messages="errors"
+              type="number"
+              label="Number"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
+          <v-btn type="submit" color="orange darken-1" :disabled="invalid">
             Add
           </v-btn>
         </v-card-actions>
-      </ValidationObserver>
-    </v-card>
-  </v-dialog>
+      </v-form>
+    </ValidationObserver>
+  </form-wrap>
 </template>
 
 <script lang="ts">
@@ -49,7 +39,9 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { FloorRequest } from "@/types/floor";
+import FormWrap from "@/components/wrappers/FormWrap.vue";
+
+import { FloorRequest } from "@/interfaces/floor";
 
 extend("required", {
   ...required,
@@ -63,29 +55,29 @@ export default defineComponent({
     floor: { type: Object as PropType<FloorRequest>, required: true },
   },
 
-  components: { ValidationObserver, ValidationProvider },
+  components: { FormWrap, ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
-    const number = ref(props.floor.number);
+    const f = ref({ number: props.floor.number } as FloorRequest);
 
     watch(
-      () => props.floor.number,
-      (val: number) => {
-        number.value = val;
+      () => props.floor,
+      (val) => {
+        f.value.number = val.number;
       }
     );
 
     const submit = () => {
-      emit("submit", number.value);
-      number.value = 0;
+      emit("submit", f.value);
+      f.value = {} as FloorRequest;
     };
     const close = () => {
-      number.value = 0;
+      f.value = {} as FloorRequest;
       emit("close");
     };
 
     return {
-      number,
+      f,
 
       submit,
       close,

@@ -1,19 +1,15 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { BuildRequest } from "@/types/build";
+import { BuildRequest } from "@/interfaces/build";
 
 import { addBuild, editBuild } from "@/api/builds";
 
-const useBuildForm = (): {
+export const useBuildForm = (): {
   form: Ref<boolean>;
   formAction: Ref<"" | "Add" | "Edit">;
   build: Ref<BuildRequest>;
   openForm: (action: "Add" | "Edit", b?: BuildRequest) => void;
-  submitForm: (
-    name: string,
-    shortName: string,
-    action: "Add" | "Edit"
-  ) => Promise<void>;
+  submitForm: (b: BuildRequest, action: "Add" | "Edit") => Promise<void>;
   closeForm: () => void;
 } => {
   const form = ref(false);
@@ -35,20 +31,16 @@ const useBuildForm = (): {
   };
 
   const submitForm = async (
-    name: string,
-    shortName: string,
+    b: BuildRequest,
     action: "Add" | "Edit"
   ): Promise<void> => {
     switch (action) {
       case "Add":
-        await addBuild({ name, shortName } as BuildRequest);
+        await addBuild(b);
         closeForm();
         break;
       case "Edit":
-        await editBuild(
-          { name, shortName } as BuildRequest,
-          oldShortName.value
-        );
+        await editBuild(b, oldShortName.value);
         closeForm();
         break;
       default:
@@ -57,10 +49,10 @@ const useBuildForm = (): {
   };
 
   const closeForm = (): void => {
+    form.value = false;
     build.value = {} as BuildRequest;
     oldShortName.value = "";
     formAction.value = "";
-    form.value = false;
   };
 
   return {
@@ -74,5 +66,3 @@ const useBuildForm = (): {
     closeForm,
   };
 };
-
-export default useBuildForm;

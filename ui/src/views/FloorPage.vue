@@ -1,7 +1,11 @@
 <template>
   <div>
     <div id="plan_upload" v-if="noPlan">
-      <plan-upload @upload="handlePlanUpload" />
+      <plan-upload
+        :update="update"
+        @upload="handlePlanUpload"
+        @cancel="handleUploadCancel"
+      />
     </div>
 
     <div v-else>
@@ -47,37 +51,43 @@
             label="Switch"
             color="orange accent-2"
           ></v-select>
-          <v-hover v-slot:default="{ hover }">
-            <v-btn
-              icon
-              :color="hover ? 'orange darken-1' : ''"
-              @click="
-                openSwitchForm('Add', undefined, shortName, parseInt(floor))
-              "
-            >
-              <v-icon dark>{{ mdiPlus }}</v-icon>
-            </v-btn>
-          </v-hover>
           <v-btn
             v-if="swName !== ''"
+            class="ma-1"
             color="orange darken-1"
             @click="place(swName)"
           >
             Place
           </v-btn>
+          <v-btn class="ml-2" color="orange darken-1" @click="updatePlan()">
+            Update plan
+          </v-btn>
         </v-toolbar>
       </div>
+
+      <v-btn
+        rounded
+        large
+        fixed
+        bottom
+        right
+        color="orange accent-4"
+        class="white--text"
+        @click="openSwitchForm('Add', undefined, shortName, parseInt(floor))"
+      >
+        Add switch
+      </v-btn>
 
       <SwitchForm
         :form="switchForm"
         :action="switchFormAction"
         :needLocationFields="false"
-        :sw="sw"
+        :swit="sw"
         @submit="handleSubmitSwitch"
         @close="closeSwitchForm"
       />
 
-      <snackbar
+      <snackbar-notification
         :snackbar="snackbar"
         :type="snackbarType"
         :text="snackbarText"
@@ -103,15 +113,17 @@ import zoom from "@/directives/zoom";
 
 import PlanUpload from "@/components/PlanUpload.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { SwitchResponse } from "@/types/switch";
-import { getSwitchesOfFloor } from "@/api/switches";
+import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import {
+  getUnplacedSwitchesOfBuild,
+  getPlacedSwitchesOfFloor,
+} from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
 import { wsURL } from "@/api";
 
-import useSwitchForm from "@/composables/useSwitchForm";
-import useSnackbar from "@/composables/useSnackbar";
+import { useSwitchForm, useSnackbar } from "@/composables";
 
 import { authHeader } from "@/helpers";
 
@@ -125,7 +137,7 @@ export default defineComponent({
   components: {
     PlanUpload,
     SwitchForm,
-    Snackbar,
+    SnackbarNotification,
   },
 
   directives: {
@@ -136,9 +148,8 @@ export default defineComponent({
 
   setup(props) {
     const planPath = ref("");
-
+    const update = ref(false);
     const noPlan = ref(false);
-
     const planKey = ref(0);
 
     const {
@@ -211,6 +222,7 @@ export default defineComponent({
 
     return {
       planPath,
+      update,
       noPlan,
       planKey,
 
@@ -249,16 +261,16 @@ export default defineComponent({
   },
 
   methods: {
-    displaySwitches() {
-      getSwitchesOfFloor(this.shortName, parseInt(this.floor)).then((sws) => {
-        sws.forEach((sw) => {
-          this.switches.push(sw);
-          if (!sw.positionTop && !sw.positionLeft) {
-            this.switchesWithoutPosition.push(sw);
-          }
-        });
-        this.planKey += 1;
-      });
+    async displaySwitches() {
+      this.switches = await getPlacedSwitchesOfFloor(
+        this.shortName,
+        parseInt(this.floor)
+      );
+      this.switchesWithoutPosition = await getUnplacedSwitchesOfBuild(
+        this.shortName
+      );
+      this.switches = this.switches.concat(this.switchesWithoutPosition);
+      this.planKey += 1;
     },
 
     showPlan() {
@@ -276,10 +288,20 @@ export default defineComponent({
         });
     },
 
+    updatePlan() {
+      this.update = true;
+      this.noPlan = true;
+    },
+
     handlePlanUpload(plan: File) {
       uploadPlan(this.shortName, parseInt(this.floor), plan).then(() =>
         this.showPlan()
       );
+    },
+
+    handleUploadCancel() {
+      this.update = false;
+      this.noPlan = false;
     },
 
     place(name: string) {
@@ -306,46 +328,29 @@ export default defineComponent({
       this.moving = name.detail;
     },
 
-    async handleSubmitSwitch(
-      name: string,
-      ipResolveMethod: string,
-      ip: string,
-      mac: string,
-      upSwitchName: string,
-      upLink: string,
-      snmpCommunity: string,
-      revision: string,
-      serial: string,
-      build: string,
-      floor: number,
-      retrieveFromNetData: boolean,
-      retrieveUpLinkFromSeens: boolean,
-      retrieveTechDataFromSNMP: boolean,
-      action: "Add" | "Edit"
-    ) {
+    async handleSubmitSwitch(swit: SwitchRequest, action: "Add" | "Edit") {
       try {
-        await this.submitSwitchForm(
-          name,
-          ipResolveMethod,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          snmpCommunity,
-          revision,
-          serial,
-          build,
-          floor,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          action
-        );
+        const sr = await this.submitSwitchForm(swit, action);
         this.displaySwitches();
-        this.openSnackbar(
-          "success",
-          `${name} succesfully ${action.toLowerCase()}ed`
-        );
+
+        let typ: "success" | "info" | "warning" | "error" = "success";
+        let text = "";
+
+        if (sr.seen && sr.snmp) {
+          typ = "success";
+          text = `${sr.sw.name} succesfully ${action.toLowerCase()}ed`;
+        } else if (!sr.seen && !sr.snmp) {
+          typ = "warning";
+          text = `Failed to get uplink and technical data of ${sr.sw.name}`;
+        } else if (!sr.seen) {
+          typ = "warning";
+          text = `Failed to get uplink of ${sr.sw.name}`;
+        } else if (!sr.snmp) {
+          typ = "warning";
+          text = `Failed to get technical data of ${sr.sw.name}`;
+        }
+
+        this.openSnackbar(typ, text);
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }

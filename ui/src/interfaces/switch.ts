@@ -1,12 +1,12 @@
-export type SwitchRequest = SwitchResponse & {
+export interface SwitchRequest extends SwitchResponse {
   snmpCommunity: string;
   retrieveFromNetData: boolean;
+  retrieveIPFromDNS: boolean;
   retrieveUpLinkFromSeens: boolean;
   retrieveTechDataFromSNMP: boolean;
-  ipResolveMethod: string;
-};
+}
 
-export type SwitchResponse = {
+export interface SwitchResponse {
   name: string;
   ip: string;
   mac: string;
@@ -18,9 +18,15 @@ export type SwitchResponse = {
   positionLeft: number;
   upSwitchName: string;
   upLink: string;
-};
+}
 
-export type SavePositionRequest = {
+export interface SwitchResult {
+  sw: SwitchResponse;
+  seen: boolean;
+  snmp: boolean;
+}
+
+export interface SavePositionRequest {
   top: number;
   left: number;
-};
+}

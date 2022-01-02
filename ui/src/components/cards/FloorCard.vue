@@ -15,11 +15,11 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn dark small color="primary" @click="handleAddSwitch">
+      <v-btn class="white--text" small color="primary" @click="handleAddSwitch">
         Add switch
       </v-btn>
       <v-btn
-        dark
+        class="white--text"
         small
         color="primary"
         :to="{
@@ -37,7 +37,7 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import { mdiDelete } from "@mdi/js";
 
-import { FloorResponse } from "@/types/floor";
+import { FloorResponse } from "@/interfaces/floor";
 
 export default defineComponent({
   props: {

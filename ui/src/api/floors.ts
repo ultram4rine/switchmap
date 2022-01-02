@@ -2,7 +2,7 @@ import { AxiosResponse } from "axios";
 
 import api from ".";
 
-import { FloorRequest, FloorResponse } from "@/types/floor";
+import { FloorRequest, FloorResponse } from "@/interfaces/floor";
 
 export const getFloorsOf = async (
   shortName: string

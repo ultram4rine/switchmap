@@ -3,21 +3,27 @@ import VueRouter, { Route, Location, RouteConfig } from "vue-router";
 
 import store from "@/store";
 
-import Login from "@/views/Login.vue";
-import Builds from "@/views/Builds.vue";
-import Floors from "@/views/Floors.vue";
-import Floor from "@/views/Floor.vue";
-import Switches from "@/views/Switches.vue";
-import Vis from "@/views/Vis.vue";
+const LoginPage = () => import("@/views/LoginPage.vue");
+const BuildsPage = () =>
+  import(/* webpackChunkName: "builds" */ "@/views/BuildsPage.vue");
+const FloorsPage = () =>
+  import(/* webpackChunkName: "builds" */ "@/views/FloorsPage.vue");
+const FloorPage = () =>
+  import(/* webpackChunkName: "builds" */ "@/views/FloorPage.vue");
+const SwitchesPage = () => import("@/views/SwitchesPage.vue");
+const VisPage = () => import("@/views/VisPage.vue");
 
 Vue.use(VueRouter);
+
+const defaultLayout = "default-layout";
+const emptyLayout = "empty-layout";
 
 const routes: Array<RouteConfig> = [
   {
     path: "/login",
     name: "login",
-    component: Login,
-    meta: { skipIfAuth: true, layout: "empty" },
+    component: LoginPage,
+    meta: { skipIfAuth: true, layout: emptyLayout },
   },
   {
     path: "/",
@@ -28,34 +34,34 @@ const routes: Array<RouteConfig> = [
   {
     path: "/builds",
     name: "home",
-    component: Builds,
-    meta: { requiresAuth: true, layout: "default" },
+    component: BuildsPage,
+    meta: { requiresAuth: true, layout: defaultLayout },
   },
   {
     path: "/builds/:shortName",
     name: "build",
-    component: Floors,
+    component: FloorsPage,
     props: true,
-    meta: { requiresAuth: true, layout: "default" },
+    meta: { requiresAuth: true, layout: defaultLayout },
   },
   {
     path: "/builds/:shortName/f:floor",
     name: "floor",
-    component: Floor,
+    component: FloorPage,
     props: true,
-    meta: { requiresAuth: true, layout: "default" },
+    meta: { requiresAuth: true, layout: defaultLayout },
   },
   {
     path: "/switches",
     name: "switches",
-    component: Switches,
-    meta: { requiresAuth: true, layout: "default" },
+    component: SwitchesPage,
+    meta: { requiresAuth: true, layout: defaultLayout },
   },
   {
     path: "/vis",
     name: "visualization",
-    component: Vis,
-    meta: { requiresAuth: true, layout: "default" },
+    component: VisPage,
+    meta: { requiresAuth: true, layout: defaultLayout },
   },
 ];
 

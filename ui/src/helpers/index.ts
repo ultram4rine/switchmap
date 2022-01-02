@@ -10,10 +10,3 @@ export const macNormalization = (mac: string): string => {
     return mac.toLowerCase();
   }
 };
-
-export const macDenormalization = (mac: string): string => {
-  return mac
-    .toUpperCase()
-    .replace(/(.{2})/g, "$1:")
-    .slice(0, -1);
-};

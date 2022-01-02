@@ -1,58 +1,44 @@
 <template>
-  <v-dialog :value="form" persistent max-width="500px">
-    <v-card dark>
-      <v-toolbar>
-        <v-toolbar-title>{{ title }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon @click="close">
-          <v-icon>{{ mdiClose }}</v-icon>
-        </v-btn>
-      </v-toolbar>
-
-      <ValidationObserver ref="observer" v-slot="{ invalid }">
+  <form-wrap :form="form" :title="title" @close="close">
+    <ValidationObserver ref="observer" v-slot="{ invalid }">
+      <v-form ref="form" @submit.prevent="submit">
         <v-card-text>
-          <v-form ref="form">
-            <ValidationProvider
-              v-slot="{ errors }"
-              name="Name"
-              rules="required"
-            >
-              <v-text-field
-                v-model="name"
-                :error-messages="errors"
-                label="Name"
-                required
-                color="orange accent-2"
-              ></v-text-field>
-            </ValidationProvider>
+          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+            <v-text-field
+              v-model="b.name"
+              :error-messages="errors"
+              label="Name"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
 
-            <ValidationProvider
-              v-slot="{ errors }"
-              name="Short name"
-              rules="required"
-            >
-              <v-text-field
-                v-model="shortName"
-                :error-messages="errors"
-                label="Short name"
-                required
-                color="orange accent-2"
-              ></v-text-field>
-            </ValidationProvider>
-          </v-form>
+          <ValidationProvider
+            v-slot="{ errors }"
+            name="Short name"
+            rules="required"
+          >
+            <v-text-field
+              v-model="b.shortName"
+              :error-messages="errors"
+              label="Short name"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
+          <v-btn type="submit" color="orange darken-1" :disabled="invalid">
             {{ action }}
           </v-btn>
         </v-card-actions>
-      </ValidationObserver>
-    </v-card>
-  </v-dialog>
+      </v-form>
+    </ValidationObserver>
+  </form-wrap>
 </template>
 
 <script lang="ts">
@@ -68,7 +54,9 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
-import { BuildRequest } from "@/types/build";
+import FormWrap from "@/components/wrappers/FormWrap.vue";
+
+import { BuildRequest } from "@/interfaces/build";
 
 extend("required", {
   ...required,
@@ -83,45 +71,38 @@ export default defineComponent({
     build: { type: Object as PropType<BuildRequest>, required: true },
   },
 
-  components: { ValidationObserver, ValidationProvider },
+  components: { FormWrap, ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
     const title = computed(() => {
       return props.action === "Add" ? "New build" : "Change build";
     });
 
-    const name = ref(props.build.name);
-    const shortName = ref(props.build.shortName);
-
+    const b = ref({
+      name: props.build.name,
+      shortName: props.build.shortName,
+    } as BuildRequest);
     watch(
-      () => props.build.name,
+      () => props.build,
       (val) => {
-        name.value = val;
-      }
-    );
-    watch(
-      () => props.build.shortName,
-      (val) => {
-        shortName.value = val;
+        b.value.name = val.name;
+        b.value.shortName = val.shortName;
       }
     );
 
     const submit = () => {
-      emit("submit", name.value, shortName.value, props.action);
-      name.value = "";
-      shortName.value = "";
+      emit("submit", b.value, props.action);
+      b.value = {} as BuildRequest;
     };
     const close = () => {
-      name.value = "";
-      shortName.value = "";
+      b.value = {} as BuildRequest;
       emit("close");
     };
 
     return {
       title,
 
-      name,
-      shortName,
+      b,
 
       submit,
       close,

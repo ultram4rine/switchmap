@@ -1,10 +1,10 @@
-export type FloorRequest = {
+export interface FloorRequest {
   number: number;
   buildName: string;
   buildShortName: string;
-};
+}
 
-export type FloorResponse = {
+export interface FloorResponse {
   number: number;
   switchesNumber: number;
-};
+}

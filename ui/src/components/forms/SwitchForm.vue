@@ -1,192 +1,175 @@
 <template>
-  <v-dialog :value="form" persistent max-width="500px">
-    <v-card dark>
-      <v-toolbar>
-        <v-toolbar-title>{{ title }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon @click="close">
-          <v-icon>{{ mdiClose }}</v-icon>
-        </v-btn>
-      </v-toolbar>
-
-      <ValidationObserver ref="observer" v-slot="{ invalid }">
+  <form-wrap :form="form" :title="title" @close="close">
+    <ValidationObserver ref="observer" v-slot="{ invalid }">
+      <v-form ref="form" @submit.prevent="submit">
         <v-card-text>
-          <v-form ref="form">
-            <v-checkbox
-              v-model="retrieveFromNetData"
-              label="Retrieve switch data from netdata"
-              color="orange accent-2"
-            ></v-checkbox>
+          <v-checkbox
+            v-model="sw.retrieveFromNetData"
+            label="Retrieve switch data from netdata"
+            color="orange accent-2"
+          ></v-checkbox>
 
-            <ValidationProvider
-              v-slot="{ errors }"
-              name="Name"
-              rules="required"
-            >
-              <v-text-field
-                v-model="name"
-                :error-messages="errors"
-                label="Name"
+          <ValidationProvider v-slot="{ errors }" name="Name" rules="required">
+            <v-text-field
+              v-model="sw.name"
+              :error-messages="errors"
+              label="Name"
+              required
+              color="orange accent-2"
+            ></v-text-field>
+          </ValidationProvider>
+
+          <template v-if="!sw.retrieveFromNetData">
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-checkbox
+                  v-model="sw.retrieveIPFromDNS"
+                  label="Get IP from DNS"
+                  color="orange accent-2"
+                ></v-checkbox>
+              </v-col>
+              <v-col v-if="!sw.retrieveIPFromDNS" cols="12" sm="6">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="IP address"
+                  rules="required|ip"
+                >
+                  <v-text-field
+                    v-model="sw.ip"
+                    :error-messages="errors"
+                    label="IP"
+                    placeholder="e.g. 192.168.1.1"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
+
+            <v-row dense>
+              <v-col cols="12" sm="12">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="MAC address"
+                  rules="required|mac"
+                >
+                  <v-text-field
+                    v-model="sw.mac"
+                    :error-messages="errors"
+                    label="MAC"
+                    placeholder="XX:XX:XX:XX:XX:XX"
+                    required
+                    color="orange accent-2"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+            </v-row>
+          </template>
+
+          <v-checkbox
+            v-model="sw.retrieveUpLinkFromSeens"
+            label="Retrieve uplink from seens"
+            color="orange accent-2"
+          ></v-checkbox>
+          <v-row v-if="!sw.retrieveUpLinkFromSeens">
+            <v-col cols="12" sm="6">
+              <v-autocomplete
+                v-model="sw.upSwitchName"
+                :items="switches"
+                hide-details
+                item-text="name"
+                item-value="name"
+                label="Up switch"
+                color="orange accent-2"
                 required
+              ></v-autocomplete>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="sw.upLink"
+                label="Up link"
                 color="orange accent-2"
               ></v-text-field>
-            </ValidationProvider>
+            </v-col>
+          </v-row>
 
-            <template v-if="!retrieveFromNetData">
-              <v-row dense>
-                <v-col cols="12" sm="6">
-                  <v-select
-                    v-model="ipResolveMethod"
-                    :items="methods"
-                    hide-details
-                    label="IP resolve method"
-                    color="orange accent-2"
-                    required
-                  ></v-select>
-                </v-col>
-                <v-col v-if="ipResolveMethod === 'Direct'" cols="12" sm="6">
-                  <ValidationProvider
-                    v-slot="{ errors }"
-                    name="IP address"
-                    rules="required|ip"
-                  >
-                    <v-text-field
-                      v-model="ip"
-                      :error-messages="errors"
-                      label="IP"
-                      placeholder="e.g. 192.168.1.1"
-                      required
-                      color="orange accent-2"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-col>
-              </v-row>
-
-              <v-row dense>
-                <v-col cols="12" sm="12">
-                  <ValidationProvider
-                    v-slot="{ errors }"
-                    name="MAC address"
-                    rules="required|mac"
-                  >
-                    <v-text-field
-                      v-model="mac"
-                      :error-messages="errors"
-                      label="MAC"
-                      placeholder="XX:XX:XX:XX:XX:XX"
-                      required
-                      color="orange accent-2"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-col>
-              </v-row>
-            </template>
-
-            <v-checkbox
-              v-model="retrieveUpLinkFromSeens"
-              label="Retrieve uplink from seens"
-              color="orange accent-2"
-            ></v-checkbox>
-            <v-row v-if="!retrieveUpLinkFromSeens">
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="upSwitchName"
-                  :items="switches"
-                  hide-details
-                  item-text="name"
-                  item-value="name"
-                  label="Up switch"
-                  color="orange accent-2"
-                  required
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="upLink"
-                  label="Up link"
-                  color="orange accent-2"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-checkbox
-              v-model="retrieveTechDataFromSNMP"
-              label="Retrieve tech data from SNMP"
-              color="orange accent-2"
-            ></v-checkbox>
-            <v-row v-if="!retrieveTechDataFromSNMP">
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="revision"
-                  label="Revision"
-                  color="orange accent-2"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="serial"
-                  label="Serial"
-                  color="orange accent-2"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <ValidationProvider
-              v-slot="{ errors }"
-              v-else
-              name="SNMP community"
-              rules="required"
-            >
-              <v-select
-                v-model="snmpCommunity"
-                :error-messages="errors"
-                :items="communitites"
-                label="SNMP community"
-                required
+          <v-checkbox
+            v-model="sw.retrieveTechDataFromSNMP"
+            label="Retrieve tech data from SNMP"
+            color="orange accent-2"
+          ></v-checkbox>
+          <v-row v-if="!sw.retrieveTechDataFromSNMP">
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="sw.revision"
+                label="Revision"
                 color="orange accent-2"
-              ></v-select>
-            </ValidationProvider>
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="sw.serial"
+                label="Serial"
+                color="orange accent-2"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <ValidationProvider
+            v-slot="{ errors }"
+            v-else
+            name="SNMP community"
+            rules="required"
+          >
+            <v-select
+              v-model="sw.snmpCommunity"
+              :error-messages="errors"
+              :items="communitites"
+              label="SNMP community"
+              required
+              color="orange accent-2"
+            ></v-select>
+          </ValidationProvider>
 
-            <v-row v-if="needLocationFields" dense>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="build"
-                  :items="builds"
-                  hide-details
-                  item-text="name"
-                  item-value="shortName"
-                  label="Build"
-                  color="orange accent-2"
-                  required
-                  @change="getFloors(build)"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="floor"
-                  :items="floors"
-                  hide-details
-                  item-text="number"
-                  item-value="number"
-                  label="Floor"
-                  color="orange accent-2"
-                  required
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-form>
+          <v-row v-if="needLocationFields" dense>
+            <v-col cols="12" sm="6">
+              <v-autocomplete
+                v-model="sw.buildShortName"
+                :items="builds"
+                hide-details
+                item-text="name"
+                item-value="shortName"
+                label="Build"
+                color="orange accent-2"
+                required
+                @change="getFloors(sw.buildShortName)"
+              ></v-autocomplete>
+            </v-col>
+            <v-col v-if="sw.buildShortName" cols="12" sm="6">
+              <v-select
+                v-model="sw.floorNumber"
+                :items="floors"
+                hide-details
+                item-text="number"
+                item-value="number"
+                label="Floor"
+                color="orange accent-2"
+                required
+              ></v-select>
+            </v-col>
+          </v-row>
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="orange darken-1" :disabled="invalid" @click="submit">
+          <v-btn type="submit" color="orange darken-1" :disabled="invalid">
             {{ action }}
           </v-btn>
         </v-card-actions>
-      </ValidationObserver>
-    </v-card>
-  </v-dialog>
+      </v-form>
+    </ValidationObserver>
+  </form-wrap>
 </template>
 
 <script lang="ts">
@@ -203,15 +186,18 @@ import { mdiClose } from "@mdi/js";
 import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
 import { required } from "vee-validate/dist/rules";
 
+import FormWrap from "@/components/wrappers/FormWrap.vue";
+
 import { getSNMPCommunities, getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 import { getFloorsOf } from "@/api/floors";
 
-import { SwitchRequest, SwitchResponse } from "@/types/switch";
-import { BuildResponse } from "@/types/build";
-import { FloorResponse } from "@/types/floor";
-
-import { macNormalization } from "@/helpers";
+import {
+  SwitchRequest,
+  SwitchResponse,
+  BuildResponse,
+  FloorResponse,
+} from "@/interfaces";
 
 extend("required", {
   ...required,
@@ -220,7 +206,7 @@ extend("required", {
 
 extend("mac", {
   validate: (val: string) => {
-    const regex = /^[a-fA-F0-9:]{17}|[a-fA-F0-9]{12}$/g;
+    const regex = /^([0-9a-f]{2}[:-]?){5}[0-9a-f]{2}$/i;
     return regex.test(val);
   },
   message: "{_value_} is not correct MAC address",
@@ -229,7 +215,7 @@ extend("mac", {
 extend("ip", {
   validate: (val: string) => {
     const regex =
-      /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+      /^((25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)(\.)){3}(25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
     return regex.test(val);
   },
   message: "{_value_} is not correct IP address",
@@ -240,169 +226,77 @@ export default defineComponent({
     form: { type: Boolean, required: true },
     action: { type: String, required: true, enum: ["Add", "Edit"] },
 
-    sw: { type: Object as PropType<SwitchRequest>, required: true },
+    swit: { type: Object as PropType<SwitchRequest>, required: true },
 
     needLocationFields: { type: Boolean, required: true },
   },
 
-  components: {
-    ValidationObserver,
-    ValidationProvider,
-  },
+  components: { FormWrap, ValidationObserver, ValidationProvider },
 
   setup(props, { emit }) {
     const title = computed(() => {
       return props.action === "Add" ? "New switch" : "Change switch";
     });
 
-    const retrieveFromNetData = ref(props.sw.retrieveFromNetData);
-    const retrieveUpLinkFromSeens = ref(props.sw.retrieveUpLinkFromSeens);
-    const retrieveTechDataFromSNMP = ref(props.sw.retrieveTechDataFromSNMP);
-    const name = ref(props.sw.name);
-    const ipResolveMethod = ref(props.sw.ipResolveMethod);
-    const ip = ref(props.sw.ip);
-    const mac = ref(props.sw.mac);
-    const upSwitchName = ref(props.sw.upSwitchName);
-    const upLink = ref(props.sw.upLink);
-    const build = ref(props.sw.buildShortName);
-    const floor = ref(props.sw.floorNumber);
-    const snmpCommunity = ref(props.sw.snmpCommunity);
-    const revision = ref(props.sw.revision);
-    const serial = ref(props.sw.serial);
+    const sw = ref({
+      retrieveFromNetData: props.swit.retrieveFromNetData,
+      retrieveIPFromDNS: props.swit.retrieveIPFromDNS,
+      retrieveUpLinkFromSeens: props.swit.retrieveUpLinkFromSeens,
+      retrieveTechDataFromSNMP: props.swit.retrieveTechDataFromSNMP,
+      name: props.swit.name,
+      ip: props.swit.ip,
+      mac: props.swit.mac,
+      upSwitchName: props.swit.upSwitchName,
+      upLink: props.swit.upLink,
+      buildShortName: props.swit.buildShortName,
+      floorNumber: props.swit.floorNumber,
+      snmpCommunity: props.swit.snmpCommunity,
+      revision: props.swit.revision,
+      serial: props.swit.serial,
+    } as SwitchRequest);
 
-    const methods = ["Direct", "DNS"];
     const communitites: Ref<string[]> = ref([]);
     const switches: Ref<SwitchResponse[]> = ref([]);
     const builds: Ref<BuildResponse[]> = ref([]);
     const floors: Ref<FloorResponse[]> = ref([]);
 
     watch(
-      () => props.sw.retrieveFromNetData,
+      () => props.swit,
       (val) => {
-        retrieveFromNetData.value = val;
-      }
-    );
-    watch(
-      () => props.sw.retrieveUpLinkFromSeens,
-      (val) => {
-        retrieveUpLinkFromSeens.value = val;
-      }
-    );
-    watch(
-      () => props.sw.retrieveTechDataFromSNMP,
-      (val) => {
-        retrieveTechDataFromSNMP.value = val;
-      }
-    );
-    watch(
-      () => props.sw.name,
-      (val) => {
-        name.value = val;
-      }
-    );
-    watch(
-      () => props.sw.ipResolveMethod,
-      (val) => {
-        ipResolveMethod.value = val;
-      }
-    );
-    watch(
-      () => props.sw.ip,
-      (val) => {
-        ip.value = val;
-      }
-    );
-    watch(
-      () => props.sw.mac,
-      (val) => {
-        mac.value = val;
-      }
-    );
-    watch(
-      () => props.sw.upSwitchName,
-      (val) => {
-        upSwitchName.value = val;
-      }
-    );
-    watch(
-      () => props.sw.upLink,
-      (val) => {
-        upLink.value = val;
-      }
-    );
-    watch(
-      () => props.sw.buildShortName,
-      (val) => {
-        build.value = val;
-        if (val) getFloorsOf(build.value).then((fs) => (floors.value = fs));
-      }
-    );
-    watch(
-      () => props.sw.floorNumber,
-      (val) => {
-        floor.value = val;
-      }
-    );
-    watch(
-      () => props.sw.snmpCommunity,
-      (val) => {
-        snmpCommunity.value = val;
-      }
-    );
-    watch(
-      () => props.sw.revision,
-      (val) => {
-        revision.value = val;
-      }
-    );
-    watch(
-      () => props.sw.serial,
-      (val) => {
-        serial.value = val;
+        sw.value.retrieveFromNetData = val.retrieveFromNetData;
+        sw.value.retrieveIPFromDNS = val.retrieveIPFromDNS;
+        sw.value.retrieveUpLinkFromSeens = val.retrieveUpLinkFromSeens;
+        sw.value.retrieveTechDataFromSNMP = val.retrieveTechDataFromSNMP;
+        sw.value.name = val.name;
+        sw.value.ip = val.ip;
+        sw.value.mac = val.mac;
+        sw.value.upSwitchName = val.upSwitchName;
+        sw.value.upLink = val.upLink;
+        sw.value.buildShortName = val.buildShortName;
+        sw.value.floorNumber = val.floorNumber;
+        sw.value.snmpCommunity = communitites.value[0];
+        sw.value.revision = val.revision;
+        sw.value.serial = val.serial;
+        if (val.buildShortName) {
+          getFloors(val.buildShortName);
+        }
       }
     );
 
     const submit = () => {
-      emit(
-        "submit",
-        name.value,
-        ipResolveMethod.value,
-        ip.value,
-        mac.value.length === 12 ? mac.value : macNormalization(mac.value),
-        upSwitchName.value,
-        upLink.value,
-        snmpCommunity.value,
-        revision.value,
-        serial.value,
-        build.value,
-        floor.value,
-        retrieveFromNetData.value,
-        retrieveUpLinkFromSeens.value,
-        retrieveTechDataFromSNMP.value,
-        props.action
-      );
+      emit("submit", sw.value, props.action);
     };
     const close = () => emit("close");
+
+    const getFloors = (buildShortName: string) => {
+      getFloorsOf(buildShortName).then((fs) => (floors.value = fs));
+    };
 
     return {
       title,
 
-      retrieveFromNetData,
-      retrieveUpLinkFromSeens,
-      retrieveTechDataFromSNMP,
-      name,
-      ipResolveMethod,
-      ip,
-      mac,
-      upSwitchName,
-      upLink,
-      build,
-      floor,
-      snmpCommunity,
-      revision,
-      serial,
+      sw,
 
-      methods,
       communitites,
       switches,
       builds,
@@ -411,20 +305,16 @@ export default defineComponent({
       submit,
       close,
 
+      getFloors,
+
       mdiClose,
     };
-  },
-
-  methods: {
-    getFloors(build: string) {
-      getFloorsOf(build).then((floors) => (this.floors = floors));
-    },
   },
 
   created() {
     getSNMPCommunities().then((comms: string[]) => {
       this.communitites = comms;
-      if (!this.sw.snmpCommunity) this.snmpCommunity = this.communitites[0];
+      this.sw.snmpCommunity = this.communitites[0];
     });
     getSwitches().then((switches) => (this.switches = switches));
     if (this.needLocationFields) {

@@ -14,7 +14,7 @@ import Vue from "vue";
 import api from "@/api";
 import { AUTH_LOGOUT } from "@/store/actions";
 
-const defaultLayout = "default";
+const defaultLayout = "default-layout";
 
 export default Vue.extend({
   data() {

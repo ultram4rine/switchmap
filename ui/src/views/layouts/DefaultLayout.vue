@@ -44,7 +44,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent, ref } from "@vue/composition-api";
+
 import {
   mdiLogout,
   mdiOfficeBuilding,
@@ -55,27 +56,27 @@ import {
 
 import { AUTH_LOGOUT } from "@/store/actions";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
   },
 
-  data() {
+  setup() {
+    const drawer = ref(true);
+    const navs = [
+      { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
+      { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
+      { link: "/vis", text: "Visualization", icon: mdiLan },
+    ];
+
+    //breadcrumbs: [],
+
     return {
-      mdiLogout: mdiLogout,
-      mdiCopyright: mdiCopyright,
+      drawer,
+      navs,
 
-      drawer: true,
-      fab: false,
-      overlay: false,
-
-      //breadcrumbs: [],
-
-      navs: [
-        { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
-        { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
-        { link: "/vis", text: "Visualization", icon: mdiLan },
-      ],
+      mdiLogout,
+      mdiCopyright,
     };
   },
 

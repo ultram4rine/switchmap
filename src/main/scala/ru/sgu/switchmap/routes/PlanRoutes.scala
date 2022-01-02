@@ -41,7 +41,7 @@ final case class PlanRoutes[R <: Has[Authorizer]]() {
           auth match {
             case AuthStatus.Succeed =>
               m.parts.find(_.name == Some("planFile")) match {
-                case None => BadRequest(s"Not file")
+                case None => BadRequest("No file")
                 case Some(part) => {
                   val stream = part.body
                     .through(
@@ -56,7 +56,6 @@ final case class PlanRoutes[R <: Has[Authorizer]]() {
                     stream.map(_ => "Multipart file parsed successfully")
                   )
                 }
-
               }
             case _ =>
               Unauthorized(())

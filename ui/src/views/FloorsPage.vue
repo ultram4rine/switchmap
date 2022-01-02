@@ -28,7 +28,9 @@
           :shortName="shortName"
           :floor="f"
           @handleDelete="handleDelete"
-          @handleAddSwitch="openSwitchForm('Add', shortName, f.number)"
+          @handleAddSwitch="
+            openSwitchForm('Add', undefined, shortName, f.number)
+          "
         />
       </v-col>
 
@@ -53,10 +55,23 @@
     </v-row>
 
     <v-row no-gutters>
-      <v-card class="ma-1">
-        <v-btn color="error" @click="openFloorForm(shortName)">Add floor</v-btn>
+      <v-card :style="{ visibility: 'hidden' }" class="ma-1">
+        <v-btn rounded large></v-btn>
       </v-card>
     </v-row>
+
+    <v-btn
+      rounded
+      large
+      fixed
+      bottom
+      right
+      color="orange accent-4"
+      class="white--text"
+      @click="openFloorForm(shortName)"
+    >
+      Add floor
+    </v-btn>
 
     <floor-form
       :form="floorForm"
@@ -69,7 +84,7 @@
       :form="switchForm"
       :action="switchFormAction"
       :needLocationFields="false"
-      :sw="sw"
+      :swit="sw"
       @submit="handleSubmitSwitch"
       @close="closeSwitchForm"
     />
@@ -77,11 +92,11 @@
     <delete-confirmation
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
-      @confirm="deleteConfirm"
+      @confirm="confirmDelete"
       @cancel="deleteCancel(() => (floor = {}))"
     />
 
-    <snackbar
+    <snackbar-notification
       :snackbar="snackbar"
       :type="snackbarType"
       :text="snackbarText"
@@ -97,15 +112,18 @@ import FloorCard from "@/components/cards/FloorCard.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
-import Snackbar from "@/components/Snackbar.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { FloorRequest, FloorResponse } from "@/types/floor";
+import { FloorRequest, FloorResponse } from "@/interfaces/floor";
 import { getFloorsOf, deleteFloor } from "@/api/floors";
 
-import useFloorForm from "@/composables/useFloorForm";
-import useSwitchForm from "@/composables/useSwitchForm";
-import useDeleteConfirmation from "@/composables/useDeleteConfirmation";
-import useSnackbar from "@/composables/useSnackbar";
+import {
+  useFloorForm,
+  useSwitchForm,
+  useDeleteConfirmation,
+  useSnackbar,
+} from "@/composables";
+import { SwitchRequest } from "@/interfaces";
 
 export default defineComponent({
   props: {
@@ -118,7 +136,7 @@ export default defineComponent({
     FloorForm,
     SwitchForm,
     DeleteConfirmation,
-    Snackbar,
+    SnackbarNotification,
   },
 
   setup() {
@@ -145,6 +163,7 @@ export default defineComponent({
     const {
       deleteConfirmation,
       deleteItemName,
+      confirm: deleteConfirm,
       cancel: deleteCancel,
     } = useDeleteConfirmation();
 
@@ -178,6 +197,7 @@ export default defineComponent({
       // Delete confirmation.
       deleteConfirmation,
       deleteItemName,
+      deleteConfirm,
       deleteCancel,
 
       // Snackbar.
@@ -186,14 +206,12 @@ export default defineComponent({
       snackbarText,
       openSnackbar,
       closeSnackbar,
-
-      deleteFloor,
     };
   },
 
   methods: {
-    displayFloors() {
-      getFloorsOf(this.shortName).then((floors) => (this.floors = floors));
+    async displayFloors() {
+      this.floors = await getFloorsOf(this.shortName);
     },
 
     handleDelete(floor: FloorResponse) {
@@ -202,65 +220,51 @@ export default defineComponent({
       this.deleteConfirmation = true;
     },
 
-    deleteConfirm() {
-      deleteFloor(this.shortName, this.floor.number)
-        .then(() => {
+    async confirmDelete() {
+      await this.deleteConfirm(
+        () => deleteFloor(this.shortName, this.floor.number),
+        () => {
           this.openSnackbar("success", `${this.deleteItemName} deleted`);
-          this.deleteCancel(() => (this.floor = {} as FloorRequest));
-        })
-        .then(() => this.displayFloors());
+          this.displayFloors();
+        },
+        () =>
+          this.openSnackbar("error", `Failed to delete ${this.deleteItemName}`)
+      );
     },
 
-    async handleSubmitFloor(number: number) {
+    async handleSubmitFloor(f: FloorRequest) {
       try {
-        await this.submitFloorForm(number);
+        await this.submitFloorForm(f);
         this.displayFloors();
-        this.openSnackbar("success", `Floor ${number} succesfully added`);
+        this.openSnackbar("success", `Floor ${f.number} succesfully added`);
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to add floor`);
       }
     },
 
-    async handleSubmitSwitch(
-      name: string,
-      ipResolveMethod: string,
-      ip: string,
-      mac: string,
-      upSwitchName: string,
-      upLink: string,
-      snmpCommunity: string,
-      revision: string,
-      serial: string,
-      build: string,
-      floor: number,
-      retrieveFromNetData: boolean,
-      retrieveUpLinkFromSeens: boolean,
-      retrieveTechDataFromSNMP: boolean,
-      action: "Add" | "Edit"
-    ) {
+    async handleSubmitSwitch(swit: SwitchRequest, action: "Add" | "Edit") {
       try {
-        await this.submitSwitchForm(
-          name,
-          ipResolveMethod,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          snmpCommunity,
-          revision,
-          serial,
-          build,
-          floor,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          action
-        );
+        const sr = await this.submitSwitchForm(swit, action);
         this.displayFloors();
-        this.openSnackbar(
-          "success",
-          `${name} succesfully ${action.toLowerCase()}ed`
-        );
+
+        let typ: "success" | "info" | "warning" | "error" = "success";
+        let text = "";
+
+        if (sr.seen && sr.snmp) {
+          typ = "success";
+          text = `${sr.sw.name} succesfully ${action.toLowerCase()}ed`;
+        } else if (!sr.seen && !sr.snmp) {
+          typ = "warning";
+          text = `Failed to get uplink and technical data of ${sr.sw.name}`;
+        } else if (!sr.seen) {
+          typ = "warning";
+          text = `Failed to get uplink of ${sr.sw.name}`;
+        } else if (!sr.snmp) {
+          typ = "warning";
+          text = `Failed to get technical data of ${sr.sw.name}`;
+        }
+
+        this.openSnackbar(typ, text);
       } catch (err: unknown) {
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }

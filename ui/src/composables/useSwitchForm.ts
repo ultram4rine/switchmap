@@ -1,9 +1,11 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { SwitchRequest } from "@/types/switch";
+import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
-const useSwitchForm = (): {
+import { macNormalization } from "@/helpers";
+
+export const useSwitchForm = (): {
   form: Ref<boolean>;
   formAction: Ref<string>;
   sw: Ref<SwitchRequest>;
@@ -14,22 +16,9 @@ const useSwitchForm = (): {
     floor?: number
   ) => void;
   submitForm: (
-    name: string,
-    ipResolveMethod: string,
-    ip: string,
-    mac: string,
-    upSwitchName: string,
-    upLink: string,
-    snmpCommunity: string,
-    revision: string,
-    serial: string,
-    build: string,
-    floor: number,
-    retrieveFromNetData: boolean,
-    retrieveUpLinkFromSeens: boolean,
-    retrieveTechDataFromSNMP: boolean,
+    swit: SwitchRequest,
     action: "Add" | "Edit"
-  ) => Promise<void>;
+  ) => Promise<SwitchResult>;
   closeForm: () => void;
 } => {
   const form = ref(false);
@@ -47,15 +36,15 @@ const useSwitchForm = (): {
     if (swit) {
       oldName.value = swit.name;
       sw.value = swit;
-      sw.value.ipResolveMethod = "Direct";
       sw.value.retrieveFromNetData = false;
+      sw.value.retrieveIPFromDNS = false;
       sw.value.retrieveUpLinkFromSeens = false;
       sw.value.retrieveTechDataFromSNMP = false;
     } else {
       sw.value = {
         mac: "",
-        ipResolveMethod: "DNS",
         retrieveFromNetData: true,
+        retrieveIPFromDNS: true,
         retrieveUpLinkFromSeens: true,
         retrieveTechDataFromSNMP: true,
         buildShortName: build ? build : null,
@@ -68,78 +57,35 @@ const useSwitchForm = (): {
   };
 
   const submitForm = async (
-    name: string,
-    ipResolveMethod: string,
-    ip: string,
-    mac: string,
-    upSwitchName: string,
-    upLink: string,
-    snmpCommunity: string,
-    revision: string,
-    serial: string,
-    build: string,
-    floor: number,
-    retrieveFromNetData: boolean,
-    retrieveUpLinkFromSeens: boolean,
-    retrieveTechDataFromSNMP: boolean,
+    swit: SwitchRequest,
     action: "Add" | "Edit"
-  ): Promise<void> => {
+  ): Promise<SwitchResult> => {
+    let sr: SwitchResult = {} as SwitchResult;
+    swit.mac = swit.mac.length === 12 ? swit.mac : macNormalization(swit.mac);
     switch (action) {
       case "Add": {
-        await addSwitch({
-          snmpCommunity,
-          retrieveFromNetData,
-          retrieveUpLinkFromSeens,
-          retrieveTechDataFromSNMP,
-          ipResolveMethod,
-          name,
-          ip,
-          mac,
-          upSwitchName,
-          upLink,
-          buildShortName: build,
-          floorNumber: floor,
-          revision,
-          serial,
-        } as SwitchRequest);
+        sr = await addSwitch(swit);
         closeForm();
         break;
       }
       case "Edit": {
-        await editSwitch(
-          {
-            snmpCommunity,
-            retrieveFromNetData,
-            retrieveUpLinkFromSeens,
-            retrieveTechDataFromSNMP,
-            ipResolveMethod,
-            name,
-            ip,
-            mac,
-            upSwitchName,
-            upLink,
-            buildShortName: build,
-            floorNumber: floor,
-            positionTop: sw.value.positionTop,
-            positionLeft: sw.value.positionLeft,
-            revision,
-            serial,
-          } as SwitchRequest,
-          oldName.value
-        );
+        swit.positionTop = sw.value.positionTop;
+        swit.positionLeft = sw.value.positionLeft;
+        sr = await editSwitch(swit, oldName.value);
         closeForm();
         break;
       }
       default:
         break;
     }
+    return sr;
   };
 
   const closeForm = (): void => {
+    form.value = false;
     sw.value = {} as SwitchRequest;
     oldName.value = "";
     formAction.value = "";
-    form.value = false;
   };
 
   return {
@@ -153,5 +99,3 @@ const useSwitchForm = (): {
     closeForm,
   };
 };
-
-export default useSwitchForm;

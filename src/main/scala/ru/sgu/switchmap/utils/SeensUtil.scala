@@ -8,6 +8,7 @@ import org.http4s.ember.client.EmberClientBuilder
 import ru.sgu.switchmap.models.{SeenRequest, SeenResponse}
 import org.http4s.Uri
 import org.http4s.Method.POST
+import inet.ipaddr.mac.MACAddress
 import io.circe.syntax._
 import io.circe.generic.auto._
 import org.http4s.circe._
@@ -18,72 +19,44 @@ import ru.sgu.switchmap.config.AppConfig
 import org.http4s.Request
 import org.http4s.EntityDecoder
 
-object seens {
-  type SeensUtil = Has[SeensUtil.Service]
+trait SeensUtil {
+  def getSeenOf(mac: MACAddress): Task[Option[SeenResponse]]
+}
 
+case class SeensUtilLive(cfg: AppConfig) extends SeensUtil {
   private implicit val zioRuntime: zio.Runtime[zio.ZEnv] =
     zio.Runtime.default
 
-  zioRuntime
-    .unsafeRun(
-      cats.effect.std
-        .Dispatcher[zio.Task]
-        .allocated
-    )
-    ._1
+  import ru.sgu.switchmap.json._
 
-  private val reg: Regex = "(.{2})".r
-  private def macDenormalized(mac: String): String =
-    reg.replaceAllIn(mac, m => s"${m}:").dropRight(1)
+  implicit def circeJsonDecoder[A](implicit
+    decoder: Decoder[A]
+  ): EntityDecoder[Task, A] = jsonOf[Task, A]
 
-  object SeensUtil {
-    implicit def circeJsonDecoder[A](implicit
-      decoder: Decoder[A]
-    ): EntityDecoder[Task, A] = jsonOf[Task, A]
+  override def getSeenOf(mac: MACAddress): Task[Option[SeenResponse]] = {
+    val dsl: Http4sClientDsl[Task] = new Http4sClientDsl[Task] {}
+    import dsl._
 
-    trait Service {
-      def get(mac: String): Task[Option[SeenResponse]]
-    }
-
-    val live: ZLayer[Has[AppConfig], Nothing, SeensUtil] =
-      ZLayer.fromService { cfg =>
-        new Service {
-          override def get(mac: String): Task[Option[SeenResponse]] = {
-            val dsl: Http4sClientDsl[Task] = new Http4sClientDsl[Task] {}
-            import dsl._
-
-            val uri = Uri.fromString(
-              s"${cfg.seensHost}/mac"
-            )
-            uri match {
-              case Right(value) => {
-                {
-                  val req: Request[Task] = POST(
-                    SeenRequest(macDenormalized(mac)).asJson,
-                    value
-                  )
-                  for {
-                    seensAll <- EmberClientBuilder
-                      .default[Task]
-                      .build
-                      .use { client =>
-                        client.expect[List[SeenResponse]](req)
-                      }
-                    seensNow = seensAll.filter(seen =>
-                      seen.Name.contains("(now)")
-                    )
-                    seens = if (seensNow.isEmpty) seensAll else seensNow
-                  } yield seens.sortBy(seen => seen.Metric).headOption
-                }
-              }
-              case Left(_) =>
-                Task.fail(new Exception("invalid URI for seens"))
-            }
-          }
+    val req: Request[Task] =
+      POST(SeenRequest(mac).asJson, cfg.seensHost / "mac")
+    for {
+      seensAll <- EmberClientBuilder
+        .default[Task]
+        .build
+        .use { client =>
+          client.expect[List[SeenResponse]](req)
         }
-      }
-
-    def get(mac: String): RIO[SeensUtil, Option[SeenResponse]] =
-      ZIO.accessM(_.get.get(mac))
+      seensNow = seensAll.filter(seen => seen.Name.contains("(now)"))
+      seens = if (seensNow.isEmpty) seensAll else seensNow
+    } yield seens.sortBy(seen => seen.Metric).headOption
   }
+}
+
+object SeensUtilLive {
+  val layer: RLayer[Has[AppConfig], Has[SeensUtil]] = (SeensUtilLive(_)).toLayer
+}
+
+object SeensUtil {
+  def getSeenOf(mac: MACAddress): RIO[Has[SeensUtil], Option[SeenResponse]] =
+    ZIO.serviceWith[SeensUtil](_.getSeenOf(mac))
 }
