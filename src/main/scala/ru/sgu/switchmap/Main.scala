@@ -147,7 +147,8 @@ object Main extends App {
           AuthRoutes[AppEnvironment]().routes,
           BuildRoutes[AppEnvironment]().routes,
           FloorRoutes[AppEnvironment]().routes,
-          SwitchRoutes[AppEnvironment]().routes
+          SwitchRoutes[AppEnvironment]().routes,
+          PlanRoutes[AppEnvironment]().routes
         )
 
         swaggerEndpoints = SwaggerInterpreter(basePrefix = List("api/v2"))
