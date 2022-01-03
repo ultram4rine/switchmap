@@ -3,11 +3,9 @@ package ru.sgu.switchmap.routes
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`WWW-Authenticate`
 import org.http4s.{Request, Response, StaticFile, Challenge}
-import org.http4s.rho.RhoRoutes
-import org.http4s.rho.swagger.SwaggerSupport
 import org.http4s.multipart.Multipart
 import org.http4s.EntityDecoder
-import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
+import ru.sgu.switchmap.auth.{Authorizer, AuthStatus}
 import ru.sgu.switchmap.models.Plan
 import ru.sgu.switchmap.Main.AppTask
 import sttp.tapir.generic.auto._

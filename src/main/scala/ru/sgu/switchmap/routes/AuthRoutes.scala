@@ -5,7 +5,6 @@ import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
 import org.http4s.headers.`WWW-Authenticate`
 import org.http4s.{EntityDecoder, EntityEncoder, Challenge}
-import org.http4s.rho.RhoRoutes
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter

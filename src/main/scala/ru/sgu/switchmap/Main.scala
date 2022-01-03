@@ -4,14 +4,11 @@ import cats.syntax.semigroupk._
 import cats.effect.{ExitCode => CatsExitCode}
 import cats.data.Kleisli
 import com.comcast.ip4s._
-import com.http4s.rho.swagger.ui.SwaggerUi
 import io.grpc.ManagedChannelBuilder
 import org.http4s.Status.{Found, NotFound}
 import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.{HttpRoutes, HttpApp, Request, Response}
-import org.http4s.rho.swagger.models._
-import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
 import org.http4s.server.websocket.WebSocketBuilder2
