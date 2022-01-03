@@ -18,21 +18,8 @@ import sttp.tapir.ztapir._
 import zio._
 import zio.interop.catz._
 
-final case class BuildRoutes[
-  R <: Has[Authorizer] with BuildRepository
-]() {
-  val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
-  import dsl._
-
-  implicit def circeJsonDecoder[A](implicit
-    decoder: Decoder[A]
-  ): EntityDecoder[AppTask, A] = jsonOf[AppTask, A]
-  implicit def circeJsonEncoder[A](implicit
-    decoder: Encoder[A]
-  ): EntityEncoder[AppTask, A] =
-    jsonEncoderOf[AppTask, A]
-
-  val getBuildsEndpoint = withAuth.get
+final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
+  val getBuildsEndpoint = secureEndpoint.get
     .in("builds")
     .out(jsonBody[List[BuildResponse]])
     .serverLogic { as => _ =>
@@ -41,7 +28,7 @@ final case class BuildRoutes[
         case _                  => ZIO.fail("401")
       }
     }
-  val getBuildEndpoint = withAuth.get
+  val getBuildEndpoint = secureEndpoint.get
     .in("builds" / path[String]("shortName"))
     .out(jsonBody[BuildResponse])
     .serverLogic { as => shortName =>
@@ -50,7 +37,7 @@ final case class BuildRoutes[
         case _                  => ZIO.fail("401")
       }
     }
-  val addBuildEndpoint = withAuth.post
+  val addBuildEndpoint = secureEndpoint.post
     .in("builds")
     .in(jsonBody[BuildRequest])
     .out(plainBody[Boolean])
@@ -60,7 +47,7 @@ final case class BuildRoutes[
         case _                  => ZIO.fail("401")
       }
     }
-  val updateBuildEndpoint = withAuth.put
+  val updateBuildEndpoint = secureEndpoint.put
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[BuildRequest])
     .out(plainBody[Boolean])
@@ -73,7 +60,7 @@ final case class BuildRoutes[
         }
       }
     }
-  val deleteBuildEndpoint = withAuth.delete
+  val deleteBuildEndpoint = secureEndpoint.delete
     .in("builds" / path[String]("shortName"))
     .out(plainBody[Boolean])
     .serverLogic { as => shortName =>
@@ -84,79 +71,11 @@ final case class BuildRoutes[
       }
     }
 
-  val routes = ZHttp4sServerInterpreter()
-    .from(
-      List(
-        getBuildsEndpoint,
-        getBuildEndpoint,
-        addBuildEndpoint,
-        updateBuildEndpoint,
-        deleteBuildEndpoint
-      )
-    )
-    .toRoutes
-
-  val api: RhoRoutes[AppTask] =
-    new RhoRoutes[AppTask] {
-      val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
-      import swaggerIO._
-
-      "Get all builds" **
-        GET / "builds" >>> AuthContext.auth |>> { auth: AuthStatus.Status =>
-          auth match {
-            case AuthStatus.Succeed =>
-              getBuilds().foldM(_ => NotFound(()), Ok(_))
-            case _ => Unauthorized(())
-          }
-        }
-
-      "Get build by short name" **
-        GET / "builds" / pv"shortName" >>> AuthContext.auth |>> {
-          (shortName: String, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                getBuild(shortName).foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Add build" **
-        POST / "builds" >>> AuthContext.auth ^ jsonOf[
-          AppTask,
-          BuildRequest
-        ] |>> { (auth: AuthStatus.Status, build: BuildRequest) =>
-          auth match {
-            case AuthStatus.Succeed =>
-              createBuild(build).foldM(
-                e => InternalServerError(e.getMessage),
-                Created(_)
-              )
-            case _ => Unauthorized(())
-          }
-        }
-
-      "Update build" **
-        PUT / "builds" / pv"shortName" >>> AuthContext.auth ^ jsonOf[
-          AppTask,
-          BuildRequest
-        ] |>> {
-          (shortName: String, auth: AuthStatus.Status, build: BuildRequest) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                updateBuild(shortName, build).foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Delete build" **
-        DELETE / "builds" / pv"shortName" >>> AuthContext.auth |>> {
-          (shortName: String, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                (getBuild(shortName) *> deleteBuild(shortName))
-                  .foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-    }
+  val routes = List(
+    getBuildsEndpoint.widen[R],
+    getBuildEndpoint.widen[R],
+    addBuildEndpoint.widen[R],
+    updateBuildEndpoint.widen[R],
+    deleteBuildEndpoint.widen[R]
+  )
 }

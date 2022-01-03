@@ -35,6 +35,7 @@ import ru.sgu.switchmap.utils.{
 }
 import ru.sgu.switchmap.routes._
 import scalapb.zio_grpc.ZManagedChannel
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import zio._
 import zio.blocking.Blocking
 import zio.clock.Clock
@@ -43,6 +44,9 @@ import zio.interop.catz._
 import zio.logging.{Logging, log}
 import zio.logging.slf4j.Slf4jLogger
 import scala.io.Source
+import sttp.tapir.openapi
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import sttp.tapir.docs.openapi.OpenAPIDocsOptions
 
 private object NetDataClientLive {
   val layer: RLayer[Has[AppConfig], NetDataClient] =
@@ -139,37 +143,36 @@ object Main extends App {
         _ <- repositories.sync()
         _ <- log.info("Switches added")
 
-        swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
-          swaggerFormats = DefaultSwaggerFormats,
-          swaggerMetadata = SwaggerMetadata(
-            apiInfo = Info(title = "SwitchMap API", version = "2.0.0"),
-            host = Some(app.hostname),
-            basePath = Some("/api/v2"),
-            schemes = List(Scheme.HTTPS),
-            security = List(SecurityRequirement("JWT", List())),
-            securityDefinitions = Map(
-              "JWT" -> ApiKeyAuthDefinition(
-                "X-Auth-Token",
-                In.HEADER,
-                Some("JWT")
+        endpoints = List.concat(
+          AuthRoutes[AppEnvironment]().routes,
+          BuildRoutes[AppEnvironment]().routes,
+          FloorRoutes[AppEnvironment]().routes,
+          SwitchRoutes[AppEnvironment]().routes
+        )
+
+        swaggerEndpoints = SwaggerInterpreter(basePrefix = List("api/v2"))
+          .fromServerEndpoints[AppTask](
+            endpoints,
+            openapi.Info(
+              title = "SwitchMap API",
+              version = "2.0.0",
+              description = Some("Definition of SwitchMap API"),
+              license = Some(
+                openapi.License(
+                  "Apache-2.0",
+                  Some(
+                    "https://git.sgu.ru/ultramarine/switchmap/blob/master/LICENSE"
+                  )
+                )
               )
             )
           )
-        )
 
         httpAPI = (wsb: WebSocketBuilder2[AppTask]) =>
           Router[AppTask](
-            "/api/v2" -> Middleware.middleware(
-              AuthContext
-                .toService(
-                  AuthRoutes().api
-                    .and(BuildRoutes().api)
-                    .and(FloorRoutes().api)
-                    .and(SwitchRoutes().api)
-                    .and(PlanRoutes().api)
-                    .toRoutes(swaggerMiddleware)
-                )
-            )
+            "/api/v2" -> ZHttp4sServerInterpreter()
+              .from(endpoints ::: swaggerEndpoints)
+              .toRoutes
           )
 
         spa = Router[AppTask](
