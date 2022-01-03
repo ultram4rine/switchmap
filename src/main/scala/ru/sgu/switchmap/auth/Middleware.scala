@@ -6,6 +6,7 @@ import org.http4s.server.AuthMiddleware
 import org.http4s.Request
 import org.typelevel.ci.CIString
 import ru.sgu.switchmap.Main.AppTask
+import ru.sgu.switchmap.models.AuthToken
 import zio._
 import zio.interop.catz._
 
