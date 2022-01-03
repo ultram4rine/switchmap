@@ -3,8 +3,7 @@ package ru.sgu.switchmap.routes
 import io.circe.generic.auto._
 import io.circe.{Decoder, Encoder}
 import org.http4s.circe._
-import org.http4s.headers.`WWW-Authenticate`
-import org.http4s.{EntityDecoder, EntityEncoder, Challenge}
+import org.http4s.{EntityDecoder, EntityEncoder}
 import org.http4s.rho.RhoRoutes
 import zio._
 import zio.interop.catz._
@@ -32,19 +31,7 @@ final case class AuthRoutes[R <: Has[Authenticator]]() {
         POST / "auth" / "login" ^ jsonOf[AuthTask, User] |>> { (user: User) =>
           Authenticator
             .authenticate(user.username, user.password, user.rememberMe)
-            .foldM(
-              _ =>
-                Unauthorized(
-                  `WWW-Authenticate`(
-                    Challenge(
-                      "X-Auth-Token",
-                      "SwitchMap",
-                      Map.empty
-                    )
-                  )
-                ),
-              Ok(_)
-            )
+            .foldM(_ => Unauthorized(()), Ok(_))
         }
     }
 }
