@@ -11,7 +11,7 @@ final case class SwitchRequest(
   name: String = "",
   ip: Option[IPAddress] = None,
   mac: Option[MACAddress] = None,
-  snmpCommunity: String = "",
+  snmpCommunity: Option[String] = None,
   revision: Option[String] = None,
   serial: Option[String] = None,
   buildShortName: Option[String] = None,

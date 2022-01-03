@@ -111,7 +111,7 @@ private[repositories] final case class DoobieSwitchRepository(
           retrieveUpLinkFromSeens = true,
           retrieveTechDataFromSNMP = true,
           name = sw.name,
-          snmpCommunity = cfg.snmpCommunities.headOption.getOrElse("")
+          snmpCommunity = Some(cfg.snmpCommunities.headOption.getOrElse(""))
         )
       )
         .catchAll(e => {
@@ -377,7 +377,7 @@ private[repositories] final case class DoobieSwitchRepository(
       sr.flatMap { s =>
         for {
           maybeSwInfo <- snmpClient
-            .getSwitchInfo(s.sw.ip, switch.snmpCommunity)
+            .getSwitchInfo(s.sw.ip, switch.snmpCommunity.getOrElse(""))
             .catchAll(_ => UIO.succeed(None))
           newSw = maybeSwInfo match {
             case None => s.copy(snmp = false)
