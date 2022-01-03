@@ -19,7 +19,18 @@ import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.{Config, AppConfig}
 import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
-import ru.sgu.switchmap.models.SwitchRequest
+import ru.sgu.switchmap.models.{
+  User,
+  AuthToken,
+  BuildRequest,
+  BuildResponse,
+  FloorRequest,
+  FloorResponse,
+  SwitchRequest,
+  SwitchResponse,
+  SwitchResult,
+  SavePositionRequest
+}
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
@@ -43,6 +54,7 @@ import zio.interop.catz._
 import zio.logging.{Logging, log}
 import zio.logging.slf4j.Slf4jLogger
 import scala.io.Source
+import scala.reflect.runtime.universe.typeOf
 
 private object NetDataClientLive {
   val layer: RLayer[Has[AppConfig], NetDataClient] =
@@ -126,6 +138,8 @@ object Main extends App {
     Kleisli(req => routes.run(req).getOrElse(redirectToRootResponse(req)))
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
+    import ru.sgu.switchmap.models.Swagger._
+
     val program: RIO[AppEnvironment with Console, Unit] =
       for {
         api <- config.apiConfig
@@ -138,7 +152,20 @@ object Main extends App {
         _ <- repositories.sync()
 
         swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
-          swaggerFormats = DefaultSwaggerFormats,
+          swaggerFormats = DefaultSwaggerFormats
+            .withSerializers(typeOf[User], userModel)
+            .withSerializers(typeOf[AuthToken], authTokenModel)
+            .withSerializers(typeOf[BuildRequest], buildRequestModel)
+            .withSerializers(typeOf[BuildResponse], buildResponseModel)
+            .withSerializers(typeOf[FloorRequest], floorRequestModel)
+            .withSerializers(typeOf[FloorResponse], floorResponseModel)
+            .withSerializers(typeOf[SwitchRequest], switchRequestModel)
+            .withSerializers(typeOf[SwitchResponse], switchResponseModel)
+            .withSerializers(typeOf[SwitchResult], switchResultModel)
+            .withSerializers(
+              typeOf[SavePositionRequest],
+              savePositionRequestModel
+            ),
           swaggerMetadata = SwaggerMetadata(
             apiInfo = Info(
               title = "SwitchMap API",
