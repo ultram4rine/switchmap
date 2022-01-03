@@ -19,7 +19,9 @@ import zio._
 import zio.interop.catz._
 
 final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
-  val getBuildsEndpoint = secureEndpoint.get
+  private[this] val buildBaseEndpoint = secureEndpoint.tag("builds")
+
+  val getBuildsEndpoint = buildBaseEndpoint.get
     .in("builds")
     .out(jsonBody[List[BuildResponse]])
     .serverLogic { as => _ =>
@@ -28,7 +30,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
         case _                  => ZIO.fail("401")
       }
     }
-  val getBuildEndpoint = secureEndpoint.get
+  val getBuildEndpoint = buildBaseEndpoint.get
     .in("builds" / path[String]("shortName"))
     .out(jsonBody[BuildResponse])
     .serverLogic { as => shortName =>
@@ -37,7 +39,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
         case _                  => ZIO.fail("401")
       }
     }
-  val addBuildEndpoint = secureEndpoint.post
+  val addBuildEndpoint = buildBaseEndpoint.post
     .in("builds")
     .in(jsonBody[BuildRequest])
     .out(plainBody[Boolean])
@@ -47,7 +49,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
         case _                  => ZIO.fail("401")
       }
     }
-  val updateBuildEndpoint = secureEndpoint.put
+  val updateBuildEndpoint = buildBaseEndpoint.put
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[BuildRequest])
     .out(plainBody[Boolean])
@@ -60,7 +62,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
         }
       }
     }
-  val deleteBuildEndpoint = secureEndpoint.delete
+  val deleteBuildEndpoint = buildBaseEndpoint.delete
     .in("builds" / path[String]("shortName"))
     .out(plainBody[Boolean])
     .serverLogic { as => shortName =>

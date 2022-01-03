@@ -30,14 +30,16 @@ final case class SwitchRoutes[R <: Has[
   import ru.sgu.switchmap.json._
   import ru.sgu.switchmap.routes.schemas._
 
+  private[this] val switchBaseEndpoint = secureEndpoint.tag("switches")
+
   val runSyncEndpoint =
-    secureEndpoint.get.in("switches" / "sync").serverLogic { as => _ =>
+    switchBaseEndpoint.get.in("switches" / "sync").serverLogic { as => _ =>
       as match {
         case AuthStatus.Succeed => sync().mapError(_.toString())
         case _                  => ZIO.fail("401")
       }
     }
-  val getSNMPCommunitiesEndpoint = secureEndpoint.get
+  val getSNMPCommunitiesEndpoint = switchBaseEndpoint.get
     .in("switches" / "snmp" / "communities")
     .out(jsonBody[List[String]])
     .serverLogic { as => _ =>
@@ -46,7 +48,7 @@ final case class SwitchRoutes[R <: Has[
         case _                  => ZIO.fail("401")
       }
     }
-  val getSwitchesEndpoint = secureEndpoint.get
+  val getSwitchesEndpoint = switchBaseEndpoint.get
     .in("switches")
     .out(jsonBody[List[SwitchResponse]])
     .serverLogic { as => _ =>
@@ -55,7 +57,7 @@ final case class SwitchRoutes[R <: Has[
         case _                  => ZIO.fail("401")
       }
     }
-  val getSwitchesOfBuildEndpoint = secureEndpoint.get
+  val getSwitchesOfBuildEndpoint = switchBaseEndpoint.get
     .in("builds" / path[String]("shortName") / "switches")
     .out(jsonBody[List[SwitchResponse]])
     .serverLogic { as => shortName =>
@@ -65,7 +67,7 @@ final case class SwitchRoutes[R <: Has[
         case _ => ZIO.fail("401")
       }
     }
-  val getSwitchesOfFloorEndpoint = secureEndpoint.get
+  val getSwitchesOfFloorEndpoint = switchBaseEndpoint.get
     .in(
       "builds" / path[String]("shortName") /
         "floors" / path[Int]("number") / "switches"
@@ -80,7 +82,7 @@ final case class SwitchRoutes[R <: Has[
         }
       }
     }
-  val getSwitchEndpoint = secureEndpoint.get
+  val getSwitchEndpoint = switchBaseEndpoint.get
     .in("switches" / path[String]("name"))
     .out(jsonBody[SwitchResponse])
     .serverLogic { as => name =>
@@ -89,7 +91,7 @@ final case class SwitchRoutes[R <: Has[
         case _                  => ZIO.fail("401")
       }
     }
-  val addSwitchEndpoint = secureEndpoint.post
+  val addSwitchEndpoint = switchBaseEndpoint.post
     .in("switches")
     .in(jsonBody[SwitchRequest])
     .out(jsonBody[SwitchResult])
@@ -99,7 +101,7 @@ final case class SwitchRoutes[R <: Has[
         case _                  => ZIO.fail("401")
       }
     }
-  val updateSwitchEndpoint = secureEndpoint.put
+  val updateSwitchEndpoint = switchBaseEndpoint.put
     .in("switches" / path[String]("name"))
     .in(jsonBody[SwitchRequest])
     .out(jsonBody[SwitchResult])
@@ -112,7 +114,7 @@ final case class SwitchRoutes[R <: Has[
         }
       }
     }
-  val updateSwitchPositionEndpoint = secureEndpoint.patch
+  val updateSwitchPositionEndpoint = switchBaseEndpoint.patch
     .in("switches" / path[String]("name"))
     .in(jsonBody[SavePositionRequest])
     .out(plainBody[Boolean])
@@ -125,7 +127,7 @@ final case class SwitchRoutes[R <: Has[
         }
       }
     }
-  val deleteSwitchEndpoint = secureEndpoint.delete
+  val deleteSwitchEndpoint = switchBaseEndpoint.delete
     .in("switches" / path[String]("name"))
     .out(plainBody[Boolean])
     .serverLogic { as => name =>

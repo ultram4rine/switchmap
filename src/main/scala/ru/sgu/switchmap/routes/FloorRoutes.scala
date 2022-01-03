@@ -19,7 +19,9 @@ import zio._
 import zio.interop.catz._
 
 final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
-  val getFloorsOfEndpoint = secureEndpoint.get
+  private[this] val floorBaseEndpoint = secureEndpoint.tag("floors")
+
+  val getFloorsOfEndpoint = floorBaseEndpoint.get
     .in("builds" / path[String]("shortName") / "floors")
     .out(jsonBody[List[FloorResponse]])
     .serverLogic { as => shortName =>
@@ -29,7 +31,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
         case _ => ZIO.fail("401")
       }
     }
-  val getFloorEndpoint = secureEndpoint.get
+  val getFloorEndpoint = floorBaseEndpoint.get
     .in("builds" / path[String]("shortName") / "floors" / path[Int]("number"))
     .out(jsonBody[FloorResponse])
     .serverLogic { as =>
@@ -41,7 +43,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
         }
       }
     }
-  val addFloorEndpoint = secureEndpoint.post
+  val addFloorEndpoint = floorBaseEndpoint.post
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[FloorRequest])
     .out(plainBody[Boolean])
@@ -53,7 +55,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
         }
       }
     }
-  val deleteFloorEndpoint = secureEndpoint.delete
+  val deleteFloorEndpoint = floorBaseEndpoint.delete
     .in("builds" / path[String]("shortName") / "floors" / path[Int]("number"))
     .out(plainBody[Boolean])
     .serverLogic { as =>
