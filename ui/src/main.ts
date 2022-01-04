@@ -13,8 +13,8 @@ import DefaultLayout from "@/views/layouts/DefaultLayout.vue";
 import EmptyLayout from "@/views/layouts/EmptyLayout.vue";
 
 createApp(App)
-  .component("default", DefaultLayout)
-  .component("empty", EmptyLayout)
+  .component("default-layout", DefaultLayout)
+  .component("empty-layout", EmptyLayout)
   .use(router)
   .use(store)
   .use(vuetify)
