@@ -4,6 +4,7 @@ import java.time.Instant
 
 import zio._
 import pdi.jwt.JwtClaim
+import ru.sgu.switchmap.models.AuthToken
 import sttp.tapir.Schema.annotations._
 
 trait Authenticator {
@@ -13,15 +14,6 @@ trait Authenticator {
     rememberMe: Boolean
   ): Task[AuthToken]
 }
-
-@description("JWT")
-case class AuthToken(
-  @description("Token itself")
-  @encodedExample(
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-  )
-  token: String
-)
 
 case class AuthenticatorLive(ldap: LDAP, jwt: JWT) extends Authenticator {
 

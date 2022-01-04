@@ -12,8 +12,8 @@ import sttp.tapir.ztapir._
 import zio._
 import zio.interop.catz._
 
-import ru.sgu.switchmap.auth.{Authenticator, AuthToken}
-import ru.sgu.switchmap.models.User
+import ru.sgu.switchmap.auth.Authenticator
+import ru.sgu.switchmap.models.{AuthToken, User}
 
 final case class AuthRoutes[R <: Has[Authenticator]]() {
   val authEndpoint: ZServerEndpoint[R, Any] = endpoint

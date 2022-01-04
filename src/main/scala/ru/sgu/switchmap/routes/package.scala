@@ -3,7 +3,8 @@ package ru.sgu.switchmap
 import sttp.tapir.ztapir._
 import zio.ZIO
 
-import ru.sgu.switchmap.auth.{Authorizer, AuthToken, AuthStatus}
+import ru.sgu.switchmap.auth.{Authorizer, AuthStatus}
+import ru.sgu.switchmap.models.AuthToken
 
 package object routes {
   private[routes] val secureEndpoint = endpoint
