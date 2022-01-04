@@ -148,7 +148,15 @@ object Main extends App {
           PlanRoutes[AppEnvironment]().routes
         )
 
-        swaggerEndpoints = SwaggerInterpreter(basePrefix = List("api/v2"))
+        swaggerEndpoints = SwaggerInterpreter(
+          basePrefix = List("api/v2"),
+          customiseDocsModel = _.servers(
+            List(
+              openapi.Server(app.prodServer, Some("Production server")),
+              openapi.Server(app.devServer, Some("Development server"))
+            )
+          )
+        )
           .fromServerEndpoints[AppTask](
             endpoints,
             openapi.Info(

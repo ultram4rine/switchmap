@@ -21,7 +21,8 @@ package object config {
   )
 
   final case class AppConfig(
-    hostname: String,
+    prodServer: String,
+    devServer: String,
     jwtKey: String,
     netdataHost: String,
     netdataPort: Int,
