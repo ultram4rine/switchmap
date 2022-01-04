@@ -17,6 +17,7 @@ import ru.sgu.switchmap.models.User
 
 final case class AuthRoutes[R <: Has[Authenticator]]() {
   val authEndpoint: ZServerEndpoint[R, Any] = endpoint
+    .description("Authenticates user")
     .tag("auth")
     .post
     .in("auth" / "login")

@@ -22,9 +22,12 @@ final case class PlanRoutes[R <: Has[Authorizer] with Blocking]() {
   type PlanTask[A] = RIO[R, A]
 
   val getPlanEndpoint =
-    filesGetServerEndpoint[PlanTask]("plans")("./plans").tag("plans")
+    filesGetServerEndpoint[PlanTask]("plans")("./plans")
+      .tag("plans")
+      .description("Get plan")
   val uploadPlanEndpoint = secureEndpoint
     .tag("plans")
+    .description("Upload plan")
     .post
     .in("plans" / path[String]("shortName") / path[Int]("number"))
     .in(multipartBody[Plan])
