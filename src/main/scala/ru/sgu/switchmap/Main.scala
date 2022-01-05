@@ -151,9 +151,8 @@ object Main extends App {
         swaggerEndpoints = SwaggerInterpreter(
           basePrefix = List("api/v2"),
           customiseDocsModel = _.servers(
-            List(
-              openapi.Server(app.prodServer, Some("Production server")),
-              openapi.Server(app.devServer, Some("Development server"))
+            app.servers.map(srv =>
+              openapi.Server(url = srv.url, description = srv.description)
             )
           )
         )

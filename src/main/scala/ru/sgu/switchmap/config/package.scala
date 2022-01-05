@@ -21,8 +21,7 @@ package object config {
   )
 
   final case class AppConfig(
-    prodServer: String,
-    devServer: String,
+    servers: List[OpenAPIServer],
     jwtKey: String,
     netdataHost: String,
     netdataPort: Int,
@@ -60,4 +59,9 @@ package object config {
         .orDie
     )
   }
+
+  final case class OpenAPIServer(
+    url: String,
+    description: Option[String]
+  )
 }
