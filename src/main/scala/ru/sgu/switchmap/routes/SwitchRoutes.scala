@@ -32,7 +32,7 @@ final case class SwitchRoutes[R <: Has[
 
   val runSyncEndpoint =
     switchBaseEndpoint
-      .description("Run switches sync with network")
+      .summary("Run switches sync with network")
       .get
       .in("switches" / "sync")
       .serverLogic { as => _ =>
@@ -42,7 +42,7 @@ final case class SwitchRoutes[R <: Has[
         }
       }
   val getSNMPCommunitiesEndpoint = switchBaseEndpoint
-    .description("Get SNMP communitites")
+    .summary("Get SNMP communitites")
     .get
     .in("switches" / "snmp" / "communities")
     .out(jsonBody[List[String]])
@@ -53,7 +53,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val getSwitchesEndpoint = switchBaseEndpoint
-    .description("Get all switches")
+    .summary("Get all switches")
     .get
     .in("switches")
     .out(jsonBody[List[SwitchResponse]])
@@ -64,7 +64,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val getSwitchesOfBuildEndpoint = switchBaseEndpoint
-    .description("Get all switches of build")
+    .summary("Get all switches of build")
     .get
     .in("builds" / path[String]("shortName") / "switches")
     .out(jsonBody[List[SwitchResponse]])
@@ -76,7 +76,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val getSwitchesOfFloorEndpoint = switchBaseEndpoint
-    .description("Get all switches of floor in build")
+    .summary("Get all switches of floor in build")
     .get
     .in(
       "builds" / path[String]("shortName") /
@@ -93,7 +93,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val getSwitchEndpoint = switchBaseEndpoint
-    .description("Get switch by name")
+    .summary("Get switch by name")
     .get
     .in("switches" / path[String]("name"))
     .out(jsonBody[SwitchResponse])
@@ -104,7 +104,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val addSwitchEndpoint = switchBaseEndpoint
-    .description("Add switch")
+    .summary("Add switch")
     .post
     .in("switches")
     .in(jsonBody[SwitchRequest])
@@ -116,7 +116,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val updateSwitchEndpoint = switchBaseEndpoint
-    .description("Update switch")
+    .summary("Update switch")
     .put
     .in("switches" / path[String]("name"))
     .in(jsonBody[SwitchRequest])
@@ -131,7 +131,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val updateSwitchPositionEndpoint = switchBaseEndpoint
-    .description("Update switch position")
+    .summary("Update switch position")
     .patch
     .in("switches" / path[String]("name"))
     .in(jsonBody[SavePositionRequest])
@@ -146,7 +146,7 @@ final case class SwitchRoutes[R <: Has[
       }
     }
   val deleteSwitchEndpoint = switchBaseEndpoint
-    .description("Delete switch")
+    .summary("Delete switch")
     .delete
     .in("switches" / path[String]("name"))
     .out(plainBody[Boolean])

@@ -20,7 +20,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
   private[this] val buildBaseEndpoint = secureEndpoint.tag("builds")
 
   val getBuildsEndpoint = buildBaseEndpoint
-    .description("Get all builds")
+    .summary("Get all builds")
     .get
     .in("builds")
     .out(jsonBody[List[BuildResponse]])
@@ -31,7 +31,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
       }
     }
   val getBuildEndpoint = buildBaseEndpoint
-    .description("Get build by short name")
+    .summary("Get build by short name")
     .get
     .in("builds" / path[String]("shortName"))
     .out(jsonBody[BuildResponse])
@@ -42,7 +42,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
       }
     }
   val addBuildEndpoint = buildBaseEndpoint
-    .description("Add build")
+    .summary("Add build")
     .post
     .in("builds")
     .in(jsonBody[BuildRequest])
@@ -54,7 +54,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
       }
     }
   val updateBuildEndpoint = buildBaseEndpoint
-    .description("Update build")
+    .summary("Update build")
     .put
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[BuildRequest])
@@ -69,7 +69,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
       }
     }
   val deleteBuildEndpoint = buildBaseEndpoint
-    .description("Delete build")
+    .summary("Delete build")
     .delete
     .in("builds" / path[String]("shortName"))
     .out(plainBody[Boolean])

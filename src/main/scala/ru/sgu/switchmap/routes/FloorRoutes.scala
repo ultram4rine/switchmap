@@ -20,7 +20,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
   private[this] val floorBaseEndpoint = secureEndpoint.tag("floors")
 
   val getFloorsOfEndpoint = floorBaseEndpoint
-    .description("Get all floors of build")
+    .summary("Get all floors of build")
     .get
     .in("builds" / path[String]("shortName") / "floors")
     .out(jsonBody[List[FloorResponse]])
@@ -32,7 +32,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
       }
     }
   val getFloorEndpoint = floorBaseEndpoint
-    .description("Get floor of build by number")
+    .summary("Get floor of build by number")
     .get
     .in("builds" / path[String]("shortName") / "floors" / path[Int]("number"))
     .out(jsonBody[FloorResponse])
@@ -46,7 +46,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
       }
     }
   val addFloorEndpoint = floorBaseEndpoint
-    .description("Add floor to build")
+    .summary("Add floor to build")
     .post
     .in("builds" / path[String]("shortName"))
     .in(jsonBody[FloorRequest])
@@ -60,7 +60,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
       }
     }
   val deleteFloorEndpoint = floorBaseEndpoint
-    .description("Delete floor of build by number")
+    .summary("Delete floor of build by number")
     .delete
     .in("builds" / path[String]("shortName") / "floors" / path[Int]("number"))
     .out(plainBody[Boolean])
