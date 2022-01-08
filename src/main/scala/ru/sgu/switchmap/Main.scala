@@ -149,12 +149,8 @@ object Main extends App {
         )
 
         swaggerEndpoints = SwaggerInterpreter(
-          basePrefix = List("api/v2"),
-          customiseDocsModel = _.servers(
-            app.servers.map(srv =>
-              openapi.Server(url = srv.url, description = srv.description)
-            )
-          )
+          contextPath = List("api", "v2"),
+          addServerWhenContextPathPresent = true
         )
           .fromServerEndpoints[AppTask](
             endpoints,
