@@ -26,9 +26,16 @@ final case class PlanRoutes[R <: Has[Authorizer] with Blocking]() {
 
   private[this] val planBaseEndpoint = secureEndpoint.tag("plans")
 
-  val getPlanEndpoint = filesGetServerEndpoint[PlanTask]("plans")("./plans")
-    .tag("plans")
-    .summary("Get plan")
+  val getPlanEndpoint = planBaseEndpoint.get
+    .in("plans" / path[String]("planName"))
+    .out(streamBinaryBody(ZioStreams))
+    .serverLogic { as => planName =>
+      ZIO.succeed(
+        ZStream
+          .fromFile(Paths.get(s"./plans/${planName}"))
+          .provideLayer(Blocking.live)
+      )
+    }
   val uploadPlanEndpoint = planBaseEndpoint
     .summary("Upload plan")
     .post
