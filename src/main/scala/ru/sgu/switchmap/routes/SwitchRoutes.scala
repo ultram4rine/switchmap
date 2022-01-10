@@ -38,7 +38,7 @@ final case class SwitchRoutes[R <: Has[
       .serverLogic { as => _ =>
         as match {
           case AuthStatus.Succeed => sync().mapError(_.toString())
-          case _                  => ZIO.fail("401")
+          case _                  => ZIO.fail(())
         }
       }
   val getSNMPCommunitiesEndpoint = switchBaseEndpoint
@@ -49,7 +49,7 @@ final case class SwitchRoutes[R <: Has[
     .serverLogic { as => _ =>
       as match {
         case AuthStatus.Succeed => snmpCommunities().mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val getSwitchesEndpoint = switchBaseEndpoint
@@ -60,7 +60,7 @@ final case class SwitchRoutes[R <: Has[
     .serverLogic { as => _ =>
       as match {
         case AuthStatus.Succeed => getSwitches().mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val getSwitchesOfBuildEndpoint = switchBaseEndpoint
@@ -72,7 +72,7 @@ final case class SwitchRoutes[R <: Has[
       as match {
         case AuthStatus.Succeed =>
           getSwitchesOf(shortName).mapError(_.toString())
-        case _ => ZIO.fail("401")
+        case _ => ZIO.fail(())
       }
     }
   val getSwitchesOfFloorEndpoint = switchBaseEndpoint
@@ -88,7 +88,7 @@ final case class SwitchRoutes[R <: Has[
         as match {
           case AuthStatus.Succeed =>
             getSwitchesOf(shortName, number).mapError(_.toString())
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }
@@ -100,7 +100,7 @@ final case class SwitchRoutes[R <: Has[
     .serverLogic { as => name =>
       as match {
         case AuthStatus.Succeed => getSwitch(name).mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val addSwitchEndpoint = switchBaseEndpoint
@@ -112,7 +112,7 @@ final case class SwitchRoutes[R <: Has[
     .serverLogic { as => switch =>
       as match {
         case AuthStatus.Succeed => createSwitch(switch).mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val updateSwitchEndpoint = switchBaseEndpoint
@@ -126,7 +126,7 @@ final case class SwitchRoutes[R <: Has[
         as match {
           case AuthStatus.Succeed =>
             updateSwitch(name, switch).mapError(_.toString())
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }
@@ -141,7 +141,7 @@ final case class SwitchRoutes[R <: Has[
         as match {
           case AuthStatus.Succeed =>
             updateSwitchPosition(name, position).mapError(_.toString())
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }
@@ -154,7 +154,7 @@ final case class SwitchRoutes[R <: Has[
       as match {
         case AuthStatus.Succeed =>
           (getSwitch(name) *> deleteSwitch(name)).mapError(_.toString())
-        case _ => ZIO.fail("401")
+        case _ => ZIO.fail(())
       }
     }
 

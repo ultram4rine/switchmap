@@ -16,6 +16,10 @@ import zio.stream.{Stream, ZSink}
 import zio.blocking.Blocking
 import java.nio.file.Paths
 import scala.language.existentials
+import sttp.capabilities.zio.ZioStreams
+import zio.stream.ZStream
+import ru.sgu.switchmap.models.AuthToken
+import sttp.tapir.static.Files
 
 final case class PlanRoutes[R <: Has[Authorizer] with Blocking]() {
   type PlanTask[A] = RIO[R, A]
@@ -44,9 +48,9 @@ final case class PlanRoutes[R <: Has[Authorizer] with Blocking]() {
                   .fromFile(Paths.get(s"./plans/${shortName}f${number}.png"))
               )
             stream
-              .mapError(_.toString())
+              .mapError(_ => ())
               .map(_ => "Plan saved")
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }

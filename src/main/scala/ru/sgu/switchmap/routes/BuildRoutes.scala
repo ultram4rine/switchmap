@@ -27,7 +27,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
     .serverLogic { as => _ =>
       as match {
         case AuthStatus.Succeed => getBuilds().mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val getBuildEndpoint = buildBaseEndpoint
@@ -38,7 +38,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
     .serverLogic { as => shortName =>
       as match {
         case AuthStatus.Succeed => getBuild(shortName).mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val addBuildEndpoint = buildBaseEndpoint
@@ -50,7 +50,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
     .serverLogic { as => build =>
       as match {
         case AuthStatus.Succeed => createBuild(build).mapError(_.toString())
-        case _                  => ZIO.fail("401")
+        case _                  => ZIO.fail(())
       }
     }
   val updateBuildEndpoint = buildBaseEndpoint
@@ -64,7 +64,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
         as match {
           case AuthStatus.Succeed =>
             updateBuild(shortName, build).mapError(_.toString())
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }
@@ -77,7 +77,7 @@ final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
       as match {
         case AuthStatus.Succeed =>
           (getBuild(shortName) *> deleteBuild(shortName)).mapError(_.toString())
-        case _ => ZIO.fail("401")
+        case _ => ZIO.fail(())
       }
     }
 

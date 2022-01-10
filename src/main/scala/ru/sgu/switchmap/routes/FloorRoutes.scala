@@ -28,7 +28,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
       as match {
         case AuthStatus.Succeed =>
           getFloorsOf(shortName).mapError(_.toString())
-        case _ => ZIO.fail("401")
+        case _ => ZIO.fail(())
       }
     }
   val getFloorEndpoint = floorBaseEndpoint
@@ -41,7 +41,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
         as match {
           case AuthStatus.Succeed =>
             getFloor(shortName, number).mapError(_.toString())
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }
@@ -55,7 +55,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
       { case (shortName, floor) =>
         as match {
           case AuthStatus.Succeed => createFloor(floor).mapError(_.toString())
-          case _                  => ZIO.fail("401")
+          case _                  => ZIO.fail(())
         }
       }
     }
@@ -70,7 +70,7 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
           case AuthStatus.Succeed =>
             (getFloor(shortName, number) *> deleteFloor(shortName, number))
               .mapError(_.toString())
-          case _ => ZIO.fail("401")
+          case _ => ZIO.fail(())
         }
       }
     }
