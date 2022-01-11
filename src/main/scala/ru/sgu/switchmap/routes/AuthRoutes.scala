@@ -14,20 +14,23 @@ import zio.interop.catz._
 
 import ru.sgu.switchmap.auth.Authenticator
 import ru.sgu.switchmap.models.{AuthToken, User}
+import sttp.model.StatusCode
 
 final case class AuthRoutes[R <: Has[Authenticator]]() {
   val authEndpoint: ZServerEndpoint[R, Any] = endpoint
-    .summary("Authenticates user")
     .tag("auth")
+    .summary("Authenticates user")
     .post
     .in("auth" / "login")
     .in(jsonBody[User])
-    .errorOut(stringBody)
+    .errorOut(
+      statusCode.description(StatusCode.Unauthorized, "Invalid credentials")
+    )
     .out(jsonBody[AuthToken])
     .zServerLogic { user =>
       Authenticator
         .authenticate(user.username, user.password, user.rememberMe)
-        .mapError(_.toString())
+        .mapError(_ => StatusCode.Unauthorized)
     }
 
   val routes = List(authEndpoint)

@@ -21,6 +21,7 @@ import sttp.tapir.ztapir._
 import zio._
 import zio.interop.catz._
 import zio.logging.Logging
+import sttp.model.StatusCode
 
 final case class SwitchRoutes[R <: Has[
   Authorizer
@@ -41,6 +42,7 @@ final case class SwitchRoutes[R <: Has[
           case _                  => ZIO.fail(())
         }
       }
+
   val getSNMPCommunitiesEndpoint = switchBaseEndpoint
     .summary("Get SNMP communitites")
     .get
@@ -52,6 +54,7 @@ final case class SwitchRoutes[R <: Has[
         case _                  => ZIO.fail(())
       }
     }
+
   val getSwitchesEndpoint = switchBaseEndpoint
     .summary("Get all switches")
     .get
@@ -63,18 +66,26 @@ final case class SwitchRoutes[R <: Has[
         case _                  => ZIO.fail(())
       }
     }
+
   val getSwitchesOfBuildEndpoint = switchBaseEndpoint
     .summary("Get all switches of build")
     .get
     .in("builds" / path[String]("shortName") / "switches")
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build not found")
+      )
+    )
     .out(jsonBody[List[SwitchResponse]])
     .serverLogic { as => shortName =>
       as match {
         case AuthStatus.Succeed =>
-          getSwitchesOf(shortName).mapError(_.toString())
+          getSwitchesOf(shortName).mapError(_ => StatusCode.NotFound)
         case _ => ZIO.fail(())
       }
     }
+
   val getSwitchesOfFloorEndpoint = switchBaseEndpoint
     .deprecated()
     .summary("Get all switches of floor in build")
@@ -83,16 +94,23 @@ final case class SwitchRoutes[R <: Has[
       "builds" / path[String]("shortName") /
         "floors" / path[Int]("number") / "switches"
     )
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build or floor not found")
+      )
+    )
     .out(jsonBody[List[SwitchResponse]])
     .serverLogic { as =>
       { case (shortName, number) =>
         as match {
           case AuthStatus.Succeed =>
-            getSwitchesOf(shortName, number).mapError(_.toString())
+            getSwitchesOf(shortName, number).mapError(_ => StatusCode.NotFound)
           case _ => ZIO.fail(())
         }
       }
     }
+
   val getUnplacedSwitchesOfBuildEndpoint = switchBaseEndpoint
     .summary("Get all unplaced switches in build")
     .get
@@ -100,14 +118,21 @@ final case class SwitchRoutes[R <: Has[
       "builds" / path[String]("shortName") /
         "switches" / "unplaced"
     )
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build not found")
+      )
+    )
     .out(jsonBody[List[SwitchResponse]])
     .serverLogic { as => shortName =>
       as match {
         case AuthStatus.Succeed =>
-          getUnplacedSwitchesOf(shortName).mapError(_.toString())
+          getUnplacedSwitchesOf(shortName).mapError(_ => StatusCode.NotFound)
         case _ => ZIO.fail(())
       }
     }
+
   val getPlacedSwitchesOfFloorEndpoint = switchBaseEndpoint
     .summary("Get all placed switches of floor in build")
     .get
@@ -115,78 +140,136 @@ final case class SwitchRoutes[R <: Has[
       "builds" / path[String]("shortName") /
         "floors" / path[Int]("number") / "switches" / "placed"
     )
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build or floor not found")
+      )
+    )
     .out(jsonBody[List[SwitchResponse]])
     .serverLogic { as =>
       { case (shortName, number) =>
         as match {
           case AuthStatus.Succeed =>
-            getPlacedSwitchesOf(shortName, number).mapError(_.toString())
+            getPlacedSwitchesOf(shortName, number)
+              .mapError(_ => StatusCode.NotFound)
           case _ => ZIO.fail(())
         }
       }
     }
+
   val getSwitchEndpoint = switchBaseEndpoint
     .summary("Get switch by name")
     .get
     .in("switches" / path[String]("name"))
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch not found")
+      )
+    )
     .out(jsonBody[SwitchResponse])
     .serverLogic { as => name =>
       as match {
-        case AuthStatus.Succeed => getSwitch(name).mapError(_.toString())
-        case _                  => ZIO.fail(())
+        case AuthStatus.Succeed =>
+          getSwitch(name).mapError(_ => StatusCode.NotFound)
+        case _ => ZIO.fail(())
       }
     }
+
   val addSwitchEndpoint = switchBaseEndpoint
     .summary("Add switch")
     .post
     .in("switches")
     .in(jsonBody[SwitchRequest])
-    .out(jsonBody[SwitchResult])
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build or floor not found")
+          .description(StatusCode.Conflict, "Switch already exists")
+          .description(StatusCode.InternalServerError, "Something went wrong")
+      )
+    )
+    .out(
+      statusCode
+        .description(StatusCode.Created, "Switch added")
+        .and(jsonBody[SwitchResult])
+    )
     .serverLogic { as => switch =>
       as match {
-        case AuthStatus.Succeed => createSwitch(switch).mapError(_.toString())
-        case _                  => ZIO.fail(())
+        case AuthStatus.Succeed =>
+          createSwitch(switch)
+            .map((StatusCode.Created, _))
+            // TODO: add Conflict and InternalServerError status codes too.
+            .mapError(_ => StatusCode.NotFound)
+        case _ => ZIO.fail(())
       }
     }
+
   val updateSwitchEndpoint = switchBaseEndpoint
     .summary("Update switch")
     .put
     .in("switches" / path[String]("name"))
     .in(jsonBody[SwitchRequest])
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch, build or floor not found")
+          .description(StatusCode.InternalServerError, "Something went wrong")
+      )
+    )
     .out(jsonBody[SwitchResult])
     .serverLogic { as =>
       { case (name, switch) =>
         as match {
           case AuthStatus.Succeed =>
-            updateSwitch(name, switch).mapError(_.toString())
+            updateSwitch(name, switch)
+              // TODO: add InternalServerError status code too.
+              .mapError(_ => StatusCode.NotFound)
           case _ => ZIO.fail(())
         }
       }
     }
+
   val updateSwitchPositionEndpoint = switchBaseEndpoint
     .summary("Update switch position")
     .patch
     .in("switches" / path[String]("name"))
     .in(jsonBody[SavePositionRequest])
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch not found")
+      )
+    )
     .out(plainBody[Boolean])
     .serverLogic { as =>
       { case (name, position) =>
         as match {
           case AuthStatus.Succeed =>
-            updateSwitchPosition(name, position).mapError(_.toString())
+            updateSwitchPosition(name, position)
+              .mapError(_ => StatusCode.NotFound)
           case _ => ZIO.fail(())
         }
       }
     }
+
   val deleteSwitchEndpoint = switchBaseEndpoint
     .summary("Delete switch")
     .delete
     .in("switches" / path[String]("name"))
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch not found")
+      )
+    )
     .out(plainBody[Boolean])
     .serverLogic { as => name =>
       as match {
         case AuthStatus.Succeed =>
-          (getSwitch(name) *> deleteSwitch(name)).mapError(_.toString())
+          (getSwitch(name) *> deleteSwitch(name))
+            .mapError(_ => StatusCode.NotFound)
         case _ => ZIO.fail(())
       }
     }
