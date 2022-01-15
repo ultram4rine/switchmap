@@ -1,11 +1,9 @@
 package ru.sgu.switchmap.auth
 
 import java.time.Instant
-
-import zio._
 import pdi.jwt.JwtClaim
 import ru.sgu.switchmap.models.AuthToken
-import sttp.tapir.Schema.annotations._
+import zio._
 
 trait Authenticator {
   def authenticate(

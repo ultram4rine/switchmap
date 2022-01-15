@@ -1,9 +1,8 @@
 package ru.sgu.switchmap.auth
 
-import zio._
-import pdi.jwt.{JwtCirce, JwtAlgorithm, JwtClaim}
-
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import ru.sgu.switchmap.config.AppConfig
+import zio._
 
 trait JWT {
   def create(claim: JwtClaim): UIO[String]

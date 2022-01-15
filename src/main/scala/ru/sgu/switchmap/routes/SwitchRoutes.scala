@@ -1,27 +1,20 @@
 package ru.sgu.switchmap.routes
 
 import io.circe.generic.auto._
-import io.circe.{Decoder, Encoder}
-import org.http4s.circe._
-import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, EntityEncoder}
 import ru.sgu.switchmap.auth.{Authorizer, AuthStatus}
-import ru.sgu.switchmap.Main.AppTask
 import ru.sgu.switchmap.models.{
+  SavePositionRequest,
   SwitchRequest,
   SwitchResponse,
-  SwitchResult,
-  SavePositionRequest
+  SwitchResult
 }
 import ru.sgu.switchmap.repositories._
-import sttp.tapir.json.circe._
+import sttp.model.StatusCode
 import sttp.tapir.generic.auto._
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import sttp.tapir.json.circe._
 import sttp.tapir.ztapir._
 import zio._
-import zio.interop.catz._
 import zio.logging.Logging
-import sttp.model.StatusCode
 
 final case class SwitchRoutes[R <: Has[
   Authorizer

@@ -1,6 +1,6 @@
 package ru.sgu.switchmap.models
 
-import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
+import inet.ipaddr.IPAddress
 import inet.ipaddr.mac.MACAddress
 import sttp.tapir.Schema.annotations._
 

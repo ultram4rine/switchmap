@@ -11,6 +11,8 @@ lazy val root = (project in file("."))
     name := "switchmap",
     version := "2.0.0",
     scalaVersion := "2.13.7",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
@@ -74,5 +76,6 @@ scalacOptions ++= Seq(
   "-language:higherKinds",
   "-language:postfixOps",
   "-feature",
-  "-Xfatal-warnings"
+  "-Xfatal-warnings",
+  "-Wunused:imports"
 )

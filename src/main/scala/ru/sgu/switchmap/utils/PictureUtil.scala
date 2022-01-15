@@ -3,9 +3,7 @@ package ru.sgu.switchmap.utils
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
-
 import javax.imageio.ImageIO
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class PictureUtil(implicit ec: ExecutionContext) {

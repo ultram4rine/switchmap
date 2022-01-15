@@ -1,9 +1,8 @@
 package ru.sgu.switchmap.auth
 
 import java.time.Instant
-
-import zio._
 import ru.sgu.switchmap.models.AuthToken
+import zio._
 
 trait Authorizer {
   def authorize(token: AuthToken): Task[AuthStatus.Status]

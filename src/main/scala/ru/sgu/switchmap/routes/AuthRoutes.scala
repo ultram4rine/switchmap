@@ -1,20 +1,13 @@
 package ru.sgu.switchmap.routes
 
 import io.circe.generic.auto._
-import io.circe.{Decoder, Encoder}
-import org.http4s.circe._
-import org.http4s.headers.`WWW-Authenticate`
-import org.http4s.{EntityDecoder, EntityEncoder, Challenge}
-import sttp.tapir.json.circe._
-import sttp.tapir.generic.auto._
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
-import sttp.tapir.ztapir._
-import zio._
-import zio.interop.catz._
-
 import ru.sgu.switchmap.auth.Authenticator
 import ru.sgu.switchmap.models.{AuthToken, User}
 import sttp.model.StatusCode
+import sttp.tapir.generic.auto._
+import sttp.tapir.json.circe._
+import sttp.tapir.ztapir._
+import zio._
 
 final case class AuthRoutes[R <: Has[Authenticator]]() {
   val authEndpoint: ZServerEndpoint[R, Any] = endpoint

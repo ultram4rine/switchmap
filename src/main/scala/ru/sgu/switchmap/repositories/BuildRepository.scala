@@ -1,12 +1,11 @@
 package ru.sgu.switchmap.repositories
 
-import doobie.implicits._
 import doobie.hikari.HikariTransactor
+import doobie.implicits._
+import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.models.{BuildNotFound, BuildRequest, BuildResponse}
 import zio._
 import zio.interop.catz._
-
-import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{BuildRequest, BuildResponse, BuildNotFound}
 
 object BuildRepository {
 

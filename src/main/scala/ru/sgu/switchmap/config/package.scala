@@ -1,11 +1,11 @@
 package ru.sgu.switchmap
 
-import com.comcast.ip4s.{Host, Hostname, Port}
+import com.comcast.ip4s.{Hostname, Port}
 import org.http4s.Uri
 import pureconfig.ConfigSource
 import pureconfig.module.http4s._
 import pureconfig.module.ip4s._
-import zio.{Has, ZIO, URIO, ULayer, ZLayer, Task}
+import zio.{Has, Task, ULayer, URIO, ZIO, ZLayer}
 
 package object config {
   type Config = Has[APIConfig]

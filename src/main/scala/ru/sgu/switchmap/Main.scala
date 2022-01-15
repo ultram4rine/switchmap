@@ -1,49 +1,38 @@
 package ru.sgu.switchmap
 
-import cats.syntax.semigroupk._
-import cats.effect.{ExitCode => CatsExitCode}
 import cats.data.Kleisli
-import com.comcast.ip4s._
+import cats.syntax.semigroupk._
 import io.grpc.ManagedChannelBuilder
+import org.http4s.{HttpApp, HttpRoutes, Request, Response}
 import org.http4s.Status.{Found, NotFound}
-import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.{HttpRoutes, HttpApp, Request, Response}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
+import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.server.websocket.WebSocketBuilder2
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
-import ru.sgu.switchmap.config.{Config, AppConfig}
+import ru.sgu.switchmap.config.{AppConfig, Config}
 import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
-import ru.sgu.switchmap.models.SwitchRequest
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
   SwitchRepository
 }
-import ru.sgu.switchmap.utils.{
-  SeensUtil,
-  SeensUtilLive,
-  DNSUtil,
-  DNSUtilLive,
-  SNMPUtil,
-  SNMPUtilLive
-}
 import ru.sgu.switchmap.routes._
+import ru.sgu.switchmap.utils.{DNSUtilLive, SeensUtilLive, SNMPUtilLive}
+import scala.io.Source
 import scalapb.zio_grpc.ZManagedChannel
+import sttp.tapir.openapi
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import zio._
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.console._
 import zio.interop.catz._
-import zio.logging.{Logging, log}
+import zio.logging.{log, Logging}
 import zio.logging.slf4j.Slf4jLogger
-import scala.io.Source
-import sttp.tapir.openapi
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
-import sttp.tapir.docs.openapi.OpenAPIDocsOptions
 
 private object NetDataClientLive {
   val layer: RLayer[Has[AppConfig], NetDataClient] =

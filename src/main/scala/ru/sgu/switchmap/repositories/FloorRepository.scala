@@ -1,12 +1,11 @@
 package ru.sgu.switchmap.repositories
 
-import doobie.implicits._
 import doobie.hikari.HikariTransactor
+import doobie.implicits._
+import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.models.{FloorNotFound, FloorRequest, FloorResponse}
 import zio._
 import zio.interop.catz._
-
-import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.models.{FloorRequest, FloorResponse, FloorNotFound}
 
 object FloorRepository {
 

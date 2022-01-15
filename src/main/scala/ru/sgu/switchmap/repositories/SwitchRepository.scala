@@ -1,28 +1,26 @@
 package ru.sgu.switchmap.repositories
 
-import doobie.implicits._
 import doobie.hikari.HikariTransactor
+import doobie.implicits._
 import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
 import inet.ipaddr.mac.MACAddress
-import io.grpc.Status
+import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
+import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
+import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
+import ru.sgu.switchmap.config.AppConfig
+import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.models.{
+  SavePositionRequest,
+  SwitchInfo,
+  SwitchNotFound,
+  SwitchRequest,
+  SwitchResponse,
+  SwitchResult
+}
+import ru.sgu.switchmap.utils.{DNSUtil, SeensUtil, SNMPUtil}
 import zio._
 import zio.interop.catz._
 import zio.logging.{log, Logger, Logging}
-
-import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
-import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
-import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
-import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.config.AppConfig
-import ru.sgu.switchmap.models.{
-  SwitchRequest,
-  SwitchResponse,
-  SwitchResult,
-  SwitchInfo,
-  SavePositionRequest,
-  SwitchNotFound
-}
-import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 
 object SwitchRepository {
 
