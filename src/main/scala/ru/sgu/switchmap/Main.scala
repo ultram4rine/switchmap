@@ -1,60 +1,38 @@
 package ru.sgu.switchmap
 
-import cats.syntax.semigroupk._
-import cats.effect.{ExitCode => CatsExitCode}
 import cats.data.Kleisli
-import com.comcast.ip4s._
-import com.http4s.rho.swagger.ui.SwaggerUi
+import cats.syntax.semigroupk._
 import io.grpc.ManagedChannelBuilder
+import org.http4s.{HttpApp, HttpRoutes, Request, Response}
 import org.http4s.Status.{Found, NotFound}
-import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.{HttpRoutes, HttpApp, Request, Response}
-import org.http4s.rho.swagger.models._
-import org.http4s.rho.swagger.{DefaultSwaggerFormats, SwaggerMetadata}
 import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
+import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.server.websocket.WebSocketBuilder2
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
-import ru.sgu.switchmap.config.{Config, AppConfig}
+import ru.sgu.switchmap.config.{AppConfig, Config}
 import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
-import ru.sgu.switchmap.models.{
-  User,
-  AuthToken,
-  BuildRequest,
-  BuildResponse,
-  FloorRequest,
-  FloorResponse,
-  SwitchRequest,
-  SwitchResponse,
-  SwitchResult,
-  SavePositionRequest
-}
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
   SwitchRepository
 }
-import ru.sgu.switchmap.utils.{
-  SeensUtil,
-  SeensUtilLive,
-  DNSUtil,
-  DNSUtilLive,
-  SNMPUtil,
-  SNMPUtilLive
-}
 import ru.sgu.switchmap.routes._
+import ru.sgu.switchmap.utils.{DNSUtilLive, SeensUtilLive, SNMPUtilLive}
+import scala.io.Source
 import scalapb.zio_grpc.ZManagedChannel
+import sttp.tapir.openapi
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import zio._
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.console._
 import zio.interop.catz._
-import zio.logging.{Logging, log}
+import zio.logging.Logging
 import zio.logging.slf4j.Slf4jLogger
-import scala.io.Source
-import scala.reflect.runtime.universe.typeOf
 
 private object NetDataClientLive {
   val layer: RLayer[Has[AppConfig], NetDataClient] =
@@ -138,8 +116,6 @@ object Main extends App {
     Kleisli(req => routes.run(req).getOrElse(redirectToRootResponse(req)))
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
-    import ru.sgu.switchmap.models.Swagger._
-
     val program: RIO[AppEnvironment with Console, Unit] =
       for {
         api <- config.apiConfig
@@ -151,60 +127,40 @@ object Main extends App {
 
         _ <- repositories.sync()
 
-        swaggerMiddleware = SwaggerUi[AppTask].createRhoMiddleware(
-          swaggerFormats = DefaultSwaggerFormats
-            .withSerializers(typeOf[User], userModel)
-            .withSerializers(typeOf[AuthToken], authTokenModel)
-            .withSerializers(typeOf[BuildRequest], buildRequestModel)
-            .withSerializers(typeOf[BuildResponse], buildResponseModel)
-            .withSerializers(typeOf[FloorRequest], floorRequestModel)
-            .withSerializers(typeOf[FloorResponse], floorResponseModel)
-            .withSerializers(typeOf[SwitchRequest], switchRequestModel)
-            .withSerializers(typeOf[SwitchResponse], switchResponseModel)
-            .withSerializers(typeOf[SwitchResult], switchResultModel)
-            .withSerializers(
-              typeOf[SavePositionRequest],
-              savePositionRequestModel
-            ),
-          swaggerMetadata = SwaggerMetadata(
-            apiInfo = Info(
+        endpoints = List.concat(
+          AuthRoutes[AppEnvironment]().routes,
+          BuildRoutes[AppEnvironment]().routes,
+          FloorRoutes[AppEnvironment]().routes,
+          SwitchRoutes[AppEnvironment]().routes,
+          PlanRoutes[AppEnvironment]().routes
+        )
+
+        swaggerEndpoints = SwaggerInterpreter(
+          contextPath = List("api", "v2"),
+          addServerWhenContextPathPresent = true
+        )
+          .fromServerEndpoints[AppTask](
+            endpoints,
+            openapi.Info(
               title = "SwitchMap API",
               version = "2.0.0",
               description = Some("Definition of SwitchMap API"),
               license = Some(
-                License(
+                openapi.License(
                   "Apache-2.0",
-                  "https://git.sgu.ru/ultramarine/switchmap/blob/master/LICENSE"
+                  Some(
+                    "https://git.sgu.ru/ultramarine/switchmap/blob/master/LICENSE"
+                  )
                 )
-              )
-            ),
-            host = Some(app.hostname),
-            basePath = Some("/api/v2"),
-            schemes = List(Scheme.HTTPS),
-            security = List(SecurityRequirement("JWT", List())),
-            securityDefinitions = Map(
-              "JWT" -> ApiKeyAuthDefinition(
-                "X-Auth-Token",
-                In.HEADER,
-                Some("JWT")
               )
             )
           )
-        )
 
         httpAPI = (wsb: WebSocketBuilder2[AppTask]) =>
           Router[AppTask](
-            "/api/v2" -> Middleware.middleware(
-              AuthContext
-                .toService(
-                  AuthRoutes().api
-                    .and(BuildRoutes().api)
-                    .and(FloorRoutes().api)
-                    .and(SwitchRoutes().api)
-                    .and(PlanRoutes().api)
-                    .toRoutes(swaggerMiddleware)
-                )
-            )
+            "/api/v2" -> ZHttp4sServerInterpreter()
+              .from(endpoints ::: swaggerEndpoints)
+              .toRoutes
           )
 
         spa = Router[AppTask](

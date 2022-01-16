@@ -1,29 +1,26 @@
 package ru.sgu.switchmap.repositories
 
-import doobie.implicits._
 import doobie.hikari.HikariTransactor
+import doobie.implicits._
 import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
 import inet.ipaddr.mac.MACAddress
-import io.grpc.Status
+import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
+import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
+import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
+import ru.sgu.switchmap.config.AppConfig
+import ru.sgu.switchmap.db.DBTransactor
+import ru.sgu.switchmap.models.{
+  SavePositionRequest,
+  SwitchInfo,
+  SwitchNotFound,
+  SwitchRequest,
+  SwitchResponse,
+  SwitchResult
+}
+import ru.sgu.switchmap.utils.{DNSUtil, SeensUtil, SNMPUtil}
 import zio._
 import zio.interop.catz._
 import zio.logging.{log, Logger, Logging}
-
-import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
-import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
-import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
-import ru.sgu.switchmap.db.DBTransactor
-import ru.sgu.switchmap.config.AppConfig
-import ru.sgu.switchmap.models.{
-  SwitchRequest,
-  SwitchResponse,
-  SwitchResult,
-  SwitchInfo,
-  SavePositionRequest,
-  SwitchNotFound,
-  LastSyncTime
-}
-import ru.sgu.switchmap.utils.{SeensUtil, DNSUtil, SNMPUtil}
 
 object SwitchRepository {
 
@@ -32,6 +29,7 @@ object SwitchRepository {
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
+    def getOf(build: String, floor: Int): Task[List[SwitchResponse]]
     def getUnplacedOf(build: String): Task[List[SwitchResponse]]
     def getPlacedOf(build: String, floor: Int): Task[List[SwitchResponse]]
     def get(name: String): Task[SwitchResponse]
@@ -159,6 +157,26 @@ private[repositories] final case class DoobieSwitchRepository(
     val q = quote {
       Tables.switches
         .filter(sw => sw.buildShortName.getOrNull == lift(build))
+        .sortBy(sw => sw.name)
+    }
+
+    Tables.ctx
+      .run(q)
+      .transact(xa)
+      .foldM(
+        err => Task.fail(err),
+        switches => Task.succeed(switches)
+      )
+  }
+
+  def getOf(build: String, floor: Int): Task[List[SwitchResponse]] = {
+    val q = quote {
+      Tables.switches
+        .filter(sw =>
+          sw.buildShortName.getOrNull == lift(
+            build
+          ) && sw.floorNumber.getOrNull == lift(floor)
+        )
         .sortBy(sw => sw.name)
     }
 

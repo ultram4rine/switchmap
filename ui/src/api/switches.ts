@@ -32,6 +32,19 @@ export const getSwitchesOfBuild = async (
   return resp.data;
 };
 
+/**
+ * @deprecated
+ */
+export const getSwitchesOfFloor = async (
+  shortName: string,
+  number: number
+): Promise<SwitchResponse[]> => {
+  const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
+    `/builds/${shortName}/floors/${number}/switches`
+  );
+  return resp.data;
+};
+
 export const getUnplacedSwitchesOfBuild = async (
   shortName: string
 ): Promise<SwitchResponse[]> => {
@@ -46,7 +59,7 @@ export const getPlacedSwitchesOfFloor = async (
   number: number
 ): Promise<SwitchResponse[]> => {
   const resp = await api.get<SwitchResponse, AxiosResponse<SwitchResponse[]>>(
-    `/builds/${shortName}/floors/${number}/switches`
+    `/builds/${shortName}/floors/${number}/switches/placed`
   );
   return resp.data;
 };

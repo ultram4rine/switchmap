@@ -1,23 +1,19 @@
 package ru.sgu.switchmap.utils
 
+import inet.ipaddr.mac.MACAddress
 import io.circe.Decoder
+import io.circe.generic.auto._
+import io.circe.syntax._
+import org.http4s.EntityDecoder
+import org.http4s.Method.POST
+import org.http4s.Request
+import org.http4s.circe._
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.ember.client.EmberClientBuilder
+import ru.sgu.switchmap.config.AppConfig
+import ru.sgu.switchmap.models.{SeenRequest, SeenResponse}
 import zio._
 import zio.interop.catz._
-import org.http4s.ember.client.EmberClientBuilder
-import ru.sgu.switchmap.models.{SeenRequest, SeenResponse}
-import org.http4s.Uri
-import org.http4s.Method.POST
-import inet.ipaddr.mac.MACAddress
-import io.circe.syntax._
-import io.circe.generic.auto._
-import org.http4s.circe._
-
-import scala.concurrent.ExecutionContext.global
-import scala.util.matching.Regex
-import ru.sgu.switchmap.config.AppConfig
-import org.http4s.Request
-import org.http4s.EntityDecoder
 
 trait SeensUtil {
   def getSeenOf(mac: MACAddress): Task[Option[SeenResponse]]
