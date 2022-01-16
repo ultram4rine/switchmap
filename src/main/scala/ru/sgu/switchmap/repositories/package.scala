@@ -1,7 +1,7 @@
 package ru.sgu.switchmap
 
-import org.polyvariant.doobiequill.DoobieContext
 import io.getquill._
+import org.polyvariant.doobiequill.DoobieContext
 import ru.sgu.switchmap.models._
 import zio.{Has, RIO}
 import zio.logging.Logging
@@ -94,6 +94,11 @@ package object repositories {
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =
     RIO.accessM(_.get.getOf(build))
+  def getSwitchesOf(
+    build: String,
+    floor: Int
+  ): RIO[SwitchRepository, List[SwitchResponse]] =
+    RIO.accessM(_.get.getOf(build, floor))
   def getUnplacedSwitchesOf(
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =

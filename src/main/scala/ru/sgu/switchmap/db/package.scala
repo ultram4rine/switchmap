@@ -2,8 +2,8 @@ package ru.sgu.switchmap
 
 import doobie.hikari.HikariTransactor
 import ru.sgu.switchmap.config.DBConfig
-import zio.interop.catz._
 import zio.{Has, Task, ZIO, ZLayer}
+import zio.interop.catz._
 
 package object db {
   type DBTransactor = Has[DBTransactor.Resource]

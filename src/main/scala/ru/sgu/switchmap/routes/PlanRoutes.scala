@@ -1,69 +1,59 @@
 package ru.sgu.switchmap.routes
 
-import org.http4s.{Request, Response, StaticFile, Challenge}
-import org.http4s.rho.RhoRoutes
-import org.http4s.rho.swagger.{SwaggerSupport, SwaggerFileResponse}
-import org.http4s.multipart.Multipart
-import org.http4s.EntityDecoder
-import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus}
-import ru.sgu.switchmap.Main.AppTask
+import java.nio.file.Paths
+import ru.sgu.switchmap.auth.{Authorizer, AuthStatus}
+import ru.sgu.switchmap.models.Plan
+import sttp.capabilities.zio.ZioStreams
+import sttp.tapir.generic.auto._
+import sttp.tapir.ztapir._
 import zio._
-import zio.interop.catz._
-import fs2.io.file.{Files, Path => Fs2Path}
+import zio.blocking.Blocking
+import zio.stream.{Stream, ZSink}
+import zio.stream.ZStream
 
-final case class PlanRoutes[R <: Has[Authorizer]]() {
-  val api: RhoRoutes[AppTask] = new RhoRoutes[AppTask] {
-    val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
-    import swaggerIO._
+final case class PlanRoutes[R <: Has[Authorizer] with Blocking]() {
+  type PlanTask[A] = RIO[R, A]
 
-    "Get plan" **
-      GET / "plans" / pv"planName" >>> AuthContext.auth |>> {
-        (req: Request[AppTask], planName: String, auth: AuthStatus.Status) =>
-          auth match {
-            case AuthStatus.Succeed =>
-              Ok(
-                SwaggerFileResponse(
-                  Files[AppTask].readAll(Fs2Path(s"./plans/${planName}"))
-                )
+  private[this] val planBaseEndpoint = secureEndpoint.tag("plans")
+
+  val getPlanEndpoint = planBaseEndpoint.get
+    .in("plans" / path[String]("planName"))
+    .out(streamBinaryBody(ZioStreams))
+    .serverLogic { as => planName =>
+      ZIO.succeed(
+        ZStream
+          .fromFile(Paths.get(s"./plans/${planName}"))
+          .provideLayer(Blocking.live)
+      )
+    }
+  val uploadPlanEndpoint = planBaseEndpoint
+    .summary("Upload plan")
+    .post
+    .in("plans" / path[String]("shortName") / path[Int]("number"))
+    .in(multipartBody[Plan])
+    .out(stringBody)
+    .serverLogic { as =>
+      { case (shortName, number, plan) =>
+        as match {
+          case AuthStatus.Succeed =>
+            val stream = Stream
+              .fromInputStream(
+                new java.io.FileInputStream(plan.planFile.body)
               )
-            case _ =>
-              Unauthorized(())
-          }
+              .run(
+                ZSink
+                  .fromFile(Paths.get(s"./plans/${shortName}f${number}.png"))
+              )
+            stream
+              .mapError(_ => ())
+              .map(_ => "Plan saved")
+          case _ => ZIO.fail(())
+        }
       }
+    }
 
-    "Upload plan" **
-      POST / "plans" / pv"shortName" / pathVar[Int](
-        "number",
-        "Number of floor"
-      ) >>> AuthContext.auth ^ EntityDecoder.multipart[AppTask] |>> {
-        (
-          shortName: String,
-          number: Int,
-          auth: AuthStatus.Status,
-          m: Multipart[AppTask]
-        ) =>
-          auth match {
-            case AuthStatus.Succeed =>
-              m.parts.find(_.name == Some("planFile")) match {
-                case None => BadRequest("No file")
-                case Some(part) => {
-                  val stream = part.body
-                    .through(
-                      Files[AppTask].writeAll(
-                        Fs2Path(
-                          s"./plans/${shortName}f${number}.png"
-                        )
-                      )
-                    )
-
-                  Created(
-                    stream.map(_ => "Multipart file parsed successfully")
-                  )
-                }
-              }
-            case _ =>
-              Unauthorized(())
-          }
-      }
-  }
+  val routes = List(
+    getPlanEndpoint.widen[R],
+    uploadPlanEndpoint.widen[R]
+  )
 }

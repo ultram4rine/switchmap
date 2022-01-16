@@ -1,13 +1,11 @@
 package ru.sgu.switchmap.utils
 
-import java.net.InetAddress
-
-import zio._
 import inet.ipaddr.IPAddress
-import ru.sgu.switchmap.config.AppConfig
-
-import scala.concurrent.Future
 import inet.ipaddr.IPAddressString
+import java.net.InetAddress
+import ru.sgu.switchmap.config.AppConfig
+import scala.concurrent.Future
+import zio._
 
 trait DNSUtil {
   def getIPByHostname(name: String): Task[IPAddress]
