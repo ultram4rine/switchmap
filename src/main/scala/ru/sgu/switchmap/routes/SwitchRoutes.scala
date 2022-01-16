@@ -180,7 +180,6 @@ final case class SwitchRoutes[R <: Has[
         statusCode
           .description(StatusCode.NotFound, "Build or floor not found")
           .description(StatusCode.Conflict, "Switch already exists")
-          .description(StatusCode.InternalServerError, "Something went wrong")
       )
     )
     .out(
@@ -193,8 +192,17 @@ final case class SwitchRoutes[R <: Has[
         case AuthStatus.Succeed =>
           createSwitch(switch)
             .map((StatusCode.Created, _))
-            // TODO: add Conflict and InternalServerError status codes too.
-            .mapError(_ => StatusCode.NotFound)
+            .mapError { case e: java.sql.SQLException =>
+              if (
+                e.getSQLState == doobie.postgres.sqlstate.class23.FOREIGN_KEY_VIOLATION.value
+              ) {
+                StatusCode.NotFound
+              } else if (
+                e.getSQLState == doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION.value
+              ) {
+                StatusCode.Conflict
+              }
+            }
         case _ => ZIO.fail(())
       }
     }
@@ -208,7 +216,6 @@ final case class SwitchRoutes[R <: Has[
       oneOfVariantFromMatchType(
         statusCode
           .description(StatusCode.NotFound, "Switch, build or floor not found")
-          .description(StatusCode.InternalServerError, "Something went wrong")
       )
     )
     .out(jsonBody[SwitchResult])
@@ -217,7 +224,6 @@ final case class SwitchRoutes[R <: Has[
         as match {
           case AuthStatus.Succeed =>
             updateSwitch(name, switch)
-              // TODO: add InternalServerError status code too.
               .mapError(_ => StatusCode.NotFound)
           case _ => ZIO.fail(())
         }

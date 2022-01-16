@@ -74,8 +74,17 @@ final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
           case AuthStatus.Succeed =>
             createFloor(floor)
               .map((StatusCode.Created, _))
-              // TODO: add Conflict status code too.
-              .mapError(_ => StatusCode.NotFound)
+              .mapError { case e: java.sql.SQLException =>
+                if (
+                  e.getSQLState == doobie.postgres.sqlstate.class23.FOREIGN_KEY_VIOLATION.value
+                ) {
+                  StatusCode.NotFound
+                } else if (
+                  e.getSQLState == doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION.value
+                ) {
+                  StatusCode.Conflict
+                }
+              }
           case _ => ZIO.fail(())
         }
       }
