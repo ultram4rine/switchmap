@@ -1,7 +1,7 @@
 package ru.sgu.switchmap.auth
 
 import java.time.Instant
-
+import ru.sgu.switchmap.models.AuthToken
 import zio._
 
 trait Authorizer {

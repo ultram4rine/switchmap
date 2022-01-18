@@ -2,8 +2,8 @@ package ru.sgu.switchmap.db
 
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
-import zio.logging.{Logging, Logger, log}
 import zio.{Has, RIO, RLayer, ZIO}
+import zio.logging.{log, Logger, Logging}
 
 trait FlywayMigrator {
   def migrate(): RIO[Logging, MigrateResult]

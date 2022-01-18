@@ -1,9 +1,8 @@
 package ru.sgu.switchmap
 
-import io.circe.{Decoder, Encoder}
 import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
 import inet.ipaddr.mac.MACAddress
-
+import io.circe.{Decoder, Encoder}
 import scala.util.Try
 
 package object json {

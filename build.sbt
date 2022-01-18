@@ -1,6 +1,7 @@
 import NativePackagerHelper._
 
 val Http4sVersion = "0.23.7"
+val TapirVersion = "0.20.0-M5"
 val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.1"
 
@@ -9,27 +10,30 @@ lazy val root = (project in file("."))
     organization := "ru.sgu",
     name := "switchmap",
     version := "2.0.0",
-    scalaVersion := "2.13.7",
+    scalaVersion := "2.13.8",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb",
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies ++= Seq(
-      "dev.zio"               %% "zio"                    % "1.0.13",
-      "dev.zio"               %% "zio-interop-cats"       % "3.2.9.0",
-      "dev.zio"               %% "zio-logging-slf4j"      % "0.5.14",
-      "org.http4s"            %% "http4s-ember-server"    % Http4sVersion,
-      "org.http4s"            %% "http4s-ember-client"    % Http4sVersion,
-      "org.http4s"            %% "http4s-circe"           % Http4sVersion,
-      "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
-      "org.http4s"            %% "rho-swagger"            % "0.23.0-RC1",
-      "org.http4s"            %% "rho-swagger-ui"         % "0.23.0-RC1",
-      "io.circe"              %% "circe-generic"          % "0.14.1",
+      "dev.zio"    %% "zio"                 % "1.0.13",
+      "dev.zio"    %% "zio-interop-cats"    % "3.2.9.0",
+      "dev.zio"    %% "zio-logging-slf4j"   % "0.5.14",
+      "org.http4s" %% "http4s-ember-server" % Http4sVersion,
+      "org.http4s" %% "http4s-ember-client" % Http4sVersion,
+      "org.http4s" %% "http4s-circe"        % Http4sVersion,
+      "org.http4s" %% "http4s-dsl"          % Http4sVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server" % TapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % TapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion,
+      "io.circe"                    %% "circe-generic"           % "0.14.1",
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
       "org.polyvariant"       %% "doobie-quill"           % "0.0.2",
-      "org.flywaydb"           % "flyway-core"            % "8.3.0",
+      "org.flywaydb"           % "flyway-core"            % "8.4.1",
       "org.postgresql"         % "postgresql"             % "42.3.1",
       "com.github.jwt-scala"  %% "jwt-circe"              % "9.0.3",
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.3",
@@ -40,7 +44,7 @@ lazy val root = (project in file("."))
       "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
       "org.snmp4j"             % "snmp4j"                 % "3.6.4",
       "ch.qos.logback"         % "logback-classic"        % "1.2.10",
-      "io.grpc"                % "grpc-netty"             % "1.43.1",
+      "io.grpc"                % "grpc-netty"             % "1.43.2",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
@@ -72,5 +76,6 @@ scalacOptions ++= Seq(
   "-language:higherKinds",
   "-language:postfixOps",
   "-feature",
-  "-Xfatal-warnings"
+  "-Xfatal-warnings",
+  "-Wunused:imports"
 )

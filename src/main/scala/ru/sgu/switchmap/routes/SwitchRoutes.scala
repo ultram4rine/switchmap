@@ -1,211 +1,306 @@
 package ru.sgu.switchmap.routes
 
-import fs2.{Stream, Pipe}
 import io.circe.generic.auto._
-import io.circe.{Decoder, Encoder}
-import io.circe.parser.decode
-import org.http4s.headers
-import org.http4s.dsl.Http4sDsl
-import org.http4s.circe._
-import org.http4s.headers.`WWW-Authenticate`
-import org.http4s.rho.RhoRoutes
-import org.http4s.rho.swagger.SwaggerSupport
-import org.http4s.rho.bits._
-import org.http4s.{EntityDecoder, EntityEncoder, Response, Challenge}
-import org.http4s.server.websocket.WebSocketBuilder2
-import org.http4s.websocket.WebSocketFrame
-import org.http4s.websocket.WebSocketFrame._
-import ru.sgu.switchmap.auth.{AuthContext, Authorizer, AuthStatus, AuthToken}
-import ru.sgu.switchmap.Main.AppTask
+import ru.sgu.switchmap.auth.{Authorizer, AuthStatus}
 import ru.sgu.switchmap.models.{
+  SavePositionRequest,
   SwitchRequest,
-  SwitchPosition,
-  SavePositionRequest
+  SwitchResponse,
+  SwitchResult
 }
 import ru.sgu.switchmap.repositories._
-import scodec.bits._
-import shapeless.{::, HNil}
+import sttp.model.StatusCode
+import sttp.tapir.generic.auto._
+import sttp.tapir.json.circe._
+import sttp.tapir.ztapir._
 import zio._
-import zio.interop.catz._
-import zio.stream.ZStream
-import zio.stream.interop.fs2z._
-import zio.duration.durationInt
+import zio.logging.Logging
 
-//import scala.concurrent.duration._
+final case class SwitchRoutes[R <: Has[
+  Authorizer
+] with SwitchRepository with Logging]() {
+  import ru.sgu.switchmap.json._
+  import ru.sgu.switchmap.routes.schemas._
 
-final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
-  wsb: WebSocketBuilder2[AppTask],
-  hub: Hub[WebSocketFrame]
-) {
-  implicit def circeJsonDecoder[A](implicit
-    decoder: Decoder[A]
-  ): EntityDecoder[AppTask, A] = jsonOf[AppTask, A]
-  implicit def circeJsonEncoder[A](implicit
-    decoder: Encoder[A]
-  ): EntityEncoder[AppTask, A] =
-    jsonEncoderOf[AppTask, A]
+  private[this] val switchBaseEndpoint = secureEndpoint.tag("switches")
 
-  val api: RhoRoutes[AppTask] =
-    new RhoRoutes[AppTask] {
-      val swaggerIO: SwaggerSupport[AppTask] = SwaggerSupport[AppTask]
-      import swaggerIO._
-
-      import ru.sgu.switchmap.json._
-
-      "Run switches sync with network" **
-        GET / "switches" / "sync" >>> AuthContext.auth |>> {
-          auth: AuthStatus.Status =>
-            auth match {
-              case AuthStatus.Succeed =>
-                sync().foldM(_ => InternalServerError(()), Ok(_))
-              case _ => Unauthorized(())
-            }
+  val runSyncEndpoint =
+    switchBaseEndpoint
+      .summary("Run switches sync with network")
+      .get
+      .in("switches" / "sync")
+      .serverLogic { as => _ =>
+        as match {
+          case AuthStatus.Succeed => sync().mapError(_.toString())
+          case _                  => ZIO.fail(())
         }
+      }
 
-      "Get SNMP communitites" **
-        GET / "switches" / "snmp" / "communities" >>> AuthContext.auth |>> {
-          auth: AuthStatus.Status =>
-            auth match {
-              case AuthStatus.Succeed =>
-                snmpCommunities().foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Get all switches" **
-        GET / "switches" >>> AuthContext.auth |>> { auth: AuthStatus.Status =>
-          auth match {
-            case AuthStatus.Succeed =>
-              getSwitches().foldM(_ => NotFound(()), Ok(_))
-            case _ => Unauthorized(())
-          }
-        }
-
-      "Get all switches of build" **
-        GET / "builds" / pv"shortName" / "switches" >>> AuthContext.auth |>> {
-          (shortName: String, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                getSwitchesOf(shortName).foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Get all unplaced switches in build" **
-        GET / "builds" / pv"shortName" / "switches" / "unplaced" >>> AuthContext.auth |>> {
-          (shortName: String, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                getUnplacedSwitchesOf(shortName).foldM(
-                  _ => NotFound(()),
-                  Ok(_)
-                )
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Get all placed switches of floor in build" **
-        GET / "builds" / pv"shortName" / "floors" / pathVar[Int](
-          "number",
-          "Number of floor"
-        ) / "switches" >>> AuthContext.auth |>> {
-          (shortName: String, number: Int, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                getPlacedSwitchesOf(shortName, number).foldM(
-                  _ => NotFound(()),
-                  Ok(_)
-                )
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Connect to websocket" **
-        GET / "builds" / pv"shortName" / "floors" / pathVar[Int](
-          "number",
-          "Number of floor"
-        ) / "ws" >>> AuthContext.auth |>> {
-          (
-            shortName: String,
-            number: Int,
-            auth: AuthStatus.Status
-          ) => mkWebSocket(shortName, number, auth)
-        }
-
-      "Get switch by name" **
-        GET / "switches" / pv"name" >>> AuthContext.auth |>> {
-          (name: String, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                getSwitch(name).foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Add switch" **
-        POST / "switches" >>> AuthContext.auth ^ jsonOf[
-          AppTask,
-          SwitchRequest
-        ] |>> { (auth: AuthStatus.Status, switch: SwitchRequest) =>
-          auth match {
-            case AuthStatus.Succeed =>
-              createSwitch(switch).foldM(
-                e => InternalServerError(e.getMessage),
-                Created(_)
-              )
-            case _ => Unauthorized(())
-          }
-        }
-
-      "Update switch" **
-        PUT / "switches" / pv"name" >>> AuthContext.auth ^ jsonOf[
-          AppTask,
-          SwitchRequest
-        ] |>> {
-          (name: String, auth: AuthStatus.Status, switch: SwitchRequest) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                updateSwitch(name, switch).foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Update switch position" **
-        PATCH / "switches" / pv"name" >>> AuthContext.auth ^ jsonOf[
-          AppTask,
-          SavePositionRequest
-        ] |>> {
-          (
-            name: String,
-            auth: AuthStatus.Status,
-            position: SavePositionRequest
-          ) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                updateSwitchPosition(name, position).foldM(
-                  _ => NotFound(()),
-                  Ok(_)
-                )
-              case _ => Unauthorized(())
-            }
-        }
-
-      "Delete switch" **
-        DELETE / "switches" / pv"name" >>> AuthContext.auth |>> {
-          (name: String, auth: AuthStatus.Status) =>
-            auth match {
-              case AuthStatus.Succeed =>
-                (getSwitch(name) *> deleteSwitch(name))
-                  .foldM(_ => NotFound(()), Ok(_))
-              case _ => Unauthorized(())
-            }
-        }
+  val getSNMPCommunitiesEndpoint = switchBaseEndpoint
+    .summary("Get SNMP communitites")
+    .get
+    .in("switches" / "snmp" / "communities")
+    .out(jsonBody[List[String]])
+    .serverLogic { as => _ =>
+      as match {
+        case AuthStatus.Succeed => snmpCommunities().mapError(_.toString())
+        case _                  => ZIO.fail(())
+      }
     }
 
-  val dsl: Http4sDsl[AppTask] = Http4sDsl[AppTask]
-  import dsl._
+  val getSwitchesEndpoint = switchBaseEndpoint
+    .summary("Get all switches")
+    .get
+    .in("switches")
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as => _ =>
+      as match {
+        case AuthStatus.Succeed => getSwitches().mapError(_.toString())
+        case _                  => ZIO.fail(())
+      }
+    }
 
-  private def mkWebSocket(
+  val getSwitchesOfBuildEndpoint = switchBaseEndpoint
+    .summary("Get all switches of build")
+    .get
+    .in("builds" / path[String]("shortName") / "switches")
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build not found")
+      )
+    )
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed =>
+          getSwitchesOf(shortName).mapError(_ => StatusCode.NotFound)
+        case _ => ZIO.fail(())
+      }
+    }
+
+  val getSwitchesOfFloorEndpoint = switchBaseEndpoint
+    .deprecated()
+    .summary("Get all switches of floor in build")
+    .get
+    .in(
+      "builds" / path[String]("shortName") /
+        "floors" / path[Int]("number") / "switches"
+    )
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build or floor not found")
+      )
+    )
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as =>
+      { case (shortName, number) =>
+        as match {
+          case AuthStatus.Succeed =>
+            getSwitchesOf(shortName, number).mapError(_ => StatusCode.NotFound)
+          case _ => ZIO.fail(())
+        }
+      }
+    }
+
+  val getUnplacedSwitchesOfBuildEndpoint = switchBaseEndpoint
+    .summary("Get all unplaced switches in build")
+    .get
+    .in(
+      "builds" / path[String]("shortName") /
+        "switches" / "unplaced"
+    )
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build not found")
+      )
+    )
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as => shortName =>
+      as match {
+        case AuthStatus.Succeed =>
+          getUnplacedSwitchesOf(shortName).mapError(_ => StatusCode.NotFound)
+        case _ => ZIO.fail(())
+      }
+    }
+
+  val getPlacedSwitchesOfFloorEndpoint = switchBaseEndpoint
+    .summary("Get all placed switches of floor in build")
+    .get
+    .in(
+      "builds" / path[String]("shortName") /
+        "floors" / path[Int]("number") / "switches" / "placed"
+    )
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build or floor not found")
+      )
+    )
+    .out(jsonBody[List[SwitchResponse]])
+    .serverLogic { as =>
+      { case (shortName, number) =>
+        as match {
+          case AuthStatus.Succeed =>
+            getPlacedSwitchesOf(shortName, number)
+              .mapError(_ => StatusCode.NotFound)
+          case _ => ZIO.fail(())
+        }
+      }
+    }
+
+  val getSwitchEndpoint = switchBaseEndpoint
+    .summary("Get switch by name")
+    .get
+    .in("switches" / path[String]("name"))
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch not found")
+      )
+    )
+    .out(jsonBody[SwitchResponse])
+    .serverLogic { as => name =>
+      as match {
+        case AuthStatus.Succeed =>
+          getSwitch(name).mapError(_ => StatusCode.NotFound)
+        case _ => ZIO.fail(())
+      }
+    }
+
+  val addSwitchEndpoint = switchBaseEndpoint
+    .summary("Add switch")
+    .post
+    .in("switches")
+    .in(jsonBody[SwitchRequest])
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Build or floor not found")
+          .description(StatusCode.Conflict, "Switch already exists")
+      )
+    )
+    .out(
+      statusCode
+        .description(StatusCode.Created, "Switch added")
+        .and(jsonBody[SwitchResult])
+    )
+    .serverLogic { as => switch =>
+      as match {
+        case AuthStatus.Succeed =>
+          createSwitch(switch)
+            .map((StatusCode.Created, _))
+            .mapError { case e: java.sql.SQLException =>
+              if (
+                e.getSQLState == doobie.postgres.sqlstate.class23.FOREIGN_KEY_VIOLATION.value
+              ) {
+                StatusCode.NotFound
+              } else if (
+                e.getSQLState == doobie.postgres.sqlstate.class23.UNIQUE_VIOLATION.value
+              ) {
+                StatusCode.Conflict
+              }
+            }
+        case _ => ZIO.fail(())
+      }
+    }
+
+  val updateSwitchEndpoint = switchBaseEndpoint
+    .summary("Update switch")
+    .put
+    .in("switches" / path[String]("name"))
+    .in(jsonBody[SwitchRequest])
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch, build or floor not found")
+      )
+    )
+    .out(jsonBody[SwitchResult])
+    .serverLogic { as =>
+      { case (name, switch) =>
+        as match {
+          case AuthStatus.Succeed =>
+            updateSwitch(name, switch)
+              .mapError(_ => StatusCode.NotFound)
+          case _ => ZIO.fail(())
+        }
+      }
+    }
+
+  val updateSwitchPositionEndpoint = switchBaseEndpoint
+    .summary("Update switch position")
+    .patch
+    .in("switches" / path[String]("name"))
+    .in(jsonBody[SavePositionRequest])
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch not found")
+      )
+    )
+    .out(plainBody[Boolean])
+    .serverLogic { as =>
+      { case (name, position) =>
+        as match {
+          case AuthStatus.Succeed =>
+            updateSwitchPosition(name, position)
+              .mapError(_ => StatusCode.NotFound)
+          case _ => ZIO.fail(())
+        }
+      }
+    }
+
+  val deleteSwitchEndpoint = switchBaseEndpoint
+    .summary("Delete switch")
+    .delete
+    .in("switches" / path[String]("name"))
+    .errorOutVariant(
+      oneOfVariantFromMatchType(
+        statusCode
+          .description(StatusCode.NotFound, "Switch not found")
+      )
+    )
+    .out(plainBody[Boolean])
+    .serverLogic { as => name =>
+      as match {
+        case AuthStatus.Succeed =>
+          (getSwitch(name) *> deleteSwitch(name))
+            .mapError(_ => StatusCode.NotFound)
+        case _ => ZIO.fail(())
+      }
+    }
+
+  val routes = List(
+    runSyncEndpoint.widen[R],
+    getSNMPCommunitiesEndpoint.widen[R],
+    getSwitchesEndpoint.widen[R],
+    getSwitchesOfBuildEndpoint.widen[R],
+    getSwitchesOfFloorEndpoint.widen[R],
+    getUnplacedSwitchesOfBuildEndpoint.widen[R],
+    getPlacedSwitchesOfFloorEndpoint.widen[R],
+    getSwitchEndpoint.widen[R],
+    addSwitchEndpoint.widen[R],
+    updateSwitchEndpoint.widen[R],
+    updateSwitchPositionEndpoint.widen[R],
+    deleteSwitchEndpoint.widen[R]
+  )
+
+  /* "Connect to websocket" **
+    GET / "builds" / pv"shortName" / "floors" / pathVar[Int](
+      "number",
+      "Number of floor"
+    ) / "ws" >>> AuthContext.auth |>> {
+      (
+        shortName: String,
+        number: Int,
+        auth: AuthStatus.Status
+      ) => mkWebSocket(shortName, number, auth)
+    } */
+
+  /* private def mkWebSocket(
     shortName: String,
     number: Int,
     auth: AuthStatus.Status
@@ -245,5 +340,5 @@ final case class SwitchRoutes[R <: Has[Authorizer] with SwitchRepository](
           )
         )
     }
-  }
+  } */
 }
