@@ -1,8 +1,8 @@
 import NativePackagerHelper._
 
 val Http4sVersion = "0.23.7"
-val TapirVersion = "0.20.0-M5"
-val DoobieVersion = "1.0.0-RC2"
+val TapirVersion = "0.20.0-M6"
+val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.1"
 
 lazy val root = (project in file("."))
@@ -32,8 +32,8 @@ lazy val root = (project in file("."))
       "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "org.polyvariant"       %% "doobie-quill"           % "0.0.2",
-      "org.flywaydb"           % "flyway-core"            % "8.4.1",
+      "org.polyvariant"       %% "doobie-quill"           % "0.0.3",
+      "org.flywaydb"           % "flyway-core"            % "8.4.2",
       "org.postgresql"         % "postgresql"             % "42.3.1",
       "com.github.jwt-scala"  %% "jwt-circe"              % "9.0.3",
       "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.3",
