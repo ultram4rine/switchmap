@@ -10,11 +10,11 @@ import org.http4s.server.Router
 import org.http4s.server.middleware.CORS
 import org.http4s.server.staticcontent.resourceServiceBuilder
 import org.http4s.server.websocket.WebSocketBuilder2
-import org.http4s.websocket.WebSocketFrame
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
 import ru.sgu.switchmap.auth._
 import ru.sgu.switchmap.config.{AppConfig, Config}
 import ru.sgu.switchmap.db.{DBTransactor, FlywayMigrator, FlywayMigratorLive}
+import ru.sgu.switchmap.models.SwitchPosition
 import ru.sgu.switchmap.repositories.{
   BuildRepository,
   FloorRepository,
@@ -128,7 +128,7 @@ object Main extends App {
 
         _ <- repositories.sync()
 
-        hub <- ZHub.unbounded[WebSocketFrame]
+        hub <- ZHub.unbounded[SwitchPosition]
 
         endpoints = List.concat(
           AuthRoutes[AppEnvironment]().routes,
@@ -161,9 +161,14 @@ object Main extends App {
 
         httpAPI = (wsb: WebSocketBuilder2[AppTask]) =>
           Router[AppTask](
-            "/api/v2" -> ZHttp4sServerInterpreter()
+            "/api/v2" -> (ZHttp4sServerInterpreter()
               .from(endpoints ::: swaggerEndpoints)
               .toRoutes
+              <+> ZHttp4sServerInterpreter()
+                .fromWebSocket(
+                  WebSocketRoutes[AppEnvironment](hub).routes
+                )
+                .toRoutes(wsb))
           )
 
         spa = Router[AppTask](
