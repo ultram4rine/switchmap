@@ -30,3 +30,10 @@ export interface SavePositionRequest {
   top: number;
   left: number;
 }
+
+export interface SwitchPosition {
+  name: string;
+  top: number;
+  left: number;
+  moving: boolean;
+}

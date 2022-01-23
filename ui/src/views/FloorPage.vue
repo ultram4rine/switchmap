@@ -13,25 +13,16 @@
         <div v-drag v-zoom id="plan" :key="planKey">
           <v-img :src="planPath" class="image" @error="noPlan = true"></v-img>
 
-          <v-chip
+          <switch-item
             v-for="sw in switches"
-            v-drag-switch="{ sw, socket, locked }"
-            @moving="setMoving"
             :key="sw.name"
-            :id="sw.name"
-            dark
-            class="switch ma-2"
-            :style="
-              sw.positionTop && sw.positionLeft
-                ? {
-                    top: sw.positionTop + 'px',
-                    left: sw.positionLeft + 'px',
-                  }
-                : { display: 'none' }
-            "
+            :sw="sw"
+            :sendSocket="sendSock"
+            :receiveSocket="receiveSock"
+            @moving="setMoving"
           >
             {{ sw.name }}
-          </v-chip>
+          </switch-item>
         </div>
 
         <v-toolbar floating>
@@ -112,20 +103,26 @@ import dragSwitch from "@/directives/dragSwitch";
 import zoom from "@/directives/zoom";
 
 import PlanUpload from "@/components/PlanUpload.vue";
+import SwitchItem from "@/components/SwitchItem.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import {
+  SwitchPosition,
+  SwitchRequest,
+  SwitchResponse,
+} from "@/interfaces/switch";
 import {
   getUnplacedSwitchesOfBuild,
   getPlacedSwitchesOfFloor,
 } from "@/api/switches";
 import { getPlan, uploadPlan } from "@/api/plans";
-import { wsURL } from "@/api";
 
-import { useSwitchForm, useSnackbar } from "@/composables";
+import { useSwitchForm, useSnackbar, useWebSocket } from "@/composables";
 
 import { authHeader } from "@/helpers";
+
+type SwitchWithMoving = SwitchResponse & { moving: boolean };
 
 export default defineComponent({
   props: {
@@ -136,6 +133,7 @@ export default defineComponent({
 
   components: {
     PlanUpload,
+    SwitchItem,
     SwitchForm,
     SnackbarNotification,
   },
@@ -170,50 +168,29 @@ export default defineComponent({
     } = useSnackbar();
 
     const swName = ref("");
-    const switches: Ref<SwitchResponse[]> = ref([]);
-    const switchesWithoutPosition: Ref<SwitchResponse[]> = ref([]);
+    const switches: Ref<SwitchWithMoving[]> = ref([]);
+    const switchesWithoutPosition: Ref<SwitchWithMoving[]> = ref([]);
 
     const moving = ref("");
     const locked = ref(new Set<string>());
-    const wsState: Ref<"loading" | "opened" | "closed" | "errored"> =
-      ref("loading");
+
     document.cookie = "X-Auth-Token=" + authHeader() + "; path=/";
-    const socket = ref(
-      new WebSocket(wsURL(props.shortName, parseInt(props.floor)))
+
+    const { wsState, sendSock, receiveSock } = useWebSocket(
+      props.shortName,
+      parseInt(props.floor)
     );
 
-    socket.value.onopen = () => {
-      wsState.value = "opened";
-      console.log("opened");
-    };
-    socket.value.onerror = () => {
-      wsState.value = "errored";
-      console.log("error");
-    };
-    socket.value.onclose = () => {
-      wsState.value = "closed";
-      console.log("closing");
-    };
-    socket.value.onmessage = (event) => {
+    receiveSock.onmessage = (event) => {
       try {
-        const pos: {
-          name: string;
-          top: number;
-          left: number;
-          moving: boolean;
-        } = JSON.parse(event.data);
-        if (moving.value !== pos.name) {
-          const sw2Update = switches.value.find((sw) => sw.name === pos.name);
-          if (sw2Update) {
-            if (pos.moving) {
-              locked.value.add(pos.name);
-            } else {
-              locked.value.delete(pos.name);
-            }
-            const idx = switches.value.indexOf(sw2Update);
-            switches.value[idx].positionTop = pos.top;
-            switches.value[idx].positionLeft = pos.left;
-          }
+        const pos: SwitchPosition = JSON.parse(event.data);
+        //console.log(pos);
+        const sw2up = switches.value.find((sw) => sw.name === pos.name);
+        if (sw2up && !sw2up.moving) {
+          console.log(sw2up.moving);
+          const idx = switches.value.indexOf(sw2up);
+          switches.value[idx].positionTop = pos.top;
+          switches.value[idx].positionLeft = pos.left;
         }
       } catch (e) {
         console.log(event.data);
@@ -249,8 +226,10 @@ export default defineComponent({
 
       moving,
       locked,
+      // WebSocket.
       wsState,
-      socket,
+      sendSock,
+      receiveSock,
 
       mdiMagnify,
       mdiPlus,
@@ -261,15 +240,33 @@ export default defineComponent({
   },
 
   methods: {
+    handleUpdatePos(pos: { name: string; posTop: number; posLeft: number }) {
+      const sw2up = this.switches.find((sw) => {
+        return sw.name === pos.name;
+      });
+      if (sw2up) {
+        const idx = this.switches.indexOf(sw2up);
+        this.switches[idx].positionTop = pos.posTop;
+        this.switches[idx].positionLeft = pos.posLeft;
+      }
+    },
+
     async displaySwitches() {
-      this.switches = await getPlacedSwitchesOfFloor(
+      const switches = await getPlacedSwitchesOfFloor(
         this.shortName,
         parseInt(this.floor)
       );
-      this.switchesWithoutPosition = await getUnplacedSwitchesOfBuild(
+      this.switches = switches.map((sw) => sw as SwitchWithMoving);
+
+      const switchesWithoutPosition = await getUnplacedSwitchesOfBuild(
         this.shortName
       );
+      this.switchesWithoutPosition = switchesWithoutPosition.map(
+        (sw) => sw as SwitchWithMoving
+      );
+
       this.switches = this.switches.concat(this.switchesWithoutPosition);
+
       this.planKey += 1;
     },
 
@@ -324,8 +321,14 @@ export default defineComponent({
       }
     },
 
-    setMoving(name: { detail: string }) {
-      this.moving = name.detail;
+    setMoving(a: { name: string; val: boolean }) {
+      const sw2up = this.switches.find((sw) => {
+        return sw.name === a.name;
+      });
+      if (sw2up) {
+        const idx = this.switches.indexOf(sw2up);
+        this.switches[idx].moving = a.val;
+      }
     },
 
     async handleSubmitSwitch(swit: SwitchRequest, action: "Add" | "Edit") {
@@ -364,7 +367,8 @@ export default defineComponent({
 
   beforeDestroy() {
     document.cookie = "X-Auth-Token=; path=/";
-    this.socket.close(1000);
+    this.sendSock.close(1000);
+    this.receiveSock.close(1000);
   },
 });
 </script>
