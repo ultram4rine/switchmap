@@ -128,7 +128,7 @@ object Main extends App {
 
         _ <- repositories.sync()
 
-        hub <- ZHub.unbounded[SwitchPosition]
+        hub <- ZHub.sliding[SwitchPosition](1024)
 
         endpoints = List.concat(
           AuthRoutes[AppEnvironment]().routes,
