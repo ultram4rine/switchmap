@@ -99,7 +99,6 @@ import {
 } from "@mdi/js";
 
 import drag from "@/directives/drag";
-import dragSwitch from "@/directives/dragSwitch";
 import zoom from "@/directives/zoom";
 
 import PlanUpload from "@/components/PlanUpload.vue";
@@ -140,7 +139,6 @@ export default defineComponent({
 
   directives: {
     drag,
-    dragSwitch,
     zoom,
   },
 
