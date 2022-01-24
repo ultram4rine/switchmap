@@ -1,0 +1,9 @@
+body,
+html {
+  display: block !important;
+  height: 100% !important;
+  width: 100% !important;
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
