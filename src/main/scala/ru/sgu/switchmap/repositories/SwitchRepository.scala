@@ -95,7 +95,7 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  implicit val switchMatcher = ObjectMatcher.set[SwitchResponse].by(_.name)
+  implicit val switchMatcher = ObjectMatcher.set[SwitchResponse].by(_.mac)
 
   def sync(): RIO[Blocking with Logging, String] = for {
     _ <- log.info("Retrieving switches")
