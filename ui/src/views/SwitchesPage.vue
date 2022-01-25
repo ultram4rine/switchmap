@@ -138,7 +138,7 @@
       @close="closeSnackbar"
     />
 
-    <v-dialog :value="showDiff" persistent>
+    <v-dialog :value="showDiff" persistent scrollable>
       <v-card dark>
         <v-toolbar>
           <v-toolbar-title>Sync diff</v-toolbar-title>
@@ -147,8 +147,8 @@
             <v-icon>{{ mdiClose }}</v-icon>
           </v-btn>
         </v-toolbar>
-        <v-card-text style="overflow-x: overlay">
-          <pre>{{ diff }}</pre>
+        <v-card-text>
+          <div class="code">{{ diff }}</div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -362,10 +362,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.terminal {
-  color: #ffffff;
-  font-size: 16px;
-  font-family: monospace;
+<style>
+.code {
+  white-space: pre;
+
+  font-family: "Roboto Mono", monospace;
 }
 </style>
