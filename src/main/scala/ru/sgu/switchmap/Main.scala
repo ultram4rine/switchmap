@@ -125,7 +125,7 @@ object Main extends App {
 
         _ <- LDAP.conn
 
-        _ <- repositories.sync()
+        _ <- repositories.sync().catchAll(_ => IO.succeed(""))
 
         endpoints = List.concat(
           AuthRoutes[AppEnvironment]().routes,
