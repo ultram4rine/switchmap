@@ -95,7 +95,7 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  implicit val switchMatcher = ObjectMatcher.set[SwitchResponse].by(_.mac)
+  implicit val switchMatcher = ObjectMatcher.seq[SwitchResponse].byValue(_.mac)
 
   def sync(): RIO[Blocking with Logging, String] = for {
     _ <- log.info("Retrieving switches")
@@ -156,10 +156,10 @@ private[repositories] final case class DoobieSwitchRepository(
 
     timestamp = java.time.Instant.now()
 
-    diff = compare(switchesLocal.toSet, switches.toSet)
+    diff = compare(switchesLocal, switches)
     diffResult = diff.show()
     _ <- Stream
-      .fromIterable(diff.show()(ShowConfig.noColors).getBytes())
+      .fromIterable(diffResult.getBytes())
       .run(Sink.fromFile(Paths.get(s"sync-${timestamp}.log")))
 
     q = quote {
