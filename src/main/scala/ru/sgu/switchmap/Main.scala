@@ -83,7 +83,7 @@ object Main extends App {
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    logLayer ++ dbTransactor ++ Config.live >+>
+    Blocking.live ++ logLayer ++ dbTransactor ++ Config.live >+>
       netdataEnvironment ++
       SeensUtilLive.layer ++
       DNSUtilLive.layer ++

@@ -14,11 +14,12 @@ import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
 import sttp.tapir.ztapir._
 import zio._
+import zio.blocking.Blocking
 import zio.logging.Logging
 
 final case class SwitchRoutes[R <: Has[
   Authorizer
-] with SwitchRepository with Logging]() {
+] with SwitchRepository with Blocking with Logging]() {
   import ru.sgu.switchmap.json._
   import ru.sgu.switchmap.routes.schemas._
 
@@ -29,6 +30,7 @@ final case class SwitchRoutes[R <: Has[
       .summary("Run switches sync with network")
       .get
       .in("switches" / "sync")
+      .out(plainBody[String])
       .serverLogic { as => _ =>
         as match {
           case AuthStatus.Succeed => sync().mapError(_.toString())
