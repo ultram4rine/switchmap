@@ -31,10 +31,20 @@ final case class SwitchRoutes[R <: Has[
       .get
       .in("switches" / "sync")
       .out(plainBody[String])
+      .errorOutVariant(
+        oneOfVariantFromMatchType(
+          statusCode
+            .description(
+              StatusCode.InternalServerError,
+              "Failed to sync switches"
+            )
+        )
+      )
       .serverLogic { as => _ =>
         as match {
-          case AuthStatus.Succeed => sync().mapError(_.toString())
-          case _                  => ZIO.fail(())
+          case AuthStatus.Succeed =>
+            sync().mapError(_ => StatusCode.InternalServerError)
+          case _ => ZIO.fail(())
         }
       }
 
