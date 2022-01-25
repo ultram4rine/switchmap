@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout/@v2
       - name: Test migrations on Flyway Hub
-        uses: red-gate/flyway-hub-migration-test@v2
+        uses: red-gate/flyway-hub-migration-test@v4
         with:
           projectName: ultram4rineswitchmap-19
           engine: PostgreSQL (v13.2)
