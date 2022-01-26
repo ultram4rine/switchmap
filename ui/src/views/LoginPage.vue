@@ -49,15 +49,15 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
-import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
-import { AUTH_LOGIN } from "@/store/actions";
+import { useAuth } from "@/store/auth";
+
+import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
 export default defineComponent({
   setup() {
     const router = useRouter();
-    const store = useStore();
+    const authStore = useAuth();
 
     const username = ref("");
     const password = ref("");
@@ -66,7 +66,11 @@ export default defineComponent({
     const show = ref(false);
 
     const login = async () => {
-      await store.dispatch(AUTH_LOGIN, { username, password, rememberMe });
+      await authStore.login({
+        username: username.value,
+        password: password.value,
+        rememberMe: rememberMe.value,
+      });
       router.push("/");
     };
 

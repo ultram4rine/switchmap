@@ -1,7 +1,7 @@
 import { createApp } from "vue";
+import { createPinia } from "pinia";
 
 import router from "@/router";
-import store from "@/store";
 import vuetify from "@/plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 
@@ -16,6 +16,6 @@ createApp(App)
   .component("default-layout", DefaultLayout)
   .component("empty-layout", EmptyLayout)
   .use(router)
-  .use(store)
+  .use(createPinia())
   .use(vuetify)
   .mount("#app");

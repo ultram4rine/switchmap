@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
-import store from "@/store";
+import { useAuth } from "@/store/auth";
 
 const LoginPage = () => import("@/views/LoginPage.vue");
 const BuildsPage = () =>
@@ -68,8 +68,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
+  const authStore = useAuth();
+  console.log(authStore.getLoggedIn);
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!store.getters.getLoggedIn) {
+    if (!authStore.getLoggedIn) {
       next({
         path: "/login",
         query: { redirect: to.fullPath },
@@ -78,7 +80,7 @@ router.beforeEach((to, _from, next) => {
       next();
     }
   } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
-    if (store.getters.getLoggedIn) {
+    if (authStore.getLoggedIn) {
       next({ path: "/builds" });
     } else {
       next();

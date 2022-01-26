@@ -11,10 +11,10 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useStore } from "vuex";
+
+import { useAuth } from "@/store/auth";
 
 import api from "@/api";
-import { AUTH_LOGOUT } from "@/store/actions";
 
 const defaultLayout = "default-layout";
 
@@ -22,7 +22,8 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const store = useStore();
+
+    const authStore = useAuth();
 
     const isLoading = ref(false);
 
@@ -49,7 +50,7 @@ export default defineComponent({
       (error) => {
         setLoading(false);
         if (error.response.status && error.response.status === 401) {
-          store.dispatch(AUTH_LOGOUT);
+          authStore.logout();
           router.push("/login");
         }
         return Promise.reject(error);

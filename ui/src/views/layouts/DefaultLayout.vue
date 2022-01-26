@@ -46,7 +46,8 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
+
+import { useAuth } from "@/store/auth";
 
 import {
   mdiLogout,
@@ -55,8 +56,6 @@ import {
   mdiLan,
 } from "@mdi/js";
 
-import { AUTH_LOGOUT } from "@/store/actions";
-
 export default defineComponent({
   props: {
     isLoading: { type: Boolean, required: true },
@@ -64,7 +63,7 @@ export default defineComponent({
 
   setup() {
     const router = useRouter();
-    const store = useStore();
+    const authStore = useAuth();
 
     const drawer = ref(true);
     const navs = [
@@ -73,10 +72,9 @@ export default defineComponent({
       { link: "/vis", text: "Visualization", icon: mdiLan },
     ];
 
-    const logout = () => {
-      store.dispatch(AUTH_LOGOUT).then(() => {
-        router.push("/login");
-      });
+    const logout = async () => {
+      await authStore.logout();
+      router.push("/login");
     };
 
     //breadcrumbs: [],
@@ -84,6 +82,8 @@ export default defineComponent({
     return {
       drawer,
       navs,
+
+      authStore,
 
       mdiLogout,
 
