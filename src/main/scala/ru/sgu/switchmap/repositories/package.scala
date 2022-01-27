@@ -28,7 +28,6 @@ package object repositories {
       querySchema[FloorRequest](
         "floors",
         _.number -> "number",
-        _.buildName -> "build_name",
         _.buildShortName -> "build_short_name"
       )
     )

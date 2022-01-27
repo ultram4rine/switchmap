@@ -1,6 +1,5 @@
 export interface FloorRequest {
   number: number;
-  buildName: string;
   buildShortName: string;
 }
 

@@ -7,9 +7,6 @@ final case class FloorRequest(
   @description("Number of floor")
   @encodedExample(1)
   number: Int = -1,
-  @description("Name of build of that floor")
-  @encodedExample("Building 1")
-  buildName: String = "",
   @description("Short name of build of that floor")
   @encodedExample("b1")
   buildShortName: String = ""
