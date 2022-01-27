@@ -5,8 +5,8 @@
   "description": "SwitchMap web app",
   "author": "ultram4rine",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve src/main/vue/main.ts",
+    "build": "vue-cli-service build src/main/vue/main.ts",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
