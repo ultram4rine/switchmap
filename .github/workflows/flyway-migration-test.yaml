@@ -30,7 +30,7 @@ jobs:
         uses: red-gate/flyway-hub-migration-test@v4
         with:
           projectName: ultram4rineswitchmap-19
-          engine: PostgreSQL (v13.2)
+          engine: postgres-13
           migrationDirs: src/main/resources/db/migration  
 env:
   FLYWAYHUB_ACCESS_TOKEN: ${{ secrets.FLYWAY_HUB_ACCESS_TOKEN }}
