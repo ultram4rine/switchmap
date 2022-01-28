@@ -22,4 +22,8 @@ describe("Colorize diff", () => {
       "Serial: 00<span style='color: #cd0000;'>11</span>22 -> 00<span style='color: #00cd00;'>22</span>22"
     );
   });
+
+  test("do nothing", () => {
+    expect(colorizeDiff("\x1b[abcm")).toBe("\x1b[abcm");
+  });
 });
