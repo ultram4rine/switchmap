@@ -3,7 +3,6 @@ import { ref, Ref } from "@vue/composition-api";
 import { FloorRequest } from "@/interfaces/floor";
 
 import { addFloor } from "@/api/floors";
-import { getBuild } from "@/api/builds";
 
 export const useFloorForm = (): {
   form: Ref<boolean>;
@@ -27,9 +26,7 @@ export const useFloorForm = (): {
   };
 
   const submitForm = async (f: FloorRequest): Promise<void> => {
-    const b = await getBuild(buildShortName.value);
-    f.buildName = b.name;
-    f.buildShortName = b.shortName;
+    f.buildShortName = buildShortName.value;
     await addFloor(f);
     closeForm();
   };

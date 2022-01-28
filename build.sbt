@@ -1,8 +1,8 @@
 import NativePackagerHelper._
 
-val Http4sVersion = "0.23.7"
-val TapirVersion = "0.20.0-M6"
-val DoobieVersion = "1.0.0-RC2"
+val Http4sVersion = "0.23.8"
+val TapirVersion = "0.20.0-M7"
+val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.1"
 
 lazy val root = (project in file("."))
@@ -29,22 +29,23 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % TapirVersion,
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion,
       "io.circe"                    %% "circe-generic"           % "0.14.1",
-      "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
-      "org.tpolecat"          %% "doobie-postgres"        % DoobieVersion,
-      "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "org.polyvariant"       %% "doobie-quill"           % "0.0.3",
-      "org.flywaydb"           % "flyway-core"            % "8.4.2",
-      "org.postgresql"         % "postgresql"             % "42.3.1",
-      "com.github.jwt-scala"  %% "jwt-circe"              % "9.0.3",
-      "com.unboundid"          % "unboundid-ldapsdk"      % "6.0.3",
-      "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
-      "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
-      "com.github.pureconfig" %% "pureconfig-http4s"      % PureConfigVersion,
-      "com.github.pureconfig" %% "pureconfig-ip4s"        % PureConfigVersion,
-      "com.github.seancfoley"  % "ipaddress"              % "5.3.3",
-      "org.snmp4j"             % "snmp4j"                 % "3.6.4",
-      "ch.qos.logback"         % "logback-classic"        % "1.2.10",
-      "io.grpc"                % "grpc-netty"             % "1.43.2",
+      "org.tpolecat"           %% "doobie-core"            % DoobieVersion,
+      "org.tpolecat"           %% "doobie-postgres"        % DoobieVersion,
+      "org.tpolecat"           %% "doobie-hikari"          % DoobieVersion,
+      "org.polyvariant"        %% "doobie-quill"           % "0.0.4",
+      "org.flywaydb"            % "flyway-core"            % "8.4.3",
+      "org.postgresql"          % "postgresql"             % "42.3.1",
+      "com.github.jwt-scala"   %% "jwt-circe"              % "9.0.3",
+      "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.3",
+      "com.github.pureconfig"  %% "pureconfig"             % PureConfigVersion,
+      "com.github.pureconfig"  %% "pureconfig-cats-effect" % PureConfigVersion,
+      "com.github.pureconfig"  %% "pureconfig-http4s"      % PureConfigVersion,
+      "com.github.pureconfig"  %% "pureconfig-ip4s"        % PureConfigVersion,
+      "com.github.seancfoley"   % "ipaddress"              % "5.3.3",
+      "org.snmp4j"              % "snmp4j"                 % "3.6.4",
+      "com.softwaremill.diffx" %% "diffx-core"             % "0.7.0",
+      "ch.qos.logback"          % "logback-classic"        % "1.2.10",
+      "io.grpc"                 % "grpc-netty"             % "1.44.0",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
@@ -61,7 +62,7 @@ lazy val root = (project in file("."))
     Linux / maintainer := "SGU <sts@sgu.ru>",
     Linux / packageSummary := "Interactive map of SSU switches",
     Linux / packageDescription := "Interactive map of SSU switches",
-    rpmRelease := "7",
+    rpmRelease := "9",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
     rpmLicense := Some("Apache-2.0"),

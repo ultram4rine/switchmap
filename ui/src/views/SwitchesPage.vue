@@ -4,6 +4,21 @@
       <v-toolbar dark flat>
         <v-toolbar-title>Switches</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              text
+              icon
+              @click="handleSyncSwitches"
+              color="orange accent-2"
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>{{ mdiSync }}</v-icon>
+            </v-btn>
+          </template>
+          <span>Sync switches</span>
+        </v-tooltip>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -122,19 +137,41 @@
       :text="snackbarText"
       @close="closeSnackbar"
     />
+
+    <v-dialog :value="showDiff" persistent scrollable>
+      <v-card dark>
+        <v-toolbar>
+          <v-toolbar-title>Sync diff</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="closeDiff">
+            <v-icon>{{ mdiClose }}</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <div class="code">{{ diff }}</div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, Ref, ref } from "@vue/composition-api";
-import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
+import {
+  mdiSync,
+  mdiMagnify,
+  mdiPencil,
+  mdiDelete,
+  mdiEye,
+  mdiClose,
+} from "@mdi/js";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
 import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
-import { getSwitches, deleteSwitch } from "@/api/switches";
+import { syncSwitches, getSwitches, deleteSwitch } from "@/api/switches";
 
 import {
   useSwitchForm,
@@ -200,6 +237,9 @@ export default defineComponent({
       { text: "Actions", value: "actions", sortable: false },
     ]);
 
+    const showDiff = ref(false);
+    const diff = ref("");
+
     return {
       switches,
 
@@ -227,10 +267,15 @@ export default defineComponent({
       search,
       headers,
 
+      showDiff,
+      diff,
+
+      mdiSync,
       mdiMagnify,
       mdiPencil,
       mdiDelete,
       mdiEye,
+      mdiClose,
     };
   },
 
@@ -295,6 +340,20 @@ export default defineComponent({
         this.openSnackbar("error", `Failed to ${action.toLowerCase()} switch`);
       }
     },
+
+    async handleSyncSwitches() {
+      try {
+        const diff = await syncSwitches();
+        this.showDiff = true;
+        this.diff = diff;
+      } catch (err: unknown) {
+        this.openSnackbar("error", `Failed to sync switches`);
+      }
+    },
+
+    closeDiff() {
+      this.showDiff = false;
+    },
   },
 
   created() {
@@ -302,3 +361,11 @@ export default defineComponent({
   },
 });
 </script>
+
+<style>
+.code {
+  white-space: pre;
+
+  font-family: "Roboto Mono", monospace;
+}
+</style>

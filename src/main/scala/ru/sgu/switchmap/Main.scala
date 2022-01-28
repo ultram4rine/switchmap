@@ -29,9 +29,9 @@ import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import zio._
 import zio.blocking.Blocking
 import zio.clock.Clock
-import zio.console._
+import zio.console.putStrLnErr
 import zio.interop.catz._
-import zio.logging.Logging
+import zio.logging.{log, Logging}
 import zio.logging.slf4j.Slf4jLogger
 
 private object NetDataClientLive {
@@ -83,7 +83,7 @@ object Main extends App {
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    logLayer ++ dbTransactor ++ Config.live >+>
+    Blocking.live ++ logLayer ++ dbTransactor ++ Config.live >+>
       netdataEnvironment ++
       SeensUtilLive.layer ++
       DNSUtilLive.layer ++
@@ -116,7 +116,7 @@ object Main extends App {
     Kleisli(req => routes.run(req).getOrElse(redirectToRootResponse(req)))
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = {
-    val program: RIO[AppEnvironment with Console, Unit] =
+    val program: RIO[AppEnvironment, Unit] =
       for {
         api <- config.apiConfig
         app <- config.appConfig
@@ -125,7 +125,7 @@ object Main extends App {
 
         _ <- LDAP.conn
 
-        _ <- repositories.sync()
+        _ <- repositories.sync().catchAll(_ => IO.succeed(""))
 
         endpoints = List.concat(
           AuthRoutes[AppEnvironment]().routes,
@@ -182,16 +182,14 @@ object Main extends App {
           .build
           .toManagedZIO
           .use(server =>
-            Task
-              .succeed(
-                putStrLn(s"Server Has Started at ${server.address}")
-              ) *> UIO.never.as(())
+            log.info(s"Server started at ${server.address}")
+              *> UIO.never.as(())
           )
       } yield server
 
     program
       .provideSomeLayer[ZEnv](appEnvironment)
-      .tapError(err => putStrLn(s"Execution failed with: $err"))
+      .tapError(err => putStrLnErr(s"Execution failed with: $err"))
       .exitCode
   }
 }

@@ -9,6 +9,11 @@ import {
   SwitchResult,
 } from "@/interfaces/switch";
 
+export const syncSwitches = async (): Promise<string> => {
+  const resp = await api.get<string, AxiosResponse<string>>("/switches/sync");
+  return resp.data;
+};
+
 export const getSNMPCommunities = async (): Promise<string[]> => {
   const resp = await api.get<string, AxiosResponse<string[]>>(
     "/switches/snmp/communities"

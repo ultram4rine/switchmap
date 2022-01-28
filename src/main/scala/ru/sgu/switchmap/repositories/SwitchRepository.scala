@@ -1,9 +1,12 @@
 package ru.sgu.switchmap.repositories
 
+import com.softwaremill.diffx._
+import com.softwaremill.diffx.generic.auto._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import inet.ipaddr.{IPAddress, IPAddressString, MACAddressString}
 import inet.ipaddr.mac.MACAddress
+import java.nio.file.Paths
 import ru.sgu.git.netdataserv.netdataproto.{GetMatchingHostRequest, Match}
 import ru.sgu.git.netdataserv.netdataproto.GetNetworkSwitchesRequest
 import ru.sgu.git.netdataserv.netdataproto.ZioNetdataproto.NetDataClient
@@ -19,13 +22,15 @@ import ru.sgu.switchmap.models.{
 }
 import ru.sgu.switchmap.utils.{DNSUtil, SeensUtil, SNMPUtil}
 import zio._
+import zio.blocking.Blocking
 import zio.interop.catz._
 import zio.logging.{log, Logger, Logging}
+import zio.stream.{Sink, Stream}
 
 object SwitchRepository {
 
   trait Service {
-    def sync(): RIO[Logging, Unit]
+    def sync(): RIO[Blocking with Logging, String]
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
@@ -40,7 +45,8 @@ object SwitchRepository {
   }
 
   val live: URLayer[
-    Has[Logger[String]]
+    Blocking
+      with Has[Logger[String]]
       with DBTransactor
       with Has[
         AppConfig
@@ -89,10 +95,12 @@ private[repositories] final case class DoobieSwitchRepository(
   implicit val switchInsertMeta = insertMeta[SwitchResponse]()
   implicit val switchUpdateMeta = updateMeta[SwitchResponse]()
 
-  def sync(): RIO[Logging, Unit] = for {
+  implicit val switchMatcher = ObjectMatcher.seq[SwitchResponse].byValue(_.mac)
+
+  def sync(): RIO[Blocking with Logging, String] = for {
     _ <- log.info("Retrieving switches")
 
-    switches <- for {
+    switchesNdc <- for {
       resp <- ndc
         .getNetworkSwitches(GetNetworkSwitchesRequest())
         .mapError(s => {
@@ -100,6 +108,33 @@ private[repositories] final case class DoobieSwitchRepository(
           new Exception(s.toString)
         })
     } yield resp.switch
+
+    switches <- ZIO
+      .foreachParN(10)(switchesNdc)(sw =>
+        makeSwitch(
+          SwitchRequest(
+            retrieveFromNetData = true,
+            retrieveIPFromDNS = true,
+            retrieveUpLinkFromSeens = true,
+            retrieveTechDataFromSNMP = true,
+            name = sw.name,
+            snmpCommunity = Some(cfg.snmpCommunities.headOption.getOrElse(""))
+          )
+        ).withFilter(sr => sr.seen || sr.snmp)
+          .map(_.sw)
+      )
+      .map(_.toList)
+
+    switchesLocal <- get().map(
+      _.map(
+        _.copy(
+          buildShortName = None,
+          floorNumber = None,
+          positionTop = None,
+          positionLeft = None
+        )
+      )
+    )
 
     _ <- ZIO.foreachParN_(10)(switches)(sw =>
       create(
@@ -120,6 +155,13 @@ private[repositories] final case class DoobieSwitchRepository(
     _ <- log.info("Switches synced")
 
     timestamp = java.time.Instant.now()
+
+    diff = compare(switchesLocal, switches)
+    diffResult = diff.show()
+    _ <- Stream
+      .fromIterable(diffResult.getBytes())
+      .run(Sink.fromFile(Paths.get(s"sync-${timestamp}.log")))
+
     q = quote {
       Tables.lastSyncTime.update(
         _.syncTime -> lift(timestamp)
@@ -133,7 +175,7 @@ private[repositories] final case class DoobieSwitchRepository(
         err => Task.fail(err),
         _ => Task.succeed(())
       )
-  } yield ()
+  } yield (diffResult)
 
   def snmp(): Task[List[String]] = {
     Task.succeed(cfg.snmpCommunities)

@@ -4,6 +4,7 @@ import io.getquill._
 import org.polyvariant.doobiequill.DoobieContext
 import ru.sgu.switchmap.models._
 import zio.{Has, RIO}
+import zio.blocking.Blocking
 import zio.logging.Logging
 
 package object repositories {
@@ -27,7 +28,6 @@ package object repositories {
       querySchema[FloorRequest](
         "floors",
         _.number -> "number",
-        _.buildName -> "build_name",
         _.buildShortName -> "build_short_name"
       )
     )
@@ -84,7 +84,7 @@ package object repositories {
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
     RIO.accessM(_.get.delete(build, number))
 
-  def sync(): RIO[SwitchRepository with Logging, Unit] =
+  def sync(): RIO[SwitchRepository with Blocking with Logging, String] =
     RIO.accessM(_.get.sync())
   def snmpCommunities(): RIO[SwitchRepository, List[String]] =
     RIO.accessM(_.get.snmp())
