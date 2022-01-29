@@ -10,6 +10,10 @@ const isLoggedIn = () => {
 
 const routes = [
   {
+    name: "/",
+    redirectTo: "builds",
+  },
+  {
     name: "login",
     component: Login,
   },
