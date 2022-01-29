@@ -17,7 +17,7 @@
     { link: "/vis", text: "Visualization", icon: "account_tree" },
   ];
 
-  let drawerOpen = false;
+  let drawerOpen = true;
 </script>
 
 <TopAppBar variant="fixed" style="z-index: 7;">
