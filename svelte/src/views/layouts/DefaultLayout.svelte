@@ -1,7 +1,7 @@
 <script lang="ts">
   import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
-  import Drawer, { Content, AppContent, Scrim } from "@smui/drawer";
-  import List, { Item, Text, Graphic, Separator, Subheader } from "@smui/list";
+  import Drawer, { Content, AppContent } from "@smui/drawer";
+  import List, { Item, Text, Graphic } from "@smui/list";
   import IconButton from "@smui/icon-button";
   import Button, { Label, Icon } from "@smui/button";
   import LinearProgress from "@smui/linear-progress";
@@ -17,28 +17,16 @@
     { link: "/vis", text: "Visualization", icon: "account_tree" },
   ];
 
-  let open = false;
+  let drawerOpen = false;
 </script>
 
-<Drawer variant="dismissible" bind:open>
-  <Content>
-    <List>
-      {#each navs as nav (nav.link)}
-        <Item>
-          <Graphic class="material-icons" aria-hidden="true">{nav.icon}</Graphic
-          >
-          <Text>{nav.text}</Text>
-        </Item>
-      {/each}
-    </List>
-  </Content>
-</Drawer>
-
-<Scrim />
-<TopAppBar variant="fixed" class="appbar">
+<TopAppBar variant="fixed" style="z-index: 7;">
   <Row>
     <Section>
-      <IconButton class="material-icons" on:click={() => (open = !open)}>
+      <IconButton
+        class="material-icons"
+        on:click={() => (drawerOpen = !drawerOpen)}
+      >
         menu
       </IconButton>
       <Title>SwitchMap</Title>
@@ -51,7 +39,33 @@
     </Section>
   </Row>
 </TopAppBar>
-<LinearProgress indeterminate style="padding-top: 64px;" />
+<LinearProgress
+  indeterminate
+  style="padding-top: 64px; z-index: 6;"
+  slot="progress"
+/>
+
+<Drawer
+  variant="dismissible"
+  bind:open={drawerOpen}
+  style="height: calc(100% - 64px - 4px);"
+>
+  <Content>
+    <List>
+      {#each navs as nav (nav.link)}
+        <Item
+          href={nav.link}
+          activated={currentRoute.name.startsWith(nav.link)}
+        >
+          <Graphic class="material-icons" aria-hidden="true">{nav.icon}</Graphic
+          >
+          <Text>{nav.text}</Text>
+        </Item>
+      {/each}
+    </List>
+  </Content>
+</Drawer>
+
 <AppContent class="app-content">
   <main class="main-content">
     <Route {currentRoute} {params} />
@@ -59,9 +73,6 @@
 </AppContent>
 
 <style>
-  .appbar {
-    background-color: #272727;
-  }
   * :global(.app-content) {
     flex: auto;
     overflow: auto;
