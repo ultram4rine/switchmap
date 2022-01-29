@@ -2,6 +2,7 @@ import DefaultLayout from "../views/layouts/DefaultLayout.svelte";
 
 import Login from "../views/Login.svelte";
 import Builds from "../views/Builds.svelte";
+import Floors from "../views/Floors.svelte";
 import Switches from "../views/Switches.svelte";
 
 const isLoggedIn = () => {
@@ -21,6 +22,11 @@ const routes = [
     name: "builds",
     layout: DefaultLayout,
     component: Builds,
+  },
+  {
+    name: "builds/:shortName",
+    layout: DefaultLayout,
+    component: Floors,
   },
   {
     name: "switches",
