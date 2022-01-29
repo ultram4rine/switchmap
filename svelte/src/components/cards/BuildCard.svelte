@@ -2,7 +2,7 @@
   import Card, { Actions, ActionButtons } from "@smui/card";
   import Button, { Label } from "@smui/button";
 
-  import { Navigate } from "svelte-router-spa";
+  import { navigateTo } from "svelte-router-spa";
 
   import type { BuildResponse } from "../../interfaces/build";
 
@@ -26,11 +26,9 @@
       <Button>
         <Label>Add floor</Label>
       </Button>
-      <Navigate to="builds/{build.shortName}">
-        <Button>
-          <Label>Go</Label>
-        </Button>
-      </Navigate>
+      <Button on:click={() => navigateTo(`builds/${build.shortName}`)}>
+        <Label>Go</Label>
+      </Button>
     </ActionButtons>
   </Actions>
 </Card>
