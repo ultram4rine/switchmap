@@ -84,12 +84,30 @@
     >
       <Head>
         <Row>
-          <Cell columnId="name" style="width: 100%;">Name</Cell>
-          <Cell columnId="mac">MAC</Cell>
-          <Cell columnId="ip">IP</Cell>
-          <Cell columnId="serial">Serial</Cell>
-          <Cell columnId="buildShortName">Location</Cell>
-          <Cell columnId="upLink">Uplink</Cell>
+          <Cell columnId="name" style="width: 100%;">
+            <Label>Name</Label>
+            <IconButton class="material-icons">arrow_upward</IconButton>
+          </Cell>
+          <Cell columnId="mac">
+            <Label>MAC</Label>
+            <IconButton class="material-icons">arrow_upward</IconButton>
+          </Cell>
+          <Cell columnId="ip">
+            <Label>IP</Label>
+            <IconButton class="material-icons">arrow_upward</IconButton>
+          </Cell>
+          <Cell columnId="serial">
+            <Label>Serial</Label>
+            <IconButton class="material-icons">arrow_upward</IconButton>
+          </Cell>
+          <Cell columnId="buildShortName">
+            <Label>Location</Label>
+            <IconButton class="material-icons">arrow_upward</IconButton>
+          </Cell>
+          <Cell columnId="upLink">
+            <Label>Uplink</Label>
+            <IconButton class="material-icons">arrow_upward</IconButton>
+          </Cell>
           <Cell>Actions</Cell>
         </Row>
       </Head>
