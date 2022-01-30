@@ -11,6 +11,7 @@
   import Select, { Option } from "@smui/select";
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
+  import Fab, { Label as FabLabel } from "@smui/fab";
 
   import type { SwitchResponse } from "@/interfaces/switch";
 
@@ -170,3 +171,11 @@
     </DataTable>
   </LayoutCell>
 </LayoutGrid>
+
+<Fab
+  color="primary"
+  extended
+  style="position:fixed; bottom: 16px; right: 16px;"
+>
+  <FabLabel>Add switch</FabLabel>
+</Fab>

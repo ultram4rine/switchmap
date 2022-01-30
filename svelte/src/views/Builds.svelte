@@ -1,5 +1,7 @@
 <script lang="ts">
   import LayoutGrid, { Cell } from "@smui/layout-grid";
+  import Fab, { Label } from "@smui/fab";
+
   import BuildCard from "../components/cards/BuildCard.svelte";
 
   import type { BuildResponse } from "../interfaces/build";
@@ -27,3 +29,11 @@
     </Cell>
   {/each}
 </LayoutGrid>
+
+<Fab
+  color="primary"
+  extended
+  style="position:fixed; bottom: 16px; right: 16px;"
+>
+  <Label>Add build</Label>
+</Fab>

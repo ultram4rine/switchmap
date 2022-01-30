@@ -1,5 +1,7 @@
 <script lang="ts">
   import LayoutGrid, { Cell } from "@smui/layout-grid";
+  import Fab, { Label } from "@smui/fab";
+
   import FloorCard from "../components/cards/FloorCard.svelte";
 
   import type { FloorResponse } from "../interfaces/floor";
@@ -25,3 +27,11 @@
     </Cell>
   {/each}
 </LayoutGrid>
+
+<Fab
+  color="primary"
+  extended
+  style="position:fixed; bottom: 16px; right: 16px;"
+>
+  <Label>Add Floor</Label>
+</Fab>
