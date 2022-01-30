@@ -8,6 +8,8 @@
 
   import { Route } from "svelte-router-spa";
 
+  import api from "../../api";
+
   export let currentRoute;
   export const params = {};
 
@@ -18,6 +20,33 @@
   ];
 
   let drawerOpen = true;
+  let isLoading = false;
+
+  api.interceptors.request.use(
+    (config) => {
+      isLoading = true;
+      return config;
+    },
+    (error) => {
+      isLoading = false;
+      return Promise.reject(error);
+    }
+  );
+
+  api.interceptors.response.use(
+    (response) => {
+      isLoading = false;
+      return response;
+    },
+    (error) => {
+      isLoading = false;
+      /* if (error.response.status && error.response.status === 401) {
+          this.$store.dispatch(AUTH_LOGOUT);
+          this.$router.push("/login");
+        } */
+      return Promise.reject(error);
+    }
+  );
 </script>
 
 <TopAppBar variant="fixed" style="z-index: 7;">
@@ -38,18 +67,10 @@
       </Button>
     </Section>
   </Row>
+  <LinearProgress indeterminate closed={!isLoading} style="z-index: 8;" />
 </TopAppBar>
-<LinearProgress
-  indeterminate
-  style="padding-top: 64px; z-index: 6;"
-  slot="progress"
-/>
 
-<Drawer
-  variant="dismissible"
-  bind:open={drawerOpen}
-  style="height: calc(100% - 64px - 4px);"
->
+<Drawer variant="dismissible" bind:open={drawerOpen} style="padding-top: 68px;">
   <Content>
     <List>
       {#each navs as nav (nav.link)}
@@ -67,7 +88,7 @@
 </Drawer>
 
 <AppContent class="app-content">
-  <main class="main-content">
+  <main class="main-content" style="padding-top: 68px;">
     <Route {currentRoute} {params} />
   </main>
 </AppContent>
