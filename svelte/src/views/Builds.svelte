@@ -3,8 +3,11 @@
   import Fab, { Label } from "@smui/fab";
 
   import BuildCard from "../components/cards/BuildCard.svelte";
+  import BuildForm from "../components/forms/BuildForm.svelte";
 
   import type { BuildResponse } from "../interfaces/build";
+
+  let buildForm = false;
 
   let builds: Array<BuildResponse> = [
     {
@@ -30,10 +33,13 @@
   {/each}
 </LayoutGrid>
 
+<BuildForm form={buildForm} />
+
 <Fab
   color="primary"
   extended
   style="position:fixed; bottom: 16px; right: 16px;"
+  on:click={() => (buildForm = true)}
 >
   <Label>Add build</Label>
 </Fab>
