@@ -13,6 +13,16 @@
   import { Label } from "@smui/common";
   import Fab, { Label as FabLabel } from "@smui/fab";
 
+  import SVGIcon from "../components/SVGIcon.svelte";
+
+  import {
+    mdiArrowUp,
+    mdiPageFirst,
+    mdiChevronLeft,
+    mdiChevronRight,
+    mdiPageLast,
+  } from "@mdi/js";
+
   import type { SwitchResponse } from "@/interfaces/switch";
 
   let rowsPerPage = 10;
@@ -87,27 +97,27 @@
         <Row>
           <Cell columnId="name" style="width: 100%;">
             <Label>Name</Label>
-            <IconButton class="material-icons">arrow_upward</IconButton>
+            <IconButton><SVGIcon icon={mdiArrowUp} /></IconButton>
           </Cell>
           <Cell columnId="mac">
             <Label>MAC</Label>
-            <IconButton class="material-icons">arrow_upward</IconButton>
+            <IconButton><SVGIcon icon={mdiArrowUp} /></IconButton>
           </Cell>
           <Cell columnId="ip">
             <Label>IP</Label>
-            <IconButton class="material-icons">arrow_upward</IconButton>
+            <IconButton><SVGIcon icon={mdiArrowUp} /></IconButton>
           </Cell>
           <Cell columnId="serial">
             <Label>Serial</Label>
-            <IconButton class="material-icons">arrow_upward</IconButton>
+            <IconButton><SVGIcon icon={mdiArrowUp} /></IconButton>
           </Cell>
           <Cell columnId="buildShortName">
             <Label>Location</Label>
-            <IconButton class="material-icons">arrow_upward</IconButton>
+            <IconButton><SVGIcon icon={mdiArrowUp} /></IconButton>
           </Cell>
           <Cell columnId="upLink">
             <Label>Uplink</Label>
-            <IconButton class="material-icons">arrow_upward</IconButton>
+            <IconButton><SVGIcon icon={mdiArrowUp} /></IconButton>
           </Cell>
           <Cell>Actions</Cell>
         </Row>
@@ -140,33 +150,37 @@
         </svelte:fragment>
 
         <IconButton
-          class="material-icons"
           action="first-page"
           title="First page"
           on:click={() => (currentPage = 0)}
-          disabled={currentPage === 0}>first_page</IconButton
+          disabled={currentPage === 0}
         >
+          <SVGIcon icon={mdiPageFirst} />
+        </IconButton>
         <IconButton
-          class="material-icons"
           action="prev-page"
           title="Prev page"
           on:click={() => currentPage--}
-          disabled={currentPage === 0}>chevron_left</IconButton
+          disabled={currentPage === 0}
         >
+          <SVGIcon icon={mdiChevronLeft} />
+        </IconButton>
         <IconButton
-          class="material-icons"
           action="next-page"
           title="Next page"
           on:click={() => currentPage++}
-          disabled={currentPage === lastPage}>chevron_right</IconButton
+          disabled={currentPage === lastPage}
         >
+          <SVGIcon icon={mdiChevronRight} />
+        </IconButton>
         <IconButton
-          class="material-icons"
           action="last-page"
           title="Last page"
           on:click={() => (currentPage = lastPage)}
-          disabled={currentPage === lastPage}>last_page</IconButton
+          disabled={currentPage === lastPage}
         >
+          <SVGIcon icon={mdiPageLast} />
+        </IconButton>
       </Pagination>
     </DataTable>
   </LayoutCell>

@@ -3,8 +3,18 @@
   import Drawer, { Content, AppContent } from "@smui/drawer";
   import List, { Item, Text, Graphic } from "@smui/list";
   import IconButton from "@smui/icon-button";
-  import Button, { Label, Icon } from "@smui/button";
+  import Button, { Label } from "@smui/button";
   import LinearProgress from "@smui/linear-progress";
+
+  import SVGIcon from "../../components/SVGIcon.svelte";
+
+  import {
+    mdiMenu,
+    mdiLogout,
+    mdiOfficeBuilding,
+    mdiRouterNetwork,
+    mdiLan,
+  } from "@mdi/js";
 
   import { Route } from "svelte-router-spa";
 
@@ -14,9 +24,9 @@
   export const params = {};
 
   const navs = [
-    { link: "/builds", text: "Builds", icon: "apartment" },
-    { link: "/switches", text: "Switches", icon: "router" },
-    { link: "/vis", text: "Visualization", icon: "account_tree" },
+    { link: "/builds", text: "Builds", icon: mdiOfficeBuilding },
+    { link: "/switches", text: "Switches", icon: mdiRouterNetwork },
+    { link: "/vis", text: "Visualization", icon: mdiLan },
   ];
 
   let drawerOpen = true;
@@ -55,18 +65,15 @@
 >
   <Row>
     <Section>
-      <IconButton
-        class="material-icons"
-        on:click={() => (drawerOpen = !drawerOpen)}
-      >
-        menu
+      <IconButton on:click={() => (drawerOpen = !drawerOpen)}>
+        <SVGIcon icon={mdiMenu} />
       </IconButton>
       <Title>SwitchMap</Title>
     </Section>
     <Section align="end" toolbar>
       <Button variant="raised" color="primary">
         <Label>Sign out</Label>
-        <Icon class="material-icons">logout</Icon>
+        <SVGIcon icon={mdiLogout} />
       </Button>
     </Section>
   </Row>
@@ -81,8 +88,7 @@
           href={nav.link}
           activated={currentRoute.name.startsWith(nav.link)}
         >
-          <Graphic class="material-icons" aria-hidden="true">{nav.icon}</Graphic
-          >
+          <Graphic aria-hidden="true"><SVGIcon icon={nav.icon} /></Graphic>
           <Text>{nav.text}</Text>
         </Item>
       {/each}
