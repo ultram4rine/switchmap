@@ -6,8 +6,8 @@ import { User } from "@/interfaces/user";
 export const useAuth = defineStore("auth", {
   state: () => {
     return {
-      token: "",
-      username: "",
+      token: localStorage.getItem("token") || "",
+      username: localStorage.getItem("username") || "",
     };
   },
   getters: {
