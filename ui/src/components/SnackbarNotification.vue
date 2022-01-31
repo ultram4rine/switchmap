@@ -10,7 +10,7 @@
     {{ text }}
     <template v-slot:action="{ attrs }">
       <v-btn fab x-small v-bind="attrs" @click="close">
-        <v-icon dark>{{ mdiClose }}</v-icon>
+        <v-icon :icon="mdiClose" dark></v-icon>
       </v-btn>
     </template>
   </v-snackbar>

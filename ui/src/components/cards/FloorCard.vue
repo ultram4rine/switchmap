@@ -4,7 +4,7 @@
       Floor {{ floor.number }}
       <v-spacer></v-spacer>
       <v-btn icon small color="red" @click="handleDelete">
-        <v-icon>{{ mdiDelete }}</v-icon>
+        <v-icon :icon="mdiDelete"></v-icon>
       </v-btn>
     </v-card-title>
 

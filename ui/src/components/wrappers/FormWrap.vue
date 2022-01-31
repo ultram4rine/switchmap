@@ -5,7 +5,7 @@
         <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="close">
-          <v-icon>{{ mdiClose }}</v-icon>
+          <v-icon :icon="mdiClose"></v-icon>
         </v-btn>
       </v-toolbar>
       <slot />

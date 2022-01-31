@@ -4,10 +4,10 @@
       <div class="ellipsis">{{ build.name }}</div>
       <v-spacer></v-spacer>
       <v-btn icon small color="grey" @click="handleEdit">
-        <v-icon>{{ mdiPencil }}</v-icon>
+        <v-icon :icon="mdiPencil"></v-icon>
       </v-btn>
       <v-btn icon small color="red" @click="handleDelete">
-        <v-icon>{{ mdiDelete }}</v-icon>
+        <v-icon :icon="mdiDelete"></v-icon>
       </v-btn>
     </v-card-title>
 

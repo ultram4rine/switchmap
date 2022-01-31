@@ -33,9 +33,7 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                <v-icon small>
-                  {{ mdiPencil }}
-                </v-icon>
+                <v-icon :icon="mdiPencil" small></v-icon>
               </v-btn>
             </template>
             <span>Edit</span>
@@ -49,9 +47,7 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                <v-icon small>
-                  {{ mdiDelete }}
-                </v-icon>
+                <v-icon :icon="mdiDelete" small></v-icon>
               </v-btn>
             </template>
             <span>Delete</span>
@@ -72,7 +68,7 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                <v-icon small>{{ mdiEye }}</v-icon>
+                <v-icon :icon="mdiEye" small></v-icon>
               </v-btn>
             </template>
             <span>View</span>

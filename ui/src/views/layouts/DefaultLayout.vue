@@ -1,31 +1,11 @@
 <template>
   <div id="layout" :v-bind="isLoading">
-    <v-navigation-drawer v-model="drawer" app dark clipped floating>
-      <v-list>
-        <v-list-item-group>
-          <v-list-item v-for="(nav, i) in navs" :key="i" :to="nav.link">
-            <v-list-item-icon>
-              <v-icon v-text="nav.icon"></v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title v-text="nav.text"></v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
-
-    <v-app-bar app dark clipped-left>
+    <v-app-bar app dark absolute clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>
+      <v-app-bar-title>
         SwitchMap
         <!-- <v-breadcrumbs :items="breadcrumbs" large></v-breadcrumbs> -->
-      </v-toolbar-title>
-      <v-spacer />
-      <v-btn color="orange darken-1" @click="logout">
-        Sign out
-        <v-icon right>{{ mdiLogout }}</v-icon>
-      </v-btn>
+      </v-app-bar-title>
       <v-progress-linear
         :active="isLoading"
         :indeterminate="isLoading"
@@ -33,7 +13,27 @@
         bottom
         color="orange accent-4"
       ></v-progress-linear>
+      <v-spacer></v-spacer>
+      <v-btn color="orange darken-1" @click="logout">
+        Sign out
+        <v-icon right :icon="mdiLogout"></v-icon>
+      </v-btn>
     </v-app-bar>
+    <v-navigation-drawer v-model="drawer" app dark absolute temporary>
+      <v-list nav dense>
+        <v-list-item
+          v-for="(nav, i) in navs"
+          :key="i"
+          :value="nav"
+          :to="nav.link"
+        >
+          <v-list-item-avatar left>
+            <v-icon :icon="nav.icon"></v-icon>
+          </v-list-item-avatar>
+          <v-list-item-title v-text="nav.text"></v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
 
     <v-main>
       <v-container fluid>
