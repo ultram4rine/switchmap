@@ -14,6 +14,7 @@
   import Fab, { Label as FabLabel } from "@smui/fab";
 
   import SVGIcon from "../components/SVGIcon.svelte";
+  import SwitchForm from "../components/forms/SwitchForm.svelte";
 
   import {
     mdiArrowUp,
@@ -24,6 +25,8 @@
   } from "@mdi/js";
 
   import type { SwitchResponse } from "@/interfaces/switch";
+
+  let switchForm = false;
 
   let rowsPerPage = 10;
   let currentPage = 0;
@@ -186,10 +189,13 @@
   </LayoutCell>
 </LayoutGrid>
 
+<SwitchForm form={switchForm} />
+
 <Fab
   color="primary"
   extended
   style="position:fixed; bottom: 16px; right: 16px;"
+  on:click={() => (switchForm = true)}
 >
   <FabLabel>Add switch</FabLabel>
 </Fab>
