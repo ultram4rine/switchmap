@@ -22,7 +22,7 @@ import ru.sgu.switchmap.models.{
 }
 import ru.sgu.switchmap.utils.{DNSUtil, SeensUtil, SNMPUtil}
 import zio._
-import zio.blocking.Blocking
+
 import zio.interop.catz._
 import zio.logging.{log, Logger, Logging}
 import zio.stream.{Sink, Stream}
@@ -30,7 +30,7 @@ import zio.stream.{Sink, Stream}
 object SwitchRepository {
 
   trait Service {
-    def sync(): RIO[Blocking with Logging, String]
+    def sync(): RIO[Any with Logging, String]
     def snmp(): Task[List[String]]
     def get(): Task[List[SwitchResponse]]
     def getOf(build: String): Task[List[SwitchResponse]]
@@ -45,18 +45,14 @@ object SwitchRepository {
   }
 
   val live: URLayer[
-    Blocking
-      with Has[Logger[String]]
+    Any
+      with Logger[String]
       with DBTransactor
-      with Has[
-        AppConfig
-      ]
+      with AppConfig
       with NetDataClient
-      with Has[
-        SeensUtil
-      ]
-      with Has[DNSUtil]
-      with Has[SNMPUtil],
+      with SeensUtil
+      with DNSUtil
+      with SNMPUtil,
     SwitchRepository
   ] =
     ZLayer.fromServices[
@@ -97,7 +93,7 @@ private[repositories] final case class DoobieSwitchRepository(
 
   implicit val switchMatcher = ObjectMatcher.seq[SwitchResponse].byValue(_.mac)
 
-  def sync(): RIO[Blocking with Logging, String] = for {
+  def sync(): RIO[Any with Logging, String] = for {
     _ <- log.info("Retrieving switches")
 
     switchesNdc <- for {
@@ -109,8 +105,7 @@ private[repositories] final case class DoobieSwitchRepository(
         })
     } yield resp.switch
 
-    switches <- ZIO
-      .foreachParN(10)(switchesNdc)(sw =>
+    switches <- ZIO.foreachPar(switchesNdc)(sw =>
         makeSwitch(
           SwitchRequest(
             retrieveFromNetData = true,
@@ -121,8 +116,7 @@ private[repositories] final case class DoobieSwitchRepository(
             snmpCommunity = Some(cfg.snmpCommunities.headOption.getOrElse(""))
           )
         ).withFilter(sr => sr.seen || sr.snmp)
-          .map(_.sw)
-      )
+          .map(_.sw)).withParallelism(10)
       .map(_.toList)
 
     switchesLocal <- get().map(
@@ -136,7 +130,7 @@ private[repositories] final case class DoobieSwitchRepository(
       )
     )
 
-    _ <- ZIO.foreachParN_(10)(switches)(sw =>
+    _ <- ZIO.foreachParDiscard(switches)(sw =>
       create(
         SwitchRequest(
           retrieveFromNetData = true,
@@ -149,8 +143,7 @@ private[repositories] final case class DoobieSwitchRepository(
       )
         .catchAll(e => {
           log.warn(e.toString())
-        })
-    )
+        })).withParallelism(10)
 
     _ <- log.info("Switches synced")
 
@@ -171,7 +164,7 @@ private[repositories] final case class DoobieSwitchRepository(
     _ <- Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         _ => Task.succeed(())
       )
@@ -189,7 +182,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         switches => Task.succeed(switches)
       )
@@ -205,7 +198,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         switches => Task.succeed(switches)
       )
@@ -225,7 +218,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         switches => Task.succeed(switches)
       )
@@ -245,7 +238,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         switches => Task.succeed(switches)
       )
@@ -266,7 +259,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         switches => Task.succeed(switches)
       )
@@ -284,7 +277,7 @@ private[repositories] final case class DoobieSwitchRepository(
       .run(q)
       .transact(xa)
       .map(_.headOption)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         maybeSwitch =>
           Task.require(SwitchNotFound(name))(Task.succeed(maybeSwitch))
@@ -314,7 +307,7 @@ private[repositories] final case class DoobieSwitchRepository(
           Tables.ctx
             .run(q)
             .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
+            .foldZIO(err => Task.fail(err), _ => Task.succeed(sr))
         }
       }
   }
@@ -347,7 +340,7 @@ private[repositories] final case class DoobieSwitchRepository(
           Tables.ctx
             .run(q)
             .transact(xa)
-            .foldM(err => Task.fail(err), _ => Task.succeed(sr))
+            .foldZIO(err => Task.fail(err), _ => Task.succeed(sr))
         }
       }
   }
@@ -365,7 +358,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def delete(name: String): Task[Boolean] = {
@@ -378,7 +371,7 @@ private[repositories] final case class DoobieSwitchRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   private def makeSwitch(switch: SwitchRequest): Task[SwitchResult] = {

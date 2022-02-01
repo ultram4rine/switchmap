@@ -51,7 +51,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         builds => Task.succeed(builds)
       )
@@ -81,7 +81,7 @@ private[repositories] final case class DoobieBuildRepository(
       .run(q)
       .transact(xa)
       .map(_.headOption)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         maybeBuild =>
           Task.require(BuildNotFound(shortName))(Task.succeed(maybeBuild))
@@ -96,7 +96,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def update(
@@ -112,7 +112,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def delete(
@@ -127,7 +127,7 @@ private[repositories] final case class DoobieBuildRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
 }

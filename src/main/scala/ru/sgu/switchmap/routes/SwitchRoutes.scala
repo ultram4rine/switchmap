@@ -14,12 +14,10 @@ import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
 import sttp.tapir.ztapir._
 import zio._
-import zio.blocking.Blocking
+
 import zio.logging.Logging
 
-final case class SwitchRoutes[R <: Has[
-  Authorizer
-] with SwitchRepository with Blocking with Logging]() {
+final case class SwitchRoutes[R <: Authorizer with SwitchRepository with Any with Logging]() {
   import ru.sgu.switchmap.json._
   import ru.sgu.switchmap.routes.schemas._
 

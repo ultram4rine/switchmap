@@ -51,20 +51,20 @@ case class LDAPLive(cfg: LDAPConfig) extends LDAP {
 }
 
 object LDAPLive {
-  val layer: RLayer[Has[LDAPConfig], Has[LDAP]] = (LDAPLive(_)).toLayer
+  val layer: RLayer[LDAPConfig, LDAP] = (LDAPLive(_)).toLayer
 }
 
 object LDAP {
-  val conn: RIO[Has[LDAP], LDAPConnection] = ZIO.serviceWith[LDAP](_.conn)
+  val conn: RIO[LDAP, LDAPConnection] = ZIO.serviceWithZIO[LDAP](_.conn)
 
   def connect(
     username: String,
     password: String
-  ): RIO[Has[LDAP], LDAPConnection] =
-    ZIO.serviceWith[LDAP](_.connect(username, password))
+  ): RIO[LDAP, LDAPConnection] =
+    ZIO.serviceWithZIO[LDAP](_.connect(username, password))
 
   def findUser(
     username: String
-  ): RIO[Has[LDAP], Boolean] =
-    ZIO.serviceWith[LDAP](_.findUser(username))
+  ): RIO[LDAP, Boolean] =
+    ZIO.serviceWithZIO[LDAP](_.findUser(username))
 }

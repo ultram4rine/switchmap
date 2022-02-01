@@ -23,10 +23,10 @@ case class DNSUtilLive(cfg: AppConfig) extends DNSUtil {
 }
 
 object DNSUtilLive {
-  val layer: RLayer[Has[AppConfig], Has[DNSUtil]] = (DNSUtilLive(_)).toLayer
+  val layer: RLayer[AppConfig, DNSUtil] = (DNSUtilLive(_)).toLayer
 }
 
 object DNSUtil {
-  def getIPByHostname(name: String): RIO[Has[DNSUtil], IPAddress] =
-    ZIO.serviceWith[DNSUtil](_.getIPByHostname(name))
+  def getIPByHostname(name: String): RIO[DNSUtil, IPAddress] =
+    ZIO.serviceWithZIO[DNSUtil](_.getIPByHostname(name))
 }

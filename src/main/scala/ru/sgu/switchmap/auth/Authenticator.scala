@@ -29,7 +29,7 @@ case class AuthenticatorLive(ldap: LDAP, jwt: JWT) extends Authenticator {
     ldap.findUser(username).flatMap {
       case true =>
         val conn = ldap.connect(username, password)
-        conn.foldM(
+        conn.foldZIO(
           _ => IO.fail(authenticationError),
           _ =>
             for {
@@ -51,7 +51,7 @@ case class AuthenticatorLive(ldap: LDAP, jwt: JWT) extends Authenticator {
 }
 
 object AuthenticatorLive {
-  val layer: RLayer[Has[LDAP] with Has[JWT], Has[Authenticator]] =
+  val layer: RLayer[LDAP with JWT, Authenticator] =
     (AuthenticatorLive(_, _)).toLayer
 }
 
@@ -60,8 +60,8 @@ object Authenticator {
     username: String,
     password: String,
     rememberMe: Boolean
-  ): RIO[Has[Authenticator], AuthToken] =
-    ZIO.serviceWith[Authenticator](
+  ): RIO[Authenticator, AuthToken] =
+    ZIO.serviceWithZIO[Authenticator](
       _.authenticate(username, password, rememberMe)
     )
 }

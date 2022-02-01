@@ -27,11 +27,11 @@ case class AuthorizerLive(jwt: JWT) extends Authorizer {
 }
 
 object AuthorizerLive {
-  val layer: RLayer[Has[JWT], Has[Authorizer]] =
+  val layer: RLayer[JWT, Authorizer] =
     (AuthorizerLive(_)).toLayer
 }
 
 object Authorizer {
-  def authorize(token: AuthToken): RIO[Has[Authorizer], AuthStatus.Status] =
-    ZIO.serviceWith[Authorizer](_.authorize(token))
+  def authorize(token: AuthToken): RIO[Authorizer, AuthStatus.Status] =
+    ZIO.serviceWithZIO[Authorizer](_.authorize(token))
 }

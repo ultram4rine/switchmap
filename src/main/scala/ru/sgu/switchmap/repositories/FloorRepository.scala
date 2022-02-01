@@ -53,7 +53,7 @@ private[repositories] final case class DoobieFloorRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         floors => Task.succeed(floors)
       )
@@ -88,7 +88,7 @@ private[repositories] final case class DoobieFloorRepository(
       .run(q)
       .transact(xa)
       .map(_.headOption)
-      .foldM(
+      .foldZIO(
         err => Task.fail(err),
         maybeFloor =>
           Task.require(FloorNotFound(number, build))(Task.succeed(maybeFloor))
@@ -103,7 +103,7 @@ private[repositories] final case class DoobieFloorRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
   def delete(
@@ -121,7 +121,7 @@ private[repositories] final case class DoobieFloorRepository(
     Tables.ctx
       .run(q)
       .transact(xa)
-      .foldM(err => Task.fail(err), _ => Task.succeed(true))
+      .foldZIO(err => Task.fail(err), _ => Task.succeed(true))
   }
 
 }

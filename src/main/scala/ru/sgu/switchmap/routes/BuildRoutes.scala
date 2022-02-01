@@ -10,7 +10,7 @@ import sttp.tapir.json.circe._
 import sttp.tapir.ztapir._
 import zio._
 
-final case class BuildRoutes[R <: Has[Authorizer] with BuildRepository]() {
+final case class BuildRoutes[R <: Authorizer with BuildRepository]() {
   private[this] val buildBaseEndpoint = secureEndpoint.tag("builds")
 
   val getBuildsEndpoint = buildBaseEndpoint

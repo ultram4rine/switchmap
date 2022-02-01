@@ -7,11 +7,11 @@ import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.generic.auto._
 import sttp.tapir.ztapir._
 import zio._
-import zio.blocking.Blocking
+
 import zio.stream.{Stream, ZSink}
 import zio.stream.ZStream
 
-final case class PlanRoutes[R <: Has[Authorizer] with Blocking]() {
+final case class PlanRoutes[R <: Authorizer with Any]() {
   type PlanTask[A] = RIO[R, A]
 
   private[this] val planBaseEndpoint = secureEndpoint.tag("plans")

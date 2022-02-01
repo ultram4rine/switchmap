@@ -10,7 +10,7 @@ import sttp.tapir.json.circe._
 import sttp.tapir.ztapir._
 import zio._
 
-final case class FloorRoutes[R <: Has[Authorizer] with FloorRepository]() {
+final case class FloorRoutes[R <: Authorizer with FloorRepository]() {
   private[this] val floorBaseEndpoint = secureEndpoint.tag("floors")
 
   val getFloorsOfEndpoint = floorBaseEndpoint

@@ -1,7 +1,7 @@
 import NativePackagerHelper._
 
 val Http4sVersion = "0.23.9"
-val TapirVersion = "0.20.0-M7"
+val TapirVersion = "0.20.0-M8"
 val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.1"
 
@@ -18,9 +18,9 @@ lazy val root = (project in file("."))
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies ++= Seq(
-      "dev.zio"    %% "zio"                 % "1.0.13",
-      "dev.zio"    %% "zio-interop-cats"    % "3.2.9.0",
-      "dev.zio"    %% "zio-logging-slf4j"   % "0.5.14",
+      "dev.zio"    %% "zio"                 % "2.0.0-RC2",
+      "dev.zio"    %% "zio-interop-cats"    % "3.3.0-RC2",
+      "dev.zio"    %% "zio-logging-slf4j"   % "2.0.0-RC4",
       "org.http4s" %% "http4s-ember-server" % Http4sVersion,
       "org.http4s" %% "http4s-ember-client" % Http4sVersion,
       "org.http4s" %% "http4s-circe"        % Http4sVersion,

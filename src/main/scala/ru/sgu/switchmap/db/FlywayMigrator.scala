@@ -2,22 +2,23 @@ package ru.sgu.switchmap.db
 
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
-import zio.{Has, RIO, RLayer, ZIO}
+import zio.{RIO, RLayer, ZIO}
+import zio.logging.{console, LogContext}
 import zio.logging.{log, Logger, Logging}
 
 trait FlywayMigrator {
-  def migrate(): RIO[Logging, MigrateResult]
+  def migrate(): RIO[LogContext, MigrateResult]
 }
 
 case class FlywayMigratorLive(
   logger: Logger[String],
   res: DBTransactor.Resource
 ) extends FlywayMigrator {
-  override def migrate(): RIO[Logging, MigrateResult] =
+  override def migrate(): RIO[LogContext, MigrateResult] =
     for {
       _ <- log.info("Starting Flyway migration")
       res <- res.xa.configure(ds =>
-        ZIO.effect {
+        ZIO.attempt {
           Flyway.configure().dataSource(ds).load().migrate()
         }
       )
@@ -26,13 +27,11 @@ case class FlywayMigratorLive(
 }
 
 object FlywayMigratorLive {
-  val layer: RLayer[Has[Logger[String]] with DBTransactor, Has[
-    FlywayMigrator
-  ]] =
+  val layer: RLayer[Logger[String] with DBTransactor, FlywayMigrator] =
     (FlywayMigratorLive(_, _)).toLayer
 }
 
 object FlywayMigrator {
-  def migrate(): RIO[Has[FlywayMigrator] with Logging, MigrateResult] =
-    ZIO.accessM[Has[FlywayMigrator] with Logging](_.get.migrate())
+  def migrate(): RIO[FlywayMigrator with Logging, MigrateResult] =
+    ZIO.environmentWithZIO[FlywayMigrator with Logging](_.get.migrate())
 }

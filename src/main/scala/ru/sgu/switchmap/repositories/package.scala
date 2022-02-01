@@ -3,14 +3,14 @@ package ru.sgu.switchmap
 import io.getquill._
 import org.polyvariant.doobiequill.DoobieContext
 import ru.sgu.switchmap.models._
-import zio.{Has, RIO}
-import zio.blocking.Blocking
+import zio.RIO
+
 import zio.logging.Logging
 
 package object repositories {
-  type BuildRepository = Has[BuildRepository.Service]
-  type FloorRepository = Has[FloorRepository.Service]
-  type SwitchRepository = Has[SwitchRepository.Service]
+  type BuildRepository = BuildRepository.Service
+  type FloorRepository = FloorRepository.Service
+  type SwitchRepository = SwitchRepository.Service
 
   private[repositories] object Tables {
     val ctx = new DoobieContext.Postgres(Literal)
@@ -59,68 +59,68 @@ package object repositories {
   }
 
   def getBuilds(): RIO[BuildRepository, List[BuildResponse]] =
-    RIO.accessM(_.get.get())
+    RIO.environmentWithZIO(_.get.get())
   def getBuild(shortName: String): RIO[BuildRepository, BuildResponse] =
-    RIO.accessM(_.get.get(shortName))
+    RIO.environmentWithZIO(_.get.get(shortName))
   def createBuild(b: BuildRequest): RIO[BuildRepository, Boolean] =
-    RIO.accessM(_.get.create(b))
+    RIO.environmentWithZIO(_.get.create(b))
   def updateBuild(
     shortName: String,
     b: BuildRequest
   ): RIO[BuildRepository, Boolean] =
-    RIO.accessM(_.get.update(shortName, b))
+    RIO.environmentWithZIO(_.get.update(shortName, b))
   def deleteBuild(shortName: String): RIO[BuildRepository, Boolean] =
-    RIO.accessM(_.get.delete(shortName))
+    RIO.environmentWithZIO(_.get.delete(shortName))
 
   def getFloorsOf(build: String): RIO[FloorRepository, List[FloorResponse]] =
-    RIO.accessM(_.get.getOf(build))
+    RIO.environmentWithZIO(_.get.getOf(build))
   def getFloor(
     build: String,
     number: Int
   ): RIO[FloorRepository, FloorResponse] =
-    RIO.accessM(_.get.get(build, number))
+    RIO.environmentWithZIO(_.get.get(build, number))
   def createFloor(f: FloorRequest): RIO[FloorRepository, Boolean] =
-    RIO.accessM(_.get.create(f))
+    RIO.environmentWithZIO(_.get.create(f))
   def deleteFloor(build: String, number: Int): RIO[FloorRepository, Boolean] =
-    RIO.accessM(_.get.delete(build, number))
+    RIO.environmentWithZIO(_.get.delete(build, number))
 
-  def sync(): RIO[SwitchRepository with Blocking with Logging, String] =
-    RIO.accessM(_.get.sync())
+  def sync(): RIO[SwitchRepository with Any with Logging, String] =
+    RIO.environmentWithZIO(_.get.sync())
   def snmpCommunities(): RIO[SwitchRepository, List[String]] =
-    RIO.accessM(_.get.snmp())
+    RIO.environmentWithZIO(_.get.snmp())
   def getSwitches(): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.get())
+    RIO.environmentWithZIO(_.get.get())
   def getSwitchesOf(
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getOf(build))
+    RIO.environmentWithZIO(_.get.getOf(build))
   def getSwitchesOf(
     build: String,
     floor: Int
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getOf(build, floor))
+    RIO.environmentWithZIO(_.get.getOf(build, floor))
   def getUnplacedSwitchesOf(
     build: String
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getUnplacedOf(build))
+    RIO.environmentWithZIO(_.get.getUnplacedOf(build))
   def getPlacedSwitchesOf(
     build: String,
     floor: Int
   ): RIO[SwitchRepository, List[SwitchResponse]] =
-    RIO.accessM(_.get.getPlacedOf(build, floor))
+    RIO.environmentWithZIO(_.get.getPlacedOf(build, floor))
   def getSwitch(name: String): RIO[SwitchRepository, SwitchResponse] =
-    RIO.accessM(_.get.get(name))
+    RIO.environmentWithZIO(_.get.get(name))
   def createSwitch(sw: SwitchRequest): RIO[SwitchRepository, SwitchResult] =
-    RIO.accessM(_.get.create(sw))
+    RIO.environmentWithZIO(_.get.create(sw))
   def updateSwitch(
     name: String,
     sw: SwitchRequest
   ): RIO[SwitchRepository, SwitchResult] =
-    RIO.accessM(_.get.update(name, sw))
+    RIO.environmentWithZIO(_.get.update(name, sw))
   def updateSwitchPosition(
     name: String,
     position: SavePositionRequest
-  ): RIO[SwitchRepository, Boolean] = RIO.accessM(_.get.update(name, position))
+  ): RIO[SwitchRepository, Boolean] = RIO.environmentWithZIO(_.get.update(name, position))
   def deleteSwitch(name: String): RIO[SwitchRepository, Boolean] =
-    RIO.accessM(_.get.delete(name))
+    RIO.environmentWithZIO(_.get.delete(name))
 }

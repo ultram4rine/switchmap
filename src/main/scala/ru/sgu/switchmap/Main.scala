@@ -27,15 +27,15 @@ import sttp.tapir.openapi
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import zio._
-import zio.blocking.Blocking
-import zio.clock.Clock
-import zio.console.putStrLnErr
+import zio.Clock
+import zio.Console.printLineError
+import zio.ZIOAppDefault
 import zio.interop.catz._
-import zio.logging.{log, Logging}
+import zio.logging.{log, LogFormat}
 import zio.logging.slf4j.Slf4jLogger
 
 private object NetDataClientLive {
-  val layer: RLayer[Has[AppConfig], NetDataClient] =
+  val layer: RLayer[AppConfig, NetDataClient] =
     ZLayer.fromServiceManaged { cfg =>
       NetDataClient.managed(
         ZManagedChannel(
@@ -47,13 +47,13 @@ private object NetDataClientLive {
     }
 }
 
-object Main extends App {
-  type HttpServerEnvironment = Clock with Blocking
-  type AuthEnvironment = Has[Authenticator] with Has[Authorizer]
+object Main extends ZIOAppDefault {
+  type HttpServerEnvironment = Clock with Any
+  type AuthEnvironment = Authenticator with Authorizer
   type AppEnvironment = Logging
     with Config
-    with Has[FlywayMigrator]
-    with Has[LDAP]
+    with FlywayMigrator
+    with LDAP
     with AuthEnvironment
     with NetDataClient
     with HttpServerEnvironment
@@ -65,12 +65,12 @@ object Main extends App {
 
   val dbTransactor: TaskLayer[DBTransactor] =
     Config.live >>> DBTransactor.live
-  val flywayMigrator: TaskLayer[Has[FlywayMigrator]] =
+  val flywayMigrator: TaskLayer[FlywayMigrator] =
     logLayer ++ dbTransactor >>> FlywayMigratorLive.layer
 
-  val ldapEnvironment: TaskLayer[Has[LDAP]] =
+  val ldapEnvironment: TaskLayer[LDAP] =
     Config.live >>> LDAPLive.layer
-  val authEnvironment: TaskLayer[Has[Authenticator] with Has[Authorizer]] =
+  val authEnvironment: TaskLayer[Authenticator with Authorizer] =
     Config.live >>> LDAPLive.layer ++ JWTLive.layer >>> AuthenticatorLive.layer ++ AuthorizerLive.layer
 
   val netdataEnvironment: TaskLayer[NetDataClient] =
@@ -189,7 +189,7 @@ object Main extends App {
 
     program
       .provideSomeLayer[ZEnv](appEnvironment)
-      .tapError(err => putStrLnErr(s"Execution failed with: $err"))
+      .tapError(err => printLineError(s"Execution failed with: $err"))
       .exitCode
   }
 }

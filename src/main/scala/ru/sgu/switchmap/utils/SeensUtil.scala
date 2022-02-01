@@ -49,10 +49,10 @@ case class SeensUtilLive(cfg: AppConfig) extends SeensUtil {
 }
 
 object SeensUtilLive {
-  val layer: RLayer[Has[AppConfig], Has[SeensUtil]] = (SeensUtilLive(_)).toLayer
+  val layer: RLayer[AppConfig, SeensUtil] = (SeensUtilLive(_)).toLayer
 }
 
 object SeensUtil {
-  def getSeenOf(mac: MACAddress): RIO[Has[SeensUtil], Option[SeenResponse]] =
-    ZIO.serviceWith[SeensUtil](_.getSeenOf(mac))
+  def getSeenOf(mac: MACAddress): RIO[SeensUtil, Option[SeenResponse]] =
+    ZIO.serviceWithZIO[SeensUtil](_.getSeenOf(mac))
 }

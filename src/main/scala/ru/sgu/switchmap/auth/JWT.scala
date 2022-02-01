@@ -20,15 +20,15 @@ case class JWTLive(cfg: AppConfig) extends JWT {
 }
 
 object JWTLive {
-  val layer: RLayer[Has[AppConfig], Has[JWT]] = (JWTLive(_)).toLayer
+  val layer: RLayer[AppConfig, JWT] = (JWTLive(_)).toLayer
 }
 
 object JWT {
   def create(
     claim: JwtClaim
-  ): URIO[Has[JWT], String] =
-    ZIO.serviceWith[JWT](_.create(claim))
+  ): URIO[JWT, String] =
+    ZIO.serviceWithZIO[JWT](_.create(claim))
 
-  def validate(token: String): RIO[Has[JWT], JwtClaim] =
-    ZIO.serviceWith[JWT](_.validate(token))
+  def validate(token: String): RIO[JWT, JwtClaim] =
+    ZIO.serviceWithZIO[JWT](_.validate(token))
 }

@@ -9,7 +9,7 @@ import sttp.tapir.json.circe._
 import sttp.tapir.ztapir._
 import zio._
 
-final case class AuthRoutes[R <: Has[Authenticator]]() {
+final case class AuthRoutes[R <: Authenticator]() {
   val authEndpoint: ZServerEndpoint[R, Any] = endpoint
     .tag("auth")
     .summary("Authenticates user")
