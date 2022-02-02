@@ -189,7 +189,7 @@
   </LayoutCell>
 </LayoutGrid>
 
-<SwitchForm form={switchForm} />
+<SwitchForm bind:form={switchForm} />
 
 <Fab
   color="primary"

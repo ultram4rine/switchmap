@@ -31,7 +31,7 @@
   {/each}
 </LayoutGrid>
 
-<FloorForm form={floorForm} />
+<FloorForm bind:form={floorForm} />
 
 <Fab
   color="primary"

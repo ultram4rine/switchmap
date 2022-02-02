@@ -29,7 +29,7 @@
   let floorNumber: number | undefined;
 </script>
 
-<FormWrap {form} title="Add switch" action="add">
+<FormWrap bind:form title="Add switch" action="add">
   <LayoutGrid>
     <Cell span={12}>
       <FormField>

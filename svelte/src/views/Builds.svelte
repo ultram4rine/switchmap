@@ -33,7 +33,7 @@
   {/each}
 </LayoutGrid>
 
-<BuildForm form={buildForm} />
+<BuildForm bind:form={buildForm} />
 
 <Fab
   color="primary"

@@ -10,7 +10,7 @@
   let shortName = "";
 </script>
 
-<FormWrap {form} title="Add build" action="add">
+<FormWrap bind:form title="Add build" action="add">
   <LayoutGrid>
     <Cell span={12}>
       <Textfield

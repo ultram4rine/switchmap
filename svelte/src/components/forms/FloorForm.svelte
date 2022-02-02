@@ -9,7 +9,7 @@
   let number = 0;
 </script>
 
-<FormWrap {form} title="Add floor" action="add">
+<FormWrap bind:form title="Add floor" action="add">
   <LayoutGrid>
     <Cell span={12}>
       <Textfield
