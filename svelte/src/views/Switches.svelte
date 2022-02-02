@@ -24,7 +24,7 @@
     mdiPageLast,
   } from "@mdi/js";
 
-  import type { SwitchResponse } from "@/interfaces/switch";
+  import type { SwitchResponse } from "../interfaces/switch";
 
   let switchForm = false;
 
