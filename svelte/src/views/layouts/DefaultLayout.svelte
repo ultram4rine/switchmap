@@ -17,10 +17,11 @@
   } from "@mdi/js";
 
   import { Route } from "svelte-router-spa";
+  import type { CurrentRoute } from "svelte-router-spa/types/components/route";
 
   import api from "../../api";
 
-  export let currentRoute;
+  export let currentRoute: CurrentRoute & { childRoute: CurrentRoute };
   export const params = {};
 
   const navs = [
