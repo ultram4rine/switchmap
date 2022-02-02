@@ -33,7 +33,7 @@ lazy val root = (project in file("."))
       "org.tpolecat"           %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"           %% "doobie-hikari"          % DoobieVersion,
       "org.polyvariant"        %% "doobie-quill"           % "0.0.4",
-      "org.flywaydb"            % "flyway-core"            % "8.4.3",
+      "org.flywaydb"            % "flyway-core"            % "8.4.4",
       "org.postgresql"          % "postgresql"             % "42.3.2",
       "com.github.jwt-scala"   %% "jwt-circe"              % "9.0.3",
       "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.3",
