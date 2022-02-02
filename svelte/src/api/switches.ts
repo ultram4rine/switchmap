@@ -1,13 +1,13 @@
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 
 import api from ".";
 
-import {
+import type {
   SavePositionRequest,
   SwitchRequest,
   SwitchResponse,
   SwitchResult,
-} from "@/interfaces/switch";
+} from "../interfaces/switch";
 
 export const getSNMPCommunities = async (): Promise<string[]> => {
   const resp = await api.get<string, AxiosResponse<string[]>>(

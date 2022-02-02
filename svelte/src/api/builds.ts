@@ -1,8 +1,8 @@
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 
 import api from ".";
 
-import { BuildRequest, BuildResponse } from "@/interfaces/build";
+import type { BuildRequest, BuildResponse } from "../interfaces/build";
 
 export const getBuilds = async (): Promise<BuildResponse[]> => {
   const resp = await api.get<BuildResponse, AxiosResponse<BuildResponse[]>>(

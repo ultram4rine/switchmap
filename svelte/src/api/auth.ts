@@ -1,6 +1,6 @@
 import api from ".";
 
-import { authHeader } from "@/helpers";
+import { authHeader } from "../helpers";
 
 export const login = async (
   username: string,
@@ -18,7 +18,7 @@ export const login = async (
   }
 };
 
-export const logout = async (): Promise<void> => {
+export const logout = (): void => {
   localStorage.removeItem("token");
   api.defaults.headers.common["X-Auth-Token"] = authHeader();
 };
