@@ -5,18 +5,6 @@ package netdataproto;
 option go_package = "git.sgu.ru/sgu/netdataserv/netdataproto";
 option java_package = "ru.sgu.git.netdataserv";
 
-// Wifi hosts are simplest
-
-message WiFiHost {
-    string host_id = 1;
-    bytes mac_address = 2;
-}
- 
-message PXEOptions {
-    bytes next_server_ipv4 = 1;
-    string filename = 2;
-}
- 
 message StaticHost {
     reserved 10, 11;
     int64 host_id = 1;
@@ -33,12 +21,12 @@ message StaticHost {
     SavedBeforeContestSettings saved_before_contest_settings = 14;
     Network network = 15;
 }
- 
+
 message IPV4Range {
     string start = 1;
     string end = 2;
 }
- 
+
 message Network {
     int64 id = 1;
     string ipv4_cidr = 2;
@@ -48,52 +36,17 @@ message Network {
     int64 vlan = 6;
     string name = 7;
 }
- 
-message MonitoredHost {
-    string name = 1;
-    string target = 2;
-    string building = 3;
-}
- 
-message MonitoredHostGroup {
-    string name = 1;
-    repeated MonitoredHost hosts = 2;
-}
- 
+
 message NetworkSwitch {
     string name = 1;
     string ipv4_address = 2;
 }
- 
-message GetWiFiHostsRequest {}
- 
-message GetWiFiHostsResponse {
-    repeated WiFiHost wifi_host = 1;
-    // Will be replaced with proper timestamp once I win at the CI.
-    int64 timestamp_unix_nanoseconds = 2;
-}
- 
-message GetNetworksRequest {}
- 
-message GetNetworksResponse {
-    repeated Network network = 1;
-    // Will be replaced with proper timestamp once I win at the CI.
-    int64 timestamp_unix_nanoseconds = 2;
-}
- 
-message GetStaticHostsRequest {}
- 
-message GetStaticHostsResponse {
-    repeated StaticHost host = 1;
-    // Will be replaced with proper timestamp once I win at the CI.
-    int64 timestamp_unix_nanoseconds = 2;
-}
- 
+
 message NetworkAdapterProperties {
     repeated string mac_address_string = 1;
     repeated string ip_address_string = 2;
 }
- 
+
 message Match {
     oneof match {
         NetworkAdapterProperties network_adapter_properties = 1;
@@ -101,7 +54,7 @@ message Match {
         int64 host_id = 3;
     }
 }
- 
+
 message NetworkMatch {
     oneof match {
         int64 network_id = 1;
@@ -109,15 +62,15 @@ message NetworkMatch {
         int64 vlan_id = 3;
     }
 }
- 
+
 message GetMatchingHostRequest {
     Match match = 1;
 }
- 
+
 message GetMatchingHostResponse {
     repeated StaticHost host = 1;
 }
- 
+
 message BootParameters {
     enum BootStage {
         DEFAULT = 0;
@@ -139,35 +92,15 @@ message BootParameters {
     LocalbootType localboot_type = 2;
 }
 
-message GetMonitoredHostsRequest {}
-
-message GetMonitoredHostsResponse {
-    repeated MonitoredHostGroup groups = 1;
-    // Will be replaced with proper timestamp once I win at the CI.
-    int64 timestamp_unix_nanoseconds = 2;
+message GetNetworkSwitchesRequest {
+    
 }
- 
-message GetNetworkSwitchesRequest {}
- 
+
 message GetNetworkSwitchesResponse {
     repeated NetworkSwitch switch = 1;
     int64 timestamp_unix_nanoseconds = 2;
 }
- 
-message SetBootStageRequest {
-    Match match = 1;
-    message Transition {
-        repeated BootParameters.BootStage from = 1;
-        BootParameters.BootStage to = 2;
-    }
-    repeated Transition transition = 2;
-}
- 
-message SetBootStageResponse {
-    StaticHost host = 1;
-    BootParameters.BootStage previous_stage = 2;
-}
- 
+
 message UnattendedSite {
     int64 id = 1;
     string tftp_root = 2;
@@ -176,7 +109,7 @@ message UnattendedSite {
     string backup_share = 5;
     string restore_share = 6;
 }
- 
+
 message UnattendedClass {
     int64 id = 1;
     reserved 2,3,4,5,6,7,8,10;
@@ -184,7 +117,7 @@ message UnattendedClass {
     UnattendedOSImage unattended_os_image = 11;
     WindowsXMLTemplate deploy_template2 = 12;
 }
- 
+
 message UnattendedSchedule {
     reserved 1;
     string postexec = 2;
@@ -197,33 +130,33 @@ message UnattendedSchedule {
     int64 id = 5;
     string name = 6;
 }
- 
+
 message UnattendedSource {
     enum Arch {
         ARCH_UNKNOWN = 0;
         X86_64 = 1;
         I686 = 2;
     }
- 
+
     enum WinPEVersion {
         WINPE_UNKNOWN = 0;
         WINPE8 = 8;
         WINPE10 = 10;
     }
- 
+
     int64 id = 1;
     string name = 2;
     Arch arch = 3;
     WinPEVersion winpe_version = 4;
     string language = 5;
 }
- 
+
 message WindowsXMLTemplate {
     int64 id = 1;
     string name = 2;
     bytes content = 3;
 }
- 
+
 message UnattendedOSImage {
     int64 id = 1;
     string name = 2;
@@ -232,252 +165,14 @@ message UnattendedOSImage {
     UnattendedSource source = 5;
     bool has_drivers = 6;
 }
- 
-message GetUnattendedOSImageRequest {
-    oneof selector {
-        int64 image_id = 1;
-        string image_name = 2;
-    }
-}
- 
-message GetUnattendedOSImageResponse {
-    UnattendedOSImage unattended_os_image = 1;
-}
- 
-message PhoneAttributes {
-    string encryption_key = 1;
-    string username = 2;
-    string password = 3;
-    int32 phone_vlan_id = 4;
-    int32 host_vlan_id = 5;
-}
- 
-message GetSpaconfEntryRequest {
-    string mac_address_string = 1;
-}
- 
-message GetSpaconfEntryResponse {
-    reserved 1;
-    PhoneAttributes phone_attributes = 2;
-}
- 
-message ContestRooms {
-    repeated string room = 1;
-}
- 
-message GetContestSettingsRequest {
-    Match match = 1;
-}
- 
+
 message SavedBeforeContestSettings {
     int64 network_id = 1;
     string ipv4_address = 2;
     string name = 3;
 }
- 
-message ContestSettings {
-    ContestRooms contest_rooms = 1;
-}
- 
-message GetContestSettingsResponse {
-    int64 timestamp_unix_nanoseconds = 1;
-}
- 
-message GetUnattendedTemplateRequest {
-    string name = 1;
-    int64 id = 2;
-}
- 
-message GetUnattendedTemplateResponse {
-    string name = 1;
-    int64 id = 2;
-    bytes content_token = 3;
-    bytes content = 4;
-}
- 
-message SetUnattendedTemplateRequest {
-    string name = 1;
-    int64 id = 2;
-    bytes content_token = 3;
-    bytes content = 4;
-}
- 
-message SetUnattendedTemplateResponse {
-    string name = 1;
-    int64 id = 2;
-    bytes content_token = 3;
-}
- 
-message GetContestRoomsRequest {}
- 
-message GetContestRoomsResponse {
-    repeated string room = 1;
-}
- 
-message GetUnattendedScheduleRequest {
-    string name = 1;
-}
- 
-message GetUnattendedScheduleResponse {
-    bytes content_token = 1;
-    UnattendedSchedule unattended_schedule = 2;
-}
- 
-message SetUnattendedScheduleRequest {
-    bytes content_token = 1;
-    UnattendedSchedule unattended_schedule = 2;
-}
- 
-message SetUnattendedScheduleResponse {
-    bytes content_token = 1;
-}
- 
-message SetCapturedImageDriversRequest {
-    int64 image_id = 1;
-    bool has_drivers = 2;
-}
 
-message SetCapturedImageDriversResponse {}
-
-message NameOrID {
-    oneof selector {
-        int64 id = 1;
-        string name = 2;
-    }
-}
- 
-enum TwoPC {
-    UNDEFINED_2PC = 0;
-    PROPOSE_2PC = 1;
-    COMMIT_2PC = 2;
-}
- 
-message ConfigureForContestRequest {
-    NameOrID host = 1;
-    string name = 2;
-    string room = 3;
-    NameOrID unnattended_class = 4;
-    NameOrID network = 5;
- 
-    SwitchPortAssignment switch_port_assignment = 6;
-}
- 
-message SwitchPortAssignment {
-    string device_name = 1;
-    string device_port = 2;
-    int64 untagged_vlan = 3;
-    bool enable_mac_auth = 4;
-}
- 
-message ConfigureForContestResponse {
-    int64 new_vlan = 1;
-}
- 
 service NetData {
-    rpc GetWiFiHosts(GetWiFiHostsRequest) returns (GetWiFiHostsResponse) {}
-    rpc GetNetworks(GetNetworksRequest) returns (GetNetworksResponse) {}
-    rpc GetStaticHosts(GetStaticHostsRequest) returns (GetStaticHostsResponse) {}
- 
     rpc GetMatchingHost(GetMatchingHostRequest) returns (GetMatchingHostResponse) {}
-    rpc GetMonitoredHosts(GetMonitoredHostsRequest) returns (GetMonitoredHostsResponse) {}
     rpc GetNetworkSwitches(GetNetworkSwitchesRequest) returns (GetNetworkSwitchesResponse) {}
- 
-    rpc GetSpaconfEntry(GetSpaconfEntryRequest) returns (GetSpaconfEntryResponse) {}
- 
-    rpc SetBootStage(SetBootStageRequest) returns (SetBootStageResponse) {}
-    
-    // Temporary
-    rpc SetCapturedImageDrivers(SetCapturedImageDriversRequest) returns (SetCapturedImageDriversResponse) {}
- 
-    rpc ConfigureForContest(ConfigureForContestRequest) returns (ConfigureForContestResponse) {}
- 
-    // rpc GetContestSettings(GetContestSettingsRequest) returns (GetContestSettingsResponse) {}
- 
-    rpc GetUnattendedTemplate(GetUnattendedTemplateRequest) returns (GetUnattendedTemplateResponse) {}
-    rpc SetUnattendedTemplate(SetUnattendedTemplateRequest) returns (SetUnattendedTemplateResponse) {}
- 
-    rpc GetUnattendedSchedule(GetUnattendedScheduleRequest) returns (GetUnattendedScheduleResponse) {}
-    rpc SetUnattendedSchedule(SetUnattendedScheduleRequest) returns (SetUnattendedScheduleResponse) {}
- 
-    rpc GetUnattendedOSImage(GetUnattendedOSImageRequest) returns (GetUnattendedOSImageResponse) {}
- 
-    rpc GetContestRooms(GetContestRoomsRequest) returns (GetContestRoomsResponse) {}
- 
-    rpc GetRadAuthConfig(GetRadAuthConfigRequest) returns (GetRadAuthConfigResponse) {}
-}
- 
-message HostAuthData {
-    string name = 1;
-    string mac = 2;
-    int32 vlan = 3;
-}
- 
-message SwitchUserAuthData {
-    enum Group {
-        UNSPECIFIED = 0;
-        ADMIN = 1;
-        NAS = 2;
-    };
-    string login = 1;
-    string password = 2;
-    Group groupid = 3;
-    bool locked = 4;
-}
- 
-message Phone {
-    // Internal phone number. Doubles as username for IP-phones.
-    string internal = 1;
-    // External number substituted when making external call. If empty, no external calls allowed.
-    string external = 2;
-    // Password for IP phones. If empty, you can't login.
-    string password = 3;
-    // Access level.
-    enum Permit {
-        local = 0;
-        intracity = 1;
-        intercity = 2;
-        international = 3;
-    };
-    Permit permit = 4;
-
-    // Server ID this number belongs to:
-    // - to select the server for routing.
-    // - to validate if the number can originate from a server.	
-    int32 server_id = 5;
-
-    int32 phonegroup_id = 6;
-}
- 
-message PhoneGroup {
-    int32 id = 1;
-    // Internal number for this group.
-    string group_number = 2;
-    // External number for this group.
-    string external_number = 3;
-    int32 server_id = 4;
-}
- 
-message PhoneServer {
-    // Links to Phone.server_id.
-    int32 id = 1;
-    // Username for calls made from this server.
-    string username = 2;
-    // Password for calls made from this server. Empty == no incoming calls.
-    string password = 3;
-    // Destination hostname for sip calls.
-    string sip_destination = 4;
-}
- 
-message RadauthConfig {
-    repeated HostAuthData hosts = 1;
-    repeated SwitchUserAuthData users = 2;
-    repeated Phone phones = 3;
-    repeated PhoneServer phone_servers = 4;
-    repeated PhoneGroup phone_groups = 5;
-}
- 
-message GetRadAuthConfigRequest {}
- 
-message GetRadAuthConfigResponse {
-    RadauthConfig config = 1;
 }
