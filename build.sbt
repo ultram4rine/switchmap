@@ -1,7 +1,7 @@
 import NativePackagerHelper._
 
 val Http4sVersion = "0.23.9"
-val TapirVersion = "0.20.0-M9"
+val TapirVersion = "0.20.0-M7"
 val DoobieVersion = "1.0.0-RC1"
 val PureConfigVersion = "0.17.1"
 
