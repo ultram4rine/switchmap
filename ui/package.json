@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@mdi/js": "^6.5.95",
-    "@vue/composition-api": "^1.4.5",
+    "@vue/composition-api": "^1.4.6",
     "axios": "^0.25.0",
     "core-js": "^3.21.0",
     "vee-validate": "^3.4.14",
