@@ -24,7 +24,7 @@
         color="primary"
         :to="{
           name: 'floor',
-          params: { build: shortName, floor: floor.number.toString() },
+          params: { shortName, floor: floor.number.toString() },
         }"
       >
         Go

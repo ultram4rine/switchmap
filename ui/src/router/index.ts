@@ -18,7 +18,7 @@ Vue.use(VueRouter);
 const defaultLayout = "default-layout";
 const emptyLayout = "empty-layout";
 
-const routes: Array<RouteConfig> = [
+export const routes: Array<RouteConfig> = [
   {
     path: "/login",
     name: "login",
