@@ -1,6 +1,6 @@
 <script lang="ts">
   import LayoutGrid, { Cell } from "@smui/layout-grid";
-  import Card, { Content, Actions, ActionButtons } from "@smui/card";
+  import Card, { Content } from "@smui/card";
   import FormField from "@smui/form-field";
   import Textfield from "@smui/textfield";
   import Icon from "@smui/textfield/icon";
@@ -13,6 +13,7 @@
 
   import { loginSchema } from "../validations/loginSchema";
 
+  import { login } from "../api/auth";
   import type { User } from "../interfaces/user";
 
   const loginData = {
@@ -24,11 +25,14 @@
   let showPass = false;
 
   const { form, errors } = createForm({
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values: unknown) => {
+      await login(
+        (values as User).username,
+        (values as User).password,
+        (values as User).rememberMe
+      );
     },
-    extend: [validator],
-    validateSchema: loginSchema,
+    extend: validator({ schema: loginSchema }),
   });
 </script>
 
@@ -48,7 +52,7 @@
             <Textfield
               bind:value={loginData.username}
               type="text"
-              name="loginData.username"
+              input$name="username"
               label="Name"
               variant="outlined"
               withLeadingIcon
@@ -65,7 +69,7 @@
             <Textfield
               bind:value={loginData.password}
               type={showPass ? "text" : "password"}
-              name="loginData.password"
+              input$name="password"
               label="Password"
               variant="outlined"
               withLeadingIcon
@@ -102,7 +106,7 @@
             <FormField>
               <Checkbox
                 bind:value={loginData.rememberMe}
-                name="loginData.rememberMe"
+                input$name="rememberMe"
                 color="primary"
               />
               <span slot="label">Remember me</span>
