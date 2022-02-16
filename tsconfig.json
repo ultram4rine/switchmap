@@ -14,7 +14,8 @@
     "baseUrl": ".",
     "types": ["node", "webpack-env", "jest"],
     "paths": {
-      "@/*": ["src/main/vue/*", "src/main/typescript/*"]
+      "~/*": ["src/main/typescript/*"],
+      "@/*": ["src/main/vue/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },

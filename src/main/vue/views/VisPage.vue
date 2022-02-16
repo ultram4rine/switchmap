@@ -49,9 +49,9 @@ import {
   DataSetEdges,
 } from "vis-network/standalone";
 
-import { SwitchResponse, BuildResponse } from "@/interfaces";
-import { getSwitches } from "@/api/switches";
-import { getBuilds } from "@/api/builds";
+import { SwitchResponse, BuildResponse } from "~/interfaces";
+import { getSwitches } from "~/api/switches";
+import { getBuilds } from "~/api/builds";
 
 export default defineComponent({
   props: {

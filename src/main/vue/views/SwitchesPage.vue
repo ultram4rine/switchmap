@@ -170,8 +170,8 @@ import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
-import { syncSwitches, getSwitches, deleteSwitch } from "@/api/switches";
+import { SwitchRequest, SwitchResponse } from "~/interfaces/switch";
+import { syncSwitches, getSwitches, deleteSwitch } from "~/api/switches";
 
 import {
   useSwitchForm,

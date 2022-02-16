@@ -1,6 +1,6 @@
 import api from ".";
 
-import { authHeader } from "@/helpers";
+import { authHeader } from "~/helpers";
 
 export const login = async (
   username: string,

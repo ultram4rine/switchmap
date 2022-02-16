@@ -1,7 +1,7 @@
 import { DirectiveOptions } from "vue";
 import { DirectiveBinding } from "vue/types/options";
 
-import { updatePosition } from "@/api/switches";
+import { updatePosition } from "~/api/switches";
 
 const handler = (sw: HTMLElement, binding: DirectiveBinding): void => {
   sw.onmousedown = (e: MouseEvent) => {

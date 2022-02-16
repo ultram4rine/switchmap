@@ -1,8 +1,8 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { FloorRequest } from "@/interfaces/floor";
+import { FloorRequest } from "~/interfaces/floor";
 
-import { addFloor } from "@/api/floors";
+import { addFloor } from "~/api/floors";
 
 export const useFloorForm = (): {
   form: Ref<boolean>;

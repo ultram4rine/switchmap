@@ -3,7 +3,7 @@ import VueCompositionAPI from "@vue/composition-api";
 
 import { routes } from "@/router";
 import FloorCard from "@/components/cards/FloorCard.vue";
-import { FloorResponse } from "@/interfaces/floor";
+import { FloorResponse } from "~/interfaces/floor";
 
 import { renderWithVuetify } from "../../../common";
 

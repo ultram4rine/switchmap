@@ -188,16 +188,16 @@ import { required } from "vee-validate/dist/rules";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
-import { getSNMPCommunities, getSwitches } from "@/api/switches";
-import { getBuilds } from "@/api/builds";
-import { getFloorsOf } from "@/api/floors";
+import { getSNMPCommunities, getSwitches } from "~/api/switches";
+import { getBuilds } from "~/api/builds";
+import { getFloorsOf } from "~/api/floors";
 
 import {
   SwitchRequest,
   SwitchResponse,
   BuildResponse,
   FloorResponse,
-} from "@/interfaces";
+} from "~/interfaces";
 
 extend("required", {
   ...required,

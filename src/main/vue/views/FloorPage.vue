@@ -101,12 +101,12 @@ import PlanUpload from "@/components/PlanUpload.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import { SwitchRequest, SwitchResponse } from "~/interfaces/switch";
 import {
   getUnplacedSwitchesOfBuild,
   getPlacedSwitchesOfFloor,
-} from "@/api/switches";
-import { getPlan, uploadPlan } from "@/api/plans";
+} from "~/api/switches";
+import { getPlan, uploadPlan } from "~/api/plans";
 
 import { useSwitchForm, useSnackbar } from "@/composables";
 

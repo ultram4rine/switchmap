@@ -1,8 +1,8 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { BuildRequest } from "@/interfaces/build";
+import { BuildRequest } from "~/interfaces/build";
 
-import { addBuild, editBuild } from "@/api/builds";
+import { addBuild, editBuild } from "~/api/builds";
 
 export const useBuildForm = (): {
   form: Ref<boolean>;

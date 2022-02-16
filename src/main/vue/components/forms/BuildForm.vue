@@ -56,7 +56,7 @@ import { required } from "vee-validate/dist/rules";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
-import { BuildRequest } from "@/interfaces/build";
+import { BuildRequest } from "~/interfaces/build";
 
 extend("required", {
   ...required,

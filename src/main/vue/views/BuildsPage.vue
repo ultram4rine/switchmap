@@ -111,8 +111,8 @@ import FloorForm from "@/components/forms/FloorForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { BuildRequest, BuildResponse, FloorRequest } from "@/interfaces";
-import { getBuilds, deleteBuild } from "@/api/builds";
+import { BuildRequest, BuildResponse, FloorRequest } from "~/interfaces";
+import { getBuilds, deleteBuild } from "~/api/builds";
 
 import {
   useBuildForm,

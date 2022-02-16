@@ -1,5 +1,5 @@
 /* eslint-disable no-control-regex */
-import { colors } from "@/ansi-colors/xterm";
+import { colors } from "~/ansi-colors/xterm";
 
 export const authHeader = (): string => {
   const token = localStorage.getItem("token");

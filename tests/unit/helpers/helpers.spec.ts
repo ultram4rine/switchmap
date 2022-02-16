@@ -1,4 +1,4 @@
-import { macNormalization, colorizeDiff } from "@/helpers";
+import { macNormalization, colorizeDiff } from "~/helpers";
 
 describe("MAC address normalization", () => {
   test("'00:11:22:33:44:55' become '001122334455'", () => {

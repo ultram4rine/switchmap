@@ -1,9 +1,9 @@
 import { ref, Ref } from "@vue/composition-api";
 
-import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
-import { addSwitch, editSwitch } from "@/api/switches";
+import { SwitchRequest, SwitchResult } from "~/interfaces/switch";
+import { addSwitch, editSwitch } from "~/api/switches";
 
-import { macNormalization } from "@/helpers";
+import { macNormalization } from "~/helpers";
 
 export const useSwitchForm = (): {
   form: Ref<boolean>;

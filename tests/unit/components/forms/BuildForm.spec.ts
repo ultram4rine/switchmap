@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import VueCompositionAPI from "@vue/composition-api";
 
 import BuildForm from "@/components/forms/BuildForm.vue";
-import { BuildRequest } from "@/interfaces/build";
+import { BuildRequest } from "~/interfaces/build";
 
 import { renderWithVuetify } from "../../../common";
 

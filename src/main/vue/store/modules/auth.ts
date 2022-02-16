@@ -6,8 +6,8 @@ import {
   AUTH_SUCCESS,
   AUTH_ERROR,
 } from "@/store/actions";
-import { login, logout } from "@/api/auth";
-import { User } from "@/interfaces/user";
+import { login, logout } from "~/api/auth";
+import { User } from "~/interfaces/user";
 
 type State = {
   token: string;

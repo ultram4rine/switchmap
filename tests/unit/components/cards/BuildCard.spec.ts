@@ -3,7 +3,7 @@ import VueCompositionAPI from "@vue/composition-api";
 
 import { routes } from "@/router";
 import BuildCard from "@/components/cards/BuildCard.vue";
-import { BuildResponse } from "@/interfaces/build";
+import { BuildResponse } from "~/interfaces/build";
 
 import { renderWithVuetify } from "../../../common";
 

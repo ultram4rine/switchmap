@@ -41,7 +41,7 @@ import { required } from "vee-validate/dist/rules";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
-import { FloorRequest } from "@/interfaces/floor";
+import { FloorRequest } from "~/interfaces/floor";
 
 extend("required", {
   ...required,

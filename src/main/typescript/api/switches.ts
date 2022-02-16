@@ -7,7 +7,7 @@ import {
   SwitchRequest,
   SwitchResponse,
   SwitchResult,
-} from "@/interfaces/switch";
+} from "~/interfaces/switch";
 
 export const syncSwitches = async (): Promise<string> => {
   const resp = await api.get<string, AxiosResponse<string>>("/switches/sync");

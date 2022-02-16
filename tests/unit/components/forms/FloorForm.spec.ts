@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import VueCompositionAPI from "@vue/composition-api";
 
 import FloorForm from "@/components/forms/FloorForm.vue";
-import { FloorRequest } from "@/interfaces/floor";
+import { FloorRequest } from "~/interfaces/floor";
 
 import { renderWithVuetify } from "../../../common";
 

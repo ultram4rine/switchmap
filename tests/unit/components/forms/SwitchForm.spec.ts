@@ -3,10 +3,10 @@ import VueCompositionAPI from "@vue/composition-api";
 
 import MockAdapter from "axios-mock-adapter";
 
-import api from "@/api";
+import api from "~/api";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import { SwitchRequest, SwitchResponse } from "~/interfaces/switch";
 
 import { renderWithVuetify } from "../../../common";
 
