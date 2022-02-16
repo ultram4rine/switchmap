@@ -22,17 +22,13 @@ jobs:
           node-version: 16
       - name: Install dependencies
         run: npm install
-        working-directory: ./ui
       - name: Lint
         run: npm run lint
-        working-directory: ./ui
       - name: Unit tests
         run: npm run test:unit
-        working-directory: ./ui
       - name: Coverage
         uses: codecov/codecov-action@v2
         with:
-          files: ./ui/coverage/lcov.info
+          files: ./coverage/lcov.info
       - name: Build
         run: npm run build
-        working-directory: ./ui
