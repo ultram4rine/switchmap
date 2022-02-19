@@ -5,13 +5,10 @@ import org.http4s.Uri
 import pureconfig.ConfigSource
 import pureconfig.module.http4s._
 import pureconfig.module.ip4s._
-import zio.{Task, ULayer, URIO, ZIO, ZLayer}
+import zio.{Task, ULayer, URIO, ZEnvironment, ZLayer}
 
 package object config {
-  type Config = APIConfig
-    with DBConfig
-    with LDAPConfig
-    with AppConfig
+  type Config = APIConfig with DBConfig with LDAPConfig with AppConfig
 
   final case class FullConfig(
     api: APIConfig,
@@ -44,17 +41,20 @@ package object config {
     baseDN: String
   )
 
-  val apiConfig: URIO[APIConfig, APIConfig] = ZIO.environment(_.get)
-  val dbConfig: URIO[DBConfig, DBConfig] = ZIO.environment(_.get)
-  val ldapConfig: URIO[LDAPConfig, LDAPConfig] = ZIO.environment(_.get)
-  val appConfig: URIO[AppConfig, AppConfig] = ZIO.environment(_.get)
+  val apiConfig: URIO[APIConfig, APIConfig] = URIO.service
+  val dbConfig: URIO[DBConfig, DBConfig] = URIO.service
+  val ldapConfig: URIO[LDAPConfig, LDAPConfig] = URIO.service
+  val appConfig: URIO[AppConfig, AppConfig] = URIO.service
 
   object Config {
     import pureconfig.generic.auto._
-    val live: ULayer[Config] = ZLayer.fromEffectMany(
+    val live: ULayer[Config] = ZLayer.fromZIO(
       Task
         .attempt(ConfigSource.default.loadOrThrow[FullConfig])
-        .map(c => Has(c.api) ++ Has(c.db) ++ Has(c.ldap) ++ Has(c.app))
+        .map(c =>
+          ZEnvironment(c.api) ++ ZEnvironment(c.db)
+            ++ ZEnvironment(c.ldap) ++ ZEnvironment(c.app)
+        )
         .orDie
     )
   }

@@ -7,9 +7,7 @@ import sttp.capabilities.zio.ZioStreams
 import sttp.tapir.generic.auto._
 import sttp.tapir.ztapir._
 import zio._
-
-import zio.stream.{Stream, ZSink}
-import zio.stream.ZStream
+import zio.stream.{Stream, ZSink, ZStream}
 
 final case class PlanRoutes[R <: Authorizer with Any]() {
   type PlanTask[A] = RIO[R, A]
@@ -22,8 +20,7 @@ final case class PlanRoutes[R <: Authorizer with Any]() {
     .serverLogic { as => planName =>
       ZIO.succeed(
         ZStream
-          .fromFile(Paths.get(s"./plans/${planName}"))
-          .provideLayer(Blocking.live)
+          .fromPath(Paths.get(s"./plans/${planName}"))
       )
     }
   val uploadPlanEndpoint = planBaseEndpoint
@@ -42,7 +39,7 @@ final case class PlanRoutes[R <: Authorizer with Any]() {
               )
               .run(
                 ZSink
-                  .fromFile(Paths.get(s"./plans/${shortName}f${number}.png"))
+                  .fromPath(Paths.get(s"./plans/${shortName}f${number}.png"))
               )
             stream
               .mapError(_ => ())

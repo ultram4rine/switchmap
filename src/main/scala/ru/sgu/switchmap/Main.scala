@@ -76,14 +76,14 @@ object Main extends ZIOAppDefault {
   val netdataEnvironment: TaskLayer[NetDataClient] =
     Config.live >>> NetDataClientLive.layer
   val httpServerEnvironment: ULayer[HttpServerEnvironment] =
-    Clock.live ++ Blocking.live
+    Clock.live
 
   val buildRepository: TaskLayer[BuildRepository] =
     dbTransactor >>> BuildRepository.live
   val floorRepository: TaskLayer[FloorRepository] =
     dbTransactor >>> FloorRepository.live
   val switchRepository: TaskLayer[SwitchRepository] =
-    Blocking.live ++ logLayer ++ dbTransactor ++ Config.live >+>
+    logLayer ++ dbTransactor ++ Config.live >+>
       netdataEnvironment ++
       SeensUtilLive.layer ++
       DNSUtilLive.layer ++
