@@ -1,6 +1,7 @@
-import { ref, Ref } from "vue";
+import { ref } from "vue";
+import type { Ref } from "vue";
 
-import { FloorRequest } from "@/interfaces/floor";
+import type { FloorRequest } from "@/interfaces/floor";
 
 import { addFloor } from "@/api/floors";
 import { getBuild } from "@/api/builds";

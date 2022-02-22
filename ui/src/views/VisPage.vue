@@ -40,16 +40,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
 
-import {
-  Network,
-  DataSet,
-  DataSetNodes,
-  DataSetEdges,
-} from "vis-network/standalone";
+import { Network, DataSet } from "vis-network/standalone";
+import type { DataSetNodes, DataSetEdges } from "vis-network/standalone";
 
-import { SwitchResponse, BuildResponse } from "@/interfaces";
+import type { SwitchResponse, BuildResponse } from "@/interfaces";
 import { getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 

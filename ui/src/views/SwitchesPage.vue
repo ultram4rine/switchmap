@@ -122,14 +122,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
+
 import { mdiMagnify, mdiPencil, mdiDelete, mdiEye } from "@mdi/js";
 
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import type { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
 import { getSwitches, deleteSwitch } from "@/api/switches";
 
 import {

@@ -1,8 +1,8 @@
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 
 import api from ".";
 
-import {
+import type {
   SavePositionRequest,
   SwitchRequest,
   SwitchResponse,

@@ -1,4 +1,4 @@
-import { Directive } from "vue";
+import type { Directive } from "vue";
 
 const handler = (el: HTMLElement): void => {
   const mouseDownHandler = (e: MouseEvent) => {

@@ -1,4 +1,4 @@
-import { Directive } from "vue";
+import type { Directive } from "vue";
 
 const addOnWheel = (elem: HTMLElement, handler: (e: WheelEvent) => void) => {
   if (elem.addEventListener) {

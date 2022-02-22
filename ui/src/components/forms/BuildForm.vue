@@ -36,13 +36,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch, PropType } from "vue";
+import { defineComponent, ref, computed, watch } from "vue";
+import type { PropType } from "vue";
 
 import { useForm } from "vee-validate";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
-import { BuildRequest } from "@/interfaces/build";
+import type { BuildRequest } from "@/interfaces/build";
 
 import { BuildSchema } from "@/validations/BuildSchema";
 
