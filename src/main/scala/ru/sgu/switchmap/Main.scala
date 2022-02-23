@@ -149,7 +149,7 @@ object Main extends App {
                 openapi.License(
                   "Apache-2.0",
                   Some(
-                    "https://git.sgu.ru/ultramarine/switchmap/blob/master/LICENSE"
+                    "https://www.apache.org/licenses/LICENSE-2.0"
                   )
                 )
               )

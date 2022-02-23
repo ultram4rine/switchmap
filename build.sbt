@@ -2,7 +2,7 @@ import NativePackagerHelper._
 
 val Http4sVersion = "0.23.10"
 val TapirVersion = "0.20.0-M7"
-val DoobieVersion = "1.0.0-RC1"
+val DoobieVersion = "1.0.0-RC2"
 val PureConfigVersion = "0.17.1"
 
 lazy val root = (project in file("."))
@@ -32,8 +32,8 @@ lazy val root = (project in file("."))
       "org.tpolecat"           %% "doobie-core"            % DoobieVersion,
       "org.tpolecat"           %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"           %% "doobie-hikari"          % DoobieVersion,
-      "org.polyvariant"        %% "doobie-quill"           % "0.0.4",
-      "org.flywaydb"            % "flyway-core"            % "8.5.0",
+      "org.polyvariant"        %% "doobie-quill"           % "0.0.5",
+      "org.flywaydb"            % "flyway-core"            % "8.5.1",
       "org.postgresql"          % "postgresql"             % "42.3.3",
       "com.github.jwt-scala"   %% "jwt-circe"              % "9.0.4",
       "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.3",
@@ -45,7 +45,7 @@ lazy val root = (project in file("."))
       "org.snmp4j"              % "snmp4j"                 % "3.6.4",
       "com.softwaremill.diffx" %% "diffx-core"             % "0.7.0",
       "ch.qos.logback"          % "logback-classic"        % "1.2.10",
-      "io.grpc"                 % "grpc-netty"             % "1.44.0",
+      "io.grpc"                 % "grpc-netty"             % "1.44.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
@@ -62,7 +62,7 @@ lazy val root = (project in file("."))
     Linux / maintainer := "SGU <sts@sgu.ru>",
     Linux / packageSummary := "Interactive map of SSU switches",
     Linux / packageDescription := "Interactive map of SSU switches",
-    rpmRelease := "12",
+    rpmRelease := "13",
     rpmVendor := "SGU",
     rpmUrl := Some("https://git.sgu.ru/ultramarine/switchmap"),
     rpmLicense := Some("Apache-2.0"),
