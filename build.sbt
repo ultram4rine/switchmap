@@ -44,7 +44,7 @@ lazy val root = (project in file("."))
       "com.github.seancfoley"   % "ipaddress"              % "5.3.3",
       "org.snmp4j"              % "snmp4j"                 % "3.6.4",
       "com.softwaremill.diffx" %% "diffx-core"             % "0.7.0",
-      "ch.qos.logback"          % "logback-classic"        % "1.2.10",
+      "ch.qos.logback"          % "logback-classic"        % "1.2.11",
       "io.grpc"                 % "grpc-netty"             % "1.44.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
