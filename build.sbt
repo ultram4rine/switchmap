@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
       scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies ++= Seq(
-      "dev.zio"    %% "zio"                 % "1.0.13",
+      "dev.zio"    %% "zio"                 % "1.0.14",
       "dev.zio"    %% "zio-interop-cats"    % "3.2.9.1",
       "dev.zio"    %% "zio-logging-slf4j"   % "0.5.14",
       "org.http4s" %% "http4s-ember-server" % Http4sVersion,
