@@ -41,11 +41,11 @@ lazy val root = (project in file("."))
       "com.github.pureconfig"  %% "pureconfig-cats-effect" % PureConfigVersion,
       "com.github.pureconfig"  %% "pureconfig-http4s"      % PureConfigVersion,
       "com.github.pureconfig"  %% "pureconfig-ip4s"        % PureConfigVersion,
-      "com.github.seancfoley"   % "ipaddress"              % "5.3.3",
-      "org.snmp4j"              % "snmp4j"                 % "3.6.5",
+      "com.github.seancfoley"   % "ipaddress"              % "5.3.4",
+      "org.snmp4j"              % "snmp4j"                 % "3.6.7",
       "com.softwaremill.diffx" %% "diffx-core"             % "0.7.1",
       "ch.qos.logback"          % "logback-classic"        % "1.2.11",
-      "io.grpc"                 % "grpc-netty"             % "1.45.0",
+      "io.grpc"                 % "grpc-netty"             % "1.45.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
