@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
       "org.flywaydb"            % "flyway-core"            % "8.5.4",
       "org.postgresql"          % "postgresql"             % "42.3.3",
       "com.github.jwt-scala"   %% "jwt-circe"              % "9.0.4",
-      "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.4",
+      "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.5",
       "com.github.pureconfig"  %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig"  %% "pureconfig-cats-effect" % PureConfigVersion,
       "com.github.pureconfig"  %% "pureconfig-http4s"      % PureConfigVersion,
