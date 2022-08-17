@@ -30,7 +30,7 @@ jobs:
         run: npm run test:unit
         working-directory: ./ui
       - name: Coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: ./ui/coverage/lcov.info
       - name: Build
