@@ -33,7 +33,7 @@ lazy val root = (project in file("."))
       "org.tpolecat"           %% "doobie-postgres"        % DoobieVersion,
       "org.tpolecat"           %% "doobie-hikari"          % DoobieVersion,
       "org.polyvariant"        %% "doobie-quill"           % "0.0.5",
-      "org.flywaydb"            % "flyway-core"            % "8.5.13",
+      "org.flywaydb"            % "flyway-core"            % "9.1.6",
       "org.postgresql"          % "postgresql"             % "42.4.2",
       "com.github.jwt-scala"   %% "jwt-circe"              % "9.0.6",
       "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.5",
@@ -45,7 +45,7 @@ lazy val root = (project in file("."))
       "org.snmp4j"              % "snmp4j"                 % "3.6.7",
       "com.softwaremill.diffx" %% "diffx-core"             % "0.7.1",
       "ch.qos.logback"          % "logback-classic"        % "1.2.11",
-      "io.grpc"                 % "grpc-netty"             % "1.45.1",
+      "io.grpc"                 % "grpc-netty"             % "1.48.1",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
