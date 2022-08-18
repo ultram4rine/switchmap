@@ -30,7 +30,7 @@
           <v-list-item-avatar left>
             <v-icon :icon="nav.icon"></v-icon>
           </v-list-item-avatar>
-          <v-list-item-title v-text="nav.text"></v-list-item-title>
+          <v-list-item-title>{{ nav.text }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
