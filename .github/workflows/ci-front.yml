@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v3.4.1
         with:
           node-version: 16
       - name: Install dependencies
@@ -30,7 +30,7 @@ jobs:
         run: npm run test:unit
         working-directory: ./ui
       - name: Coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: ./ui/coverage/lcov.info
       - name: Build
