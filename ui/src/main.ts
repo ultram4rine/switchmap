@@ -1,26 +1,21 @@
-import Vue from "vue";
-import VueCompositionAPI from "@vue/composition-api";
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-import vuetify from "@/plugins/vuetify";
 import router from "@/router";
-import store from "@/store";
+import vuetify from "@/plugins/vuetify";
+import { loadFonts } from "@/plugins/webfontloader";
+
+loadFonts();
 
 import App from "@/App.vue";
 
 import DefaultLayout from "@/views/layouts/DefaultLayout.vue";
 import EmptyLayout from "@/views/layouts/EmptyLayout.vue";
 
-Vue.config.productionTip = false;
-
-Vue.use(VueCompositionAPI);
-
-Vue.component("default-layout", DefaultLayout);
-Vue.component("empty-layout", EmptyLayout);
-
-new Vue({
-  vuetify,
-  router,
-  store,
-
-  render: (h) => h(App),
-}).$mount("#app");
+createApp(App)
+  .component("default-layout", DefaultLayout)
+  .component("empty-layout", EmptyLayout)
+  .use(router)
+  .use(createPinia())
+  .use(vuetify)
+  .mount("#app");

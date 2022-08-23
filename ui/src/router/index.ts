@@ -1,7 +1,6 @@
-import Vue from "vue";
-import VueRouter, { Route, Location, RouteConfig } from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
-import store from "@/store";
+import { useAuth } from "@/store/auth";
 
 const LoginPage = () => import("@/views/LoginPage.vue");
 const BuildsPage = () =>
@@ -13,12 +12,10 @@ const FloorPage = () =>
 const SwitchesPage = () => import("@/views/SwitchesPage.vue");
 const VisPage = () => import("@/views/VisPage.vue");
 
-Vue.use(VueRouter);
-
 const defaultLayout = "default-layout";
 const emptyLayout = "empty-layout";
 
-export const routes: Array<RouteConfig> = [
+export const routes: Array<RouteRecordRaw> = [
   {
     path: "/login",
     name: "login",
@@ -65,40 +62,31 @@ export const routes: Array<RouteConfig> = [
   },
 ];
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(),
   routes,
 });
 
-router.beforeEach(
-  (
-    to: Route,
-    _from: Route,
-    next: (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      to?: string | false | void | Location | ((vm: Vue) => any) | undefined
-    ) => void
-  ) => {
-    if (to.matched.some((record) => record.meta.requiresAuth)) {
-      if (!store.getters.getLoggedIn) {
-        next({
-          path: "/login",
-          query: { redirect: to.fullPath },
-        });
-      } else {
-        next();
-      }
-    } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
-      if (store.getters.getLoggedIn) {
-        next({ path: "/builds" });
-      } else {
-        next();
-      }
+router.beforeEach((to, _from, next) => {
+  const authStore = useAuth();
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!authStore.getLoggedIn) {
+      next({
+        path: "/login",
+        query: { redirect: to.fullPath },
+      });
     } else {
       next();
     }
+  } else if (to.matched.some((record) => record.meta.skipIfAuth)) {
+    if (authStore.getLoggedIn) {
+      next({ path: "/builds" });
+    } else {
+      next();
+    }
+  } else {
+    next();
   }
-);
+});
 
 export default router;

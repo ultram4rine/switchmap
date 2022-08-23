@@ -59,10 +59,8 @@
 
       <v-btn
         rounded
-        large
-        fixed
-        bottom
-        right
+        size="large"
+        position="fixed"
         color="orange accent-4"
         class="white--text"
         @click="openSwitchForm('Add', undefined, shortName, parseInt(floor))"
@@ -90,7 +88,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { defineComponent, ref, Ref } from "vue";
 import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 import drag from "@/directives/drag";

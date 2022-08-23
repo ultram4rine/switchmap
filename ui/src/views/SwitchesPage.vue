@@ -156,7 +156,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "@vue/composition-api";
+import { defineComponent, Ref, ref } from "vue";
 import {
   mdiSync,
   mdiMagnify,

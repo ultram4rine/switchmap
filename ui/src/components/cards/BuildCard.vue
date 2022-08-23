@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@vue/composition-api";
+import { defineComponent, PropType } from "vue";
 import { mdiPencil, mdiDelete } from "@mdi/js";
 
 import { BuildResponse } from "@/interfaces/build";

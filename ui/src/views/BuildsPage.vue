@@ -9,10 +9,10 @@
         lg="3"
         xl="2"
       >
-        <v-skeleton-loader
+        <!-- <v-skeleton-loader
           class="mx-auto"
           type="card-heading, list-item, actions"
-        ></v-skeleton-loader>
+        ></v-skeleton-loader> -->
       </v-col>
       <v-col
         v-else
@@ -42,11 +42,9 @@
       >
         <v-card class="ma-1" outlined>
           <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title class="headline mb-1">
-                No builds to show
-              </v-list-item-title>
-            </v-list-item-content>
+            <v-list-item-title class="headline mb-1">
+              No builds to show
+            </v-list-item-title>
           </v-list-item>
         </v-card>
       </v-col>
@@ -54,16 +52,14 @@
 
     <v-row no-gutters>
       <v-card :style="{ visibility: 'hidden' }" class="ma-1">
-        <v-btn rounded large></v-btn>
+        <v-btn size="large"></v-btn>
       </v-card>
     </v-row>
 
     <v-btn
       rounded
-      large
-      fixed
-      bottom
-      right
+      size="large"
+      position="fixed"
       color="orange accent-4"
       class="white--text"
       @click="openBuildForm('Add')"
@@ -103,7 +99,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { defineComponent, ref, Ref } from "vue";
 
 import BuildCard from "@/components/cards/BuildCard.vue";
 import BuildForm from "@/components/forms/BuildForm.vue";

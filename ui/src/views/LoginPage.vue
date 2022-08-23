@@ -47,43 +47,48 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
-import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
+import { defineComponent, ref } from "vue";
+import { useRouter } from "vue-router";
 
-import { AUTH_LOGIN } from "@/store/actions";
+import { useAuth } from "@/store/auth";
+
+import { mdiEye, mdiEyeOff, mdiAccount, mdiKey, mdiLogin } from "@mdi/js";
 
 export default defineComponent({
   setup() {
+    const router = useRouter();
+    const authStore = useAuth();
+
     const username = ref("");
     const password = ref("");
     const rememberMe = ref(false);
 
     const show = ref(false);
 
-    return {
-      mdiEye,
-      mdiEyeOff,
-      mdiAccount,
-      mdiKey,
-      mdiLogin,
+    const login = async () => {
+      await authStore.login({
+        username: username.value,
+        password: password.value,
+        rememberMe: rememberMe.value,
+      });
+      router.push("/");
+    };
 
+    return {
       username,
       password,
       rememberMe,
 
       show,
+
+      login,
+
+      mdiEye,
+      mdiEyeOff,
+      mdiAccount,
+      mdiKey,
+      mdiLogin,
     };
-  },
-  methods: {
-    async login() {
-      const { username, password, rememberMe } = this;
-      await this.$store.dispatch(AUTH_LOGIN, {
-        username,
-        password,
-        rememberMe,
-      });
-      this.$router.push("/");
-    },
   },
 });
 </script>

@@ -9,62 +9,57 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent, ref, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
+import { useAuth } from "@/store/auth";
 import api from "@/api";
-import { AUTH_LOGOUT } from "@/store/actions";
 
 const defaultLayout = "default-layout";
 
-export default Vue.extend({
-  data() {
-    return {
-      isLoading: false,
+export default defineComponent({
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+
+    const authStore = useAuth();
+
+    const isLoading = ref(false);
+
+    const setLoading = (val: boolean) => {
+      isLoading.value = val;
     };
-  },
 
-  methods: {
-    setLoading(isLoading: boolean) {
-      if (isLoading) {
-        this.isLoading = true;
-      } else {
-        this.isLoading = false;
-      }
-    },
-  },
-
-  computed: {
-    layout() {
-      return this.$route.meta ? this.$route.meta.layout : defaultLayout;
-    },
-  },
-
-  created() {
     api.interceptors.request.use(
       (config) => {
-        this.setLoading(true);
+        setLoading(true);
         return config;
       },
       (error) => {
-        this.setLoading(false);
+        setLoading(false);
         return Promise.reject(error);
       }
     );
 
     api.interceptors.response.use(
       (response) => {
-        this.setLoading(false);
+        setLoading(false);
         return response;
       },
       (error) => {
-        this.setLoading(false);
+        setLoading(false);
         if (error.response.status && error.response.status === 401) {
-          this.$store.dispatch(AUTH_LOGOUT);
-          this.$router.push("/login");
+          authStore.logout();
+          router.push("/login");
         }
         return Promise.reject(error);
       }
     );
+
+    return {
+      isLoading,
+      layout: computed(() => (route.meta ? route.meta.layout : defaultLayout)),
+    };
   },
 });
 </script>
