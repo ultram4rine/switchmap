@@ -1,5 +1,3 @@
-import { DirectiveOptions } from "vue";
-
 const handler = (el: HTMLElement): void => {
   const mouseDownHandler = (e: MouseEvent) => {
     if (e.preventDefault) e.preventDefault();
@@ -30,16 +28,16 @@ const handler = (el: HTMLElement): void => {
 
   el.onmousedown = mouseDownHandler;
 
-  for (const swEl of el.getElementsByClassName("switch")) {
-    const sw = swEl as HTMLElement;
+  const switches = el.getElementsByClassName("switch");
+
+  for (let i = 0; i < switches.length; i++) {
+    const sw = switches[i] as HTMLElement;
 
     sw.onmouseover = () => (el.onmousedown = null);
     sw.onmouseout = () => (el.onmousedown = mouseDownHandler);
   }
 };
 
-const directive: DirectiveOptions = {
-  inserted: handler,
+export default {
+  mounted: handler,
 };
-
-export default directive;
