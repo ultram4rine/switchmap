@@ -25,15 +25,15 @@
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
-      <v-list>
-        <v-list-group>
-          <v-list-item v-for="(nav, i) in navs" :key="i" :to="nav.link">
-            <template v-slot:prepend>
-              <v-icon :icon="nav.icon"></v-icon>
-            </template>
-            <v-list-item-title v-text="nav.text"></v-list-item-title>
-          </v-list-item>
-        </v-list-group>
+      <v-list density="compact" nav>
+        <v-list-item
+          v-for="(nav, i) in navs"
+          :key="i"
+          :to="nav.link"
+          :prepend-icon="nav.icon"
+        >
+          <v-list-item-title v-text="nav.text"></v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
