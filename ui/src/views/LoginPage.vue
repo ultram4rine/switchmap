@@ -10,33 +10,40 @@
             <v-card-text>
               <v-text-field
                 v-model="username"
+                variant="outlined"
                 label="Name"
                 type="text"
                 color="orange darken-1"
                 required
-                :prepend-icon="this.mdiAccount"
+                :prepend-inner-icon="mdiAccount"
               ></v-text-field>
               <v-text-field
                 v-model="password"
+                variant="outlined"
                 label="Password"
                 :type="show ? 'text' : 'password'"
                 color="orange darken-1"
                 required
-                :prepend-icon="this.mdiKey"
-                :append-icon="show ? this.mdiEye : this.mdiEyeOff"
+                :prepend-inner-icon="mdiKey"
+                :append-icon="show ? mdiEye : mdiEyeOff"
                 @click:append="show = !show"
               ></v-text-field>
               <v-checkbox
                 v-model="rememberMe"
                 label="Remember me"
                 color="orange darken-1"
+                hide-details
               ></v-checkbox>
             </v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn type="submit" color="orange darken-1" class="mr-4">
+              <v-btn
+                type="submit"
+                color="orange darken-1"
+                class="mr-4"
+                :append-icon="mdiLogin"
+              >
                 Sign in
-                <v-icon right>{{ mdiLogin }}</v-icon>
               </v-btn>
             </v-card-actions>
           </v-form>
