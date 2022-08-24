@@ -2,13 +2,6 @@
   <v-card class="ma-1" outlined>
     <v-card-title class="headline">
       <div class="ellipsis">{{ build.name }}</div>
-      <v-spacer></v-spacer>
-      <v-btn icon small color="grey" @click="handleEdit">
-        <v-icon>{{ mdiPencil }}</v-icon>
-      </v-btn>
-      <v-btn icon small color="red" @click="handleDelete">
-        <v-icon>{{ mdiDelete }}</v-icon>
-      </v-btn>
     </v-card-title>
 
     <v-card-subtitle>
@@ -19,18 +12,35 @@
     </v-card-subtitle>
 
     <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn class="white--text" small color="primary" @click="handleAddFloor">
+      <v-btn
+        class="white--text"
+        size="small"
+        color="primary"
+        @click="handleAddFloor"
+      >
         Add floor
       </v-btn>
       <v-btn
         class="white--text"
-        small
+        size="small"
         color="primary"
         :to="{ name: 'build', params: { shortName: build.shortName } }"
       >
         Go
       </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        size="small"
+        color="grey"
+        :icon="mdiPencil"
+        @click="handleEdit"
+      ></v-btn>
+      <v-btn
+        size="small"
+        color="red"
+        :icon="mdiDelete"
+        @click="handleDelete"
+      ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -63,7 +73,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.v-card__title {
+.v-card-title {
   flex-wrap: nowrap;
 }
 .ellipsis {

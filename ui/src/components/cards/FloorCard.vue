@@ -1,12 +1,6 @@
 <template>
   <v-card class="ma-1" outlined>
-    <v-card-title class="headline">
-      Floor {{ floor.number }}
-      <v-spacer></v-spacer>
-      <v-btn icon small color="red" @click="handleDelete">
-        <v-icon>{{ mdiDelete }}</v-icon>
-      </v-btn>
-    </v-card-title>
+    <v-card-title class="headline"> Floor {{ floor.number }} </v-card-title>
 
     <v-card-subtitle>
       {{ floor.switchesNumber }}
@@ -14,13 +8,17 @@
     </v-card-subtitle>
 
     <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn class="white--text" small color="primary" @click="handleAddSwitch">
+      <v-btn
+        class="white--text"
+        size="small"
+        color="primary"
+        @click="handleAddSwitch"
+      >
         Add switch
       </v-btn>
       <v-btn
         class="white--text"
-        small
+        size="small"
         color="primary"
         :to="{
           name: 'floor',
@@ -29,6 +27,13 @@
       >
         Go
       </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        size="small"
+        color="red"
+        :icon="mdiDelete"
+        @click="handleDelete"
+      ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
