@@ -1,20 +1,17 @@
 <template>
   <v-layout :v-bind="isLoading">
     <v-app-bar app>
-      <template v-slot:prepend>
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      </template>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-app-bar-title>SwitchMap</v-app-bar-title>
-      <template v-slot:append>
-        <v-btn
-          variant="elevated"
-          color="orange darken-1"
-          :append-icon="mdiLogout"
-          @click="logout"
-        >
-          Sign out
-        </v-btn>
-      </template>
+      <v-spacer></v-spacer>
+      <v-btn
+        variant="elevated"
+        color="orange darken-1"
+        :append-icon="mdiLogout"
+        @click="logout"
+      >
+        Sign out
+      </v-btn>
       <!-- <v-progress-linear
         :active="isLoading"
         :indeterminate="isLoading"
