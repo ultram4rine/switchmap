@@ -45,7 +45,7 @@ lazy val root = (project in file("."))
       "org.snmp4j"              % "snmp4j"                 % "3.7.0",
       "com.softwaremill.diffx" %% "diffx-core"             % "0.7.1",
       "ch.qos.logback"          % "logback-classic"        % "1.2.11",
-      "io.grpc"                 % "grpc-netty"             % "1.48.1",
+      "io.grpc"                 % "grpc-netty"             % "1.49.0",
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
     ),
     dependencyOverrides ++= Seq(
