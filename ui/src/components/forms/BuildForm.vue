@@ -4,7 +4,7 @@
       <v-card-text>
         <v-text-field
           v-model="b.name"
-          :error-messages="errors"
+          :error-messages="errors.name"
           label="Name"
           required
           color="orange accent-2"
@@ -12,7 +12,7 @@
 
         <v-text-field
           v-model="b.shortName"
-          :error-messages="errors"
+          :error-messages="errors.shortName"
           label="Short name"
           required
           color="orange accent-2"
@@ -23,10 +23,11 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
+        <v-btn color="orange darken-1" @click="close">Close</v-btn>
         <v-btn
           type="submit"
           color="orange darken-1"
-          :disabled="errors || isSubmitting"
+          :disabled="!!errors || isSubmitting"
         >
           {{ action }}
         </v-btn>

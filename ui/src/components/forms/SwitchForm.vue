@@ -10,7 +10,7 @@
 
         <v-text-field
           v-model="sw.name"
-          :error-messages="errors"
+          :error-messages="errors.name"
           label="Name"
           required
           color="orange accent-2"
@@ -28,7 +28,7 @@
             <v-col v-if="!sw.retrieveIPFromDNS" cols="12" sm="6">
               <v-text-field
                 v-model="sw.ip"
-                :error-messages="errors"
+                :error-messages="errors.ip"
                 label="IP"
                 placeholder="e.g. 192.168.1.1"
                 required
@@ -41,7 +41,7 @@
             <v-col cols="12" sm="12">
               <v-text-field
                 v-model="sw.mac"
-                :error-messages="errors"
+                :error-messages="errors.mac"
                 label="MAC"
                 placeholder="XX:XX:XX:XX:XX:XX"
                 required
@@ -101,7 +101,7 @@
         </v-row>
         <v-select
           v-model="sw.snmpCommunity"
-          :error-messages="errors"
+          :error-messages="errors.snmpCommunity"
           :items="communitites"
           label="SNMP community"
           required
@@ -125,6 +125,7 @@
           <v-col v-if="sw.buildShortName" cols="12" sm="6">
             <v-select
               v-model="sw.floorNumber"
+              :error-messages="errors.floorNumber"
               :items="floors"
               hide-details
               item-text="number"
@@ -141,10 +142,11 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
+        <v-btn color="orange darken-1" @click="close">Close</v-btn>
         <v-btn
           type="submit"
           color="orange darken-1"
-          :disabled="errors || isSubmitting"
+          :disabled="!!errors || isSubmitting"
         >
           {{ action }}
         </v-btn>

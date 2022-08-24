@@ -4,7 +4,7 @@
       <v-card-text>
         <v-text-field
           v-model="f.number"
-          :error-messages="errors"
+          :error-messages="errors.number"
           type="number"
           label="Number"
           required
@@ -16,10 +16,11 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
+        <v-btn color="orange darken-1" @click="close">Close</v-btn>
         <v-btn
           type="submit"
           color="orange darken-1"
-          :disabled="errors || isSubmitting"
+          :disabled="!!errors || isSubmitting"
         >
           Add
         </v-btn>
