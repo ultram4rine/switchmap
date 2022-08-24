@@ -10,6 +10,12 @@ export const getFloorsOf = async (
   const resp = await api.get<FloorResponse, AxiosResponse<FloorResponse[]>>(
     `/builds/${shortName}/floors`
   );
+  /* const resp = {
+    data: [
+      { number: 1, switchesNumber: 5 },
+      { number: 2, switchesNumber: 5 },
+    ],
+  }; */
   return resp.data;
 };
 

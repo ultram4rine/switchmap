@@ -8,6 +8,22 @@ export const getBuilds = async (): Promise<BuildResponse[]> => {
   const resp = await api.get<BuildResponse, AxiosResponse<BuildResponse[]>>(
     "/builds"
   );
+  /* const resp = {
+    data: [
+      {
+        name: "Build 1",
+        shortName: "b1",
+        floorsNumber: 2,
+        switchesNumber: 10,
+      },
+      {
+        name: "Build 2",
+        shortName: "b2",
+        floorsNumber: 2,
+        switchesNumber: 10,
+      },
+    ],
+  }; */
   return resp.data;
 };
 

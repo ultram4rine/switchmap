@@ -284,7 +284,7 @@ export default defineComponent({
       const sws = await getSwitches();
       this.switches = sws.map((sw) => {
         sw.mac = sw.mac.toUpperCase();
-        let tableSwitch = sw as TableSwitch;
+        const tableSwitch = sw as TableSwitch;
         tableSwitch.location =
           (sw.buildShortName ? `${sw.buildShortName}` : "") +
           (sw.floorNumber === null ? "" : `f${sw.floorNumber}`);
