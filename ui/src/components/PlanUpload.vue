@@ -14,7 +14,7 @@
     <v-btn
       color="orange darken-1"
       class="mr-4 white--text"
-      :disabled="!plan.size"
+      :disabled="!plan[0].size"
       @click="upload"
     >
       Upload
@@ -32,13 +32,14 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+
 export default defineComponent({
   props: {
     update: { type: Boolean, required: true },
   },
 
   setup() {
-    const plan = ref({} as File);
+    const plan = ref([{} as File]);
 
     return {
       plan,
@@ -47,7 +48,7 @@ export default defineComponent({
 
   methods: {
     upload() {
-      this.$emit("upload", this.plan);
+      this.$emit("upload", this.plan[0]);
     },
     cancel() {
       this.$emit("cancel");

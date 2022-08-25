@@ -13,19 +13,7 @@
         label="Build"
         color="orange accent-2"
         @change="displaySwitches()"
-      >
-        <template v-slot:selection="data">
-          <v-chip
-            v-bind="data.attrs"
-            :input-value="data.selected"
-            small
-            close
-            @click:close="remove(data.item), displaySwitches()"
-          >
-            {{ data.item.name }}
-          </v-chip>
-        </template>
-      </v-autocomplete>
+      ></v-autocomplete>
       <v-divider class="mx-4" vertical></v-divider>
       <v-checkbox
         v-model="showAll"
@@ -40,16 +28,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
 
-import {
-  Network,
-  DataSet,
-  DataSetNodes,
-  DataSetEdges,
-} from "vis-network/standalone";
+import { Network, DataSet } from "vis-network/standalone";
+import type { DataSetNodes, DataSetEdges } from "vis-network/standalone";
 
-import { SwitchResponse, BuildResponse } from "@/interfaces";
+import type { SwitchResponse, BuildResponse } from "@/interfaces";
 import { getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 

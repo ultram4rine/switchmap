@@ -99,7 +99,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "vue";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
 
 import BuildCard from "@/components/cards/BuildCard.vue";
 import BuildForm from "@/components/forms/BuildForm.vue";
@@ -107,7 +108,7 @@ import FloorForm from "@/components/forms/FloorForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { BuildRequest, BuildResponse, FloorRequest } from "@/interfaces";
+import type { BuildRequest, BuildResponse, FloorRequest } from "@/interfaces";
 import { getBuilds, deleteBuild } from "@/api/builds";
 
 import {

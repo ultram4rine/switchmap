@@ -29,7 +29,7 @@
           :to="nav.link"
           :prepend-icon="nav.icon"
         >
-          <v-list-item-title v-text="nav.text"></v-list-item-title>
+          <v-list-item-title>{{ nav.text }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>

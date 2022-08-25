@@ -1,6 +1,7 @@
-import { ref, Ref } from "vue";
+import { ref } from "vue";
+import type { Ref } from "vue";
 
-import { SwitchRequest, SwitchResult } from "@/interfaces/switch";
+import type { SwitchRequest, SwitchResult } from "@/interfaces/switch";
 import { addSwitch, editSwitch } from "@/api/switches";
 
 import { macNormalization } from "@/helpers";

@@ -88,8 +88,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "vue";
-import { mdiMagnify, mdiPlus } from "@mdi/js";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
 
 import drag from "@/directives/drag";
 import dragSwitch from "@/directives/dragSwitch";
@@ -99,7 +99,7 @@ import PlanUpload from "@/components/PlanUpload.vue";
 import SwitchForm from "@/components/forms/SwitchForm.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import type { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
 import {
   getUnplacedSwitchesOfBuild,
   getPlacedSwitchesOfFloor,
@@ -107,6 +107,8 @@ import {
 import { getPlan, uploadPlan } from "@/api/plans";
 
 import { useSwitchForm, useSnackbar } from "@/composables";
+
+import { mdiMagnify, mdiPlus } from "@mdi/js";
 
 export default defineComponent({
   props: {

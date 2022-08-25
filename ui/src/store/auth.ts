@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 
 import { login, logout } from "@/api/auth";
-import { User } from "@/interfaces/user";
+import type { User } from "@/interfaces/user";
 
 export const useAuth = defineStore("auth", {
   state: () => {

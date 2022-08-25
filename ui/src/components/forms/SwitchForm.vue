@@ -156,7 +156,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch, Ref, PropType } from "vue";
+import { defineComponent, ref, computed, watch } from "vue";
+import type { Ref, PropType } from "vue";
 
 import { useForm } from "vee-validate";
 
@@ -166,7 +167,7 @@ import { getSNMPCommunities, getSwitches } from "@/api/switches";
 import { getBuilds } from "@/api/builds";
 import { getFloorsOf } from "@/api/floors";
 
-import {
+import type {
   SwitchRequest,
   SwitchResponse,
   BuildResponse,

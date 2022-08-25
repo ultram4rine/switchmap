@@ -46,10 +46,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent } from "vue";
+import type { PropType } from "vue";
 import { mdiPencil, mdiDelete } from "@mdi/js";
 
-import { BuildResponse } from "@/interfaces/build";
+import type { BuildResponse } from "@/interfaces/build";
 
 export default defineComponent({
   props: {

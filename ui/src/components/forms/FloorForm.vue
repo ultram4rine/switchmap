@@ -30,13 +30,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, PropType } from "vue";
+import { defineComponent, ref, watch } from "vue";
+import type { PropType } from "vue";
 
 import { useForm } from "vee-validate";
 
 import FormWrap from "@/components/wrappers/FormWrap.vue";
 
-import { FloorRequest } from "@/interfaces/floor";
+import type { FloorRequest } from "@/interfaces/floor";
 
 import { FloorSchema } from "@/validations/FloorSchema";
 

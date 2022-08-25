@@ -22,7 +22,7 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
-          :append-icon="this.mdiMagnify"
+          :append-icon="mdiMagnify"
           label="Search"
           color="orange accent-2"
           single-line
@@ -156,7 +156,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
+
+import SwitchForm from "@/components/forms/SwitchForm.vue";
+import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
+import SnackbarNotification from "@/components/SnackbarNotification.vue";
+
+import type { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
+import { syncSwitches, getSwitches, deleteSwitch } from "@/api/switches";
+
+import {
+  useSwitchForm,
+  useDeleteConfirmation,
+  useSnackbar,
+} from "@/composables";
+
 import {
   mdiSync,
   mdiMagnify,
@@ -165,19 +180,6 @@ import {
   mdiEye,
   mdiClose,
 } from "@mdi/js";
-
-import SwitchForm from "@/components/forms/SwitchForm.vue";
-import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
-import SnackbarNotification from "@/components/SnackbarNotification.vue";
-
-import { SwitchRequest, SwitchResponse } from "@/interfaces/switch";
-import { syncSwitches, getSwitches, deleteSwitch } from "@/api/switches";
-
-import {
-  useSwitchForm,
-  useDeleteConfirmation,
-  useSnackbar,
-} from "@/composables";
 
 type TableSwitch = SwitchResponse & {
   location: string;

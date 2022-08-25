@@ -1,6 +1,7 @@
-import { ref, Ref } from "vue";
+import { ref } from "vue";
+import type { Ref } from "vue";
 
-import { BuildRequest } from "@/interfaces/build";
+import type { BuildRequest } from "@/interfaces/build";
 
 import { addBuild, editBuild } from "@/api/builds";
 

@@ -89,7 +89,7 @@
       :confirmation="deleteConfirmation"
       :name="deleteItemName"
       @confirm="confirmDelete"
-      @cancel="deleteCancel(() => (floor = {}))"
+      @cancel="deleteCancel(() => (floor = {} as FloorRequest))"
     />
 
     <snackbar-notification
@@ -102,7 +102,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from "vue";
+import { defineComponent, ref } from "vue";
+import type { Ref } from "vue";
 
 import FloorCard from "@/components/cards/FloorCard.vue";
 import FloorForm from "@/components/forms/FloorForm.vue";
@@ -110,7 +111,7 @@ import SwitchForm from "@/components/forms/SwitchForm.vue";
 import DeleteConfirmation from "@/components/DeleteConfirmation.vue";
 import SnackbarNotification from "@/components/SnackbarNotification.vue";
 
-import { FloorRequest, FloorResponse } from "@/interfaces/floor";
+import type { FloorRequest, FloorResponse, SwitchRequest } from "@/interfaces";
 import { getFloorsOf, deleteFloor } from "@/api/floors";
 
 import {
@@ -119,7 +120,6 @@ import {
   useDeleteConfirmation,
   useSnackbar,
 } from "@/composables";
-import { SwitchRequest } from "@/interfaces";
 
 export default defineComponent({
   props: {
