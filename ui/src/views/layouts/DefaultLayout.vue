@@ -5,11 +5,12 @@
       <v-app-bar-title>SwitchMap</v-app-bar-title>
       <v-spacer></v-spacer>
       <v-btn
-        variant="elevated"
-        color="orange darken-1"
-        :append-icon="mdiLogout"
-        @click="logout"
-      >
+        color="primary"
+        :icon="mdiThemeLightDark"
+        @click="toggleTheme"
+      ></v-btn>
+      <v-divider vertical inset class="ma-2"></v-divider>
+      <v-btn color="orange darken-1" :append-icon="mdiLogout" @click="logout">
         Sign out
       </v-btn>
       <!-- <v-progress-linear
@@ -45,10 +46,12 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useTheme } from "vuetify";
 
 import { useAuth } from "@/store/auth";
 
 import {
+  mdiThemeLightDark,
   mdiLogout,
   mdiOfficeBuilding,
   mdiRouterNetwork,
@@ -63,6 +66,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const authStore = useAuth();
+    const theme = useTheme();
 
     const drawer = ref(true);
     const navs = [
@@ -71,6 +75,10 @@ export default defineComponent({
       { link: "/vis", text: "Visualization", icon: mdiLan },
     ];
 
+    const toggleTheme = () =>
+      (theme.global.name.value = theme.global.current.value.dark
+        ? "light"
+        : "dark");
     const logout = async () => {
       await authStore.logout();
       router.push("/login");
@@ -82,8 +90,10 @@ export default defineComponent({
 
       authStore,
 
+      mdiThemeLightDark,
       mdiLogout,
 
+      toggleTheme,
       logout,
     };
   },
