@@ -35,7 +35,7 @@ lazy val root = (project in file("."))
       "org.polyvariant"        %% "doobie-quill"           % "0.0.5",
       "org.flywaydb"            % "flyway-core"            % "9.1.6",
       "org.postgresql"          % "postgresql"             % "42.4.2",
-      "com.github.jwt-scala"   %% "jwt-circe"              % "9.0.6",
+      "com.github.jwt-scala"   %% "jwt-circe"              % "9.4.6",
       "com.unboundid"           % "unboundid-ldapsdk"      % "6.0.5",
       "com.github.pureconfig"  %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig"  %% "pureconfig-cats-effect" % PureConfigVersion,
