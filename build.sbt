@@ -52,7 +52,7 @@ lazy val root = (project in file("."))
       "org.slf4j" % "slf4j-api" % "1.7.32" // doobie-hikari@1.0.0-RC1 -> HikariCP@4.0.3 -> slf4j-api@2.0.0-alpha.1
     ),
     addCompilerPlugin(
-      "org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full
+      "org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full
     ),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
